@@ -13,10 +13,6 @@
         this.init('treeview', element, options);
     }
 
-    TreeView.prototype.show = function () {
-        var $this = this.element;
-    }
-
     TreeView.DEFAULTS = {
         height: 100,
         width: 200,
@@ -69,12 +65,6 @@
           .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
           .append("g");
-
-        // hook up the reset button
-        $("#treeview-reset").click(function resetTreeview() {
-            zoomListener.scale(1);
-            rightClick(root);
-        });
 
         draw(options.data);
 
@@ -407,6 +397,12 @@
         }
     }
 
+    // Hm. How can I use the inner functions from the init here?
+    // TreeView.prototype.reset = function () {
+    //     this.zoomListener.scale(1);
+    //     this.rightClick(root);
+    // }
+
     function Plugin(option) {
         return this.each(function () {
             var $this = $(this);
@@ -414,11 +410,10 @@
             var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option == 'object' && option);
 
             if(!data) $this.data('vis.treeview', (data = new TreeView(this, options)));
+            if(typeof option == 'string') data[option]();
         });
     }
 
-    var old = $.fn.treeview;
-
     $.fn.treeview = Plugin;
-    $.fn.treeview.Cnstructor = TreeView;
+    $.fn.treeview.Constructor = TreeView;
 })();

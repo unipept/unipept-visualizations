@@ -17,15 +17,17 @@
 
     <script>
       $(function() {
-        $.getJSON("sample-data/metagenomics.json", function(data) {
+        $("#treeview-reset").click(function() {
+          $("#d3TreeView").treeview('reset');
+        });
 
+        $.getJSON("sample-data/metagenomics.json", function(data) {
           $("#d3TreeView").treeview({
             data: data,
             width: 1200,
             height: 800,
-            colors: d3.scale.category10()
+            colors: d3.scale.category10(),
           });
-
         });
       });
     </script>
