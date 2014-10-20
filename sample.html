@@ -19,7 +19,7 @@
       $(function() {
         $.getJSON("sample-data/metagenomics.json", function(data) {
 
-          $("#blargh").treeview({
+          $("#d3TreeView").treeview({
             data: data,
             width: 1200,
             height: 800,
@@ -38,6 +38,5 @@
     <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
 
     <div id="d3TreeView"></div>
-    <div id="blargh"></div>
   </body>
 </html>
