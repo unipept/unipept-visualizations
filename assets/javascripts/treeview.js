@@ -5,7 +5,7 @@
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 
-+function ($) {
+(function() {
     var TreeView = function (element, options) {
         this.element = $(element);
         this.options = options;
@@ -20,6 +20,9 @@
     TreeView.DEFAULTS = {
         height: 100,
         width: 200,
+
+        // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
+        colors: d3.scale.category20(),
     }
 
     TreeView.prototype.init = function (type, element, options) {
@@ -50,9 +53,6 @@
             .projection(function(d) { return [d.y, d.x]; });
 
         var widthScale = d3.scale.linear().range([2,105]);
-
-        // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-        var colors = d3.scale.category20();
 
         // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
         var zoomListener = d3.behavior.zoom()
@@ -109,7 +109,7 @@
                 if (c) {
                     d.color = c;
                 } else {
-                    d.color = colors(d.name);
+                    d.color = options.colors(d.name);
                 }
                 if (d.children) {
                     d.children.forEach( function (node) { color(node, d.color); });
@@ -421,4 +421,4 @@
 
     $.fn.treeview = Plugin;
     $.fn.treeview.Cnstructor = TreeView;
-}(jQuery);
+})();
