@@ -137,7 +137,7 @@
                 .on("click", click)
                 .on("mouseover", tooltipIn)
                 .on("mouseout", tooltipOut)
-                .on("contextmenu",rightClick);
+                .on("contextmenu", rightClick);
 
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
@@ -386,6 +386,13 @@
             tooltip.style("visibility", "hidden");
         }
 
+        /*************** Public methods ***************/
+
+        that.reset = function reset() {
+            zoomListener.scale(1);
+            rightClick(root);
+        };
+
         // initialize the object
         init();
 
@@ -400,12 +407,6 @@
         // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
         colors: d3.scale.category20(),
     }
-
-    // Hm. How can I use the inner functions from the init here?
-    // TreeView.prototype.reset = function () {
-    //     this.zoomListener.scale(1);
-    //     this.rightClick(root);
-    // }
 
     function Plugin(option) {
         return this.each(function () {
