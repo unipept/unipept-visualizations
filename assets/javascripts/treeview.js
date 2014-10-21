@@ -10,18 +10,8 @@
         this.element = $(element);
         this.options = options;
 
-        this.init('treeview', element, options);
-    }
+        that = {};
 
-    TreeView.DEFAULTS = {
-        height: 100,
-        width: 200,
-
-        // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-        colors: d3.scale.category20(),
-    }
-
-    TreeView.prototype.init = function (type, element, options) {
         var margin = {top: 5, right: 5, bottom: 5, left: 60},
             width = options.width - margin.right - margin.left,
             height = options.height - margin.top - margin.bottom;
@@ -66,7 +56,9 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
           .append("g");
 
-        draw(options.data);
+        function init() {
+            draw(options.data);
+        }
 
         function draw(data) {
             widthScale.domain([0, data.data.count]);
@@ -124,161 +116,159 @@
             update(root);
         };
 
-        d3.select(self.frameElement).style("height", "800px");
-
         function update(source) {
 
-          // Compute the new tree layout.
-          var nodes = tree.nodes(root).reverse(),
-              links = tree.links(nodes);
+            // Compute the new tree layout.
+            var nodes = tree.nodes(root).reverse(),
+                links = tree.links(nodes);
 
-          // Normalize for fixed-depth.
-          nodes.forEach(function(d) { d.y = d.depth * 180; });
+            // Normalize for fixed-depth.
+            nodes.forEach(function(d) { d.y = d.depth * 180; });
 
-          // Update the nodes…
-          var node = svg.selectAll("g.node")
-              .data(nodes, function(d) { return d.id || (d.id = ++i); });
+            // Update the nodes…
+            var node = svg.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-          // Enter any new nodes at the parent's previous position.
-          var nodeEnter = node.enter().append("g")
-              .attr("class", "node")
-              .style("cursor", "pointer")
-              .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-              .on("click", click)
-              .on("mouseover", tooltipIn)
-              .on("mouseout", tooltipOut)
-              .on("contextmenu",rightClick);
+            // Enter any new nodes at the parent's previous position.
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .style("cursor", "pointer")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .on("click", click)
+                .on("mouseover", tooltipIn)
+                .on("mouseout", tooltipOut)
+                .on("contextmenu",rightClick);
 
-          nodeEnter.append("circle")
-              .attr("r", 1e-6)
-              .style("stroke-width", "1.5px")
-              .style("stroke", function (d) {
-                  if (d.selected) {
-                      return d.color || "#aaa";
-                  } else {
-                      return "#aaa";
-                  }
-              })
-              .style("fill", function(d) {
-                  if (d.selected) {
-                      return d._children ? d.color || "#aaa" : "#fff";
-                  } else {
-                      return "#aaa";
-                  }
+            nodeEnter.append("circle")
+                .attr("r", 1e-6)
+                .style("stroke-width", "1.5px")
+                .style("stroke", function (d) {
+                    if (d.selected) {
+                        return d.color || "#aaa";
+                    } else {
+                        return "#aaa";
+                    }
+                })
+                .style("fill", function(d) {
+                    if (d.selected) {
+                        return d._children ? d.color || "#aaa" : "#fff";
+                    } else {
+                        return "#aaa";
+                    }
 
-              });
+                });
 
-          nodeEnter.append("text")
-              .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-              .attr("dy", ".35em")
-              .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-              .text(function(d) { return d.name; })
-              .style("font", "10px sans-serif")
-              .style("fill-opacity", 1e-6);
+            nodeEnter.append("text")
+                .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+                .attr("dy", ".35em")
+                .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+                .text(function(d) { return d.name; })
+                .style("font", "10px sans-serif")
+                .style("fill-opacity", 1e-6);
 
-          // Transition nodes to their new position.
-          var nodeUpdate = node.transition()
-              .duration(duration)
-              .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+            // Transition nodes to their new position.
+            var nodeUpdate = node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
-          nodeUpdate.select("circle")
-              .attr("r", function(d) {
-                  if (d.selected) {
-                      return widthScale(d.data.count) / 2;
-                  } else {
-                      return 2;
-                  }
+            nodeUpdate.select("circle")
+                .attr("r", function(d) {
+                    if (d.selected) {
+                        return widthScale(d.data.count) / 2;
+                    } else {
+                        return 2;
+                    }
 
-              })
-              .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
-              .style("stroke", function (d) {
-                  if (d.selected) {
-                      return d.color || "#aaa";
-                  } else {
-                      return "#aaa";
-                  }
-              })
-              .style("fill", function(d) {
-                  if (d.selected) {
-                      return d._children ? d.color || "#aaa" : "#fff";
-                  } else {
-                      return "#aaa";
-                  }
+                })
+                .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
+                .style("stroke", function (d) {
+                    if (d.selected) {
+                        return d.color || "#aaa";
+                    } else {
+                        return "#aaa";
+                    }
+                })
+                .style("fill", function(d) {
+                    if (d.selected) {
+                        return d._children ? d.color || "#aaa" : "#fff";
+                    } else {
+                        return "#aaa";
+                    }
 
-              });
+                });
 
-          nodeUpdate.select("text")
-              .style("fill-opacity", 1);
+            nodeUpdate.select("text")
+                .style("fill-opacity", 1);
 
-          // Transition exiting nodes to the parent's new position.
-          var nodeExit = node.exit().transition()
-              .duration(duration)
-              .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
-              .remove();
+            // Transition exiting nodes to the parent's new position.
+            var nodeExit = node.exit().transition()
+                .duration(duration)
+                .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .remove();
 
-          nodeExit.select("circle")
-              .attr("r", 1e-6);
+            nodeExit.select("circle")
+                .attr("r", 1e-6);
 
-          nodeExit.select("text")
-              .style("fill-opacity", 1e-6);
+            nodeExit.select("text")
+                .style("fill-opacity", 1e-6);
 
-          // Update the links…
-          var link = svg.selectAll("path.link")
-              .data(links, function (d) { return d.target.id; });
+            // Update the links…
+            var link = svg.selectAll("path.link")
+                .data(links, function (d) { return d.target.id; });
 
-          // Enter any new links at the parent's previous position.
-          link.enter().insert("path", "g")
-              .attr("class", "link")
-              .style("fill", "none")
-              .style("stroke-opacity", "0.5")
-              .style("stroke-linecap", "round")
-              .style("stroke", function (d) {
-                  if (d.source.selected) {
-                      return d.target.color;
-                  } else {
-                      return "#aaa";
-                  }
-              })
-              .style("stroke-width", 1e-6)
-              .attr("d", function (d) {
-                var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
-              });
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .style("fill", "none")
+                .style("stroke-opacity", "0.5")
+                .style("stroke-linecap", "round")
+                .style("stroke", function (d) {
+                    if (d.source.selected) {
+                        return d.target.color;
+                    } else {
+                        return "#aaa";
+                    }
+                })
+                .style("stroke-width", 1e-6)
+                .attr("d", function (d) {
+                  var o = {x: source.x0, y: source.y0};
+                  return diagonal({source: o, target: o});
+                });
 
-          // Transition links to their new position.
-          link.transition()
-              .duration(duration)
-              .attr("d", diagonal)
-              .style("stroke", function (d) {
-                  if (d.source.selected) {
-                      return d.target.color;
-                  } else {
-                      return "#aaa";
-                  }
-              })
-              .style("stroke-width", function (d) {
-                  if (d.source.selected) {
-                      return widthScale(d.target.data.count) + "px";
-                  } else {
-                      return "4px";
-                  }
-              });
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke", function (d) {
+                    if (d.source.selected) {
+                        return d.target.color;
+                    } else {
+                        return "#aaa";
+                    }
+                })
+                .style("stroke-width", function (d) {
+                    if (d.source.selected) {
+                        return widthScale(d.target.data.count) + "px";
+                    } else {
+                        return "4px";
+                    }
+                });
 
-          // Transition exiting nodes to the parent's new position.
-          link.exit().transition()
-              .duration(duration)
-              .style("stroke-width", 1e-6)
-              .attr("d", function(d) {
-                var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
-              })
-              .remove();
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .style("stroke-width", 1e-6)
+                .attr("d", function(d) {
+                  var o = {x: source.x, y: source.y};
+                  return diagonal({source: o, target: o});
+                })
+                .remove();
 
-          // Stash the old positions for transition.
-          nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-          });
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+              d.x0 = d.x;
+              d.y0 = d.y;
+            });
         }
 
         // Expands a node and its children
@@ -395,6 +385,20 @@
             clearTimeout(tooltipTimer)
             tooltip.style("visibility", "hidden");
         }
+
+        // initialize the object
+        init();
+
+        // return the object
+        return that;
+    }
+
+    TreeView.DEFAULTS = {
+        height: 100,
+        width: 200,
+
+        // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
+        colors: d3.scale.category20(),
     }
 
     // Hm. How can I use the inner functions from the init here?
