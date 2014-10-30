@@ -33,10 +33,11 @@
             .style("visibility", "hidden");
 
         var tree = d3.layout.tree()
-            .nodeSize([2, 100])
+            .nodeSize([2, 10])
             .separation(function(a, b) {
                 var width = (widthScale(a.data.count) + widthScale(b.data.count)) / 2,
                 distance = width / 2 + 3;
+                if(a.parent !== b.parent) { distance += 3; };
                 return distance;
             });
 
