@@ -2,7 +2,7 @@
   "id": 1,
   "name": "John",
   "data": {
-    "count": 1,
+    "count": 15,
     "rank": "superkingdom",
     "self_count": 1
   },
@@ -11,7 +11,7 @@
       "id": 2,
       "name": "Sarah",
       "data": {
-        "count": 1,
+        "count": 7,
         "rank": "child",
         "self_count": 1
       },
@@ -71,7 +71,7 @@
       "id": 3,
       "name": "Charles",
       "data": {
-        "count": 1,
+        "count": 2,
         "rank": "child",
         "self_count": 1
       },
@@ -91,7 +91,7 @@
       "id": 4,
       "name": "Janet",
       "data": {
-        "count": 1,
+        "count": 6,
         "rank": "child",
         "self_count": 1
       },
@@ -109,7 +109,7 @@
           "id": 7,
           "name" : "Kim",
           "data": {
-            "count": 1,
+            "count": 4,
             "rank": "child",
             "self_count": 1
           },

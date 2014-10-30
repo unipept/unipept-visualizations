@@ -28,18 +28,18 @@
         $.getJSON("sample-data/family-tree.json", function(data) {
           $("#d3TreeView").treeview({
             data: data,
-            width: 300,
-            height: 300,
-            colors: function (d) {return "green";},
+            width: 500,
+            height: 800,
+            colors: "green",
           });
         });
 
-        $.getJSON("sample-data/metagenomics.json", function(data) {
+
+        $.getJSON("sample-data/17171.json", function(data) {
           $("#d3TreeView2").treeview({
             data: data,
             width: 1200,
-            height: 800,
-            colors: d3.scale.category10(),
+            height: 1200,
           });
         });
       });

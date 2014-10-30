@@ -6,7 +6,7 @@
  */
 
 (function() {
-    var TreeView = function (element, options) {
+    var TreeView = function TreeView(element, options) {
         this.element = $(element);
         this.options = options;
 
@@ -33,7 +33,12 @@
             .style("visibility", "hidden");
 
         var tree = d3.layout.tree()
-            .size([height, width]);
+            .nodeSize([2, 100])
+            .separation(function(a, b) {
+                var width = (widthScale(a.data.count) + widthScale(b.data.count)) / 2,
+                distance = width / 2 + 3;
+                return distance;
+            });
 
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
@@ -87,17 +92,17 @@
             setVisible(root);
 
             // set colors
-            function color(d, c) {
+            function color(d, i, c) {
                 if (c) {
                     d.color = c;
                 } else {
-                    d.color = options.colors(d.name);
+                    d.color = d3.functor(options.colors).call(this, d, i);
                 }
                 if (d.children) {
-                    d.children.forEach( function (node) { color(node, d.color); });
+                    d.children.forEach( function (node) { color(node, i, d.color); });
                 }
             }
-            root.children.forEach( function (node) {color(node); });
+            root.children.forEach( function (node, i) { color(node, i); });
 
             // collapse everything
             function collapseAll(d) {
@@ -387,7 +392,6 @@
         }
 
         /*************** Public methods ***************/
-
         that.reset = function reset() {
             zoomListener.scale(1);
             rightClick(root);
@@ -400,22 +404,24 @@
         return that;
     }
 
+    // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
+    TreeView.DEFAULT_SCALE = d3.scale.category20();
+
     TreeView.DEFAULTS = {
         height: 100,
         width: 200,
 
-        // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-        colors: d3.scale.category20(),
+        colors: function(d) { return TreeView.DEFAULT_SCALE(d.name) },
     }
 
     function Plugin(option) {
         return this.each(function () {
             var $this = $(this);
             var data = $this.data('vis.treeview');
-            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option == 'object' && option);
+            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
             if(!data) $this.data('vis.treeview', (data = new TreeView(this, options)));
-            if(typeof option == 'string') data[option]();
+            if(typeof option === 'string') data[option]();
         });
     }
 
