@@ -33,12 +33,11 @@
             .style("visibility", "hidden");
 
         var tree = d3.layout.tree()
-            .nodeSize([2, 10])
+            .nodeSize([2, 105])
             .separation(function(a, b) {
                 var width = (widthScale(a.data.count) + widthScale(b.data.count)) / 2,
-                distance = width / 2 + 3;
-                if(a.parent !== b.parent) { distance += 3; };
-                return distance;
+                distance = width / 2 + 4;
+                return (a.parent === b.parent) ? distance : distance + 4;
             });
 
         var diagonal = d3.svg.diagonal()
@@ -120,6 +119,7 @@
             expand(root);
 
             update(root);
+            centerNode(root);
         };
 
         function update(source) {
