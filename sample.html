@@ -25,7 +25,9 @@
           $("#d3TreeView2").treeview('reset');
         });
 
-        $.getJSON("sample-data/family-tree.json", function(data) {
+        d3.json("sample-data/family-tree.json", function(error, data) {
+          if (error) return console.warn(error);
+
           $("#d3TreeView").treeview({
             data: data,
             width: 500,
@@ -35,7 +37,9 @@
         });
 
 
-        $.getJSON("sample-data/hierarchical-taxons-flat.json", function(data) {
+        d3.json("sample-data/hierarchical-taxons-flat.json", function(error, data) {
+          if (error) return console.warn(error);
+
           $("#d3TreeView2").treeview({
             data: data,
             width: 1400,
