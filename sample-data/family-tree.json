@@ -6,7 +6,7 @@
     "rank": "superkingdom",
     "self_count": 1
   },
-  "kids": [
+  "children": [
     {
       "id": 2,
       "name": "Sarah",
@@ -15,7 +15,7 @@
         "rank": "child",
         "self_count": 1
       },
-      "kids": [
+      "children": [
         {
           "id": 11,
           "name" : "Lary",
@@ -24,7 +24,7 @@
             "rank": "child",
             "self_count": 1
           },
-          "kids": [
+          "children": [
             {
               "id": 15,
               "name" : "George",
@@ -44,7 +44,7 @@
             "rank": "child",
             "self_count": 1
           },
-          "kids": [
+          "children": [
             {
               "id": 13,
               "name" : "Martha",
@@ -75,7 +75,7 @@
         "rank": "child",
         "self_count": 1
       },
-      "kids": [
+      "children": [
         {
           "id": 5,
           "name" : "Rick",
@@ -95,7 +95,7 @@
         "rank": "child",
         "self_count": 1
       },
-      "kids": [
+      "children": [
         {
           "id": 6,
           "name" : "Aaron",
@@ -113,7 +113,7 @@
             "rank": "child",
             "self_count": 1
           },
-          "kids": [
+          "children": [
             {
               "id": 8,
               "name" : "Patricia",

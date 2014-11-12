@@ -17,7 +17,6 @@
             height = options.height - margin.top - margin.bottom;
 
         var rightClicked,
-            zoomEnd = 0,
             tooltipTimer;
 
         var i = 0,
@@ -71,16 +70,6 @@
             root = data;
             root.x0 = height / 2;
             root.y0 = 0;
-
-            // convert kids to children
-            function kids(d) {
-                if (d.kids) {
-                    d.kids.forEach(kids);
-                    d.children = d.kids;
-                    d.kids = null;
-                }
-            }
-            kids(root);
 
             // set everything visible
             function setVisible(d) {
@@ -305,7 +294,7 @@
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
-            if (Date.now() - zoomEnd < 200) return;
+            if (d3.event.defaultPrevented) return;
 
             if (d.children) {
                 collapse(d);
@@ -352,7 +341,6 @@
 
         // Zoom function
         function zoom() {
-            zoomEnd = Date.now();
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
 

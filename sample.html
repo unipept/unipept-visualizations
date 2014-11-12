@@ -25,7 +25,7 @@
           $("#d3TreeView2").treeview('reset');
         });
 
-        d3.json("sample-data/family-tree.json", function(error, data) {
+        d3.json("sample-data/metagenomics.json", function(error, data) {
           if (error) return console.warn(error);
 
           $("#d3TreeView").treeview({
