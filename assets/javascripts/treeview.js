@@ -33,7 +33,7 @@
 
             tooltip = d3.select("body")
                 .append("div")
-                .attr("id", "treeview-tooltip")
+                .attr("id", element.id + "-tooltip")
                 .attr("class", "tip")
                 .style("position", "absolute")
                 .style("z-index", "10")
