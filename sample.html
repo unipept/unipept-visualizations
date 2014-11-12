@@ -37,7 +37,7 @@
         });
 
 
-        d3.json("sample-data/hierarchical-taxons-flat.json", function(error, data) {
+        d3.json("sample-data/17171.json", function(error, data) {
           if (error) return console.warn(error);
 
           $("#d3TreeView2").treeview({
@@ -53,7 +53,7 @@
 
   <body>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <span class="dir">
           <a class="btn btn-xs btn-default" id="treeview-reset" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
         </span>
@@ -61,7 +61,7 @@
         <div id="d3TreeView"></div>
       </div>
 
-      <div class="col-md-6">
+      <div class="col-md-8">
         <span class="dir">
           <a class="btn btn-xs btn-default" id="treeview-reset2" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
         </span>

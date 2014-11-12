@@ -4,13 +4,9 @@
  * - https://gist.github.com/robschmuecker/7880033
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
-
 (function() {
     var TreeView = function TreeView(element, options) {
-        this.element = $(element);
-        this.options = options;
-
-        that = {};
+        var that = {};
 
         var margin = {top: 5, right: 5, bottom: 5, left: 60},
             width = options.width - margin.right - margin.left,
@@ -95,7 +91,7 @@
 
             // collapse everything
             function collapseAll(d) {
-                if (d.children && d.children.length == 0) {
+                if (d.children && d.children.length === 0) {
                     d.children = null;
                 }
                 if (d.children) {
@@ -109,7 +105,7 @@
 
             update(root);
             centerNode(root);
-        };
+        }
 
         function update(source) {
 
@@ -294,7 +290,7 @@
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
-            if (d3.event.defaultPrevented) return;
+            if (d3.event.defaultPrevented) { return; }
 
             if (d.children) {
                 collapse(d);
@@ -377,7 +373,7 @@
 
         }
         function tooltipOut(d, i) {
-            clearTimeout(tooltipTimer)
+            clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
         }
 
@@ -392,7 +388,7 @@
 
         // return the object
         return that;
-    }
+    };
 
     // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
     TreeView.DEFAULT_SCALE = d3.scale.category20();
@@ -401,8 +397,8 @@
         height: 100,
         width: 200,
 
-        colors: function(d) { return TreeView.DEFAULT_SCALE(d.name) },
-    }
+        colors: function(d) { return TreeView.DEFAULT_SCALE(d.name); },
+    };
 
     function Plugin(option) {
         return this.each(function () {
@@ -410,8 +406,8 @@
             var data = $this.data('vis.treeview');
             var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
-            if(!data) $this.data('vis.treeview', (data = new TreeView(this, options)));
-            if(typeof option === 'string') data[option]();
+            if(!data) { $this.data('vis.treeview', (data = new TreeView(this, options))); }
+            if(typeof option === 'string') { data[option](); }
         });
     }
 
