@@ -8,55 +8,66 @@
     var TreeView = function TreeView(element, options) {
         var that = {};
 
-        var margin = {top: 5, right: 5, bottom: 5, left: 5},
-            width = options.width - margin.right - margin.left,
-            height = options.height - margin.top - margin.bottom;
+        var margin,
+            width,
+            height;
 
         var rightClicked,
             tooltipTimer;
 
-        var i = 0,
+        var nodeId = 0,
             duration = 750,
             root;
 
-        var tooltip = d3.select("body")
-            .append("div")
-            .attr("id", "treeview-tooltip")
-            .attr("class", "tip")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden");
-
-        var tree = d3.layout.tree()
-            .nodeSize([2, 105])
-            .separation(function(a, b) {
-                var width = (nodeSize(a) + nodeSize(b)),
-                distance = width / 2 + 4;
-                return (a.parent === b.parent) ? distance : distance + 4;
-            });
-
-        var diagonal = d3.svg.diagonal()
-            .projection(function(d) { return [d.y, d.x]; });
-
-        var widthScale = d3.scale.linear().range([2,105]);
-
-        // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-        var zoomListener = d3.behavior.zoom()
-            .scaleExtent([0.1, 3])
-            .on("zoom", zoom);
-
-        var svg = d3.select(element).append("svg")
-            .attr("version", "1.1")
-            .attr("xmlns", "http://www.w3.org/2000/svg")
-            .attr("viewBox", "0 0 " + (width + margin.right + margin.left) + " " + (height + margin.top + margin.bottom))
-            .attr("width", width + margin.right + margin.left)
-            .attr("height", height + margin.top + margin.bottom)
-            .call(zoomListener)
-          .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-          .append("g");
+        var tree,
+            tooltip,
+            diagonal,
+            widthScale,
+            zoomListener,
+            svg;
 
         function init() {
+            margin = {top: 5, right: 5, bottom: 5, left: 5};
+            width = options.width - margin.right - margin.left;
+            height = options.height - margin.top - margin.bottom;
+
+            tooltip = d3.select("body")
+                .append("div")
+                .attr("id", "treeview-tooltip")
+                .attr("class", "tip")
+                .style("position", "absolute")
+                .style("z-index", "10")
+                .style("visibility", "hidden");
+
+            tree = d3.layout.tree()
+                .nodeSize([2, 105])
+                .separation(function(a, b) {
+                    var width = (nodeSize(a) + nodeSize(b)),
+                    distance = width / 2 + 4;
+                    return (a.parent === b.parent) ? distance : distance + 4;
+                });
+
+            diagonal = d3.svg.diagonal()
+                .projection(function(d) { return [d.y, d.x]; });
+
+            widthScale = d3.scale.linear().range([2,105]);
+
+            // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
+            zoomListener = d3.behavior.zoom()
+                .scaleExtent([0.1, 3])
+                .on("zoom", zoom);
+
+            svg = d3.select(element).append("svg")
+                .attr("version", "1.1")
+                .attr("xmlns", "http://www.w3.org/2000/svg")
+                .attr("viewBox", "0 0 " + (width + margin.right + margin.left) + " " + (height + margin.top + margin.bottom))
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .call(zoomListener)
+              .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+              .append("g");
+
             draw(options.data);
         }
 
@@ -118,7 +129,7 @@
 
             // Update the nodes…
             var node = svg.selectAll("g.node")
-                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+                .data(nodes, function(d) { return d.id || (d.id = ++nodeId); });
 
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
