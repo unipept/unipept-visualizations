@@ -377,11 +377,7 @@
                     (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" +
                     (!d.data.count ? "0" : d.data.count) +
                     (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
-                if (window.fullScreenApi.isFullScreen()) {
-                    tooltip.style("top", (d3.event.clientY - 5) + "px").style("left", (d3.event.clientX + 15) + "px");
-                } else {
-                    tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
-                }
+            tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
 
             tooltipTimer = setTimeout(function () {
                 tooltip.style("visibility", "visible");
