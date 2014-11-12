@@ -161,9 +161,9 @@
                 });
 
             nodeEnter.append("text")
-                .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+                .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
                 .attr("dy", ".35em")
-                .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+                .attr("text-anchor", function(d) { return isLeaf(d) ? "end" : "start"; })
                 .text(function(d) { return d.name; })
                 .style("font", "10px sans-serif")
                 .style("fill-opacity", 1e-6);
@@ -264,6 +264,11 @@
               d.x0 = d.x;
               d.y0 = d.y;
             });
+        }
+
+        // Returns true if a node is a leaf
+        function isLeaf(d) {
+            return d.children || d._children;
         }
 
         // Expands a node and its children
