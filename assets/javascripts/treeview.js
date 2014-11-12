@@ -8,7 +8,7 @@
     var TreeView = function TreeView(element, options) {
         var that = {};
 
-        var margin = {top: 5, right: 5, bottom: 5, left: 60},
+        var margin = {top: 5, right: 5, bottom: 5, left: 5},
             width = options.width - margin.right - margin.left,
             height = options.height - margin.top - margin.bottom;
 
