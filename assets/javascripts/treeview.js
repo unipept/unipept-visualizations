@@ -152,6 +152,9 @@
                     }
                 })
                 .style("fill", function(d) {
+                    if (d.data.valid_taxon !== 1) {
+                        return "red";
+                    }
                     if (d.selected) {
                         return d._children ? d.color || "#aaa" : "#fff";
                     } else {
@@ -177,6 +180,12 @@
                 .attr("r", nodeSize)
                 .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
                 .style("stroke", function (d) {
+                    if (d.data.valid_taxon !== 1) {
+                        return "red";
+                    }
+                    if (d.data.rank === "no rank") {
+                        return "gray";
+                    }
                     if (d.selected) {
                         return d.color || "#aaa";
                     } else {
@@ -184,6 +193,9 @@
                     }
                 })
                 .style("fill", function(d) {
+                    if (d.data.valid_taxon !== 1) {
+                        return "red";
+                    }
                     if (d.selected) {
                         return d._children ? d.color || "#aaa" : "#fff";
                     } else {

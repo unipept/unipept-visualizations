@@ -18,23 +18,9 @@
 
     <script>
       $(function() {
-        $("#treeview-reset").click(function() {
-          $("#d3TreeView").treeview('reset');
-        });
 
         $("#treeview-reset2").click(function() {
           $("#d3TreeView2").treeview('reset');
-        });
-
-        d3.json("sample-data/family-tree.json", function(error, data) {
-          if (error) return console.warn(error);
-
-          $("#d3TreeView").treeview({
-            data: data,
-            width: 500,
-            height: 800,
-            colors: "green",
-          });
         });
 
 
@@ -43,7 +29,7 @@
 
           $("#d3TreeView2").treeview({
             data: data,
-            width: 1400,
+            width: 800,
             height: 800,
           });
         });
@@ -53,22 +39,10 @@
   </head>
 
   <body>
-    <div class="row">
-      <div class="col-md-4">
-        <span class="dir">
-          <a class="btn btn-xs btn-default" id="treeview-reset" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
-        </span>
-        <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
-        <div id="d3TreeView"></div>
-      </div>
-
-      <div class="col-md-8">
         <span class="dir">
           <a class="btn btn-xs btn-default" id="treeview-reset2" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
         </span>
         <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
         <div id="d3TreeView2"></div>
-      </div>
-    </div>
   </body>
 </html>
