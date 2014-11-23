@@ -100,6 +100,7 @@
             }
             root.children.forEach( function (node, i) { color(node, i); });
 
+
             // collapse everything
             function collapseAll(d) {
                 if (d.children && d.children.length === 0) {
@@ -144,24 +145,8 @@
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
                 .style("stroke-width", "1.5px")
-                .style("stroke", function (d) {
-                    if (d.selected) {
-                        return d.color || "#aaa";
-                    } else {
-                        return "#aaa";
-                    }
-                })
-                .style("fill", function(d) {
-                    if (d.data.valid_taxon !== 1) {
-                        return "red";
-                    }
-                    if (d.selected) {
-                        return d._children ? d.color || "#aaa" : "#fff";
-                    } else {
-                        return "#aaa";
-                    }
-
-                });
+                .style("stroke", nodeStrokeColor)
+                .style("fill", fillColor);
 
             nodeEnter.append("text")
                 .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
@@ -179,30 +164,8 @@
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
                 .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
-                .style("stroke", function (d) {
-                    if (d.data.valid_taxon !== 1) {
-                        return "red";
-                    }
-                    if (d.data.rank === "no rank") {
-                        return "gray";
-                    }
-                    if (d.selected) {
-                        return d.color || "#aaa";
-                    } else {
-                        return "#aaa";
-                    }
-                })
-                .style("fill", function(d) {
-                    if (d.data.valid_taxon !== 1) {
-                        return "red";
-                    }
-                    if (d.selected) {
-                        return d._children ? d.color || "#aaa" : "#fff";
-                    } else {
-                        return "#aaa";
-                    }
-
-                });
+                .style("stroke", nodeStrokeColor)
+                .style("fill", fillColor);
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
@@ -229,13 +192,7 @@
                 .style("fill", "none")
                 .style("stroke-opacity", "0.5")
                 .style("stroke-linecap", "round")
-                .style("stroke", function (d) {
-                    if (d.source.selected) {
-                        return d.target.color;
-                    } else {
-                        return "#aaa";
-                    }
-                })
+                .style("stroke", linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", function (d) {
                   var o = {x: source.x0, y: source.y0};
@@ -246,13 +203,7 @@
             link.transition()
                 .duration(duration)
                 .attr("d", diagonal)
-                .style("stroke", function (d) {
-                    if (d.source.selected) {
-                        return d.target.color;
-                    } else {
-                        return "#aaa";
-                    }
-                })
+                .style("stroke", linkStrokeColor)
                 .style("stroke-width", function (d) {
                     if (d.source.selected) {
                         return widthScale(d.target.data.count) + "px";
@@ -276,6 +227,42 @@
               d.x0 = d.x;
               d.y0 = d.y;
             });
+        }
+
+        // set link stroke color
+        function linkStrokeColor(d) {
+            if (d.source.selected) {
+                return d.target.color;
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set node stroke color
+        function nodeStrokeColor(d) {
+            if (d.data.valid_taxon !== 1) {
+                return "red";
+            }
+            if (d.selected) {
+                return d.color || "#aaa";
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set fill color
+        function fillColor(d) {
+            if (d.data.valid_taxon !== 1) {
+                return "red";
+            }
+            if (d.data.rank === "no rank") {
+                return "gray";
+            }
+            if (d.selected) {
+                return d._children ? d.color || "#aaa" : "#fff";
+            } else {
+                return "#aaa";
+            }
         }
 
         // Returns true if a node is a leaf
