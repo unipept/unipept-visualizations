@@ -23,6 +23,19 @@
           $("#d3TreeView2").treeview('reset');
         });
 
+        nodeStrokeColor = function nodeStokeColor(d) {
+          if (d.data.valid_taxon !== 1) {
+            return "red";
+          }
+          if (d.data.rank === "no rank") {
+            return "gray";
+          }
+          if (d.selected) {
+            return d._children ? d.color || "#aaa" : "#fff";
+            } else {
+            return "#aaa";
+          }
+        };
 
         d3.json("sample-data/hierarchical-taxons-flat.json", function(error, data) {
           if (error) return console.warn(error);
@@ -31,6 +44,7 @@
             data: data,
             width: 800,
             height: 800,
+            nodeStrokeColor: nodeStrokeColor,
           });
         });
       });

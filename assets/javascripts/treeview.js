@@ -145,8 +145,8 @@
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
                 .style("stroke-width", "1.5px")
-                .style("stroke", nodeStrokeColor)
-                .style("fill", fillColor);
+                .style("stroke", options.nodeStrokeColor)
+                .style("fill", options.nodeFillColor);
 
             nodeEnter.append("text")
                 .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
@@ -164,8 +164,8 @@
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
                 .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
-                .style("stroke", nodeStrokeColor)
-                .style("fill", fillColor);
+                .style("stroke", options.nodeStrokeColor)
+                .style("fill", options.nodeFillColor);
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
@@ -192,7 +192,7 @@
                 .style("fill", "none")
                 .style("stroke-opacity", "0.5")
                 .style("stroke-linecap", "round")
-                .style("stroke", linkStrokeColor)
+                .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", function (d) {
                   var o = {x: source.x0, y: source.y0};
@@ -203,7 +203,7 @@
             link.transition()
                 .duration(duration)
                 .attr("d", diagonal)
-                .style("stroke", linkStrokeColor)
+                .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", function (d) {
                     if (d.source.selected) {
                         return widthScale(d.target.data.count) + "px";
@@ -227,42 +227,6 @@
               d.x0 = d.x;
               d.y0 = d.y;
             });
-        }
-
-        // set link stroke color
-        function linkStrokeColor(d) {
-            if (d.source.selected) {
-                return d.target.color;
-            } else {
-                return "#aaa";
-            }
-        }
-
-        // set node stroke color
-        function nodeStrokeColor(d) {
-            if (d.data.valid_taxon !== 1) {
-                return "red";
-            }
-            if (d.selected) {
-                return d.color || "#aaa";
-            } else {
-                return "#aaa";
-            }
-        }
-
-        // set fill color
-        function fillColor(d) {
-            if (d.data.valid_taxon !== 1) {
-                return "red";
-            }
-            if (d.data.rank === "no rank") {
-                return "gray";
-            }
-            if (d.selected) {
-                return d._children ? d.color || "#aaa" : "#fff";
-            } else {
-                return "#aaa";
-            }
         }
 
         // Returns true if a node is a leaf
@@ -401,6 +365,34 @@
         return that;
     };
 
+    /********** User modifiable  methods **********/
+    // set node stroke color
+    TreeView.NODE_STROKE_COLOR = function nodeStrokeColor(d) {
+        if (d.selected) {
+            return d.color || "#aaa";
+        } else {
+            return "#aaa";
+        }
+    };
+
+    // set link stroke color
+    TreeView.LINK_STROKE_COLOR = function linkStrokeColor(d) {
+        if (d.source.selected) {
+            return d.target.color;
+        } else {
+            return "#aaa";
+        }
+    };
+
+    // set fill color
+    TreeView.NODE_FILL_COLOR = function nodefillColor(d) {
+        if (d.selected) {
+            return d._children ? d.color || "#aaa" : "#fff";
+        } else {
+            return "#aaa";
+        }
+    };
+
     // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
     TreeView.DEFAULT_SCALE = d3.scale.category20();
 
@@ -409,6 +401,9 @@
         width: 200,
 
         colors: function(d) { return TreeView.DEFAULT_SCALE(d.name); },
+        nodeFillColor: TreeView.NODE_FILL_COLOR,
+        nodeStrokeColor: TreeView.NODE_STROKE_COLOR,
+        linkStrokeColor: TreeView.LINK_STROKE_COLOR,
     };
 
     function Plugin(option) {
