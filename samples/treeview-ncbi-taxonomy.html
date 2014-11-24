@@ -13,8 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
 
     <!-- Visualiations -->
-    <link href="assets/stylesheets/tooltip.css" rel="stylesheet">
-    <script src="assets/javascripts/treeview.js"></script>
+    <link href="../assets/stylesheets/tooltip.css" rel="stylesheet">
+    <script src="../assets/javascripts/treeview.js"></script>
 
     <script>
       $(function() {
@@ -37,7 +37,7 @@
           }
         };
 
-        d3.json("sample-data/hierarchical-taxons-flat.json", function(error, data) {
+        d3.json("../sample-data/hierarchical-taxons-flat.json", function(error, data) {
           if (error) return console.warn(error);
 
           $("#d3TreeView").treeview({
