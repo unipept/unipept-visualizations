@@ -23,6 +23,7 @@
             tooltip,
             diagonal,
             widthScale,
+            arcScale,
             zoomListener,
             svg;
 
@@ -51,6 +52,7 @@
                 .projection(function(d) { return [d.y, d.x]; });
 
             widthScale = d3.scale.linear().range([2,105]);
+            arcScale = d3.scale.linear().range([0,2*Math.PI]);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom()
@@ -148,6 +150,15 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
+            var arc = d3.svg.arc()
+                .outerRadius(0)
+                .startAngle(0)
+                .endAngle(0);
+
+            nodeEnter.append("path")
+                .attr("d", arc)
+                .style("fill", options.nodeFillColor);
+
             nodeEnter.append("text")
                 .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
                 .attr("dy", ".35em")
@@ -167,6 +178,16 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
+            arc = d3.svg.arc()
+                .outerRadius(nodeSize)
+                .startAngle(0)
+                .endAngle(arcSize);
+
+            nodeUpdate.select("path")
+                .duration(duration)
+                .attr("d", arc)
+                .style("fill", options.nodeStrokeColor);
+
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
 
@@ -178,6 +199,15 @@
 
             nodeExit.select("circle")
                 .attr("r", 1e-6);
+
+            arc = d3.svg.arc()
+                .outerRadius(nodeSize)
+                .startAngle(0)
+                .endAngle(0);
+
+            nodeExit.select("path")
+                .duration(duration)
+                .attr("d", arc);
 
             nodeExit.select("text")
                 .style("fill-opacity", 1e-6);
@@ -264,6 +294,10 @@
             } else {
                 return 2;
             }
+        }
+
+        function arcSize(d) {
+            return arcScale(d.data.self_count/d.data.count);
         }
 
         // Toggle children on click.
@@ -366,6 +400,14 @@
     };
 
     /********** User modifiable  methods **********/
+    // set fill color
+    TreeView.NODE_FILL_COLOR = function nodefillColor(d) {
+        if (d.selected) {
+            return d._children ? d.color || "#aaa" : "#fff";
+        } else {
+            return "#aaa";
+        }
+    };
     // set node stroke color
     TreeView.NODE_STROKE_COLOR = function nodeStrokeColor(d) {
         if (d.selected) {
@@ -379,15 +421,6 @@
     TreeView.LINK_STROKE_COLOR = function linkStrokeColor(d) {
         if (d.source.selected) {
             return d.target.color;
-        } else {
-            return "#aaa";
-        }
-    };
-
-    // set fill color
-    TreeView.NODE_FILL_COLOR = function nodefillColor(d) {
-        if (d.selected) {
-            return d._children ? d.color || "#aaa" : "#fff";
         } else {
             return "#aaa";
         }
