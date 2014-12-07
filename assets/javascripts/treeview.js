@@ -150,14 +150,14 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
-            var arc = d3.svg.arc()
+            var noArc = d3.svg.arc()
                 .outerRadius(0)
                 .startAngle(0)
                 .endAngle(0);
 
             nodeEnter.append("path")
-                .attr("d", arc)
-                .style("fill", options.nodeFillColor);
+                .attr("d", noArc)
+                .style("fill", options.nodeStrokeColor);
 
             nodeEnter.append("text")
                 .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
@@ -178,15 +178,14 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
-            arc = d3.svg.arc()
+            var arc = d3.svg.arc()
                 .outerRadius(nodeSize)
                 .startAngle(0)
                 .endAngle(arcSize);
 
             nodeUpdate.select("path")
                 .duration(duration)
-                .attr("d", arc)
-                .style("fill", options.nodeStrokeColor);
+                .attr("d", arc);
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
@@ -200,14 +199,9 @@
             nodeExit.select("circle")
                 .attr("r", 1e-6);
 
-            arc = d3.svg.arc()
-                .outerRadius(nodeSize)
-                .startAngle(0)
-                .endAngle(0);
-
             nodeExit.select("path")
                 .duration(duration)
-                .attr("d", arc);
+                .attr("d", noArc);
 
             nodeExit.select("text")
                 .style("fill-opacity", 1e-6);
