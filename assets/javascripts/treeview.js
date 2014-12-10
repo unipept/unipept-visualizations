@@ -157,7 +157,8 @@
 
             nodeEnter.append("path")
                 .attr("d", noArc)
-                .style("fill", options.nodeStrokeColor);
+                .style("fill", options.nodeStrokeColor)
+                .style("fill-opacity", 0.8);
 
             nodeEnter.append("text")
                 .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
