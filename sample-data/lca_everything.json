@@ -431,10 +431,10 @@
 "data":{"count":2,"self_count":0,"valid_taxon":1,"rank":"phylum"}}
 
 ],
-"data":{"count":1,"self_count":0,"valid_taxon":1,"rank":"kingdom"}}
+"data":{"count":2,"self_count":0,"valid_taxon":1,"rank":"kingdom"}}
 
 ],
-"data":{"count":2,"self_count":1,"valid_taxon":1,"rank":"superkingdom"}}
+"data":{"count":2,"self_count":0,"valid_taxon":1,"rank":"superkingdom"}}
 ,
 {
 "id":2,
@@ -2645,4 +2645,4 @@
 "data":{"count":0,"self_count":0,"valid_taxon":0,"rank":"species"}}
 
 ],
-"data":{"count":12,"self_count":1,"valid_taxon":1,"rank":"no rank"}}
+"data":{"count":12,"self_count":0,"valid_taxon":1,"rank":"no rank"}}

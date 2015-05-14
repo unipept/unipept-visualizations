@@ -1,0 +1,80 @@
+
+{
+"id":1,
+"name":"A",
+"children":[
+
+{
+"id":4,
+"name":"D",
+"children":[
+
+{
+"id":7,
+"name":"G",
+"children":[
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+,
+{
+"id":3,
+"name":"C",
+"children":[
+
+{
+"id":5,
+"name":"E",
+"children":[
+
+{
+"id":9,
+"name":"I",
+"children":[
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+,
+{
+"id":8,
+"name":"H",
+"children":[
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+,
+{
+"id":6,
+"name":"F",
+"children":[
+
+{
+"id":10,
+"name":"J",
+"children":[
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+,
+{
+"id":2,
+"name":"B",
+"children":[
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}
+
+],
+"data":{"count":0,"self_count":0,"valid_taxon":1,"rank":"no rank"}}

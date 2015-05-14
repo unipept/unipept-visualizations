@@ -41,7 +41,7 @@
                 .style("visibility", "hidden");
 
             tree = d3.layout.tree()
-                .nodeSize([2, 105])
+                .nodeSize([2, 10])
                 .separation(function(a, b) {
                     var width = (nodeSize(a) + nodeSize(b)),
                     distance = width / 2 + 4;
@@ -265,14 +265,14 @@
                 d.children = d._children;
                 d._children = null;
             }
-            if (d.children) {
-                d.children.forEach(function (c) {
-                    if (c._children) {
-                        c.children = c._children;
-                        c._children = null;
-                    }
-                });
-            }
+            //if (d.children) {
+                //d.children.forEach(function (c) {
+                    //if (c._children) {
+                        //c.children = c._children;
+                        //c._children = null;
+                    //}
+                //});
+            //}
         }
 
         // Collapses a node
@@ -422,7 +422,7 @@
     };
 
     // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-    TreeView.DEFAULT_SCALE = d3.scale.category20();
+    TreeView.DEFAULT_SCALE = d3.scale.category10();
 
     TreeView.DEFAULTS = {
         height: 100,

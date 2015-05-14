@@ -13,7 +13,8 @@
       "data": {
         "count": 7,
         "rank": "child",
-        "self_count": 1
+        "self_count": 1,
+        "color": "black"
       },
       "children": [
         {

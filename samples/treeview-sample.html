@@ -22,14 +22,53 @@
         $("#treeview-reset").click(function() {
           $("#d3TreeView").treeview('reset');
         });
+        $("#treeview-reset2").click(function() {
+          $("#d3TreeView2").treeview('reset');
+        });
+        $("#treeview-reset3").click(function() {
+          $("#d3TreeView3").treeview('reset');
+        });
 
-        d3.json("../sample-data/lca.json", function(error, data) {
+        d3.json("../sample-data/metagenomics.json", function(error, data) {
           if (error) return console.warn(error);
 
           $("#d3TreeView").treeview({
             data: data,
-            width: 1400,
-            height: 800,
+            width: 700,
+            height: 400,
+          });
+        });
+
+        nodeFillColor = function nodeFillColor(d) {
+            return "red";
+        };
+        nodeStrokeColor = function nodeStrokeColor(d) {
+            return "red";
+        };
+        linkStrokeColor = function linkStrokeColor(d) {
+            return "red";
+        };
+
+        d3.json("../sample-data/metagenomics.json", function(error, data) {
+          if (error) return console.warn(error);
+
+          $("#d3TreeView2").treeview({
+            data: data,
+            width: 700,
+            height: 400,
+            // nodeFillColor: nodeFillColor,
+            // nodeStrokeColor: nodeStrokeColor,
+            // linkStrokeColor: linkStrokeColor,
+          });
+        });
+
+        d3.json("../sample-data/family-tree.json", function(error, data) {
+          if (error) return console.warn(error);
+
+          $("#d3TreeView3").treeview({
+            data: data,
+            width: 600,
+            height: 400,
           });
         });
       });
@@ -38,10 +77,31 @@
   </head>
 
   <body>
+    <div class="row">
+
+      <div class="col-md-6">
         <span class="dir">
           <a class="btn btn-xs btn-default" id="treeview-reset" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
         </span>
         <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
         <div id="d3TreeView"></div>
+      </div>
+
+      <div class="col-md-6">
+        <span class="dir">
+          <a class="btn btn-xs btn-default" id="treeview-reset2" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
+        </span>
+        <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
+        <div id="d3TreeView2"></div>
+      </div>
+
+    </div>
+
+    <span class="dir">
+      <a class="btn btn-xs btn-default" id="treeview-reset3" title="reset visualisation"><i class="glyphicon glyphicon-repeat"></i></a>
+    </span>
+    <span class="dir text">Scroll to zoom, drag to pan, click a node to expand, right click a node to set as root</span>
+    <div id="d3TreeView3"></div>
+
   </body>
 </html>
