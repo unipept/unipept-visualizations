@@ -21,6 +21,7 @@
 
         var tree,
             tooltip,
+            numberFormat,
             diagonal,
             widthScale,
             arcScale,
@@ -31,6 +32,8 @@
             margin = {top: 5, right: 5, bottom: 5, left: 5};
             width = options.width - margin.right - margin.left;
             height = options.height - margin.top - margin.bottom;
+
+            numberFormat = d3.format(",d");
 
             tooltip = d3.select("body")
                 .append("div")
@@ -365,9 +368,9 @@
         // tooltip functions
         function tooltipIn(d, i) {
             tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" +
-                    (!d.data.self_count ? "0" : d.data.self_count) +
+                    numberFormat(!d.data.self_count ? "0" : d.data.self_count) +
                     (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" +
-                    (!d.data.count ? "0" : d.data.count) +
+                    numberFormat(!d.data.count ? "0" : d.data.count) +
                     (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
             tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
 
