@@ -4,7 +4,7 @@
  * - https://gist.github.com/robschmuecker/7880033
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
-(function() {
+(function () {
     var TreeView = function TreeView(element, options) {
         var that = {};
 
@@ -25,11 +25,17 @@
             diagonal,
             widthScale,
             arcScale,
+            innerArc,
             zoomListener,
             svg;
 
         function init() {
-            margin = {top: 5, right: 5, bottom: 5, left: 5};
+            margin = {
+                top: 5,
+                right: 5,
+                bottom: 5,
+                left: 5
+            };
             width = options.width - margin.right - margin.left;
             height = options.height - margin.top - margin.bottom;
 
@@ -45,17 +51,24 @@
 
             tree = d3.layout.tree()
                 .nodeSize([2, 10])
-                .separation(function(a, b) {
+                .separation(function (a, b) {
                     var width = (nodeSize(a) + nodeSize(b)),
-                    distance = width / 2 + 4;
+                        distance = width / 2 + 4;
                     return (a.parent === b.parent) ? distance : distance + 4;
                 });
 
             diagonal = d3.svg.diagonal()
-                .projection(function(d) { return [d.y, d.x]; });
+                .projection(function (d) {
+                    return [d.y, d.x];
+                });
 
-            widthScale = d3.scale.linear().range([2,105]);
-            arcScale = d3.scale.linear().range([0,2*Math.PI]);
+            widthScale = d3.scale.linear().range([2, 105]);
+            arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
+
+            innerArc = d3.svg.arc()
+                .outerRadius(nodeSize)
+                .startAngle(0)
+                .endAngle(arcSize);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom()
@@ -69,9 +82,9 @@
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .call(zoomListener)
-              .append("g")
+                .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-              .append("g");
+                .append("g");
 
             draw(options.data);
         }
@@ -100,10 +113,14 @@
                     d.color = d3.functor(options.colors).call(this, d, i);
                 }
                 if (d.children) {
-                    d.children.forEach( function (node) { color(node, i, d.color); });
+                    d.children.forEach(function (node) {
+                        color(node, i, d.color);
+                    });
                 }
             }
-            root.children.forEach( function (node, i) { color(node, i); });
+            root.children.forEach(function (node, i) {
+                color(node, i);
+            });
 
 
             // collapse everything
@@ -131,17 +148,21 @@
                 links = tree.links(nodes);
 
             // Normalize for fixed-depth.
-            nodes.forEach(function(d) { d.y = d.depth * 180; });
+            nodes.forEach(function (d) {
+                d.y = d.depth * 180;
+            });
 
             // Update the nodes…
             var node = svg.selectAll("g.node")
-                .data(nodes, function(d) { return d.id || (d.id = ++nodeId); });
+                .data(nodes, function (d) {
+                    return d.id || (d.id = ++nodeId);
+                });
 
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
-                .attr("transform", function(d) {
+                .attr("transform", function (d) {
                     return "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")";
                 })
                 .on("click", click)
@@ -166,36 +187,39 @@
                 .style("fill-opacity", 0.8);
 
             nodeEnter.append("text")
-                .attr("x", function(d) { return isLeaf(d) ? -10 : 10; })
+                .attr("x", function (d) {
+                    return isLeaf(d) ? -10 : 10;
+                })
                 .attr("dy", ".35em")
-                .attr("text-anchor", function(d) { return isLeaf(d) ? "end" : "start"; })
-                .text(function(d) { return d.name; })
+                .attr("text-anchor", function (d) {
+                    return isLeaf(d) ? "end" : "start";
+                })
+                .text(function (d) {
+                    return d.name;
+                })
                 .style("font", "10px sans-serif")
                 .style("fill-opacity", 1e-6);
 
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
-                .attr("transform", function(d) {
+                .attr("transform", function (d) {
                     return "translate(" + d.y + "," + d.x + ")";
                 });
 
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
-                .style("fill-opacity", function(d) {
+                .style("fill-opacity", function (d) {
                     return d._children ? 1 : 0;
                 })
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
-            var arc = d3.svg.arc()
-                .outerRadius(nodeSize)
-                .startAngle(0)
-                .endAngle(arcSize);
+
 
             nodeUpdate.select("path")
                 .duration(duration)
-                .attr("d", arc);
+                .attr("d", innerArc);
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
@@ -220,7 +244,9 @@
 
             // Update the links…
             var link = svg.selectAll("path.link")
-                .data(links, function (d) { return d.target.id; });
+                .data(links, function (d) {
+                    return d.target.id;
+                });
 
             // Enter any new links at the parent's previous position.
             link.enter().insert("path", "g")
@@ -231,11 +257,14 @@
                 .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", function (d) {
-                  var o = {
-                      x: (source.x0 || 0),
-                      y: (source.y0 || 0)
-                  };
-                  return diagonal({source: o, target: o});
+                    var o = {
+                        x: (source.x0 || 0),
+                        y: (source.y0 || 0)
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
                 });
 
             // Transition links to their new position.
@@ -255,16 +284,22 @@
             link.exit().transition()
                 .duration(duration)
                 .style("stroke-width", 1e-6)
-                .attr("d", function(d) {
-                  var o = {x: source.x, y: source.y};
-                  return diagonal({source: o, target: o});
+                .attr("d", function (d) {
+                    var o = {
+                        x: source.x,
+                        y: source.y
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
                 })
                 .remove();
 
             // Stash the old positions for transition.
-            nodes.forEach(function(d) {
-              d.x0 = d.x;
-              d.y0 = d.y;
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
             });
         }
 
@@ -289,18 +324,11 @@
                     d._children = null;
                 }
                 if (d.children) {
-                    d.children.forEach(function (c) {expand(c, local_i - 1); });
+                    d.children.forEach(function (c) {
+                        expand(c, local_i - 1);
+                    });
                 }
             }
-
-            //if (d.children) {
-                //d.children.forEach(function (c) {
-                    //if (c._children) {
-                        //c.children = c._children;
-                        //c._children = null;
-                    //}
-                //});
-            //}
         }
 
         // Collapses a node
@@ -326,7 +354,9 @@
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
-            if (d3.event.defaultPrevented) { return; }
+            if (d3.event.defaultPrevented) {
+                return;
+            }
 
             if (d3.event.shiftKey) {
                 expandAll(d);
@@ -366,9 +396,13 @@
             function setSelected(d, value) {
                 d.selected = value;
                 if (d.children) {
-                    d.children.forEach(function (c) {setSelected(c, value);});
+                    d.children.forEach(function (c) {
+                        setSelected(c, value);
+                    });
                 } else if (d._children) {
-                    d._children.forEach(function (c) {setSelected(c, value);});
+                    d._children.forEach(function (c) {
+                        setSelected(c, value);
+                    });
                 }
             }
         }
@@ -395,10 +429,10 @@
         // tooltip functions
         function tooltipIn(d, i) {
             tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" +
-                    numberFormat(!d.data.self_count ? "0" : d.data.self_count) +
-                    (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" +
-                    numberFormat(!d.data.count ? "0" : d.data.count) +
-                    (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
+                numberFormat(!d.data.self_count ? "0" : d.data.self_count) +
+                (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" +
+                numberFormat(!d.data.count ? "0" : d.data.count) +
+                (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
             tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
 
             tooltipTimer = setTimeout(function () {
@@ -406,6 +440,7 @@
             }, 1000);
 
         }
+
         function tooltipOut(d, i) {
             clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
@@ -458,7 +493,9 @@
         height: 100,
         width: 200,
 
-        colors: function(d) { return TreeView.DEFAULT_SCALE(d.name); },
+        colors: function (d) {
+            return TreeView.DEFAULT_SCALE(d.name);
+        },
         nodeFillColor: TreeView.NODE_FILL_COLOR,
         nodeStrokeColor: TreeView.NODE_STROKE_COLOR,
         linkStrokeColor: TreeView.LINK_STROKE_COLOR,
@@ -470,8 +507,12 @@
             var data = $this.data('vis.treeview');
             var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
-            if(!data) { $this.data('vis.treeview', (data = new TreeView(this, options))); }
-            if(typeof option === 'string') { data[option](); }
+            if (!data) {
+                $this.data('vis.treeview', (data = new TreeView(this, options)));
+            }
+            if (typeof option === 'string') {
+                data[option]();
+            }
         });
     }
 
