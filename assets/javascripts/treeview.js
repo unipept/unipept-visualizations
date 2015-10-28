@@ -141,7 +141,9 @@
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
-                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .attr("transform", function(d) {
+                    return "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")";
+                })
                 .on("click", click)
                 .on("mouseover", tooltipIn)
                 .on("mouseout", tooltipOut)
@@ -174,11 +176,15 @@
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
-                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+                .attr("transform", function(d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
 
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
-                .style("fill-opacity", function(d) { return d._children ? 1 : 0; })
+                .style("fill-opacity", function(d) {
+                    return d._children ? 1 : 0;
+                })
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
@@ -197,7 +203,9 @@
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
                 .duration(duration)
-                .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .attr("transform", function (d) {
+                    return "translate(" + source.y + "," + source.x + ")";
+                })
                 .remove();
 
             nodeExit.select("circle")
@@ -223,7 +231,10 @@
                 .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", function (d) {
-                  var o = {x: source.x0, y: source.y0};
+                  var o = {
+                      x: (source.x0 || 0),
+                      y: (source.y0 || 0)
+                  };
                   return diagonal({source: o, target: o});
                 });
 
@@ -309,7 +320,7 @@
         }
 
         function arcSize(d) {
-            return arcScale(d.data.self_count/d.data.count);
+            return arcScale(d.data.self_count / d.data.count) || 0;
         }
 
         // Toggle children on click.
