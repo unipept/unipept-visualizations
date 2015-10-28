@@ -176,15 +176,10 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
-            var noArc = d3.svg.arc()
-                .outerRadius(0)
-                .startAngle(0)
-                .endAngle(0);
-
             nodeEnter.append("path")
-                .attr("d", noArc)
+                .attr("d", innerArc)
                 .style("fill", options.nodeStrokeColor)
-                .style("fill-opacity", 0.8);
+                .style("fill-opacity", 0);
 
             nodeEnter.append("text")
                 .attr("x", function (d) {
@@ -215,14 +210,13 @@
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
-
+            nodeUpdate.select("text")
+                .style("fill-opacity", 1);
 
             nodeUpdate.select("path")
                 .duration(duration)
-                .attr("d", innerArc);
-
-            nodeUpdate.select("text")
-                .style("fill-opacity", 1);
+                .attr("d", innerArc)
+                .style("fill-opacity", 0.8);
 
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
@@ -236,8 +230,7 @@
                 .attr("r", 1e-6);
 
             nodeExit.select("path")
-                .duration(duration)
-                .attr("d", noArc);
+                .style("fill-opacity", 1e-6);
 
             nodeExit.select("text")
                 .style("fill-opacity", 1e-6);
