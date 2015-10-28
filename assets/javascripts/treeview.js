@@ -262,12 +262,26 @@
             return d.children || d._children;
         }
 
+        function expandAll(d) {
+            expand(d, 30);
+        }
+
         // Expands a node and its children
-        function expand(d) {
-            if (d._children) {
-                d.children = d._children;
-                d._children = null;
+        function expand(d, i) {
+            var local_i = i;
+            if (typeof local_i === "undefined") {
+                local_i = 2;
             }
+            if (local_i > 0) {
+                if (d._children) {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                if (d.children) {
+                    d.children.forEach(function (c) {expand(c, local_i - 1); });
+                }
+            }
+
             //if (d.children) {
                 //d.children.forEach(function (c) {
                     //if (c._children) {
@@ -303,7 +317,9 @@
             // check if click is triggered by panning on a node
             if (d3.event.defaultPrevented) { return; }
 
-            if (d.children) {
+            if (d3.event.shiftKey) {
+                expandAll(d);
+            } else if (d.children) {
                 collapse(d);
             } else {
                 expand(d);
