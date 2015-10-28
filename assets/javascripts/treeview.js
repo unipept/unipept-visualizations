@@ -296,6 +296,18 @@
             });
         }
 
+        function nodeSize(d) {
+            if (d.selected) {
+                return widthScale(d.data.count) / 2;
+            } else {
+                return 2;
+            }
+        }
+
+        function arcSize(d) {
+            return arcScale(d.data.self_count / d.data.count) || 0;
+        }
+
         // Returns true if a node is a leaf
         function isLeaf(d) {
             return d.children || d._children;
@@ -330,18 +342,6 @@
                 d._children = d.children;
                 d.children = null;
             }
-        }
-
-        function nodeSize(d) {
-            if (d.selected) {
-                return widthScale(d.data.count) / 2;
-            } else {
-                return 2;
-            }
-        }
-
-        function arcSize(d) {
-            return arcScale(d.data.self_count / d.data.count) || 0;
         }
 
         // Toggle children on click.
