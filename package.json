@@ -1,0 +1,28 @@
+{
+  "name": "unipept-visualizations",
+  "version": "0.1.0",
+  "description": "Unipept visualisation tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.ugent.be:unipept/unipept-visualizations.git"
+  },
+  "keywords": [
+    "unipept",
+    "d3",
+    "visualisations"
+  ],
+  "author": "Bart Mesuere",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "load-grunt-tasks": "^3.5.0"
+  }
+}
