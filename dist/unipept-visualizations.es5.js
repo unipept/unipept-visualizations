@@ -1,3 +1,7 @@
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 /**
  * Zoomable treeview, inspiration from
  * - http://bl.ocks.org/mbostock/4339083
@@ -391,7 +395,7 @@
         height: 100,
         width: 200,
 
-        colors: function (d) {
+        colors: function colors(d) {
             return TreeView.DEFAULT_SCALE(d.name);
         },
         nodeFillColor: TreeView.NODE_FILL_COLOR,
@@ -403,7 +407,7 @@
         return this.each(function () {
             var $this = $(this);
             var data = $this.data('vis.treeview');
-            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
+            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
 
             if (!data) {
                 $this.data('vis.treeview', data = new TreeView(this, options));
