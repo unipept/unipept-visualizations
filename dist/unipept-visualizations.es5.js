@@ -235,19 +235,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
 
         // Expands a node and its children
-        function expand(d, i) {
-            var local_i = i;
-            if (typeof local_i === "undefined") {
-                local_i = 2;
-            }
-            if (local_i > 0) {
+        function expand(d) {
+            var i = arguments.length <= 1 || arguments[1] === undefined ? 2 : arguments[1];
+
+            if (i > 0) {
                 if (d._children) {
                     d.children = d._children;
                     d._children = null;
                 }
                 if (d.children) {
                     d.children.forEach(function (c) {
-                        expand(c, local_i - 1);
+                        expand(c, i - 1);
                     });
                 }
             }
