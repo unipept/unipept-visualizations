@@ -51,16 +51,13 @@
 
             tree = d3.layout.tree()
                 .nodeSize([2, 10])
-                .separation(function (a, b) {
+                .separation((a, b) => {
                     var width = (nodeSize(a) + nodeSize(b)),
                         distance = width / 2 + 4;
                     return (a.parent === b.parent) ? distance : distance + 4;
                 });
 
-            diagonal = d3.svg.diagonal()
-                .projection(function (d) {
-                    return [d.y, d.x];
-                });
+            diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
 
             widthScale = d3.scale.linear().range([2, 105]);
             arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
@@ -113,15 +110,10 @@
                     d.color = d3.functor(options.colors).call(this, d, i);
                 }
                 if (d.children) {
-                    d.children.forEach(function (node) {
-                        color(node, i, d.color);
-                    });
+                    d.children.forEach((node) => { color(node, i, d.color); });
                 }
             }
-            root.children.forEach(function (node, i) {
-                color(node, i);
-            });
-
+            root.children.forEach((node, i) => { color(node, i); });
 
             // collapse everything
             function collapseAll(d) {
@@ -148,23 +140,17 @@
                 links = tree.links(nodes);
 
             // Normalize for fixed-depth.
-            nodes.forEach(function (d) {
-                d.y = d.depth * 180;
-            });
+            nodes.forEach(d => { d.y = d.depth * 180; });
 
             // Update the nodes…
             var node = svg.selectAll("g.node")
-                .data(nodes, function (d) {
-                    return d.id || (d.id = ++nodeId);
-                });
+                .data(nodes, d => d.id || (d.id = ++nodeId));
 
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
-                .attr("transform", function (d) {
-                    return "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")";
-                })
+                .attr("transform", d => "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")")
                 .on("click", click)
                 .on("mouseover", tooltipIn)
                 .on("mouseout", tooltipOut)
@@ -182,31 +168,21 @@
                 .style("fill-opacity", 0);
 
             nodeEnter.append("text")
-                .attr("x", function (d) {
-                    return isLeaf(d) ? -10 : 10;
-                })
+                .attr("x", d => isLeaf(d) ? -10 : 10)
                 .attr("dy", ".35em")
-                .attr("text-anchor", function (d) {
-                    return isLeaf(d) ? "end" : "start";
-                })
-                .text(function (d) {
-                    return d.name;
-                })
+                .attr("text-anchor", d => isLeaf(d) ? "end" : "start")
+                .text(d => d.name)
                 .style("font", "10px sans-serif")
                 .style("fill-opacity", 1e-6);
 
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
-                .attr("transform", function (d) {
-                    return "translate(" + d.y + "," + d.x + ")";
-                });
+                .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
 
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
-                .style("fill-opacity", function (d) {
-                    return d._children ? 1 : 0;
-                })
+                .style("fill-opacity", d => d._children ? 1 : 0)
                 .style("stroke", options.nodeStrokeColor)
                 .style("fill", options.nodeFillColor);
 
@@ -221,9 +197,7 @@
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
                 .duration(duration)
-                .attr("transform", function (d) {
-                    return "translate(" + source.y + "," + source.x + ")";
-                })
+                .attr("transform", d => "translate(" + source.y + "," + source.x + ")")
                 .remove();
 
             nodeExit.select("circle")
@@ -237,9 +211,7 @@
 
             // Update the links…
             var link = svg.selectAll("path.link")
-                .data(links, function (d) {
-                    return d.target.id;
-                });
+                .data(links, d => d.target.id);
 
             // Enter any new links at the parent's previous position.
             link.enter().insert("path", "g")
@@ -249,7 +221,7 @@
                 .style("stroke-linecap", "round")
                 .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", 1e-6)
-                .attr("d", function (d) {
+                .attr("d", d => {
                     var o = {
                         x: (source.x0 || 0),
                         y: (source.y0 || 0)
@@ -265,7 +237,7 @@
                 .duration(duration)
                 .attr("d", diagonal)
                 .style("stroke", options.linkStrokeColor)
-                .style("stroke-width", function (d) {
+                .style("stroke-width", d => {
                     if (d.source.selected) {
                         return widthScale(d.target.data.count) + "px";
                     } else {
@@ -277,7 +249,7 @@
             link.exit().transition()
                 .duration(duration)
                 .style("stroke-width", 1e-6)
-                .attr("d", function (d) {
+                .attr("d", d => {
                     var o = {
                         x: source.x,
                         y: source.y
@@ -290,10 +262,7 @@
                 .remove();
 
             // Stash the old positions for transition.
-            nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
+            nodes.forEach(d => { [d.x0, d.y0] = [d.x, d.y]; });
         }
 
         function nodeSize(d) {
@@ -329,9 +298,7 @@
                     d._children = null;
                 }
                 if (d.children) {
-                    d.children.forEach(function (c) {
-                        expand(c, local_i - 1);
-                    });
+                    d.children.forEach(c => { expand(c, local_i - 1); });
                 }
             }
         }
@@ -389,13 +356,9 @@
             function setSelected(d, value) {
                 d.selected = value;
                 if (d.children) {
-                    d.children.forEach(function (c) {
-                        setSelected(c, value);
-                    });
+                    d.children.forEach(c => { setSelected(c, value); });
                 } else if (d._children) {
-                    d._children.forEach(function (c) {
-                        setSelected(c, value);
-                    });
+                    d._children.forEach(c => { setSelected(c, value); });
                 }
             }
         }
@@ -428,7 +391,7 @@
                 (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
             tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
 
-            tooltipTimer = setTimeout(function () {
+            tooltipTimer = setTimeout(() => {
                 tooltip.style("visibility", "visible");
             }, 1000);
 
@@ -486,9 +449,7 @@
         height: 100,
         width: 200,
 
-        colors: function (d) {
-            return TreeView.DEFAULT_SCALE(d.name);
-        },
+        colors: d => TreeView.DEFAULT_SCALE(d.name),
         nodeFillColor: TreeView.NODE_FILL_COLOR,
         nodeStrokeColor: TreeView.NODE_STROKE_COLOR,
         linkStrokeColor: TreeView.LINK_STROKE_COLOR,

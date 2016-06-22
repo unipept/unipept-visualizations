@@ -1,5 +1,7 @@
 {
-  "predef": [ "ZeroClipboard", "confirm", "requestAnimFrame", "self", "init_phylogram", "Newick", "indexedDB", "IDBKeyRange", "constructSelectionTree", "constructGenomeTable", "constructPancoreGraph", "constructSimMatrix", "constructMyGenomes", "downloadDataByForm", "d3", "html2canvas", "console", "_gaq", "delay", "stringHash", "logToGoogle", "info", "highlight", "error", "addCopy", "fullScreenApi", "triggerDownloadModal", "getReadableColorFor"],
+  "predef": [ "module", "ZeroClipboard", "confirm", "requestAnimFrame", "self", "init_phylogram", "Newick", "indexedDB", "IDBKeyRange", "constructSelectionTree", "constructGenomeTable", "constructPancoreGraph", "constructSimMatrix", "constructMyGenomes", "downloadDataByForm", "d3", "html2canvas", "console", "_gaq", "delay", "stringHash", "logToGoogle", "info", "highlight", "error", "addCopy", "fullScreenApi", "triggerDownloadModal", "getReadableColorFor"],
+
+  "esversion": 6,
 
   /*** Enforcing options ***/
   // Set these to `true` to enforce, or `false` to relax.
@@ -24,9 +26,7 @@
   "asi":          false,
   "boss":         false,
   "debug":        false,
-  "eqnull":       true,
-  "es5":          false,
-  "esnext":       false,
+  "eqnull":       false,
   "evil":         false,
   "expr":         false,
   "funcscope":    false,

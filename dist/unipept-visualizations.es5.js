@@ -207,8 +207,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             // Stash the old positions for transition.
             nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
+                var _ref = [d.x, d.y];
+                d.x0 = _ref[0];
+                d.y0 = _ref[1];
             });
         }
 
