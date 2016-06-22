@@ -334,7 +334,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         // tooltip functions
         function tooltipIn(d, i) {
-            tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
+            tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>\n                " + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>\n                " + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
             tooltip.style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
 
             tooltipTimer = setTimeout(function () {

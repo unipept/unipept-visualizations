@@ -75,12 +75,12 @@
             svg = d3.select(element).append("svg")
                 .attr("version", "1.1")
                 .attr("xmlns", "http://www.w3.org/2000/svg")
-                .attr("viewBox", "0 0 " + (width + margin.right + margin.left) + " " + (height + margin.top + margin.bottom))
+                .attr("viewBox", `0 0 ${width + margin.right + margin.left} ${height + margin.top + margin.bottom}`)
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .call(zoomListener)
                 .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("transform", `translate(${margin.left},${margin.top})`)
                 .append("g");
 
             draw(options.data);
@@ -150,7 +150,7 @@
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
-                .attr("transform", d => "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")")
+                .attr("transform", d => `translate(${source.y || 0},${source.x0 || 0})`)
                 .on("click", click)
                 .on("mouseover", tooltipIn)
                 .on("mouseout", tooltipOut)
@@ -178,7 +178,7 @@
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
-                .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
+                .attr("transform", d => `translate(${d.y},${d.x})`);
 
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
@@ -197,7 +197,7 @@
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
                 .duration(duration)
-                .attr("transform", d => "translate(" + source.y + "," + source.x + ")")
+                .attr("transform", d => `translate(${source.y},${source.x})`)
                 .remove();
 
             nodeExit.select("circle")
@@ -361,7 +361,7 @@
 
         // Zoom function
         function zoom() {
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
         }
 
         // Center a node
@@ -373,18 +373,16 @@
             y = y * scale + height / 2;
             svg.transition()
                 .duration(duration)
-                .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+                .attr("transform", `translate(${x},${y})scale(${scale})`);
             zoomListener.scale(scale);
             zoomListener.translate([x, y]);
         }
 
         // tooltip functions
         function tooltipIn(d, i) {
-            tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" +
-                numberFormat(!d.data.self_count ? "0" : d.data.self_count) +
-                (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" +
-                numberFormat(!d.data.count ? "0" : d.data.count) +
-                (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
+            tooltip.html(`<b>${d.name}</b> (${d.data.rank})<br/>
+                ${numberFormat(!d.data.self_count ? "0" : d.data.self_count)}${d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences"} specific to this level<br/>
+                ${numberFormat(!d.data.count ? "0" : d.data.count)}${d.data.count && d.data.count === 1 ? " sequence" : " sequences"} specific to this level or lower`);
             tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
 
             tooltipTimer = setTimeout(() => {
