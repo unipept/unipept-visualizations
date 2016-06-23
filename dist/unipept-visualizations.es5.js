@@ -27,7 +27,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var width = void 0,
             height = void 0;
 
-        var rightClicked = void 0,
+        var visibleRoot = void 0,
             tooltipTimer = void 0;
 
         var nodeId = 0,
@@ -67,7 +67,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             innerArc = d3.svg.arc().outerRadius(nodeSize).startAngle(0).endAngle(arcSize);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-            zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+            zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", function () {
+                svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            });
 
             svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (width + MARGIN.right + MARGIN.left) + " " + (height + MARGIN.top + MARGIN.bottom)).attr("width", width + MARGIN.right + MARGIN.left).attr("height", height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
@@ -243,15 +245,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // Sets the width of the right clicked node to 100%
         function rightClick(d) {
-            if (d === rightClicked && d !== root) {
+            if (d === visibleRoot && d !== root) {
                 rightClick(root);
                 return;
             }
-            rightClicked = d;
+            visibleRoot = d;
 
             // set Selection properties
-            setSelected(root, false);
-            setSelected(d, true);
+            Node.setSelected(root, false);
+            Node.setSelected(d, true);
 
             // scale the lines
             widthScale.domain([0, d.data.count]);
@@ -264,24 +266,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
             update(d);
             centerNode(d);
-
-            function setSelected(d, value) {
-                d.selected = value;
-                if (d.children) {
-                    d.children.forEach(function (c) {
-                        setSelected(c, value);
-                    });
-                } else if (d._children) {
-                    d._children.forEach(function (c) {
-                        setSelected(c, value);
-                    });
-                }
-            }
-        }
-
-        // Zoom function
-        function zoom() {
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
 
         // Center a node
@@ -332,6 +316,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     d.selected = true;
                     if (d.children) {
                         d.children.forEach(Node.setVisible);
+                    }
+                }
+            }, {
+                key: "setSelected",
+                value: function setSelected(d, value) {
+                    d.selected = value;
+                    if (d.children) {
+                        d.children.forEach(function (c) {
+                            Node.setSelected(c, value);
+                        });
+                    } else if (d._children) {
+                        d._children.forEach(function (c) {
+                            Node.setSelected(c, value);
+                        });
                     }
                 }
 

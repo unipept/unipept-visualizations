@@ -19,7 +19,7 @@
         let width,
             height;
 
-        let rightClicked,
+        let visibleRoot,
             tooltipTimer;
 
         let nodeId = 0,
@@ -70,7 +70,9 @@
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom()
                 .scaleExtent([0.1, 3])
-                .on("zoom", zoom);
+                .on("zoom", () => {
+                    svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
+                });
 
             svg = d3.select(element).append("svg")
                 .attr("version", "1.1")
@@ -288,15 +290,15 @@
 
         // Sets the width of the right clicked node to 100%
         function rightClick(d) {
-            if (d === rightClicked && d !== root) {
+            if (d === visibleRoot && d !== root) {
                 rightClick(root);
                 return;
             }
-            rightClicked = d;
+            visibleRoot = d;
 
             // set Selection properties
-            setSelected(root, false);
-            setSelected(d, true);
+            Node.setSelected(root, false);
+            Node.setSelected(d, true);
 
             // scale the lines
             widthScale.domain([0, d.data.count]);
@@ -309,24 +311,6 @@
             }
             update(d);
             centerNode(d);
-
-            function setSelected(d, value) {
-                d.selected = value;
-                if (d.children) {
-                    d.children.forEach(c => {
-                        setSelected(c, value);
-                    });
-                } else if (d._children) {
-                    d._children.forEach(c => {
-                        setSelected(c, value);
-                    });
-                }
-            }
-        }
-
-        // Zoom function
-        function zoom() {
-            svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
         }
 
         // Center a node
@@ -373,6 +357,19 @@
                 d.selected = true;
                 if (d.children) {
                     d.children.forEach(Node.setVisible);
+                }
+            }
+
+            static setSelected(d, value) {
+                d.selected = value;
+                if (d.children) {
+                    d.children.forEach(c => {
+                        Node.setSelected(c, value);
+                    });
+                } else if (d._children) {
+                    d._children.forEach(c => {
+                        Node.setSelected(c, value);
+                    });
                 }
             }
 
