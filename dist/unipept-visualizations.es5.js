@@ -2,6 +2,10 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  * Zoomable treeview, inspiration from
  * - http://bl.ocks.org/mbostock/4339083
@@ -67,13 +71,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             root.y0 = 0;
 
             // set everything visible
-            function setVisible(d) {
-                d.selected = true;
-                if (d.children) {
-                    d.children.forEach(setVisible);
-                }
-            }
-            setVisible(root);
+            Node.setVisible(root);
 
             // set colors
             function color(d, i, c) {
@@ -93,18 +91,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
 
             // collapse everything
-            function collapseAll(d) {
-                if (d.children && d.children.length === 0) {
-                    d.children = null;
-                }
-                if (d.children) {
-                    d._children = d.children;
-                    d._children.forEach(collapseAll);
-                    d.children = null;
-                }
-            }
-            collapseAll(root);
-            expand(root);
+            Node.collapseAll(root);
+            Node.expand(root);
 
             update(root);
             centerNode(root);
@@ -136,9 +124,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             nodeEnter.append("path").attr("d", innerArc).style("fill", options.nodeStrokeColor).style("fill-opacity", 0);
 
             nodeEnter.append("text").attr("x", function (d) {
-                return isLeaf(d) ? -10 : 10;
+                return Node.isLeaf(d) ? -10 : 10;
             }).attr("dy", ".35em").attr("text-anchor", function (d) {
-                return isLeaf(d) ? "end" : "start";
+                return Node.isLeaf(d) ? "end" : "start";
             }).text(function (d) {
                 return d.name;
             }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
@@ -225,40 +213,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             return arcScale(d.data.self_count / d.data.count) || 0;
         }
 
-        // Returns true if a node is a leaf
-        function isLeaf(d) {
-            return d.children || d._children;
-        }
-
-        function expandAll(d) {
-            expand(d, 30);
-        }
-
-        // Expands a node and its children
-        function expand(d) {
-            var i = arguments.length <= 1 || arguments[1] === undefined ? 2 : arguments[1];
-
-            if (i > 0) {
-                if (d._children) {
-                    d.children = d._children;
-                    d._children = null;
-                }
-                if (d.children) {
-                    d.children.forEach(function (c) {
-                        expand(c, i - 1);
-                    });
-                }
-            }
-        }
-
-        // Collapses a node
-        function collapse(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            }
-        }
-
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
@@ -267,11 +221,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
 
             if (d3.event.shiftKey) {
-                expandAll(d);
+                Node.expandAll(d);
             } else if (d.children) {
-                collapse(d);
+                Node.collapse(d);
             } else {
-                expand(d);
+                Node.expand(d);
             }
             update(d);
             centerNode(d);
@@ -292,7 +246,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             // scale the lines
             widthScale.domain([0, d.data.count]);
 
-            expand(d);
+            Node.expand(d);
 
             // redraw
             if (d3.event !== null) {
@@ -347,7 +301,88 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             tooltip.style("visibility", "hidden");
         }
 
+        var Node = function () {
+            function Node() {
+                _classCallCheck(this, Node);
+            }
+
+            _createClass(Node, null, [{
+                key: "isLeaf",
+
+                // Returns true if a node is a leaf
+                value: function isLeaf(d) {
+                    return d.children || d._children;
+                }
+
+                // set node and children visible
+
+            }, {
+                key: "setVisible",
+                value: function setVisible(d) {
+                    d.selected = true;
+                    if (d.children) {
+                        d.children.forEach(Node.setVisible);
+                    }
+                }
+
+                // collapse everything
+
+            }, {
+                key: "collapseAll",
+                value: function collapseAll(d) {
+                    if (d.children && d.children.length === 0) {
+                        d.children = null;
+                    }
+                    if (d.children) {
+                        d._children = d.children;
+                        d._children.forEach(Node.collapseAll);
+                        d.children = null;
+                    }
+                }
+
+                // Collapses a node
+
+            }, {
+                key: "collapse",
+                value: function collapse(d) {
+                    if (d.children) {
+                        d._children = d.children;
+                        d.children = null;
+                    }
+                }
+            }, {
+                key: "expandAll",
+                value: function expandAll(d) {
+                    Node.expand(d, 30);
+                }
+
+                // Expands a node and its children
+
+            }, {
+                key: "expand",
+                value: function expand(d) {
+                    var i = arguments.length <= 1 || arguments[1] === undefined ? 2 : arguments[1];
+
+                    if (i > 0) {
+                        if (d._children) {
+                            d.children = d._children;
+                            d._children = null;
+                        }
+                        if (d.children) {
+                            d.children.forEach(function (c) {
+                                Node.expand(c, i - 1);
+                            });
+                        }
+                    }
+                }
+            }]);
+
+            return Node;
+        }();
+
         /*************** Public methods ***************/
+
+
         that.reset = function reset() {
             zoomListener.scale(1);
             rightClick(root);

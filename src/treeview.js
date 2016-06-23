@@ -94,13 +94,7 @@
             root.y0 = 0;
 
             // set everything visible
-            function setVisible(d) {
-                d.selected = true;
-                if (d.children) {
-                    d.children.forEach(setVisible);
-                }
-            }
-            setVisible(root);
+            Node.setVisible(root);
 
             // set colors
             function color(d, i, c) {
@@ -116,18 +110,8 @@
             root.children.forEach((node, i) => { color(node, i); });
 
             // collapse everything
-            function collapseAll(d) {
-                if (d.children && d.children.length === 0) {
-                    d.children = null;
-                }
-                if (d.children) {
-                    d._children = d.children;
-                    d._children.forEach(collapseAll);
-                    d.children = null;
-                }
-            }
-            collapseAll(root);
-            expand(root);
+            Node.collapseAll(root);
+            Node.expand(root);
 
             update(root);
             centerNode(root);
@@ -168,9 +152,9 @@
                 .style("fill-opacity", 0);
 
             nodeEnter.append("text")
-                .attr("x", d => isLeaf(d) ? -10 : 10)
+                .attr("x", d => Node.isLeaf(d) ? -10 : 10)
                 .attr("dy", ".35em")
-                .attr("text-anchor", d => isLeaf(d) ? "end" : "start")
+                .attr("text-anchor", d => Node.isLeaf(d) ? "end" : "start")
                 .text(d => d.name)
                 .style("font", "10px sans-serif")
                 .style("fill-opacity", 1e-6);
@@ -277,36 +261,6 @@
             return arcScale(d.data.self_count / d.data.count) || 0;
         }
 
-        // Returns true if a node is a leaf
-        function isLeaf(d) {
-            return d.children || d._children;
-        }
-
-        function expandAll(d) {
-            expand(d, 30);
-        }
-
-        // Expands a node and its children
-        function expand(d, i = 2) {
-            if (i > 0) {
-                if (d._children) {
-                    d.children = d._children;
-                    d._children = null;
-                }
-                if (d.children) {
-                    d.children.forEach(c => { expand(c, i - 1); });
-                }
-            }
-        }
-
-        // Collapses a node
-        function collapse(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            }
-        }
-
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
@@ -315,11 +269,11 @@
             }
 
             if (d3.event.shiftKey) {
-                expandAll(d);
+                Node.expandAll(d);
             } else if (d.children) {
-                collapse(d);
+                Node.collapse(d);
             } else {
-                expand(d);
+                Node.expand(d);
             }
             update(d);
             centerNode(d);
@@ -340,7 +294,7 @@
             // scale the lines
             widthScale.domain([0, d.data.count]);
 
-            expand(d);
+            Node.expand(d);
 
             // redraw
             if (d3.event !== null) {
@@ -394,6 +348,59 @@
         function tooltipOut(d, i) {
             clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
+        }
+
+
+        class Node {
+            // Returns true if a node is a leaf
+            static isLeaf(d) {
+                return d.children || d._children;
+            }
+
+            // set node and children visible
+            static setVisible(d) {
+                d.selected = true;
+                if (d.children) {
+                    d.children.forEach(Node.setVisible);
+                }
+            }
+
+            // collapse everything
+            static collapseAll(d) {
+                if (d.children && d.children.length === 0) {
+                    d.children = null;
+                }
+                if (d.children) {
+                    d._children = d.children;
+                    d._children.forEach(Node.collapseAll);
+                    d.children = null;
+                }
+            }
+
+            // Collapses a node
+            static collapse(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                }
+            }
+
+            static expandAll(d) {
+                Node.expand(d, 30);
+            }
+
+            // Expands a node and its children
+            static expand(d, i = 2) {
+                if (i > 0) {
+                    if (d._children) {
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                    if (d.children) {
+                        d.children.forEach(c => { Node.expand(c, i - 1); });
+                    }
+                }
+            }
         }
 
         /*************** Public methods ***************/
