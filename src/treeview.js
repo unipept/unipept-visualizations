@@ -6,20 +6,26 @@
  */
 (function () {
     var TreeView = function TreeView(element, options) {
-        var that = {};
+        let that = {};
 
-        var margin,
-            width,
+        const MARGIN = {
+                top: 5,
+                right: 5,
+                bottom: 5,
+                left: 5
+            },
+            DURATION = 750;
+
+        let width,
             height;
 
-        var rightClicked,
+        let rightClicked,
             tooltipTimer;
 
-        var nodeId = 0,
-            duration = 750,
+        let nodeId = 0,
             root;
 
-        var tree,
+        let tree,
             tooltip,
             numberFormat,
             diagonal,
@@ -30,14 +36,8 @@
             svg;
 
         function init() {
-            margin = {
-                top: 5,
-                right: 5,
-                bottom: 5,
-                left: 5
-            };
-            width = options.width - margin.right - margin.left;
-            height = options.height - margin.top - margin.bottom;
+            width = options.width - MARGIN.right - MARGIN.left;
+            height = options.height - MARGIN.top - MARGIN.bottom;
 
             numberFormat = d3.format(",d");
 
@@ -52,7 +52,7 @@
             tree = d3.layout.tree()
                 .nodeSize([2, 10])
                 .separation((a, b) => {
-                    var width = (nodeSize(a) + nodeSize(b)),
+                    let width = (nodeSize(a) + nodeSize(b)),
                         distance = width / 2 + 4;
                     return (a.parent === b.parent) ? distance : distance + 4;
                 });
@@ -75,12 +75,12 @@
             svg = d3.select(element).append("svg")
                 .attr("version", "1.1")
                 .attr("xmlns", "http://www.w3.org/2000/svg")
-                .attr("viewBox", `0 0 ${width + margin.right + margin.left} ${height + margin.top + margin.bottom}`)
-                .attr("width", width + margin.right + margin.left)
-                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + MARGIN.right + MARGIN.left} ${height + MARGIN.top + MARGIN.bottom}`)
+                .attr("width", width + MARGIN.right + MARGIN.left)
+                .attr("height", height + MARGIN.top + MARGIN.bottom)
                 .call(zoomListener)
                 .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`)
+                .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
                 .append("g");
 
             draw(options.data);
@@ -104,10 +104,14 @@
                     d.color = d3.functor(options.colors).call(this, d, i);
                 }
                 if (d.children) {
-                    d.children.forEach((node) => { color(node, i, d.color); });
+                    d.children.forEach((node) => {
+                        color(node, i, d.color);
+                    });
                 }
             }
-            root.children.forEach((node, i) => { color(node, i); });
+            root.children.forEach((node, i) => {
+                color(node, i);
+            });
 
             // collapse everything
             Node.collapseAll(root);
@@ -118,20 +122,21 @@
         }
 
         function update(source) {
-
             // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse(),
+            let nodes = tree.nodes(root).reverse(),
                 links = tree.links(nodes);
 
             // Normalize for fixed-depth.
-            nodes.forEach(d => { d.y = d.depth * 180; });
+            nodes.forEach(d => {
+                d.y = d.depth * 180;
+            });
 
             // Update the nodes…
-            var node = svg.selectAll("g.node")
+            let node = svg.selectAll("g.node")
                 .data(nodes, d => d.id || (d.id = ++nodeId));
 
             // Enter any new nodes at the parent's previous position.
-            var nodeEnter = node.enter().append("g")
+            let nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
                 .attr("transform", d => `translate(${source.y || 0},${source.x0 || 0})`)
@@ -160,8 +165,8 @@
                 .style("fill-opacity", 1e-6);
 
             // Transition nodes to their new position.
-            var nodeUpdate = node.transition()
-                .duration(duration)
+            let nodeUpdate = node.transition()
+                .duration(DURATION)
                 .attr("transform", d => `translate(${d.y},${d.x})`);
 
             nodeUpdate.select("circle")
@@ -174,13 +179,13 @@
                 .style("fill-opacity", 1);
 
             nodeUpdate.select("path")
-                .duration(duration)
+                .duration(DURATION)
                 .attr("d", innerArc)
                 .style("fill-opacity", 0.8);
 
             // Transition exiting nodes to the parent's new position.
-            var nodeExit = node.exit().transition()
-                .duration(duration)
+            let nodeExit = node.exit().transition()
+                .duration(DURATION)
                 .attr("transform", d => `translate(${source.y},${source.x})`)
                 .remove();
 
@@ -194,7 +199,7 @@
                 .style("fill-opacity", 1e-6);
 
             // Update the links…
-            var link = svg.selectAll("path.link")
+            let link = svg.selectAll("path.link")
                 .data(links, d => d.target.id);
 
             // Enter any new links at the parent's previous position.
@@ -206,7 +211,7 @@
                 .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", d => {
-                    var o = {
+                    let o = {
                         x: (source.x0 || 0),
                         y: (source.y0 || 0)
                     };
@@ -218,7 +223,7 @@
 
             // Transition links to their new position.
             link.transition()
-                .duration(duration)
+                .duration(DURATION)
                 .attr("d", diagonal)
                 .style("stroke", options.linkStrokeColor)
                 .style("stroke-width", d => {
@@ -231,10 +236,10 @@
 
             // Transition exiting nodes to the parent's new position.
             link.exit().transition()
-                .duration(duration)
+                .duration(DURATION)
                 .style("stroke-width", 1e-6)
                 .attr("d", d => {
-                    var o = {
+                    let o = {
                         x: source.x,
                         y: source.y
                     };
@@ -246,7 +251,9 @@
                 .remove();
 
             // Stash the old positions for transition.
-            nodes.forEach(d => { [d.x0, d.y0] = [d.x, d.y]; });
+            nodes.forEach(d => {
+                [d.x0, d.y0] = [d.x, d.y];
+            });
         }
 
         function nodeSize(d) {
@@ -306,9 +313,13 @@
             function setSelected(d, value) {
                 d.selected = value;
                 if (d.children) {
-                    d.children.forEach(c => { setSelected(c, value); });
+                    d.children.forEach(c => {
+                        setSelected(c, value);
+                    });
                 } else if (d._children) {
-                    d._children.forEach(c => { setSelected(c, value); });
+                    d._children.forEach(c => {
+                        setSelected(c, value);
+                    });
                 }
             }
         }
@@ -320,13 +331,13 @@
 
         // Center a node
         function centerNode(source) {
-            var scale = zoomListener.scale(),
+            let scale = zoomListener.scale(),
                 x = -source.y0,
                 y = -source.x0;
             x = x * scale + width / 4;
             y = y * scale + height / 2;
             svg.transition()
-                .duration(duration)
+                .duration(DURATION)
                 .attr("transform", `translate(${x},${y})scale(${scale})`);
             zoomListener.scale(scale);
             zoomListener.translate([x, y]);
@@ -397,7 +408,9 @@
                         d._children = null;
                     }
                     if (d.children) {
-                        d.children.forEach(c => { Node.expand(c, i - 1); });
+                        d.children.forEach(c => {
+                            Node.expand(c, i - 1);
+                        });
                     }
                 }
             }
@@ -458,9 +471,9 @@
 
     function Plugin(option) {
         return this.each(function () {
-            var $this = $(this);
-            var data = $this.data('vis.treeview');
-            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
+            let $this = $(this);
+            let data = $this.data('vis.treeview');
+            let options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
             if (!data) {
                 $this.data('vis.treeview', (data = new TreeView(this, options)));

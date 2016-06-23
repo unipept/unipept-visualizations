@@ -16,25 +16,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var TreeView = function TreeView(element, options) {
         var that = {};
 
-        var margin, width, height;
+        var MARGIN = {
+            top: 5,
+            right: 5,
+            bottom: 5,
+            left: 5
+        },
+            DURATION = 750;
 
-        var rightClicked, tooltipTimer;
+        var width = void 0,
+            height = void 0;
+
+        var rightClicked = void 0,
+            tooltipTimer = void 0;
 
         var nodeId = 0,
-            duration = 750,
-            root;
+            root = void 0;
 
-        var tree, tooltip, numberFormat, diagonal, widthScale, arcScale, innerArc, zoomListener, svg;
+        var tree = void 0,
+            tooltip = void 0,
+            numberFormat = void 0,
+            diagonal = void 0,
+            widthScale = void 0,
+            arcScale = void 0,
+            innerArc = void 0,
+            zoomListener = void 0,
+            svg = void 0;
 
         function init() {
-            margin = {
-                top: 5,
-                right: 5,
-                bottom: 5,
-                left: 5
-            };
-            width = options.width - margin.right - margin.left;
-            height = options.height - margin.top - margin.bottom;
+            width = options.width - MARGIN.right - MARGIN.left;
+            height = options.height - MARGIN.top - MARGIN.bottom;
 
             numberFormat = d3.format(",d");
 
@@ -58,7 +69,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
 
-            svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (width + margin.right + margin.left) + " " + (height + margin.top + margin.bottom)).attr("width", width + margin.right + margin.left).attr("height", height + margin.top + margin.bottom).call(zoomListener).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").append("g");
+            svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (width + MARGIN.right + MARGIN.left) + " " + (height + MARGIN.top + MARGIN.bottom)).attr("width", width + MARGIN.right + MARGIN.left).attr("height", height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
             draw(options.data);
         }
@@ -99,7 +110,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function update(source) {
-
             // Compute the new tree layout.
             var nodes = tree.nodes(root).reverse(),
                 links = tree.links(nodes);
@@ -132,7 +142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
 
             // Transition nodes to their new position.
-            var nodeUpdate = node.transition().duration(duration).attr("transform", function (d) {
+            var nodeUpdate = node.transition().duration(DURATION).attr("transform", function (d) {
                 return "translate(" + d.y + "," + d.x + ")";
             });
 
@@ -142,10 +152,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeUpdate.select("text").style("fill-opacity", 1);
 
-            nodeUpdate.select("path").duration(duration).attr("d", innerArc).style("fill-opacity", 0.8);
+            nodeUpdate.select("path").duration(DURATION).attr("d", innerArc).style("fill-opacity", 0.8);
 
             // Transition exiting nodes to the parent's new position.
-            var nodeExit = node.exit().transition().duration(duration).attr("transform", function (d) {
+            var nodeExit = node.exit().transition().duration(DURATION).attr("transform", function (d) {
                 return "translate(" + source.y + "," + source.x + ")";
             }).remove();
 
@@ -173,7 +183,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             // Transition links to their new position.
-            link.transition().duration(duration).attr("d", diagonal).style("stroke", options.linkStrokeColor).style("stroke-width", function (d) {
+            link.transition().duration(DURATION).attr("d", diagonal).style("stroke", options.linkStrokeColor).style("stroke-width", function (d) {
                 if (d.source.selected) {
                     return widthScale(d.target.data.count) + "px";
                 } else {
@@ -182,7 +192,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             // Transition exiting nodes to the parent's new position.
-            link.exit().transition().duration(duration).style("stroke-width", 1e-6).attr("d", function (d) {
+            link.exit().transition().duration(DURATION).style("stroke-width", 1e-6).attr("d", function (d) {
                 var o = {
                     x: source.x,
                     y: source.y
@@ -281,7 +291,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 y = -source.x0;
             x = x * scale + width / 4;
             y = y * scale + height / 2;
-            svg.transition().duration(duration).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+            svg.transition().duration(DURATION).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
             zoomListener.scale(scale);
             zoomListener.translate([x, y]);
         }
