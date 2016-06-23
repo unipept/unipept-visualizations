@@ -18,8 +18,7 @@
         d3.json("data/lca.json", function(error, data) {
           if (error) return console.warn(error);
 
-          $("#d3TreeView").treeview({
-            data: data,
+          $("#d3TreeView").treeview(data, {
             width: 900,
             height: 600,
           });

@@ -2,6 +2,8 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -13,7 +15,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, options) {
+    var TreeView = function TreeView(element, data, options) {
         var that = {};
 
         var MARGIN = {
@@ -73,7 +75,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (width + MARGIN.right + MARGIN.left) + " " + (height + MARGIN.top + MARGIN.bottom)).attr("width", width + MARGIN.right + MARGIN.left).attr("height", height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
-            draw(options.data);
+            draw(Node.createNode(data));
         }
 
         function draw(data) {
@@ -84,7 +86,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             root.y0 = 0;
 
             // set everything visible
-            Node.setVisible(root);
+            root.setVisible();
 
             // set colors
             function color(d, i, c) {
@@ -104,8 +106,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             // collapse everything
-            Node.collapseAll(root);
-            Node.expand(root);
+            root.collapseAll();
+            root.expand();
 
             update(root);
             centerNode(root);
@@ -136,9 +138,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             nodeEnter.append("path").attr("d", innerArc).style("fill", options.nodeStrokeColor).style("fill-opacity", 0);
 
             nodeEnter.append("text").attr("x", function (d) {
-                return Node.isLeaf(d) ? -10 : 10;
+                return d.isLeaf() ? -10 : 10;
             }).attr("dy", ".35em").attr("text-anchor", function (d) {
-                return Node.isLeaf(d) ? "end" : "start";
+                return d.isLeaf() ? "end" : "start";
             }).text(function (d) {
                 return d.name;
             }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
@@ -233,11 +235,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             if (d3.event.shiftKey) {
-                Node.expandAll(d);
+                d.expandAll();
             } else if (d.children) {
-                Node.collapse(d);
+                d.collapse();
             } else {
-                Node.expand(d);
+                d.expand();
             }
             update(d);
             centerNode(d);
@@ -252,13 +254,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             visibleRoot = d;
 
             // set Selection properties
-            Node.setSelected(root, false);
-            Node.setSelected(d, true);
+            root.setSelected(false);
+            d.setSelected(true);
 
             // scale the lines
             widthScale.domain([0, d.data.count]);
 
-            Node.expand(d);
+            d.expand();
 
             // redraw
             if (d3.event !== null) {
@@ -300,35 +302,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 _classCallCheck(this, Node);
             }
 
-            _createClass(Node, null, [{
+            _createClass(Node, [{
                 key: "isLeaf",
 
+
                 // Returns true if a node is a leaf
-                value: function isLeaf(d) {
-                    return d.children || d._children;
+                value: function isLeaf() {
+                    return this.children || this._children;
                 }
 
                 // set node and children visible
 
             }, {
                 key: "setVisible",
-                value: function setVisible(d) {
-                    d.selected = true;
-                    if (d.children) {
-                        d.children.forEach(Node.setVisible);
+                value: function setVisible() {
+                    this.selected = true;
+                    if (this.children) {
+                        this.children.forEach(function (c) {
+                            c.setVisible();
+                        });
                     }
                 }
             }, {
                 key: "setSelected",
-                value: function setSelected(d, value) {
-                    d.selected = value;
-                    if (d.children) {
-                        d.children.forEach(function (c) {
-                            Node.setSelected(c, value);
+                value: function setSelected(value) {
+                    this.selected = value;
+                    if (this.children) {
+                        this.children.forEach(function (c) {
+                            c.setSelected(value);
                         });
-                    } else if (d._children) {
-                        d._children.forEach(function (c) {
-                            Node.setSelected(c, value);
+                    } else if (this._children) {
+                        this._children.forEach(function (c) {
+                            c.setSelected(value);
                         });
                     }
                 }
@@ -337,14 +342,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             }, {
                 key: "collapseAll",
-                value: function collapseAll(d) {
-                    if (d.children && d.children.length === 0) {
-                        d.children = null;
+                value: function collapseAll() {
+                    if (this.children && this.children.length === 0) {
+                        this.children = null;
                     }
-                    if (d.children) {
-                        d._children = d.children;
-                        d._children.forEach(Node.collapseAll);
-                        d.children = null;
+                    if (this.children) {
+                        this._children = this.children;
+                        this._children.forEach(function (c) {
+                            c.collapseAll();
+                        });
+                        this.children = null;
                     }
                 }
 
@@ -352,36 +359,46 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             }, {
                 key: "collapse",
-                value: function collapse(d) {
-                    if (d.children) {
-                        d._children = d.children;
-                        d.children = null;
+                value: function collapse() {
+                    if (this.children) {
+                        this._children = this.children;
+                        this.children = null;
                     }
                 }
             }, {
                 key: "expandAll",
-                value: function expandAll(d) {
-                    Node.expand(d, 30);
+                value: function expandAll() {
+                    this.expand(30);
                 }
 
                 // Expands a node and its children
 
             }, {
                 key: "expand",
-                value: function expand(d) {
-                    var i = arguments.length <= 1 || arguments[1] === undefined ? 2 : arguments[1];
+                value: function expand() {
+                    var i = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
 
                     if (i > 0) {
-                        if (d._children) {
-                            d.children = d._children;
-                            d._children = null;
+                        if (this._children) {
+                            this.children = this._children;
+                            this._children = null;
                         }
-                        if (d.children) {
-                            d.children.forEach(function (c) {
-                                Node.expand(c, i - 1);
+                        if (this.children) {
+                            this.children.forEach(function (c) {
+                                c.expand(i - 1);
                             });
                         }
                     }
+                }
+            }], [{
+                key: "createNode",
+                value: function createNode(node) {
+                    if (node.children) {
+                        node.children = node.children.map(function (n) {
+                            return Node.createNode(n);
+                        });
+                    }
+                    return _extends(new Node(), node);
                 }
             }]);
 
@@ -445,14 +462,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         linkStrokeColor: TreeView.LINK_STROKE_COLOR
     };
 
-    function Plugin(option) {
+    function Plugin(userData, option) {
         return this.each(function () {
             var $this = $(this);
             var data = $this.data('vis.treeview');
             var options = $.extend({}, TreeView.DEFAULTS, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
 
             if (!data) {
-                $this.data('vis.treeview', data = new TreeView(this, options));
+                $this.data('vis.treeview', data = new TreeView(this, userData, options));
             }
             if (typeof option === 'string') {
                 data[option]();

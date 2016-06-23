@@ -5,7 +5,7 @@
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, options) {
+    var TreeView = function TreeView(element, data, options) {
         let that = {};
 
         const MARGIN = {
@@ -85,7 +85,7 @@
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
                 .append("g");
 
-            draw(options.data);
+            draw(Node.createNode(data));
         }
 
         function draw(data) {
@@ -96,7 +96,7 @@
             root.y0 = 0;
 
             // set everything visible
-            Node.setVisible(root);
+            root.setVisible();
 
             // set colors
             function color(d, i, c) {
@@ -116,8 +116,8 @@
             });
 
             // collapse everything
-            Node.collapseAll(root);
-            Node.expand(root);
+            root.collapseAll();
+            root.expand();
 
             update(root);
             centerNode(root);
@@ -159,9 +159,9 @@
                 .style("fill-opacity", 0);
 
             nodeEnter.append("text")
-                .attr("x", d => Node.isLeaf(d) ? -10 : 10)
+                .attr("x", d => d.isLeaf() ? -10 : 10)
                 .attr("dy", ".35em")
-                .attr("text-anchor", d => Node.isLeaf(d) ? "end" : "start")
+                .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
                 .text(d => d.name)
                 .style("font", "10px sans-serif")
                 .style("fill-opacity", 1e-6);
@@ -278,11 +278,11 @@
             }
 
             if (d3.event.shiftKey) {
-                Node.expandAll(d);
+                d.expandAll();
             } else if (d.children) {
-                Node.collapse(d);
+                d.collapse();
             } else {
-                Node.expand(d);
+                d.expand();
             }
             update(d);
             centerNode(d);
@@ -297,13 +297,13 @@
             visibleRoot = d;
 
             // set Selection properties
-            Node.setSelected(root, false);
-            Node.setSelected(d, true);
+            root.setSelected(false);
+            d.setSelected(true);
 
             // scale the lines
             widthScale.domain([0, d.data.count]);
 
-            Node.expand(d);
+            d.expand();
 
             // redraw
             if (d3.event !== null) {
@@ -347,66 +347,73 @@
 
 
         class Node {
+            static createNode(node) {
+                if (node.children) {
+                    node.children = node.children.map(n => Node.createNode(n));
+                }
+                return Object.assign(new Node(), node);
+            }
+
             // Returns true if a node is a leaf
-            static isLeaf(d) {
-                return d.children || d._children;
+            isLeaf() {
+                return this.children || this._children;
             }
 
             // set node and children visible
-            static setVisible(d) {
-                d.selected = true;
-                if (d.children) {
-                    d.children.forEach(Node.setVisible);
+            setVisible() {
+                this.selected = true;
+                if (this.children) {
+                    this.children.forEach(c => {c.setVisible();});
                 }
             }
 
-            static setSelected(d, value) {
-                d.selected = value;
-                if (d.children) {
-                    d.children.forEach(c => {
-                        Node.setSelected(c, value);
+            setSelected(value) {
+                this.selected = value;
+                if (this.children) {
+                    this.children.forEach(c => {
+                        c.setSelected(value);
                     });
-                } else if (d._children) {
-                    d._children.forEach(c => {
-                        Node.setSelected(c, value);
+                } else if (this._children) {
+                    this._children.forEach(c => {
+                        c.setSelected(value);
                     });
                 }
             }
 
             // collapse everything
-            static collapseAll(d) {
-                if (d.children && d.children.length === 0) {
-                    d.children = null;
+            collapseAll() {
+                if (this.children && this.children.length === 0) {
+                    this.children = null;
                 }
-                if (d.children) {
-                    d._children = d.children;
-                    d._children.forEach(Node.collapseAll);
-                    d.children = null;
+                if (this.children) {
+                    this._children = this.children;
+                    this._children.forEach(c => {c.collapseAll();});
+                    this.children = null;
                 }
             }
 
             // Collapses a node
-            static collapse(d) {
-                if (d.children) {
-                    d._children = d.children;
-                    d.children = null;
+            collapse() {
+                if (this.children) {
+                    this._children = this.children;
+                    this.children = null;
                 }
             }
 
-            static expandAll(d) {
-                Node.expand(d, 30);
+            expandAll() {
+                this.expand(30);
             }
 
             // Expands a node and its children
-            static expand(d, i = 2) {
+            expand(i = 2) {
                 if (i > 0) {
-                    if (d._children) {
-                        d.children = d._children;
-                        d._children = null;
+                    if (this._children) {
+                        this.children = this._children;
+                        this._children = null;
                     }
-                    if (d.children) {
-                        d.children.forEach(c => {
-                            Node.expand(c, i - 1);
+                    if (this.children) {
+                        this.children.forEach(c => {
+                            c.expand(i - 1);
                         });
                     }
                 }
@@ -466,14 +473,14 @@
         linkStrokeColor: TreeView.LINK_STROKE_COLOR,
     };
 
-    function Plugin(option) {
+    function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
             let data = $this.data('vis.treeview');
             let options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
             if (!data) {
-                $this.data('vis.treeview', (data = new TreeView(this, options)));
+                $this.data('vis.treeview', (data = new TreeView(this, userData, options)));
             }
             if (typeof option === 'string') {
                 data[option]();
