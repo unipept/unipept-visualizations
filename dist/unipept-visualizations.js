@@ -15,7 +15,21 @@
                 left: 5
             },
             DURATION = 750,
-            COLOR_SCALE = d3.scale.category10();
+            COLOR_SCALE = d3.scale.category10(),
+            DEFAULTS = {
+                height: 300,
+                width: 600,
+
+                colors: d => COLOR_SCALE(d.name),
+                nodeFillColor: nodeFillColor,
+                nodeStrokeColor: nodeStrokeColor,
+                linkStrokeColor: linkStrokeColor,
+
+                tooltip: true,
+                getTooltip: getTooltip,
+                getTooltipTitle: getTooltipTitle,
+                getTooltipText: getTooltipText
+            };
 
         let settings;
 
@@ -27,7 +41,6 @@
 
         let tree,
             tooltip,
-            numberFormat,
             diagonal,
             widthScale,
             arcScale,
@@ -35,31 +48,15 @@
             zoomListener,
             svg;
 
-        const DEFAULTS = {
-            height: 500,
-            width: 500,
-
-            colors: d => COLOR_SCALE(d.name),
-            nodeFillColor: nodeFillColor,
-            nodeStrokeColor: nodeStrokeColor,
-            linkStrokeColor: linkStrokeColor
-        };
-
         function init() {
             settings = Object.assign({}, DEFAULTS, options);
 
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            numberFormat = d3.format(",d");
-
-            tooltip = d3.select("body")
-                .append("div")
-                .attr("id", element.id + "-tooltip")
-                .attr("class", "tip")
-                .style("position", "absolute")
-                .style("z-index", "10")
-                .style("visibility", "hidden");
+            if (settings.tooltip) {
+                initTooltip();
+            }
 
             tree = d3.layout.tree()
                 .nodeSize([2, 10])
@@ -98,6 +95,20 @@
                 .append("g");
 
             draw(Node.createNode(data));
+        }
+
+        function initTooltip() {
+            tooltip = d3.select("body")
+                .append("div")
+                .attr("id", element.id + "-tooltip")
+                .attr("class", "tip")
+                .style("position", "absolute")
+                .style("z-index", "10")
+                .style("visibility", "hidden")
+                .style("background-color", "white")
+                .style("padding", "2px")
+                .style("border", "1px solid #dddddd")
+                .style("border-radius", "3px;");
         }
 
         function draw(data) {
@@ -341,10 +352,12 @@
 
         // tooltip functions
         function tooltipIn(d, i) {
-            tooltip.html(`<b>${d.name}</b> (${d.data.rank})<br/>
-                ${numberFormat(!d.data.self_count ? "0" : d.data.self_count)}${d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences"} specific to this level<br/>
-                ${numberFormat(!d.data.count ? "0" : d.data.count)}${d.data.count && d.data.count === 1 ? " sequence" : " sequences"} specific to this level or lower`);
-            tooltip.style("top", (d3.event.pageY - 5) + "px").style("left", (d3.event.pageX + 15) + "px");
+            if (!settings.tooltip) {
+                return;
+            }
+            tooltip.html(settings.getTooltip(d))
+                .style("top", (d3.event.pageY - 5) + "px")
+                .style("left", (d3.event.pageX + 15) + "px");
 
             tooltipTimer = setTimeout(() => {
                 tooltip.style("visibility", "visible");
@@ -353,6 +366,9 @@
         }
 
         function tooltipOut(d, i) {
+            if (!settings.tooltip) {
+                return;
+            }
             clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
         }
@@ -383,6 +399,18 @@
             } else {
                 return "#aaa";
             }
+        }
+
+        function getTooltip(d) {
+            return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
+        }
+
+        function getTooltipTitle(d) {
+            return d.name;
+        }
+
+        function getTooltipText(d) {
+            return `${d.data.count} hits`;
         }
 
         class Node {

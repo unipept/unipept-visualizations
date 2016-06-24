@@ -27,7 +27,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             left: 5
         },
             DURATION = 750,
-            COLOR_SCALE = d3.scale.category10();
+            COLOR_SCALE = d3.scale.category10(),
+            DEFAULTS = {
+            height: 300,
+            width: 600,
+
+            colors: function colors(d) {
+                return COLOR_SCALE(d.name);
+            },
+            nodeFillColor: nodeFillColor,
+            nodeStrokeColor: nodeStrokeColor,
+            linkStrokeColor: linkStrokeColor,
+
+            tooltip: true,
+            getTooltip: getTooltip,
+            getTooltipTitle: getTooltipTitle,
+            getTooltipText: getTooltipText
+        };
 
         var settings = void 0;
 
@@ -39,7 +55,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var tree = void 0,
             tooltip = void 0,
-            numberFormat = void 0,
             diagonal = void 0,
             widthScale = void 0,
             arcScale = void 0,
@@ -47,27 +62,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             zoomListener = void 0,
             svg = void 0;
 
-        var DEFAULTS = {
-            height: 500,
-            width: 500,
-
-            colors: function colors(d) {
-                return COLOR_SCALE(d.name);
-            },
-            nodeFillColor: nodeFillColor,
-            nodeStrokeColor: nodeStrokeColor,
-            linkStrokeColor: linkStrokeColor
-        };
-
         function init() {
             settings = _extends({}, DEFAULTS, options);
 
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            numberFormat = d3.format(",d");
-
-            tooltip = d3.select("body").append("div").attr("id", element.id + "-tooltip").attr("class", "tip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden");
+            if (settings.tooltip) {
+                initTooltip();
+            }
 
             tree = d3.layout.tree().nodeSize([2, 10]).separation(function (a, b) {
                 var width = nodeSize(a) + nodeSize(b),
@@ -92,6 +95,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (settings.width + MARGIN.right + MARGIN.left) + " " + (settings.height + MARGIN.top + MARGIN.bottom)).attr("width", settings.width + MARGIN.right + MARGIN.left).attr("height", settings.height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
             draw(Node.createNode(data));
+        }
+
+        function initTooltip() {
+            tooltip = d3.select("body").append("div").attr("id", element.id + "-tooltip").attr("class", "tip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").style("background-color", "white").style("padding", "2px").style("border", "1px solid #dddddd").style("border-radius", "3px;");
         }
 
         function draw(data) {
@@ -300,8 +307,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // tooltip functions
         function tooltipIn(d, i) {
-            tooltip.html("<b>" + d.name + "</b> (" + d.data.rank + ")<br/>\n                " + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>\n                " + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower");
-            tooltip.style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
+            if (!settings.tooltip) {
+                return;
+            }
+            tooltip.html(settings.getTooltip(d)).style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
 
             tooltipTimer = setTimeout(function () {
                 tooltip.style("visibility", "visible");
@@ -309,6 +318,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function tooltipOut(d, i) {
+            if (!settings.tooltip) {
+                return;
+            }
             clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
         }
@@ -339,6 +351,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             } else {
                 return "#aaa";
             }
+        }
+
+        function getTooltip(d) {
+            return "<h3 class='tip-title'>" + settings.getTooltipTitle(d) + "</h3><p>" + settings.getTooltipText(d) + "</p>";
+        }
+
+        function getTooltipTitle(d) {
+            return d.name;
+        }
+
+        function getTooltipText(d) {
+            return d.data.count + " hits";
         }
 
         var Node = function () {
