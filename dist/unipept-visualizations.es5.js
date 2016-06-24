@@ -2,9 +2,9 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15,7 +15,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, data, options) {
+    var TreeView = function TreeView(element, data) {
+        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
         var that = {};
 
         var MARGIN = {
@@ -24,10 +26,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             bottom: 5,
             left: 5
         },
-            DURATION = 750;
+            DURATION = 750,
+            COLOR_SCALE = d3.scale.category10();
 
-        var width = void 0,
-            height = void 0;
+        var settings = void 0;
 
         var visibleRoot = void 0,
             tooltipTimer = void 0;
@@ -45,9 +47,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             zoomListener = void 0,
             svg = void 0;
 
+        var DEFAULTS = {
+            height: 500,
+            width: 500,
+
+            colors: function colors(d) {
+                return COLOR_SCALE(d.name);
+            },
+            nodeFillColor: nodeFillColor,
+            nodeStrokeColor: nodeStrokeColor,
+            linkStrokeColor: linkStrokeColor
+        };
+
         function init() {
-            width = options.width - MARGIN.right - MARGIN.left;
-            height = options.height - MARGIN.top - MARGIN.bottom;
+            settings = _extends({}, DEFAULTS, options);
+
+            settings.width = settings.width - MARGIN.right - MARGIN.left;
+            settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
             numberFormat = d3.format(",d");
 
@@ -73,7 +89,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             });
 
-            svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (width + MARGIN.right + MARGIN.left) + " " + (height + MARGIN.top + MARGIN.bottom)).attr("width", width + MARGIN.right + MARGIN.left).attr("height", height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
+            svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (settings.width + MARGIN.right + MARGIN.left) + " " + (settings.height + MARGIN.top + MARGIN.bottom)).attr("width", settings.width + MARGIN.right + MARGIN.left).attr("height", settings.height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
             draw(Node.createNode(data));
         }
@@ -82,7 +98,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             widthScale.domain([0, data.data.count]);
 
             root = data;
-            root.x0 = height / 2;
+            root.x0 = settings.height / 2;
             root.y0 = 0;
 
             // set everything visible
@@ -93,7 +109,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 if (c) {
                     d.color = c;
                 } else {
-                    d.color = d3.functor(options.colors).call(this, d, i);
+                    d.color = d3.functor(settings.colors).call(this, d, i);
                 }
                 if (d.children) {
                     d.children.forEach(function (node) {
@@ -133,9 +149,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return "translate(" + (source.y || 0) + "," + (source.x0 || 0) + ")";
             }).on("click", click).on("mouseover", tooltipIn).on("mouseout", tooltipOut).on("contextmenu", rightClick);
 
-            nodeEnter.append("circle").attr("r", 1e-6).style("stroke-width", "1.5px").style("stroke", options.nodeStrokeColor).style("fill", options.nodeFillColor);
+            nodeEnter.append("circle").attr("r", 1e-6).style("stroke-width", "1.5px").style("stroke", settings.nodeStrokeColor).style("fill", settings.nodeFillColor);
 
-            nodeEnter.append("path").attr("d", innerArc).style("fill", options.nodeStrokeColor).style("fill-opacity", 0);
+            nodeEnter.append("path").attr("d", innerArc).style("fill", settings.nodeStrokeColor).style("fill-opacity", 0);
 
             nodeEnter.append("text").attr("x", function (d) {
                 return d.isLeaf() ? -10 : 10;
@@ -152,7 +168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeUpdate.select("circle").attr("r", nodeSize).style("fill-opacity", function (d) {
                 return d._children ? 1 : 0;
-            }).style("stroke", options.nodeStrokeColor).style("fill", options.nodeFillColor);
+            }).style("stroke", settings.nodeStrokeColor).style("fill", settings.nodeFillColor);
 
             nodeUpdate.select("text").style("fill-opacity", 1);
 
@@ -175,7 +191,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             // Enter any new links at the parent's previous position.
-            link.enter().insert("path", "g").attr("class", "link").style("fill", "none").style("stroke-opacity", "0.5").style("stroke-linecap", "round").style("stroke", options.linkStrokeColor).style("stroke-width", 1e-6).attr("d", function (d) {
+            link.enter().insert("path", "g").attr("class", "link").style("fill", "none").style("stroke-opacity", "0.5").style("stroke-linecap", "round").style("stroke", settings.linkStrokeColor).style("stroke-width", 1e-6).attr("d", function (d) {
                 var o = {
                     x: source.x0 || 0,
                     y: source.y0 || 0
@@ -187,7 +203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             // Transition links to their new position.
-            link.transition().duration(DURATION).attr("d", diagonal).style("stroke", options.linkStrokeColor).style("stroke-width", function (d) {
+            link.transition().duration(DURATION).attr("d", diagonal).style("stroke", settings.linkStrokeColor).style("stroke-width", function (d) {
                 if (d.source.selected) {
                     return widthScale(d.target.data.count) + "px";
                 } else {
@@ -275,8 +291,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             var scale = zoomListener.scale(),
                 x = -source.y0,
                 y = -source.x0;
-            x = x * scale + width / 4;
-            y = y * scale + height / 2;
+            x = x * scale + settings.width / 4;
+            y = y * scale + settings.height / 2;
             svg.transition().duration(DURATION).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
             zoomListener.scale(scale);
             zoomListener.translate([x, y]);
@@ -295,6 +311,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function tooltipOut(d, i) {
             clearTimeout(tooltipTimer);
             tooltip.style("visibility", "hidden");
+        }
+
+        /************** Default methods ***************/
+        // set fill color
+        function nodeFillColor(d) {
+            if (d.selected) {
+                return d._children ? d.color || "#aaa" : "#fff";
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set node stroke color
+        function nodeStrokeColor(d) {
+            if (d.selected) {
+                return d.color || "#aaa";
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set link stroke color
+        function linkStrokeColor(d) {
+            if (d.source.selected) {
+                return d.target.color;
+            } else {
+                return "#aaa";
+            }
         }
 
         var Node = function () {
@@ -420,53 +464,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return that;
     };
 
-    /********** User modifiable  methods **********/
-    // set fill color
-    TreeView.NODE_FILL_COLOR = function nodefillColor(d) {
-        if (d.selected) {
-            return d._children ? d.color || "#aaa" : "#fff";
-        } else {
-            return "#aaa";
-        }
-    };
-    // set node stroke color
-    TreeView.NODE_STROKE_COLOR = function nodeStrokeColor(d) {
-        if (d.selected) {
-            return d.color || "#aaa";
-        } else {
-            return "#aaa";
-        }
-    };
-
-    // set link stroke color
-    TreeView.LINK_STROKE_COLOR = function linkStrokeColor(d) {
-        if (d.source.selected) {
-            return d.target.color;
-        } else {
-            return "#aaa";
-        }
-    };
-
-    // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-    TreeView.DEFAULT_SCALE = d3.scale.category10();
-
-    TreeView.DEFAULTS = {
-        height: 100,
-        width: 200,
-
-        colors: function colors(d) {
-            return TreeView.DEFAULT_SCALE(d.name);
-        },
-        nodeFillColor: TreeView.NODE_FILL_COLOR,
-        nodeStrokeColor: TreeView.NODE_STROKE_COLOR,
-        linkStrokeColor: TreeView.LINK_STROKE_COLOR
-    };
-
     function Plugin(userData, option) {
         return this.each(function () {
             var $this = $(this);
             var data = $this.data('vis.treeview');
-            var options = $.extend({}, TreeView.DEFAULTS, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
+            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
 
             if (!data) {
                 $this.data('vis.treeview', data = new TreeView(this, userData, options));

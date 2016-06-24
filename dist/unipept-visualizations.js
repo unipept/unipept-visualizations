@@ -5,7 +5,7 @@
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, data, options) {
+    var TreeView = function TreeView(element, data, options = {}) {
         let that = {};
 
         const MARGIN = {
@@ -14,10 +14,10 @@
                 bottom: 5,
                 left: 5
             },
-            DURATION = 750;
+            DURATION = 750,
+            COLOR_SCALE = d3.scale.category10();
 
-        let width,
-            height;
+        let settings;
 
         let visibleRoot,
             tooltipTimer;
@@ -35,9 +35,21 @@
             zoomListener,
             svg;
 
+        const DEFAULTS = {
+            height: 500,
+            width: 500,
+
+            colors: d => COLOR_SCALE(d.name),
+            nodeFillColor: nodeFillColor,
+            nodeStrokeColor: nodeStrokeColor,
+            linkStrokeColor: linkStrokeColor
+        };
+
         function init() {
-            width = options.width - MARGIN.right - MARGIN.left;
-            height = options.height - MARGIN.top - MARGIN.bottom;
+            settings = Object.assign({}, DEFAULTS, options);
+
+            settings.width = settings.width - MARGIN.right - MARGIN.left;
+            settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
             numberFormat = d3.format(",d");
 
@@ -77,9 +89,9 @@
             svg = d3.select(element).append("svg")
                 .attr("version", "1.1")
                 .attr("xmlns", "http://www.w3.org/2000/svg")
-                .attr("viewBox", `0 0 ${width + MARGIN.right + MARGIN.left} ${height + MARGIN.top + MARGIN.bottom}`)
-                .attr("width", width + MARGIN.right + MARGIN.left)
-                .attr("height", height + MARGIN.top + MARGIN.bottom)
+                .attr("viewBox", `0 0 ${settings.width + MARGIN.right + MARGIN.left} ${settings.height + MARGIN.top + MARGIN.bottom}`)
+                .attr("width", settings.width + MARGIN.right + MARGIN.left)
+                .attr("height", settings.height + MARGIN.top + MARGIN.bottom)
                 .call(zoomListener)
                 .append("g")
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
@@ -92,7 +104,7 @@
             widthScale.domain([0, data.data.count]);
 
             root = data;
-            root.x0 = height / 2;
+            root.x0 = settings.height / 2;
             root.y0 = 0;
 
             // set everything visible
@@ -103,7 +115,7 @@
                 if (c) {
                     d.color = c;
                 } else {
-                    d.color = d3.functor(options.colors).call(this, d, i);
+                    d.color = d3.functor(settings.colors).call(this, d, i);
                 }
                 if (d.children) {
                     d.children.forEach((node) => {
@@ -150,12 +162,12 @@
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
                 .style("stroke-width", "1.5px")
-                .style("stroke", options.nodeStrokeColor)
-                .style("fill", options.nodeFillColor);
+                .style("stroke", settings.nodeStrokeColor)
+                .style("fill", settings.nodeFillColor);
 
             nodeEnter.append("path")
                 .attr("d", innerArc)
-                .style("fill", options.nodeStrokeColor)
+                .style("fill", settings.nodeStrokeColor)
                 .style("fill-opacity", 0);
 
             nodeEnter.append("text")
@@ -174,8 +186,8 @@
             nodeUpdate.select("circle")
                 .attr("r", nodeSize)
                 .style("fill-opacity", d => d._children ? 1 : 0)
-                .style("stroke", options.nodeStrokeColor)
-                .style("fill", options.nodeFillColor);
+                .style("stroke", settings.nodeStrokeColor)
+                .style("fill", settings.nodeFillColor);
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
@@ -210,7 +222,7 @@
                 .style("fill", "none")
                 .style("stroke-opacity", "0.5")
                 .style("stroke-linecap", "round")
-                .style("stroke", options.linkStrokeColor)
+                .style("stroke", settings.linkStrokeColor)
                 .style("stroke-width", 1e-6)
                 .attr("d", d => {
                     let o = {
@@ -227,7 +239,7 @@
             link.transition()
                 .duration(DURATION)
                 .attr("d", diagonal)
-                .style("stroke", options.linkStrokeColor)
+                .style("stroke", settings.linkStrokeColor)
                 .style("stroke-width", d => {
                     if (d.source.selected) {
                         return widthScale(d.target.data.count) + "px";
@@ -318,8 +330,8 @@
             let scale = zoomListener.scale(),
                 x = -source.y0,
                 y = -source.x0;
-            x = x * scale + width / 4;
-            y = y * scale + height / 2;
+            x = x * scale + settings.width / 4;
+            y = y * scale + settings.height / 2;
             svg.transition()
                 .duration(DURATION)
                 .attr("transform", `translate(${x},${y})scale(${scale})`);
@@ -345,6 +357,33 @@
             tooltip.style("visibility", "hidden");
         }
 
+        /************** Default methods ***************/
+        // set fill color
+        function nodeFillColor(d) {
+            if (d.selected) {
+                return d._children ? d.color || "#aaa" : "#fff";
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set node stroke color
+        function nodeStrokeColor(d) {
+            if (d.selected) {
+                return d.color || "#aaa";
+            } else {
+                return "#aaa";
+            }
+        }
+
+        // set link stroke color
+        function linkStrokeColor(d) {
+            if (d.source.selected) {
+                return d.target.color;
+            } else {
+                return "#aaa";
+            }
+        }
 
         class Node {
             static createNode(node) {
@@ -363,7 +402,9 @@
             setVisible() {
                 this.selected = true;
                 if (this.children) {
-                    this.children.forEach(c => {c.setVisible();});
+                    this.children.forEach(c => {
+                        c.setVisible();
+                    });
                 }
             }
 
@@ -387,7 +428,9 @@
                 }
                 if (this.children) {
                     this._children = this.children;
-                    this._children.forEach(c => {c.collapseAll();});
+                    this._children.forEach(c => {
+                        c.collapseAll();
+                    });
                     this.children = null;
                 }
             }
@@ -433,51 +476,11 @@
         return that;
     };
 
-    /********** User modifiable  methods **********/
-    // set fill color
-    TreeView.NODE_FILL_COLOR = function nodefillColor(d) {
-        if (d.selected) {
-            return d._children ? d.color || "#aaa" : "#fff";
-        } else {
-            return "#aaa";
-        }
-    };
-    // set node stroke color
-    TreeView.NODE_STROKE_COLOR = function nodeStrokeColor(d) {
-        if (d.selected) {
-            return d.color || "#aaa";
-        } else {
-            return "#aaa";
-        }
-    };
-
-    // set link stroke color
-    TreeView.LINK_STROKE_COLOR = function linkStrokeColor(d) {
-        if (d.source.selected) {
-            return d.target.color;
-        } else {
-            return "#aaa";
-        }
-    };
-
-    // get a nice colour palet, see https://github.com/mbostock/d3/wiki/Ordinal-Scales#categorical-colors
-    TreeView.DEFAULT_SCALE = d3.scale.category10();
-
-    TreeView.DEFAULTS = {
-        height: 100,
-        width: 200,
-
-        colors: d => TreeView.DEFAULT_SCALE(d.name),
-        nodeFillColor: TreeView.NODE_FILL_COLOR,
-        nodeStrokeColor: TreeView.NODE_STROKE_COLOR,
-        linkStrokeColor: TreeView.LINK_STROKE_COLOR,
-    };
-
     function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
             let data = $this.data('vis.treeview');
-            let options = $.extend({}, TreeView.DEFAULTS, $this.data(), typeof option === 'object' && option);
+            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
 
             if (!data) {
                 $this.data('vis.treeview', (data = new TreeView(this, userData, options)));
