@@ -25,6 +25,8 @@
                 nodeStrokeColor: nodeStrokeColor,
                 linkStrokeColor: linkStrokeColor,
 
+                innerArcs: true,
+
                 tooltip: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
@@ -43,7 +45,6 @@
             tooltip,
             diagonal,
             widthScale,
-            arcScale,
             innerArc,
             zoomListener,
             svg;
@@ -58,6 +59,10 @@
                 initTooltip();
             }
 
+            if (settings.innerArcs) {
+                initInnerArcs();
+            }
+
             tree = d3.layout.tree()
                 .nodeSize([2, 10])
                 .separation((a, b) => {
@@ -69,12 +74,6 @@
             diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
 
             widthScale = d3.scale.linear().range([2, 105]);
-            arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
-
-            innerArc = d3.svg.arc()
-                .outerRadius(nodeSize)
-                .startAngle(0)
-                .endAngle(arcSize);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom()
@@ -109,6 +108,15 @@
                 .style("padding", "2px")
                 .style("border", "1px solid #dddddd")
                 .style("border-radius", "3px;");
+        }
+
+        function initInnerArcs() {
+            let arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
+
+            innerArc = d3.svg.arc()
+                .outerRadius(nodeSize)
+                .startAngle(0)
+                .endAngle(d => arcScale(d.data.self_count / d.data.count) || 0);
         }
 
         function draw(data) {
@@ -176,10 +184,12 @@
                 .style("stroke", settings.nodeStrokeColor)
                 .style("fill", settings.nodeFillColor);
 
-            nodeEnter.append("path")
-                .attr("d", innerArc)
-                .style("fill", settings.nodeStrokeColor)
-                .style("fill-opacity", 0);
+            if (settings.innerArcs) {
+                nodeEnter.append("path")
+                    .attr("d", innerArc)
+                    .style("fill", settings.nodeStrokeColor)
+                    .style("fill-opacity", 0);
+            }
 
             nodeEnter.append("text")
                 .attr("x", d => d.isLeaf() ? -10 : 10)
@@ -203,10 +213,12 @@
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
 
-            nodeUpdate.select("path")
-                .duration(DURATION)
-                .attr("d", innerArc)
-                .style("fill-opacity", 0.8);
+            if (settings.innerArcs) {
+                nodeUpdate.select("path")
+                    .duration(DURATION)
+                    .attr("d", innerArc)
+                    .style("fill-opacity", 0.8);
+            }
 
             // Transition exiting nodes to the parent's new position.
             let nodeExit = node.exit().transition()
@@ -289,10 +301,6 @@
             }
         }
 
-        function arcSize(d) {
-            return arcScale(d.data.self_count / d.data.count) || 0;
-        }
-
         // Toggle children on click.
         function click(d) {
             // check if click is triggered by panning on a node
@@ -339,8 +347,7 @@
         // Center a node
         function centerNode(source) {
             let scale = zoomListener.scale(),
-                x = -source.y0,
-                y = -source.x0;
+                [x, y] = [-source.y0, -source.x0];
             x = x * scale + settings.width / 4;
             y = y * scale + settings.height / 2;
             svg.transition()

@@ -39,6 +39,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             nodeStrokeColor: nodeStrokeColor,
             linkStrokeColor: linkStrokeColor,
 
+            innerArcs: true,
+
             tooltip: true,
             getTooltip: getTooltip,
             getTooltipTitle: getTooltipTitle,
@@ -57,7 +59,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             tooltip = void 0,
             diagonal = void 0,
             widthScale = void 0,
-            arcScale = void 0,
             innerArc = void 0,
             zoomListener = void 0,
             svg = void 0;
@@ -72,6 +73,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 initTooltip();
             }
 
+            if (settings.innerArcs) {
+                initInnerArcs();
+            }
+
             tree = d3.layout.tree().nodeSize([2, 10]).separation(function (a, b) {
                 var width = nodeSize(a) + nodeSize(b),
                     distance = width / 2 + 4;
@@ -83,9 +88,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             widthScale = d3.scale.linear().range([2, 105]);
-            arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
-
-            innerArc = d3.svg.arc().outerRadius(nodeSize).startAngle(0).endAngle(arcSize);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", function () {
@@ -99,6 +101,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         function initTooltip() {
             tooltip = d3.select("body").append("div").attr("id", element.id + "-tooltip").attr("class", "tip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").style("background-color", "white").style("padding", "2px").style("border", "1px solid #dddddd").style("border-radius", "3px;");
+        }
+
+        function initInnerArcs() {
+            var arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
+
+            innerArc = d3.svg.arc().outerRadius(nodeSize).startAngle(0).endAngle(function (d) {
+                return arcScale(d.data.self_count / d.data.count) || 0;
+            });
         }
 
         function draw(data) {
@@ -158,7 +168,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeEnter.append("circle").attr("r", 1e-6).style("stroke-width", "1.5px").style("stroke", settings.nodeStrokeColor).style("fill", settings.nodeFillColor);
 
-            nodeEnter.append("path").attr("d", innerArc).style("fill", settings.nodeStrokeColor).style("fill-opacity", 0);
+            if (settings.innerArcs) {
+                nodeEnter.append("path").attr("d", innerArc).style("fill", settings.nodeStrokeColor).style("fill-opacity", 0);
+            }
 
             nodeEnter.append("text").attr("x", function (d) {
                 return d.isLeaf() ? -10 : 10;
@@ -179,7 +191,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeUpdate.select("text").style("fill-opacity", 1);
 
-            nodeUpdate.select("path").duration(DURATION).attr("d", innerArc).style("fill-opacity", 0.8);
+            if (settings.innerArcs) {
+                nodeUpdate.select("path").duration(DURATION).attr("d", innerArc).style("fill-opacity", 0.8);
+            }
 
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition().duration(DURATION).attr("transform", function (d) {
@@ -244,10 +258,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             } else {
                 return 2;
             }
-        }
-
-        function arcSize(d) {
-            return arcScale(d.data.self_count / d.data.count) || 0;
         }
 
         // Toggle children on click.
