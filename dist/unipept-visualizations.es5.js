@@ -41,7 +41,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             innerArcs: true,
 
-            tooltip: true,
+            tooltips: true,
             getTooltip: getTooltip,
             getTooltipTitle: getTooltipTitle,
             getTooltipText: getTooltipText
@@ -69,7 +69,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            if (settings.tooltip) {
+            if (settings.tooltips) {
                 initTooltip();
             }
 
@@ -305,9 +305,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // Center a node
         function centerNode(source) {
-            var scale = zoomListener.scale(),
-                x = -source.y0,
-                y = -source.x0;
+            var scale = zoomListener.scale();
+            var x = -source.y0;
+            var y = -source.x0;
+
             x = x * scale + settings.width / 4;
             y = y * scale + settings.height / 2;
             svg.transition().duration(DURATION).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
@@ -317,7 +318,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // tooltip functions
         function tooltipIn(d, i) {
-            if (!settings.tooltip) {
+            if (!settings.tooltips) {
                 return;
             }
             tooltip.html(settings.getTooltip(d)).style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
@@ -328,7 +329,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function tooltipOut(d, i) {
-            if (!settings.tooltip) {
+            if (!settings.tooltips) {
                 return;
             }
             clearTimeout(tooltipTimer);

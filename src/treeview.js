@@ -27,7 +27,7 @@
 
                 innerArcs: true,
 
-                tooltip: true,
+                tooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
                 getTooltipText: getTooltipText
@@ -55,7 +55,7 @@
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            if (settings.tooltip) {
+            if (settings.tooltips) {
                 initTooltip();
             }
 
@@ -359,7 +359,7 @@
 
         // tooltip functions
         function tooltipIn(d, i) {
-            if (!settings.tooltip) {
+            if (!settings.tooltips) {
                 return;
             }
             tooltip.html(settings.getTooltip(d))
@@ -373,7 +373,7 @@
         }
 
         function tooltipOut(d, i) {
-            if (!settings.tooltip) {
+            if (!settings.tooltips) {
                 return;
             }
             clearTimeout(tooltipTimer);
