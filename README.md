@@ -32,6 +32,8 @@ The options object is an optional parameter and allows to override the default v
 * `width` (default: 600): The width in pixels of the visualization.
 * `levelsToExpand` (default: 2): The number of levels to expand after clicking on a node and when loading the initial visualization.
 * `nodeDistance` (default: 180): The horizontal distance in pixels between nodes.
+* `minNodeSize` (default: 2): The minimal size of a node in pixels.
+* `maxNodeSize` (default: 105): The maximal size of a node in pixels.
 * `enableInnerArcs` (default: true): Should the inner arcs be shown?
 * `enableTooltips` (default: true): Should tooltips be shown on mouseover?
 * `enableExpandOnClick` (default: true): Should the tree collapse and expand when clicking on nodes? If disabled, the entire tree is automatically expanded when loaded.

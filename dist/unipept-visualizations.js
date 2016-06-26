@@ -21,6 +21,8 @@
                 width: 600,
                 nodeDistance: 180,
                 levelsToExpand: 2,
+                minNodeSize: 2,
+                maxNodeSize: 105,
 
                 colors: d => COLOR_SCALE(d.name),
                 nodeFillColor: nodeFillColor,
@@ -77,7 +79,7 @@
 
             diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
 
-            widthScale = d3.scale.linear().range([2, 105]);
+            widthScale = d3.scale.linear().range([settings.minNodeSize, settings.maxNodeSize]);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom()

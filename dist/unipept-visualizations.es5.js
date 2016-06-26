@@ -33,6 +33,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             width: 600,
             nodeDistance: 180,
             levelsToExpand: 2,
+            minNodeSize: 2,
+            maxNodeSize: 105,
 
             colors: function colors(d) {
                 return COLOR_SCALE(d.name);
@@ -91,7 +93,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return [d.y, d.x];
             });
 
-            widthScale = d3.scale.linear().range([2, 105]);
+            widthScale = d3.scale.linear().range([settings.minNodeSize, settings.maxNodeSize]);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
             zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", function () {
