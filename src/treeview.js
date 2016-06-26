@@ -32,6 +32,7 @@
                 enableInnerArcs: true,
                 enableExpandOnClick: true,
                 enableRightClick: true,
+                enableLabels: true,
 
                 enableTooltips: true,
                 getTooltip: getTooltip,
@@ -188,13 +189,15 @@
                     .style("fill-opacity", 0);
             }
 
-            nodeEnter.append("text")
-                .attr("x", d => d.isLeaf() ? -10 : 10)
-                .attr("dy", ".35em")
-                .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
-                .text(d => d.name)
-                .style("font", "10px sans-serif")
-                .style("fill-opacity", 1e-6);
+            if (settings.enableLabels) {
+                nodeEnter.append("text")
+                    .attr("x", d => d.isLeaf() ? -10 : 10)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
+                    .text(d => d.name)
+                    .style("font", "10px sans-serif")
+                    .style("fill-opacity", 1e-6);
+            }
 
             // Transition nodes to their new position.
             let nodeUpdate = node.transition()
@@ -207,8 +210,10 @@
                 .style("stroke", settings.nodeStrokeColor)
                 .style("fill", settings.nodeFillColor);
 
-            nodeUpdate.select("text")
-                .style("fill-opacity", 1);
+            if (settings.enableLabels) {
+                nodeUpdate.select("text")
+                    .style("fill-opacity", 1);
+            }
 
             if (settings.enableInnerArcs) {
                 nodeUpdate.select("path")

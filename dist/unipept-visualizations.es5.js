@@ -46,6 +46,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             enableInnerArcs: true,
             enableExpandOnClick: true,
             enableRightClick: true,
+            enableLabels: true,
 
             enableTooltips: true,
             getTooltip: getTooltip,
@@ -171,13 +172,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 nodeEnter.append("path").attr("d", innerArc).style("fill", settings.nodeStrokeColor).style("fill-opacity", 0);
             }
 
-            nodeEnter.append("text").attr("x", function (d) {
-                return d.isLeaf() ? -10 : 10;
-            }).attr("dy", ".35em").attr("text-anchor", function (d) {
-                return d.isLeaf() ? "end" : "start";
-            }).text(function (d) {
-                return d.name;
-            }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
+            if (settings.enableLabels) {
+                nodeEnter.append("text").attr("x", function (d) {
+                    return d.isLeaf() ? -10 : 10;
+                }).attr("dy", ".35em").attr("text-anchor", function (d) {
+                    return d.isLeaf() ? "end" : "start";
+                }).text(function (d) {
+                    return d.name;
+                }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
+            }
 
             // Transition nodes to their new position.
             var nodeUpdate = node.transition().duration(DURATION).attr("transform", function (d) {
@@ -188,7 +191,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return d._children ? 1 : 0;
             }).style("stroke", settings.nodeStrokeColor).style("fill", settings.nodeFillColor);
 
-            nodeUpdate.select("text").style("fill-opacity", 1);
+            if (settings.enableLabels) {
+                nodeUpdate.select("text").style("fill-opacity", 1);
+            }
 
             if (settings.enableInnerArcs) {
                 nodeUpdate.select("path").duration(DURATION).attr("d", innerArc).style("fill-opacity", 0.8);
