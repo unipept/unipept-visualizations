@@ -1,7 +1,7 @@
 <html>
 
   <head>
-    <title>Metagenomics Visualisation Framework</title>
+    <title>Treeview example</title>
 
     <!-- Jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -15,16 +15,15 @@
     <script>
       $(function() {
 
-        d3.json("data/lca.json", function(error, data) {
+        d3.json("data/flare.json", function(error, data) {
           if (error) return console.warn(error);
 
           $("#d3TreeView").treeview(data, {
             width: 900,
             height: 600,
-            getTooltip: function(d) {
-                let numberFormat = d3.format(",d");
-                return "<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") + " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
-            }
+            levelsToExpand: 1,
+            countAccessor: function (d) { return d.size; },
+            enableTooltips: false
           });
         });
       });
