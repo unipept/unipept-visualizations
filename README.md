@@ -30,6 +30,7 @@ The options object is an optional parameter and allows to override the default v
 #### Values
 * `height` (default: 300): The height in pixels of the visualization.
 * `width` (default: 600): The width in pixels of the visualization.
+* `levelsToExpand` (default: 2): The number of levels to expand after clicking on a node and when loading the initial visualization.
 * `nodeDistance` (default: 180): The horizontal distance in pixels between nodes.
 * `enableInnerArcs` (default: true): Should the inner arcs be shown?
 * `enableTooltips` (default: true): Should tooltips be shown on mouseover?

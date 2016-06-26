@@ -32,6 +32,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             height: 300,
             width: 600,
             nodeDistance: 180,
+            levelsToExpand: 2,
 
             colors: function colors(d) {
                 return COLOR_SCALE(d.name);
@@ -448,7 +449,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }, {
                 key: "expandAll",
                 value: function expandAll() {
-                    this.expand(30);
+                    this.expand(100);
                 }
 
                 // Expands a node and its children
@@ -456,7 +457,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }, {
                 key: "expand",
                 value: function expand() {
-                    var i = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
+                    var i = arguments.length <= 0 || arguments[0] === undefined ? settings.levelsToExpand : arguments[0];
 
                     if (i > 0) {
                         if (this._children) {

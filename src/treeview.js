@@ -20,6 +20,7 @@
                 height: 300,
                 width: 600,
                 nodeDistance: 180,
+                levelsToExpand: 2,
 
                 colors: d => COLOR_SCALE(d.name),
                 nodeFillColor: nodeFillColor,
@@ -478,11 +479,11 @@
             }
 
             expandAll() {
-                this.expand(30);
+                this.expand(100);
             }
 
             // Expands a node and its children
-            expand(i = 2) {
+            expand(i = settings.levelsToExpand) {
                 if (i > 0) {
                     if (this._children) {
                         this.children = this._children;
