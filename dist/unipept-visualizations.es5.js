@@ -40,9 +40,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             nodeStrokeColor: nodeStrokeColor,
             linkStrokeColor: linkStrokeColor,
 
-            innerArcs: true,
+            enableInnerArcs: true,
+            enableExpandOnClick: true,
 
-            tooltips: true,
+            enableTooltips: true,
             getTooltip: getTooltip,
             getTooltipTitle: getTooltipTitle,
             getTooltipText: getTooltipText
@@ -70,11 +71,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            if (settings.tooltips) {
+            if (settings.enableTooltips) {
                 initTooltip();
             }
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 initInnerArcs();
             }
 
@@ -139,9 +140,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 color(node, i);
             });
 
-            // collapse everything
-            root.collapseAll();
-            root.expand();
+            if (settings.enableExpandOnClick) {
+                root.collapseAll();
+                root.expand();
+            } else {
+                root.expandAll();
+            }
 
             update(root);
             centerNode(root);
@@ -169,7 +173,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeEnter.append("circle").attr("r", 1e-6).style("stroke-width", "1.5px").style("stroke", settings.nodeStrokeColor).style("fill", settings.nodeFillColor);
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 nodeEnter.append("path").attr("d", innerArc).style("fill", settings.nodeStrokeColor).style("fill-opacity", 0);
             }
 
@@ -192,7 +196,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodeUpdate.select("text").style("fill-opacity", 1);
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 nodeUpdate.select("path").duration(DURATION).attr("d", innerArc).style("fill-opacity", 0.8);
             }
 
@@ -263,6 +267,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // Toggle children on click.
         function click(d) {
+            if (!settings.enableExpandOnClick) {
+                return;
+            }
+
             // check if click is triggered by panning on a node
             if (d3.event.defaultPrevented) {
                 return;
@@ -319,7 +327,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // tooltip functions
         function tooltipIn(d, i) {
-            if (!settings.tooltips) {
+            if (!settings.enableTooltips) {
                 return;
             }
             tooltip.html(settings.getTooltip(d)).style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
@@ -330,7 +338,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function tooltipOut(d, i) {
-            if (!settings.tooltips) {
+            if (!settings.enableTooltips) {
                 return;
             }
             clearTimeout(tooltipTimer);

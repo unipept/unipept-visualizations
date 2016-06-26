@@ -31,9 +31,9 @@ The options object is an optional parameter and allows to override the default v
 * `height` (default: 300): The height in pixels of the visualization.
 * `width` (default: 600): The width in pixels of the visualization.
 * `nodeDistance` (default: 180): The horizontal distance in pixels between nodes.
-* `innerArcs` (default: true): Should the inner arcs be shown?
-* `tooltips` (default: true): Should tooltips be shown on mouseover?
-* colors
+* `enableInnerArcs` (default: true): Should the inner arcs be shown?
+* `enableTooltips` (default: true): Should tooltips be shown on mouseover?
+* `enableExpandOnClick` (default: true): Should the tree collapse and expand when clicking on nodes? If disabled, the entire tree is automatically expanded when loaded.
 
 #### Functions
 * `getTooltip`: Function that returns the html to use as tooltip for a node. Is called with a node as parameter. By default, the result of `getTooltipTitle` is used in a header tag and the result of `getTooltipText` is used in a paragraph tag.

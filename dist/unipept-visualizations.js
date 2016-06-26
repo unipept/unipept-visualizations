@@ -26,9 +26,10 @@
                 nodeStrokeColor: nodeStrokeColor,
                 linkStrokeColor: linkStrokeColor,
 
-                innerArcs: true,
+                enableInnerArcs: true,
+                enableExpandOnClick: true,
 
-                tooltips: true,
+                enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
                 getTooltipText: getTooltipText
@@ -56,11 +57,11 @@
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            if (settings.tooltips) {
+            if (settings.enableTooltips) {
                 initTooltip();
             }
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 initInnerArcs();
             }
 
@@ -147,9 +148,12 @@
                 color(node, i);
             });
 
-            // collapse everything
-            root.collapseAll();
-            root.expand();
+            if (settings.enableExpandOnClick) {
+                root.collapseAll();
+                root.expand();
+            } else {
+                root.expandAll();
+            }
 
             update(root);
             centerNode(root);
@@ -185,7 +189,7 @@
                 .style("stroke", settings.nodeStrokeColor)
                 .style("fill", settings.nodeFillColor);
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 nodeEnter.append("path")
                     .attr("d", innerArc)
                     .style("fill", settings.nodeStrokeColor)
@@ -214,7 +218,7 @@
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
 
-            if (settings.innerArcs) {
+            if (settings.enableInnerArcs) {
                 nodeUpdate.select("path")
                     .duration(DURATION)
                     .attr("d", innerArc)
@@ -304,6 +308,10 @@
 
         // Toggle children on click.
         function click(d) {
+            if (!settings.enableExpandOnClick) {
+                return;
+            }
+
             // check if click is triggered by panning on a node
             if (d3.event.defaultPrevented) {
                 return;
@@ -360,7 +368,7 @@
 
         // tooltip functions
         function tooltipIn(d, i) {
-            if (!settings.tooltips) {
+            if (!settings.enableTooltips) {
                 return;
             }
             tooltip.html(settings.getTooltip(d))
@@ -374,7 +382,7 @@
         }
 
         function tooltipOut(d, i) {
-            if (!settings.tooltips) {
+            if (!settings.enableTooltips) {
                 return;
             }
             clearTimeout(tooltipTimer);
