@@ -34,6 +34,7 @@ The options object is an optional parameter and allows to override the default v
 * `enableInnerArcs` (default: true): Should the inner arcs be shown?
 * `enableTooltips` (default: true): Should tooltips be shown on mouseover?
 * `enableExpandOnClick` (default: true): Should the tree collapse and expand when clicking on nodes? If disabled, the entire tree is automatically expanded when loaded.
+* `enableRightClick` (default: true): Should the tree *reroot* when right clicking a node?
 
 #### Functions
 * `getTooltip`: Function that returns the html to use as tooltip for a node. Is called with a node as parameter. By default, the result of `getTooltipTitle` is used in a header tag and the result of `getTooltipText` is used in a paragraph tag.

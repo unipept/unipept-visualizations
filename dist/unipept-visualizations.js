@@ -28,6 +28,7 @@
 
                 enableInnerArcs: true,
                 enableExpandOnClick: true,
+                enableRightClick: false,
 
                 enableTooltips: true,
                 getTooltip: getTooltip,
@@ -328,10 +329,16 @@
             centerNode(d);
         }
 
-        // Sets the width of the right clicked node to 100%
         function rightClick(d) {
+            if (settings.enableRightClick) {
+                reroot(d);
+            }
+        }
+
+        // Sets the width of the right clicked node to 100%
+        function reroot(d) {
             if (d === visibleRoot && d !== root) {
-                rightClick(root);
+                reroot(root);
                 return;
             }
             visibleRoot = d;
@@ -510,7 +517,7 @@
         /*************** Public methods ***************/
         that.reset = function reset() {
             zoomListener.scale(1);
-            rightClick(root);
+            reroot(root);
         };
 
         // initialize the object
