@@ -31,6 +31,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             DEFAULTS = {
             height: 300,
             width: 600,
+            nodeDistance: 180,
 
             colors: function colors(d) {
                 return COLOR_SCALE(d.name);
@@ -153,7 +154,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             // Normalize for fixed-depth.
             nodes.forEach(function (d) {
-                d.y = d.depth * 180;
+                d.y = d.depth * settings.nodeDistance;
             });
 
             // Update the nodes…

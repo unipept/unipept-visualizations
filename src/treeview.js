@@ -19,6 +19,7 @@
             DEFAULTS = {
                 height: 300,
                 width: 600,
+                nodeDistance: 180,
 
                 colors: d => COLOR_SCALE(d.name),
                 nodeFillColor: nodeFillColor,
@@ -161,7 +162,7 @@
 
             // Normalize for fixed-depth.
             nodes.forEach(d => {
-                d.y = d.depth * 180;
+                d.y = d.depth * settings.nodeDistance;
             });
 
             // Update the nodes…
