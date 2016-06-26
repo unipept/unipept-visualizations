@@ -130,23 +130,11 @@
             root.y0 = 0;
 
             // set everything visible
-            root.setVisible();
+            root.setSelected(true);
 
-            // set colors
-            function color(d, i, c) {
-                if (c) {
-                    d.color = c;
-                } else {
-                    d.color = d3.functor(settings.colors).call(this, d, i);
-                }
-                if (d.children) {
-                    d.children.forEach((node) => {
-                        color(node, i, d.color);
-                    });
-                }
-            }
-            root.children.forEach((node, i) => {
-                color(node, i);
+            root.children.forEach((d, i) => {
+                d.color = d3.functor(settings.colors).call(this, d, i);
+                d.setRecursiveProperty("color", d.color);
             });
 
             if (settings.enableExpandOnClick) {
@@ -444,32 +432,27 @@
                 return Object.assign(new Node(), node);
             }
 
+            // sets a property for a node and all its children
+            setRecursiveProperty(property, value) {
+                this[property] = value;
+                if (this.children) {
+                    this.children.forEach(c => {
+                        c.setRecursiveProperty(property, value);
+                    });
+                } else if (this._children) {
+                    this._children.forEach(c => {
+                        c.setRecursiveProperty(property, value);
+                    });
+                }
+            }
+
             // Returns true if a node is a leaf
             isLeaf() {
                 return this.children || this._children;
             }
 
-            // set node and children visible
-            setVisible() {
-                this.selected = true;
-                if (this.children) {
-                    this.children.forEach(c => {
-                        c.setVisible();
-                    });
-                }
-            }
-
             setSelected(value) {
-                this.selected = value;
-                if (this.children) {
-                    this.children.forEach(c => {
-                        c.setSelected(value);
-                    });
-                } else if (this._children) {
-                    this._children.forEach(c => {
-                        c.setSelected(value);
-                    });
-                }
+                this.setRecursiveProperty("selected", value);
             }
 
             // collapse everything

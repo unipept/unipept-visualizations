@@ -42,7 +42,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             enableInnerArcs: true,
             enableExpandOnClick: true,
-            enableRightClick: false,
+            enableRightClick: true,
 
             enableTooltips: true,
             getTooltip: getTooltip,
@@ -115,6 +115,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function draw(data) {
+            var _this = this;
+
             widthScale.domain([0, data.data.count]);
 
             root = data;
@@ -122,23 +124,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             root.y0 = 0;
 
             // set everything visible
-            root.setVisible();
+            root.setSelected(true);
 
-            // set colors
-            function color(d, i, c) {
-                if (c) {
-                    d.color = c;
-                } else {
-                    d.color = d3.functor(settings.colors).call(this, d, i);
-                }
-                if (d.children) {
-                    d.children.forEach(function (node) {
-                        color(node, i, d.color);
-                    });
-                }
-            }
-            root.children.forEach(function (node, i) {
-                color(node, i);
+            root.children.forEach(function (d, i) {
+                d.color = d3.functor(settings.colors).call(_this, d, i);
+                d.setRecursiveProperty("color", d.color);
             });
 
             if (settings.enableExpandOnClick) {
@@ -398,39 +388,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             _createClass(Node, [{
-                key: "isLeaf",
+                key: "setRecursiveProperty",
 
 
-                // Returns true if a node is a leaf
-                value: function isLeaf() {
-                    return this.children || this._children;
-                }
-
-                // set node and children visible
-
-            }, {
-                key: "setVisible",
-                value: function setVisible() {
-                    this.selected = true;
+                // sets a property for a node and all its children
+                value: function setRecursiveProperty(property, value) {
+                    this[property] = value;
                     if (this.children) {
                         this.children.forEach(function (c) {
-                            c.setVisible();
+                            c.setRecursiveProperty(property, value);
+                        });
+                    } else if (this._children) {
+                        this._children.forEach(function (c) {
+                            c.setRecursiveProperty(property, value);
                         });
                     }
+                }
+
+                // Returns true if a node is a leaf
+
+            }, {
+                key: "isLeaf",
+                value: function isLeaf() {
+                    return this.children || this._children;
                 }
             }, {
                 key: "setSelected",
                 value: function setSelected(value) {
-                    this.selected = value;
-                    if (this.children) {
-                        this.children.forEach(function (c) {
-                            c.setSelected(value);
-                        });
-                    } else if (this._children) {
-                        this._children.forEach(function (c) {
-                            c.setSelected(value);
-                        });
-                    }
+                    this.setRecursiveProperty("selected", value);
                 }
 
                 // collapse everything
