@@ -24,6 +24,8 @@
                 minNodeSize: 2,
                 maxNodeSize: 105,
 
+                countAccessor: d => d.data.count,
+
                 colors: d => COLOR_SCALE(d.name),
                 nodeFillColor: nodeFillColor,
                 nodeStrokeColor: nodeStrokeColor,
@@ -433,11 +435,27 @@
         }
 
         class Node {
+            constructor() {
+                this.data = {};
+            }
+
             static createNode(node) {
                 if (node.children) {
                     node.children = node.children.map(n => Node.createNode(n));
                 }
-                return Object.assign(new Node(), node);
+                let obj = Object.assign(new Node(), node);
+                obj.setCount();
+                return obj;
+            }
+
+            setCount() {
+                if (settings.countAccessor(this)) {
+                    this.data.count = settings.countAccessor(this);
+                } else if (this.children){
+                    this.data.count = this.children.reduce((sum, c) => sum + c.data.count, 0);
+                } else {
+                    this.data.count = 0;
+                }
             }
 
             // sets a property for a node and all its children

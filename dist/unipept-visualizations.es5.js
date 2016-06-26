@@ -36,6 +36,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             minNodeSize: 2,
             maxNodeSize: 105,
 
+            countAccessor: function countAccessor(d) {
+                return d.data.count;
+            },
+
             colors: function colors(d) {
                 return COLOR_SCALE(d.name);
             },
@@ -393,13 +397,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var Node = function () {
             function Node() {
                 _classCallCheck(this, Node);
+
+                this.data = {};
             }
 
             _createClass(Node, [{
-                key: "setRecursiveProperty",
-
+                key: "setCount",
+                value: function setCount() {
+                    if (settings.countAccessor(this)) {
+                        this.data.count = settings.countAccessor(this);
+                    } else if (this.children) {
+                        this.data.count = this.children.reduce(function (sum, c) {
+                            return sum + c.data.count;
+                        }, 0);
+                    } else {
+                        this.data.count = 0;
+                    }
+                }
 
                 // sets a property for a node and all its children
+
+            }, {
+                key: "setRecursiveProperty",
                 value: function setRecursiveProperty(property, value) {
                     this[property] = value;
                     if (this.children) {
@@ -486,7 +505,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                             return Node.createNode(n);
                         });
                     }
-                    return _extends(new Node(), node);
+                    var obj = _extends(new Node(), node);
+                    obj.setCount();
+                    return obj;
                 }
             }]);
 
