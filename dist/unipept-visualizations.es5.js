@@ -50,7 +50,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             enableInnerArcs: true,
             enableExpandOnClick: true,
             enableRightClick: true,
+
             enableLabels: true,
+            getLabel: function getLabel(d) {
+                return d.name;
+            },
 
             enableTooltips: true,
             getTooltip: getTooltip,
@@ -181,9 +185,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     return d.isLeaf() ? -10 : 10;
                 }).attr("dy", ".35em").attr("text-anchor", function (d) {
                     return d.isLeaf() ? "end" : "start";
-                }).text(function (d) {
-                    return d.name;
-                }).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
+                }).text(settings.getLabel).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
             }
 
             // Transition nodes to their new position.

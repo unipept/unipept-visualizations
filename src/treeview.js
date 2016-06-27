@@ -34,7 +34,9 @@
                 enableInnerArcs: true,
                 enableExpandOnClick: true,
                 enableRightClick: true,
+
                 enableLabels: true,
+                getLabel: d => d.name,
 
                 enableTooltips: true,
                 getTooltip: getTooltip,
@@ -196,7 +198,7 @@
                     .attr("x", d => d.isLeaf() ? -10 : 10)
                     .attr("dy", ".35em")
                     .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
-                    .text(d => d.name)
+                    .text(settings.getLabel)
                     .style("font", "10px sans-serif")
                     .style("fill-opacity", 1e-6);
             }
