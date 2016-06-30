@@ -3,11 +3,20 @@
  */
 (function () {
     var TreeMap = function TreeMap(element, data, options = {}) {
+        let that = {};
 
-        // parameters
-        var that = {},
-            multi = args.multi,
-            data = args.data;
+        const MARGIN = {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            },
+            DEFAULTS = {
+                height: 300,
+                width: 600
+            };
+
+        let settings;
 
         var ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
 
@@ -19,23 +28,14 @@
             breadcrumbs,
             div;
 
-        var margin = {
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0
-            },
-            width = 916 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
-
-        /*************** Private methods ***************/
-
         /**
          * Initializes Treemap
          */
         function init() {
-            // init controls
-            initControls();
+            settings = Object.assign({}, DEFAULTS, options);
+
+            settings.width = settings.width - MARGIN.right - MARGIN.left;
+            settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
             // setup the visualisation
             redraw();
@@ -45,22 +45,14 @@
         }
 
         /**
-         * Initialise the controls
-         */
-        function initControls() {
-            // the reset button
-            $("#treemap-reset").click(that.reset);
-        }
-
-        /**
          * Redraw everything
          */
         function redraw() {
             // clear old stuff
-            $("#d3TreeMap").empty();
+            $(element).empty();
 
             treemap = d3.layout.treemap()
-                .size([width + 1, height + 1])
+                .size([settings.width + 1, settings.height + 1])
                 .padding([10, 0, 0, 0])
                 .value(function (d) {
                     return d.data.self_count;
@@ -73,19 +65,19 @@
                     .range(["#104B7D", "#fdffcc"])
                     .interpolate(d3.interpolateLab)));
 
-            breadcrumbs = d3.select("#d3TreeMap").append("div")
+            breadcrumbs = d3.select(element).append("div")
                 .attr("class", "breadcrumbs")
                 .style("position", "relative")
-                .style("width", (width + margin.left + margin.right) + "px")
+                .style("width", (settings.width + MARGIN.left + MARGIN.right) + "px")
                 .style("height", "20px")
                 .style("background-color", "#FF8F00");
 
-            div = d3.select("#d3TreeMap").append("div")
+            div = d3.select(element).append("div")
                 .style("position", "relative")
-                .style("width", (width + margin.left + margin.right) + "px")
-                .style("height", (height + margin.top + margin.bottom) + "px")
-                .style("left", margin.left + "px")
-                .style("top", margin.top + "px");
+                .style("width", (settings.width + MARGIN.left + MARGIN.right) + "px")
+                .style("height", (settings.height + MARGIN.top + MARGIN.bottom) + "px")
+                .style("left", MARGIN.left + "px")
+                .style("top", MARGIN.top + "px");
         }
 
         /**
@@ -119,6 +111,26 @@
             that.update(current);
         }
 
+        /*
+         * Returns the readable text color based on the brightness of a given backgroud color
+         */
+        function getReadableColorFor(color) {
+            let textColor = "#000";
+            try {
+                textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
+            } catch (err) {}
+            return textColor;
+        }
+
+        /*
+         * Returns the brightness of an rgb-color
+         * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
+         */
+        function brightness(rgb) {
+            return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
+        }
+
+
         /*************** Public methods ***************/
 
         /**
@@ -128,7 +140,7 @@
             current = data;
 
             // search for the new root
-            multi.search(data.name);
+            //multi.search(data.name);
 
             // breadcrumbs
             var crumbs = [];
@@ -151,7 +163,6 @@
                     return "<span class='link'>" + d.name + "</span>";
                 })
                 .on("click", function (d) {
-                    logToGoogle("Multi Peptide", "Zoom", "Treemap", "Breadcrumb");
                     update(d);
                 });
 
@@ -169,13 +180,14 @@
                 .style("color", function (d) {
                     return getReadableColorFor(colorScale(d.data.rank));
                 })
+                .style("overflow", "hidden")
+                .style("position", "absolute")
                 .style("left", "0px")
                 .style("top", "0px")
                 .style("width", "0px")
                 .style("height", "0px")
-                .text(multi.getTitle)
+                .text(d => d.name)
                 .on("click", function (d) {
-                    logToGoogle("Multi Peptide", "Zoom", "Treemap");
                     update(d);
                 })
                 .on("contextmenu", function (d) {
@@ -184,7 +196,7 @@
                         update(current.parent);
                     }
                 })
-                .on("mouseover", function (d) {
+                /*.on("mouseover", function (d) {
                     multi.tooltipIn(d, tooltip, true);
                 })
                 .on("mousemove", function () {
@@ -192,7 +204,8 @@
                 })
                 .on("mouseout", function (d) {
                     multi.tooltipOut(tooltip);
-                });
+                })*/
+            ;
 
             nodes.order()
                 .transition()
@@ -218,8 +231,8 @@
             // so the height en width functions don't give a correct result
             // without the delay
             setTimeout(function () {
-                var w = width,
-                    h = height;
+                var w = settings.width,
+                    h = settings.height;
                 if (isFullScreen) {
                     w = $(window).width();
                     h = $(window).height() - 44;
@@ -249,6 +262,6 @@
         });
     }
 
-    $.fn.treeview = Plugin;
-    $.fn.treeview.Constructor = TreeMap;
+    $.fn.treemap = Plugin;
+    $.fn.treemap.Constructor = TreeMap;
 })();
