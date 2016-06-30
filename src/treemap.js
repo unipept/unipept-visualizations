@@ -1,10 +1,8 @@
 /**
- * Constructs a Treemap object that represents the treemap visualisation
- *
- * @return <Streemap> that The constructed Treemap object
+ * Interactive treemap
  */
-var constructTreemap = function constructTreemap(args) {
-    /*************** Private variables ***************/
+(function () {
+    var TreeMap = function TreeMap(element, data, options = {}) {
 
     // parameters
     var that = {},
@@ -202,3 +200,22 @@ var constructTreemap = function constructTreemap(args) {
 
     return that;
 };
+
+    function Plugin(userData, option) {
+        return this.each(function () {
+            let $this = $(this);
+            let data = $this.data('vis.treemap');
+            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
+
+            if (!data) {
+                $this.data('vis.treemap', (data = new TreeMap(this, userData, options)));
+            }
+            if (typeof option === 'string') {
+                data[option]();
+            }
+        });
+    }
+
+    $.fn.treeview = Plugin;
+    $.fn.treeview.Constructor = TreeMap;
+})();
