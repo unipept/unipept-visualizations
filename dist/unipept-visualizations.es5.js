@@ -32,6 +32,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             getLevel: function getLevel(d) {
                 return d.getDepth();
+            },
+            getBreadcrumbTooltip: function getBreadcrumbTooltip(d) {
+                return d.name;
             }
         };
 
@@ -210,9 +213,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
             crumbs.reverse();
             breadcrumbs.html("");
-            breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", function (d) {
-                return d.data.rank;
-            }).html(function (d) {
+            breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", settings.getBreadcrumbTooltip).html(function (d) {
                 return "<span class='link'>" + d.name + "</span>";
             }).on("click", update);
 

@@ -18,7 +18,8 @@
                 className: 'unipept-treemap',
                 levels: undefined,
 
-                getLevel: d => d.getDepth()
+                getLevel: d => d.getDepth(),
+                getBreadcrumbTooltip: d => d.name
             };
 
         let settings;
@@ -238,7 +239,7 @@
                 .enter()
                 .append("span")
                 .attr("class", "crumb")
-                .attr("title", d => d.data.rank)
+                .attr("title", settings.getBreadcrumbTooltip)
                 .html(d => `<span class='link'>${d.name}</span>`)
                 .on("click", update);
 
