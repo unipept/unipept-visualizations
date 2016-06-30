@@ -15,14 +15,15 @@
                 height: 300,
                 width: 600,
 
-                className: 'unipept-treemap'
+                className: 'unipept-treemap',
+                levels: undefined,
+
+                getLevel: d => d.getDepth()
             };
 
         let settings;
 
-        var ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
-
-        var root = data,
+        var root,
             current,
             tooltip = d3.select("#tooltip"),
             treemap,
@@ -36,8 +37,12 @@
         function init() {
             settings = Object.assign({}, DEFAULTS, options);
 
+            root = Node.createNode(data);
+
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
+
+            settings.levels = settings.levels || root.getHeight();
 
             initCSS();
 
@@ -106,12 +111,10 @@
                 .padding([10, 0, 0, 0])
                 .value(d => d.data.self_count);
 
-            colorScale = d3.scale.ordinal()
-                .domain(ranks)
-                .range(d3.range(ranks.length).map(d3.scale.linear()
-                    .domain([0, ranks.length - 1])
-                    .range(["#104B7D", "#fdffcc"])
-                    .interpolate(d3.interpolateLab)));
+            colorScale = d3.scale.linear()
+                .domain([0, settings.levels])
+                .range(["#104B7D", "#fdffcc"])
+                .interpolate(d3.interpolateLab);
 
             breadcrumbs = d3.select(element).append("div")
                 .attr("class", "breadcrumbs")
@@ -168,6 +171,47 @@
             return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         }
 
+        class Node {
+            constructor() {
+                this.data = {};
+            }
+
+            static createNode(node) {
+                if (node.children) {
+                    node.children = node.children.map(n => Node.createNode(n));
+                }
+                return Object.assign(new Node(), node);
+            }
+
+            getHeight() {
+                if (this._height === undefined) {
+                    if (this.isLeaf()) {
+                        this._height = 0;
+                    } else {
+                        this._height = d3.max(this.children, c => c.getHeight()) + 1;
+                    }
+                }
+                return this._height;
+            }
+
+            getDepth() {
+                if (this._depth === undefined) {
+                    if (this.parent === undefined) {
+                        this._depth = 0;
+                    } else {
+                        this._depth = this.parent.getDepth() + 1;
+                    }
+                }
+                return this._depth;
+            }
+
+            isLeaf() {
+                return (!this.children && !this._children) ||
+                    (this.children && this.children.length === 0) ||
+                    (this._children && this._children.length === 0);
+            }
+        }
+
 
         /*************** Public methods ***************/
 
@@ -204,8 +248,8 @@
             nodes.enter()
                 .append("div")
                 .attr("class", "node")
-                .style("background", d => colorScale(d.data.rank))
-                .style("color", d => getReadableColorFor(colorScale(d.data.rank)))
+                .style("background", d => colorScale(settings.getLevel(d)))
+                .style("color", d => getReadableColorFor(colorScale(settings.getLevel(d))))
                 .style("left", "0px")
                 .style("top", "0px")
                 .style("width", "0px")

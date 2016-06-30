@@ -1,8 +1,8 @@
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -27,14 +27,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             height: 300,
             width: 600,
 
-            className: 'unipept-treemap'
+            className: 'unipept-treemap',
+            levels: undefined,
+
+            getLevel: function getLevel(d) {
+                return d.getDepth();
+            }
         };
 
         var settings = void 0;
 
-        var ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
-
-        var root = data,
+        var root,
             current,
             tooltip = d3.select("#tooltip"),
             treemap,
@@ -48,8 +51,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function init() {
             settings = _extends({}, DEFAULTS, options);
 
+            root = Node.createNode(data);
+
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
+
+            settings.levels = settings.levels || root.getHeight();
 
             initCSS();
 
@@ -77,7 +84,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return d.data.self_count;
             });
 
-            colorScale = d3.scale.ordinal().domain(ranks).range(d3.range(ranks.length).map(d3.scale.linear().domain([0, ranks.length - 1]).range(["#104B7D", "#fdffcc"]).interpolate(d3.interpolateLab)));
+            colorScale = d3.scale.linear().domain([0, settings.levels]).range(["#104B7D", "#fdffcc"]).interpolate(d3.interpolateLab);
 
             breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + MARGIN.left + MARGIN.right + "px").style("height", "20px").style("background-color", "#FF8F00");
 
@@ -128,11 +135,66 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         }
 
+        var Node = function () {
+            function Node() {
+                _classCallCheck(this, Node);
+
+                this.data = {};
+            }
+
+            _createClass(Node, [{
+                key: "getHeight",
+                value: function getHeight() {
+                    if (this._height === undefined) {
+                        if (this.isLeaf()) {
+                            this._height = 0;
+                        } else {
+                            this._height = d3.max(this.children, function (c) {
+                                return c.getHeight();
+                            }) + 1;
+                        }
+                    }
+                    return this._height;
+                }
+            }, {
+                key: "getDepth",
+                value: function getDepth() {
+                    if (this._depth === undefined) {
+                        if (this.parent === undefined) {
+                            this._depth = 0;
+                        } else {
+                            this._depth = this.parent.getDepth() + 1;
+                        }
+                    }
+                    return this._depth;
+                }
+            }, {
+                key: "isLeaf",
+                value: function isLeaf() {
+                    return !this.children && !this._children || this.children && this.children.length === 0 || this._children && this._children.length === 0;
+                }
+            }], [{
+                key: "createNode",
+                value: function createNode(node) {
+                    if (node.children) {
+                        node.children = node.children.map(function (n) {
+                            return Node.createNode(n);
+                        });
+                    }
+                    return _extends(new Node(), node);
+                }
+            }]);
+
+            return Node;
+        }();
+
         /*************** Public methods ***************/
 
         /**
          * Updates the treemap and sets data as new root
          */
+
+
         that.update = function update(data) {
             current = data;
 
@@ -159,9 +221,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             });
 
             nodes.enter().append("div").attr("class", "node").style("background", function (d) {
-                return colorScale(d.data.rank);
+                return colorScale(settings.getLevel(d));
             }).style("color", function (d) {
-                return getReadableColorFor(colorScale(d.data.rank));
+                return getReadableColorFor(colorScale(settings.getLevel(d)));
             }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
                 return d.name;
             }).on("click", update).on("contextmenu", function (d) {
