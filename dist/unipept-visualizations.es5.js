@@ -142,9 +142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return d.data.rank;
             }).html(function (d) {
                 return "<span class='link'>" + d.name + "</span>";
-            }).on("click", function (d) {
-                update(d);
-            });
+            }).on("click", update);
 
             var nodes = div.selectAll(".node").data(treemap.nodes(data), function (d) {
                 return d.id;
@@ -156,9 +154,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return getReadableColorFor(colorScale(d.data.rank));
             }).style("overflow", "hidden").style("position", "absolute").style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
                 return d.name;
-            }).on("click", function (d) {
-                update(d);
-            }).on("contextmenu", function (d) {
+            }).on("click", update).on("contextmenu", function (d) {
                 d3.event.preventDefault();
                 if (current.parent) {
                     update(current.parent);

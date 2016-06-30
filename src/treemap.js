@@ -54,9 +54,7 @@
             treemap = d3.layout.treemap()
                 .size([settings.width + 1, settings.height + 1])
                 .padding([10, 0, 0, 0])
-                .value(function (d) {
-                    return d.data.self_count;
-                });
+                .value(d => d.data.self_count);
 
             colorScale = d3.scale.ordinal()
                 .domain(ranks)
@@ -84,18 +82,10 @@
          * calculates the position of a square
          */
         function position() {
-            this.style("left", function (d) {
-                    return d.x + "px";
-                })
-                .style("top", function (d) {
-                    return d.y + "px";
-                })
-                .style("width", function (d) {
-                    return Math.max(0, d.dx - 1) + "px";
-                })
-                .style("height", function (d) {
-                    return Math.max(0, d.dy - 1) + "px";
-                });
+            this.style("left", d => d.x + "px")
+                .style("top", d => d.y + "px")
+                .style("width", d => Math.max(0, d.dx - 1) + "px")
+                .style("height", d => Math.max(0, d.dy - 1) + "px");
         }
 
         /**
@@ -105,9 +95,7 @@
             treemap = d3.layout.treemap()
                 .size([width + 1, height + 1])
                 .padding([10, 0, 0, 0])
-                .value(function (d) {
-                    return d.data.self_count;
-                });
+                .value(d => d.data.self_count);
             that.update(current);
         }
 
@@ -143,8 +131,8 @@
             //multi.search(data.name);
 
             // breadcrumbs
-            var crumbs = [];
-            var temp = data;
+            let crumbs = [];
+            let temp = data;
             while (temp) {
                 crumbs.push(temp);
                 temp = temp.parent;
@@ -156,30 +144,18 @@
                 .enter()
                 .append("span")
                 .attr("class", "crumb")
-                .attr("title", function (d) {
-                    return d.data.rank;
-                })
-                .html(function (d) {
-                    return "<span class='link'>" + d.name + "</span>";
-                })
-                .on("click", function (d) {
-                    update(d);
-                });
+                .attr("title", d => d.data.rank)
+                .html(d => `<span class='link'>${d.name}</span>`)
+                .on("click", update);
 
-            var nodes = div.selectAll(".node")
-                .data(treemap.nodes(data), function (d) {
-                    return d.id;
-                });
+            let nodes = div.selectAll(".node")
+                .data(treemap.nodes(data), d => d.id);
 
             nodes.enter()
                 .append("div")
                 .attr("class", "node")
-                .style("background", function (d) {
-                    return colorScale(d.data.rank);
-                })
-                .style("color", function (d) {
-                    return getReadableColorFor(colorScale(d.data.rank));
-                })
+                .style("background", d => colorScale(d.data.rank))
+                .style("color", d => getReadableColorFor(colorScale(d.data.rank)))
                 .style("overflow", "hidden")
                 .style("position", "absolute")
                 .style("left", "0px")
@@ -187,10 +163,8 @@
                 .style("width", "0px")
                 .style("height", "0px")
                 .text(d => d.name)
-                .on("click", function (d) {
-                    update(d);
-                })
-                .on("contextmenu", function (d) {
+                .on("click", update)
+                .on("contextmenu", d => {
                     d3.event.preventDefault();
                     if (current.parent) {
                         update(current.parent);
@@ -231,8 +205,7 @@
             // so the height en width functions don't give a correct result
             // without the delay
             setTimeout(function () {
-                var w = settings.width,
-                    h = settings.height;
+                let [w, h] = [settings.width, settings.height];
                 if (isFullScreen) {
                     w = $(window).width();
                     h = $(window).height() - 44;
