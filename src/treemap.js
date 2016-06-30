@@ -13,7 +13,9 @@
             },
             DEFAULTS = {
                 height: 300,
-                width: 600
+                width: 600,
+
+                className: 'unipept-treemap'
             };
 
         let settings;
@@ -37,11 +39,59 @@
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
+            initCSS();
+
             // setup the visualisation
             redraw();
 
             // fake first click
             that.reset();
+        }
+
+        function initCSS() {
+            let elementClass = settings.className;
+            $(element).addClass(elementClass);
+            $("<style>").prop("type", "text/css")
+                .html(`
+                    .${elementClass} {
+                        font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+                    }
+                    .${elementClass} .node {
+                        font-size: 9px;
+                        line-height: 10px;
+                        overflow: hidden;
+                        position: absolute;
+                        text-indent: 2px;
+                        text-align: center;
+                        text-overflow: ellipsis;
+                        cursor: pointer;
+                    }
+                    .${elementClass} .node:hover {
+                        outline: 1px solid white;
+                    }
+                    .${elementClass} .breadcrumbs {
+                        font-size: 11px;
+                        line-height: 20px;
+                        padding-left: 5px;
+                        font-weight: bold;
+                        color: white;
+                        box-sizing: border-box;
+                    }
+                    .full-screen .${elementClass} .breadcrumbs {
+                        width: 100% !important;
+                    }
+                    .${elementClass} .crumb {
+                        cursor: pointer;
+                    }
+                    .${elementClass} .crumb .link:hover {
+                        text-decoration: underline;
+                    }
+                    .${elementClass} .breadcrumbs .crumb + .crumb::before {
+                        content: " > ";
+                        cursor: default;
+                    }
+                `)
+                .appendTo("head");
         }
 
         /**
@@ -156,8 +206,6 @@
                 .attr("class", "node")
                 .style("background", d => colorScale(d.data.rank))
                 .style("color", d => getReadableColorFor(colorScale(d.data.rank)))
-                .style("overflow", "hidden")
-                .style("position", "absolute")
                 .style("left", "0px")
                 .style("top", "0px")
                 .style("width", "0px")

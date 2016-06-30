@@ -25,7 +25,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
             DEFAULTS = {
             height: 300,
-            width: 600
+            width: 600,
+
+            className: 'unipept-treemap'
         };
 
         var settings = void 0;
@@ -49,11 +51,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
+            initCSS();
+
             // setup the visualisation
             redraw();
 
             // fake first click
             that.reset();
+        }
+
+        function initCSS() {
+            var elementClass = settings.className;
+            $(element).addClass(elementClass);
+            $("<style>").prop("type", "text/css").html("\n                    ." + elementClass + " {\n                        font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n                    }\n                    ." + elementClass + " .node {\n                        font-size: 9px;\n                        line-height: 10px;\n                        overflow: hidden;\n                        position: absolute;\n                        text-indent: 2px;\n                        text-align: center;\n                        text-overflow: ellipsis;\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .node:hover {\n                        outline: 1px solid white;\n                    }\n                    ." + elementClass + " .breadcrumbs {\n                        font-size: 11px;\n                        line-height: 20px;\n                        padding-left: 5px;\n                        font-weight: bold;\n                        color: white;\n                        box-sizing: border-box;\n                    }\n                    .full-screen ." + elementClass + " .breadcrumbs {\n                        width: 100% !important;\n                    }\n                    ." + elementClass + " .crumb {\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .crumb .link:hover {\n                        text-decoration: underline;\n                    }\n                    ." + elementClass + " .breadcrumbs .crumb + .crumb::before {\n                        content: \" > \";\n                        cursor: default;\n                    }\n                ").appendTo("head");
         }
 
         /**
@@ -152,7 +162,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return colorScale(d.data.rank);
             }).style("color", function (d) {
                 return getReadableColorFor(colorScale(d.data.rank));
-            }).style("overflow", "hidden").style("position", "absolute").style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
+            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
                 return d.name;
             }).on("click", update).on("contextmenu", function (d) {
                 d3.event.preventDefault();
@@ -193,8 +203,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             // so the height en width functions don't give a correct result
             // without the delay
             setTimeout(function () {
-                var w = settings.width,
-                    h = settings.height;
+                var w = settings.width;
+                var h = settings.height;
+
                 if (isFullScreen) {
                     w = $(window).width();
                     h = $(window).height() - 44;
