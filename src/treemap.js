@@ -25,18 +25,17 @@
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
                 getTooltipText: getTooltipText
-
             };
 
         let settings;
 
-        var root,
+        let root,
             current,
-            tooltip,
-            treemap,
-            colorScale,
+            treemapLayout,
             breadcrumbs,
-            div;
+            treemap,
+            tooltip,
+            colorScale;
 
         /**
          * Initializes Treemap
@@ -58,9 +57,7 @@
             initCSS();
 
             // setup the visualisation
-            redraw();
-
-            // fake first click
+            draw(root);
             that.reset();
         }
 
@@ -124,14 +121,10 @@
                 .appendTo("head");
         }
 
-        /**
-         * Redraw everything
-         */
-        function redraw() {
-            // clear old stuff
+        function draw(data) {
             $(element).empty();
 
-            treemap = d3.layout.treemap()
+            treemapLayout = d3.layout.treemap()
                 .size([settings.width + 1, settings.height + 1])
                 .padding([10, 0, 0, 0])
                 .value(d => d.data.self_count);
@@ -144,20 +137,86 @@
             breadcrumbs = d3.select(element).append("div")
                 .attr("class", "breadcrumbs")
                 .style("position", "relative")
-                .style("width", (settings.width + MARGIN.left + MARGIN.right) + "px")
+                .style("width", settings.width + "px")
                 .style("height", "20px")
                 .style("background-color", "#FF8F00");
 
-            div = d3.select(element).append("div")
+            treemap = d3.select(element).append("div")
                 .style("position", "relative")
-                .style("width", (settings.width + MARGIN.left + MARGIN.right) + "px")
-                .style("height", (settings.height + MARGIN.top + MARGIN.bottom) + "px")
+                .style("width", settings.width + "px")
+                .style("height", settings.height + "px")
                 .style("left", MARGIN.left + "px")
                 .style("top", MARGIN.top + "px");
         }
 
+        function setBreadcrumbs() {
+            let crumbs = [];
+            let temp = current;
+            while (temp) {
+                crumbs.push(temp);
+                temp = temp.parent;
+            }
+            crumbs.reverse();
+            breadcrumbs.html("");
+            breadcrumbs.selectAll(".crumb")
+                .data(crumbs)
+                .enter()
+                .append("span")
+                .attr("class", "crumb")
+                .attr("title", settings.getBreadcrumbTooltip)
+                .html(d => `<span class='link'>${d.name}</span>`)
+                .on("click", reroot);
+        }
+
+        function reroot(data) {
+            current = data;
+
+            setBreadcrumbs();
+
+            // search for the new root
+            //multi.search(data.name);
+
+            let nodes = treemap.selectAll(".node")
+                .data(treemapLayout.nodes(data), d => d.id);
+
+            nodes.enter()
+                .append("div")
+                .attr("class", "node")
+                .style("background", d => colorScale(settings.getLevel(d)))
+                .style("color", d => getReadableColorFor(colorScale(settings.getLevel(d))))
+                .style("left", "0px")
+                .style("top", "0px")
+                .style("width", "0px")
+                .style("height", "0px")
+                .text(d => d.name)
+                .on("click", reroot)
+                .on("contextmenu", d => {
+                    d3.event.preventDefault();
+                    if (current.parent) {
+                        reroot(current.parent);
+                    }
+                })
+                .on("mouseover", tooltipIn)
+                .on("mousemove", tooltipMove)
+                .on("mouseout", tooltipOut);
+
+            nodes.order()
+                .transition()
+                .call(position);
+
+            nodes.exit().remove();
+        }
+
+        function update() {
+            let nodes = treemap.selectAll(".node")
+                .data(treemapLayout.nodes(data), d => d.id)
+                .order()
+                .transition()
+                .call(position);
+        }
+
         /**
-         * calculates the position of a square
+         * sets the position of a square
          */
         function position() {
             this.style("left", d => d.x + "px")
@@ -170,11 +229,11 @@
          * Resizes the treemap for a given width and height
          */
         function resize(width, height) {
-            treemap = d3.layout.treemap()
+            treemapLayout = d3.layout.treemap()
                 .size([width + 1, height + 1])
                 .padding([10, 0, 0, 0])
                 .value(d => d.data.self_count);
-            that.update(current);
+            update();
         }
 
         // tooltip functions
@@ -277,70 +336,11 @@
 
 
         /*************** Public methods ***************/
-
-        /**
-         * Updates the treemap and sets data as new root
-         */
-        that.update = function update(data) {
-            current = data;
-
-            // search for the new root
-            //multi.search(data.name);
-
-            // breadcrumbs
-            let crumbs = [];
-            let temp = data;
-            while (temp) {
-                crumbs.push(temp);
-                temp = temp.parent;
-            }
-            crumbs.reverse();
-            breadcrumbs.html("");
-            breadcrumbs.selectAll(".crumb")
-                .data(crumbs)
-                .enter()
-                .append("span")
-                .attr("class", "crumb")
-                .attr("title", settings.getBreadcrumbTooltip)
-                .html(d => `<span class='link'>${d.name}</span>`)
-                .on("click", update);
-
-            let nodes = div.selectAll(".node")
-                .data(treemap.nodes(data), d => d.id);
-
-            nodes.enter()
-                .append("div")
-                .attr("class", "node")
-                .style("background", d => colorScale(settings.getLevel(d)))
-                .style("color", d => getReadableColorFor(colorScale(settings.getLevel(d))))
-                .style("left", "0px")
-                .style("top", "0px")
-                .style("width", "0px")
-                .style("height", "0px")
-                .text(d => d.name)
-                .on("click", update)
-                .on("contextmenu", d => {
-                    d3.event.preventDefault();
-                    if (current.parent) {
-                        update(current.parent);
-                    }
-                })
-                .on("mouseover", tooltipIn)
-                .on("mousemove", tooltipMove)
-                .on("mouseout", tooltipOut);
-
-            nodes.order()
-                .transition()
-                .call(position);
-
-            nodes.exit().remove();
-        };
-
         /**
          * Resets the treemap to its initial position
          */
         that.reset = function reset() {
-            that.update(root);
+            reroot(root);
         };
 
         /**

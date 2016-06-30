@@ -41,12 +41,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             getTooltip: getTooltip,
             getTooltipTitle: getTooltipTitle,
             getTooltipText: getTooltipText
-
         };
 
         var settings = void 0;
 
-        var root, current, tooltip, treemap, colorScale, breadcrumbs, div;
+        var root = void 0,
+            current = void 0,
+            treemapLayout = void 0,
+            breadcrumbs = void 0,
+            treemap = void 0,
+            tooltip = void 0,
+            colorScale = void 0;
 
         /**
          * Initializes Treemap
@@ -68,9 +73,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             initCSS();
 
             // setup the visualisation
-            redraw();
-
-            // fake first click
+            draw(root);
             that.reset();
         }
 
@@ -84,26 +87,72 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             $("<style>").prop("type", "text/css").html("\n                    ." + elementClass + " {\n                        font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n                    }\n                    ." + elementClass + " .node {\n                        font-size: 9px;\n                        line-height: 10px;\n                        overflow: hidden;\n                        position: absolute;\n                        text-indent: 2px;\n                        text-align: center;\n                        text-overflow: ellipsis;\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .node:hover {\n                        outline: 1px solid white;\n                    }\n                    ." + elementClass + " .breadcrumbs {\n                        font-size: 11px;\n                        line-height: 20px;\n                        padding-left: 5px;\n                        font-weight: bold;\n                        color: white;\n                        box-sizing: border-box;\n                    }\n                    .full-screen ." + elementClass + " .breadcrumbs {\n                        width: 100% !important;\n                    }\n                    ." + elementClass + " .crumb {\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .crumb .link:hover {\n                        text-decoration: underline;\n                    }\n                    ." + elementClass + " .breadcrumbs .crumb + .crumb::before {\n                        content: \" > \";\n                        cursor: default;\n                    }\n                ").appendTo("head");
         }
 
-        /**
-         * Redraw everything
-         */
-        function redraw() {
-            // clear old stuff
+        function draw(data) {
             $(element).empty();
 
-            treemap = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([10, 0, 0, 0]).value(function (d) {
+            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([10, 0, 0, 0]).value(function (d) {
                 return d.data.self_count;
             });
 
             colorScale = d3.scale.linear().domain([0, settings.levels]).range(["#104B7D", "#fdffcc"]).interpolate(d3.interpolateLab);
 
-            breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + MARGIN.left + MARGIN.right + "px").style("height", "20px").style("background-color", "#FF8F00");
+            breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + "px").style("height", "20px").style("background-color", "#FF8F00");
 
-            div = d3.select(element).append("div").style("position", "relative").style("width", settings.width + MARGIN.left + MARGIN.right + "px").style("height", settings.height + MARGIN.top + MARGIN.bottom + "px").style("left", MARGIN.left + "px").style("top", MARGIN.top + "px");
+            treemap = d3.select(element).append("div").style("position", "relative").style("width", settings.width + "px").style("height", settings.height + "px").style("left", MARGIN.left + "px").style("top", MARGIN.top + "px");
+        }
+
+        function setBreadcrumbs() {
+            var crumbs = [];
+            var temp = current;
+            while (temp) {
+                crumbs.push(temp);
+                temp = temp.parent;
+            }
+            crumbs.reverse();
+            breadcrumbs.html("");
+            breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", settings.getBreadcrumbTooltip).html(function (d) {
+                return "<span class='link'>" + d.name + "</span>";
+            }).on("click", reroot);
+        }
+
+        function reroot(data) {
+            current = data;
+
+            setBreadcrumbs();
+
+            // search for the new root
+            //multi.search(data.name);
+
+            var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
+                return d.id;
+            });
+
+            nodes.enter().append("div").attr("class", "node").style("background", function (d) {
+                return colorScale(settings.getLevel(d));
+            }).style("color", function (d) {
+                return getReadableColorFor(colorScale(settings.getLevel(d)));
+            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
+                return d.name;
+            }).on("click", reroot).on("contextmenu", function (d) {
+                d3.event.preventDefault();
+                if (current.parent) {
+                    reroot(current.parent);
+                }
+            }).on("mouseover", tooltipIn).on("mousemove", tooltipMove).on("mouseout", tooltipOut);
+
+            nodes.order().transition().call(position);
+
+            nodes.exit().remove();
+        }
+
+        function update() {
+            var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
+                return d.id;
+            }).order().transition().call(position);
         }
 
         /**
-         * calculates the position of a square
+         * sets the position of a square
          */
         function position() {
             this.style("left", function (d) {
@@ -121,10 +170,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          * Resizes the treemap for a given width and height
          */
         function resize(width, height) {
-            treemap = d3.layout.treemap().size([width + 1, height + 1]).padding([10, 0, 0, 0]).value(function (d) {
+            treemapLayout = d3.layout.treemap().size([width + 1, height + 1]).padding([10, 0, 0, 0]).value(function (d) {
                 return d.data.self_count;
             });
-            that.update(current);
+            update();
         }
 
         // tooltip functions
@@ -234,58 +283,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }();
 
         /*************** Public methods ***************/
-
-        /**
-         * Updates the treemap and sets data as new root
-         */
-
-
-        that.update = function update(data) {
-            current = data;
-
-            // search for the new root
-            //multi.search(data.name);
-
-            // breadcrumbs
-            var crumbs = [];
-            var temp = data;
-            while (temp) {
-                crumbs.push(temp);
-                temp = temp.parent;
-            }
-            crumbs.reverse();
-            breadcrumbs.html("");
-            breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", settings.getBreadcrumbTooltip).html(function (d) {
-                return "<span class='link'>" + d.name + "</span>";
-            }).on("click", update);
-
-            var nodes = div.selectAll(".node").data(treemap.nodes(data), function (d) {
-                return d.id;
-            });
-
-            nodes.enter().append("div").attr("class", "node").style("background", function (d) {
-                return colorScale(settings.getLevel(d));
-            }).style("color", function (d) {
-                return getReadableColorFor(colorScale(settings.getLevel(d)));
-            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
-                return d.name;
-            }).on("click", update).on("contextmenu", function (d) {
-                d3.event.preventDefault();
-                if (current.parent) {
-                    update(current.parent);
-                }
-            }).on("mouseover", tooltipIn).on("mousemove", tooltipMove).on("mouseout", tooltipOut);
-
-            nodes.order().transition().call(position);
-
-            nodes.exit().remove();
-        };
-
         /**
          * Resets the treemap to its initial position
          */
+
+
         that.reset = function reset() {
-            that.update(root);
+            reroot(root);
         };
 
         /**
