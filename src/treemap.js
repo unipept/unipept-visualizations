@@ -19,14 +19,20 @@
                 levels: undefined,
 
                 getLevel: d => d.getDepth(),
-                getBreadcrumbTooltip: d => d.name
+                getBreadcrumbTooltip: d => d.name,
+
+                enableTooltips: true,
+                getTooltip: getTooltip,
+                getTooltipTitle: getTooltipTitle,
+                getTooltipText: getTooltipText
+
             };
 
         let settings;
 
         var root,
             current,
-            tooltip = d3.select("#tooltip"),
+            tooltip,
             treemap,
             colorScale,
             breadcrumbs,
@@ -45,6 +51,10 @@
 
             settings.levels = settings.levels || root.getHeight();
 
+            if (settings.enableTooltips) {
+                initTooltip();
+            }
+
             initCSS();
 
             // setup the visualisation
@@ -52,6 +62,20 @@
 
             // fake first click
             that.reset();
+        }
+
+        function initTooltip() {
+            tooltip = d3.select("body")
+                .append("div")
+                .attr("id", element.id + "-tooltip")
+                .attr("class", "tip")
+                .style("position", "absolute")
+                .style("z-index", "10")
+                .style("visibility", "hidden")
+                .style("background-color", "white")
+                .style("padding", "2px")
+                .style("border", "1px solid #dddddd")
+                .style("border-radius", "3px;");
         }
 
         function initCSS() {
@@ -151,6 +175,44 @@
                 .padding([10, 0, 0, 0])
                 .value(d => d.data.self_count);
             that.update(current);
+        }
+
+        // tooltip functions
+        function tooltipIn(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.html(settings.getTooltip(d))
+                .style("top", (d3.event.pageY - 5) + "px")
+                .style("left", (d3.event.pageX + 15) + "px")
+                .style("visibility", "visible");
+        }
+
+        function tooltipOut(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.style("visibility", "hidden");
+        }
+
+        function tooltipMove(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.style("top", (d3.event.pageY - 5) + "px")
+                .style("left", (d3.event.pageX + 15) + "px");
+        }
+
+        function getTooltip(d) {
+            return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
+        }
+
+        function getTooltipTitle(d) {
+            return d.name;
+        }
+
+        function getTooltipText(d) {
+            return `${d.data.count} hits`;
         }
 
         /*
@@ -263,16 +325,9 @@
                         update(current.parent);
                     }
                 })
-                /*.on("mouseover", function (d) {
-                    multi.tooltipIn(d, tooltip, true);
-                })
-                .on("mousemove", function () {
-                    multi.tooltipMove(tooltip);
-                })
-                .on("mouseout", function (d) {
-                    multi.tooltipOut(tooltip);
-                })*/
-            ;
+                .on("mouseover", tooltipIn)
+                .on("mousemove", tooltipMove)
+                .on("mouseout", tooltipOut);
 
             nodes.order()
                 .transition()
