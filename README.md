@@ -1,8 +1,9 @@
 # Unipept visualizations
 
-This repository contains stand-alone versions of the unipept visualizations. At this time, only a treeview is available. A treemap and sunburst graph should follow in the next releases.
+This repository contains stand-alone versions of the unipept visualizations. At this time, a treeview and treemap is available. A sunburst graph should follow in the next release.
 
 ![treeview example](examples/treeview-taxonomy.png)
+![treemap example](examples/treemap-taxonomy.png)
 
 A live example of this visualization can be found [on http://bl.ocks.org/bmesuere/162572f2d70c1a3a3e09](http://bl.ocks.org/bmesuere/162572f2d70c1a3a3e09) with additional examples in the examples directory.
 
@@ -15,7 +16,9 @@ Building your own version can be done by cloning this repository and running `gr
 1. Download and include [`unipept-visualizations.min.js`](dist/unipept-visualizations.min.js) on your page
 2. Include D3 and jQuery
 3. Add a div with an id (for example `<div id="example"></div>`) to your page
-4. Initialize the treeview by invoking the `treeview()` on the jQuery-selected div. For example `$("#example").treeview(data, options)`
+4. Initialize the treeview by invoking `treeview()` or `treemap()` on the jQuery-selected div. For example `$("#example").treeview(data, options)`
+
+## Treeview
 
 ### The data object
 The data object is a hierarchical Node object. It consists out of:
@@ -50,3 +53,36 @@ The options object is an optional parameter and allows to override the default v
 * `nodeStrokeColor`: Function that returns a color to use as stroke color. Is called with a node as parameter. By default, the node color is used.
 * `linkStrokeColor`: Function that returns a color to use as link color between two nodes. Is called with an object containing a `source` and `target` node as parameter. By default, the target node color is used.
 * `countAccessor` : Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.count` is used.
+
+## Treemap
+
+### The data object
+The data object is a hierarchical Node object. It consists out of:
+* `id`: A way to uniquely identify the node
+* `name`: The name of the node
+* `data`: An object containing additional data of choice
+* `children` (optional): An array containing one or more node objects that are the children of the current object
+
+### The options object
+The options object is an optional parameter and allows to override the default visualization settings.
+
+#### Values
+* `height` (default: 300): The height in pixels of the visualization.
+* `width` (default: 600): The width in pixels of the visualization.
+* `className` (default: `unipept-treemap`): The class added to the visualization. Used for styling.
+* `levels`: The maximum depth of the data object. By default the actual depth is used.
+* `colorRoot` (default: "#104B7D"): The color of the root.
+* `colorLeaf` (default: "#fdffcc"): The color of the leaves.
+* `colorBreadcrumbs` (default: "#FF8F00"): The color of the breadcrumb bar.
+* `labelHeight` (default: 10): The height in pixels of the breadcrumb bar.
+* `enableTooltips` (default: true): Should tooltips be shown on mouseover?
+
+#### Functions
+* `getLabel`: Function that returns a string to use as label for a node. Is called with a node as parameter. By default, the `name` attribute of the node is used.
+* `getBreadcrumbTooltip`: Function that returns a string to use as tooltip for the breadcrumbs. Is called with a node as parameter. By default, the `name` attribute of the node is used.
+* `getTooltip`: Function that returns the html to use as tooltip for a node. Is called with a node as parameter. By default, the result of `getTooltipTitle` is used in a header tag and the result of `getTooltipText` is used in a paragraph tag.
+* `getTooltipTitle`: Function that returns the text to use as tooltip title. Is called with a node as parameter. By default, the `name` attribute of the node is used.
+* `getTooltipText`: Function that returns the text to use as tooltip text. Is called with a node as parameter. By default, the value of `data.count` the node is used.
+* `countAccessor`: Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.self_count` is used.
+* `getLevel`: Function that returns the depth of a node (used for determining the color). Is called with a node as parameter. By default the actual depth is used.
+* `rerootCallback`: Function that gets called after every "reroot" of the visualization. Is called with a node as parameter. By default, this is empty.

@@ -17,11 +17,11 @@
 
                 className: 'unipept-treemap',
                 levels: undefined,
-                rerootCallback: undefined,
+                getLevel: d => d.getDepth(),
 
                 countAccessor: d => d.data.self_count,
+                rerootCallback: undefined,
 
-                getLevel: d => d.getDepth(),
                 getBreadcrumbTooltip: d => d.name,
                 colorRoot: "#104B7D",
                 colorLeaf: "#fdffcc",
