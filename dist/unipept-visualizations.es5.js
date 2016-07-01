@@ -29,6 +29,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             className: 'unipept-treemap',
             levels: undefined,
+            rerootCallback: undefined,
 
             countAccessor: function countAccessor(d) {
                 return d.data.self_count;
@@ -86,7 +87,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             // setup the visualisation
             draw(root);
-            that.reset();
+            reroot(root, false);
         }
 
         function initTooltip() {
@@ -122,16 +123,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             breadcrumbs.html("");
             breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", settings.getBreadcrumbTooltip).html(function (d) {
                 return "<span class='link'>" + d.name + "</span>";
-            }).on("click", reroot);
+            }).on("click", function (d) {
+                reroot(d);
+            });
         }
 
         function reroot(data) {
+            var triggerCallback = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
             current = data;
 
             setBreadcrumbs();
-
-            // search for the new root
-            //multi.search(data.name);
 
             var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
                 return d.id;
@@ -141,7 +143,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return colorScale(settings.getLevel(d));
             }).style("color", function (d) {
                 return getReadableColorFor(colorScale(settings.getLevel(d)));
-            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(settings.getLabel).on("click", reroot).on("contextmenu", function (d) {
+            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(settings.getLabel).on("click", function (d) {
+                reroot(d);
+            }).on("contextmenu", function (d) {
                 d3.event.preventDefault();
                 if (current.parent) {
                     reroot(current.parent);
@@ -151,6 +155,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             nodes.order().transition().call(position);
 
             nodes.exit().remove();
+
+            if (triggerCallback && settings.rerootCallback) {
+                settings.rerootCallback.call(null, current);
+            }
         }
 
         function update() {

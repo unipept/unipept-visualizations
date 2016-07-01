@@ -17,6 +17,7 @@
 
                 className: 'unipept-treemap',
                 levels: undefined,
+                rerootCallback: undefined,
 
                 countAccessor: d => d.data.self_count,
 
@@ -66,7 +67,7 @@
 
             // setup the visualisation
             draw(root);
-            that.reset();
+            reroot(root, false);
         }
 
         function initTooltip() {
@@ -173,16 +174,15 @@
                 .attr("class", "crumb")
                 .attr("title", settings.getBreadcrumbTooltip)
                 .html(d => `<span class='link'>${d.name}</span>`)
-                .on("click", reroot);
+                .on("click", d => {
+                    reroot(d);
+                });
         }
 
-        function reroot(data) {
+        function reroot(data, triggerCallback = true) {
             current = data;
 
             setBreadcrumbs();
-
-            // search for the new root
-            //multi.search(data.name);
 
             let nodes = treemap.selectAll(".node")
                 .data(treemapLayout.nodes(data), d => d.id);
@@ -197,7 +197,9 @@
                 .style("width", "0px")
                 .style("height", "0px")
                 .text(settings.getLabel)
-                .on("click", reroot)
+                .on("click", d => {
+                    reroot(d);
+                })
                 .on("contextmenu", d => {
                     d3.event.preventDefault();
                     if (current.parent) {
@@ -213,6 +215,10 @@
                 .call(position);
 
             nodes.exit().remove();
+
+            if (triggerCallback && settings.rerootCallback) {
+                settings.rerootCallback.call(null, current);
+            }
         }
 
         function update() {
