@@ -30,6 +30,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             className: 'unipept-treemap',
             levels: undefined,
 
+            countAccessor: function countAccessor(d) {
+                return d.data.self_count;
+            },
+
             getLevel: function getLevel(d) {
                 return d.getDepth();
             },
@@ -95,9 +99,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function draw(data) {
             $(element).empty();
 
-            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([settings.labelHeight, 0, 0, 0]).value(function (d) {
-                return d.data.self_count;
-            });
+            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([settings.labelHeight, 0, 0, 0]).value(settings.countAccessor);
 
             colorScale = d3.scale.linear().domain([0, settings.levels]).range(["#104B7D", "#fdffcc"]).interpolate(d3.interpolateLab);
 
@@ -173,9 +175,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          * Resizes the treemap for a given width and height
          */
         function resize(width, height) {
-            treemapLayout = d3.layout.treemap().size([width + 1, height + 1]).padding([10, 0, 0, 0]).value(function (d) {
-                return d.data.self_count;
-            });
+            treemapLayout = d3.layout.treemap().size([width + 1, height + 1]).padding([10, 0, 0, 0]).value(settings.countAccessor);
             update();
         }
 

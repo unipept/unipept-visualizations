@@ -18,6 +18,8 @@
                 className: 'unipept-treemap',
                 levels: undefined,
 
+                countAccessor: d => d.data.self_count,
+
                 getLevel: d => d.getDepth(),
                 getBreadcrumbTooltip: d => d.name,
 
@@ -130,7 +132,7 @@
             treemapLayout = d3.layout.treemap()
                 .size([settings.width + 1, settings.height + 1])
                 .padding([settings.labelHeight, 0, 0, 0])
-                .value(d => d.data.self_count);
+                .value(settings.countAccessor);
 
             colorScale = d3.scale.linear()
                 .domain([0, settings.levels])
@@ -235,7 +237,7 @@
             treemapLayout = d3.layout.treemap()
                 .size([width + 1, height + 1])
                 .padding([10, 0, 0, 0])
-                .value(d => d.data.self_count);
+                .value(settings.countAccessor);
             update();
         }
 
