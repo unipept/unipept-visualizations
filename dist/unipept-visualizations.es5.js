@@ -40,6 +40,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             getBreadcrumbTooltip: function getBreadcrumbTooltip(d) {
                 return d.name;
             },
+            colorRoot: "#104B7D",
+            colorLeaf: "#fdffcc",
+            colorBreadcrumbs: "#FF8F00",
 
             labelHeight: 10,
             getLabel: function getLabel(d) {
@@ -101,9 +104,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([settings.labelHeight, 0, 0, 0]).value(settings.countAccessor);
 
-            colorScale = d3.scale.linear().domain([0, settings.levels]).range(["#104B7D", "#fdffcc"]).interpolate(d3.interpolateLab);
+            colorScale = d3.scale.linear().domain([0, settings.levels]).range([settings.colorRoot, settings.colorLeaf]).interpolate(d3.interpolateLab);
 
-            breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + "px").style("height", "20px").style("background-color", "#FF8F00");
+            breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + "px").style("height", "20px").style("background-color", settings.colorBreadcrumbs);
 
             treemap = d3.select(element).append("div").style("position", "relative").style("width", settings.width + "px").style("height", settings.height + "px").style("left", MARGIN.left + "px").style("top", MARGIN.top + "px");
         }

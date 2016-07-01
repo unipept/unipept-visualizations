@@ -22,6 +22,9 @@
 
                 getLevel: d => d.getDepth(),
                 getBreadcrumbTooltip: d => d.name,
+                colorRoot: "#104B7D",
+                colorLeaf: "#fdffcc",
+                colorBreadcrumbs: "#FF8F00",
 
                 labelHeight: 10,
                 getLabel: d => d.name,
@@ -136,7 +139,7 @@
 
             colorScale = d3.scale.linear()
                 .domain([0, settings.levels])
-                .range(["#104B7D", "#fdffcc"])
+                .range([settings.colorRoot, settings.colorLeaf])
                 .interpolate(d3.interpolateLab);
 
             breadcrumbs = d3.select(element).append("div")
@@ -144,7 +147,7 @@
                 .style("position", "relative")
                 .style("width", settings.width + "px")
                 .style("height", "20px")
-                .style("background-color", "#FF8F00");
+                .style("background-color", settings.colorBreadcrumbs);
 
             treemap = d3.select(element).append("div")
                 .style("position", "relative")
