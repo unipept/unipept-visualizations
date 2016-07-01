@@ -37,6 +37,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return d.name;
             },
 
+            labelHeight: 10,
+            getLabel: function getLabel(d) {
+                return d.name;
+            },
+
             enableTooltips: true,
             getTooltip: getTooltip,
             getTooltipTitle: getTooltipTitle,
@@ -90,7 +95,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function draw(data) {
             $(element).empty();
 
-            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([10, 0, 0, 0]).value(function (d) {
+            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([settings.labelHeight, 0, 0, 0]).value(function (d) {
                 return d.data.self_count;
             });
 
@@ -131,9 +136,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return colorScale(settings.getLevel(d));
             }).style("color", function (d) {
                 return getReadableColorFor(colorScale(settings.getLevel(d)));
-            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(function (d) {
-                return d.name;
-            }).on("click", reroot).on("contextmenu", function (d) {
+            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(settings.getLabel).on("click", reroot).on("contextmenu", function (d) {
                 d3.event.preventDefault();
                 if (current.parent) {
                     reroot(current.parent);

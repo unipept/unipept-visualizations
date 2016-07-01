@@ -21,6 +21,9 @@
                 getLevel: d => d.getDepth(),
                 getBreadcrumbTooltip: d => d.name,
 
+                labelHeight: 10,
+                getLabel: d => d.name,
+
                 enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
@@ -126,7 +129,7 @@
 
             treemapLayout = d3.layout.treemap()
                 .size([settings.width + 1, settings.height + 1])
-                .padding([10, 0, 0, 0])
+                .padding([settings.labelHeight, 0, 0, 0])
                 .value(d => d.data.self_count);
 
             colorScale = d3.scale.linear()
@@ -188,7 +191,7 @@
                 .style("top", "0px")
                 .style("width", "0px")
                 .style("height", "0px")
-                .text(d => d.name)
+                .text(settings.getLabel)
                 .on("click", reroot)
                 .on("contextmenu", d => {
                     d3.event.preventDefault();
