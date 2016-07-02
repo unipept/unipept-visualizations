@@ -9,11 +9,355 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Zoomable treeview, inspiration from
- * - http://bl.ocks.org/mbostock/4339083
- * - https://gist.github.com/robschmuecker/7880033
- * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
+ * Interactive treemap
  */
+(function () {
+    var TreeMap = function TreeMap(element, data) {
+        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+        var that = {};
+
+        var MARGIN = {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        },
+            DEFAULTS = {
+            height: 300,
+            width: 600,
+
+            className: 'unipept-treemap',
+            levels: undefined,
+            getLevel: function getLevel(d) {
+                return d.getDepth();
+            },
+
+            countAccessor: function countAccessor(d) {
+                return d.data.self_count;
+            },
+            rerootCallback: undefined,
+
+            getBreadcrumbTooltip: function getBreadcrumbTooltip(d) {
+                return d.name;
+            },
+            colorRoot: "#104B7D",
+            colorLeaf: "#fdffcc",
+            colorBreadcrumbs: "#FF8F00",
+
+            labelHeight: 10,
+            getLabel: function getLabel(d) {
+                return d.name;
+            },
+
+            enableTooltips: true,
+            getTooltip: getTooltip,
+            getTooltipTitle: getTooltipTitle,
+            getTooltipText: getTooltipText
+        };
+
+        var settings = void 0;
+
+        var root = void 0,
+            nodeId = 0,
+            current = void 0,
+            treemapLayout = void 0,
+            breadcrumbs = void 0,
+            treemap = void 0,
+            tooltip = void 0,
+            colorScale = void 0;
+
+        /**
+         * Initializes Treemap
+         */
+        function init() {
+            settings = _extends({}, DEFAULTS, options);
+
+            root = Node.createNode(data);
+
+            settings.width = settings.width - MARGIN.right - MARGIN.left;
+            settings.height = settings.height - MARGIN.top - MARGIN.bottom;
+
+            settings.levels = settings.levels || root.getHeight();
+
+            if (settings.enableTooltips) {
+                initTooltip();
+            }
+
+            initCSS();
+
+            // setup the visualisation
+            draw(root);
+            reroot(root, false);
+        }
+
+        function initTooltip() {
+            tooltip = d3.select("body").append("div").attr("id", element.id + "-tooltip").attr("class", "tip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").style("background-color", "white").style("padding", "2px").style("border", "1px solid #dddddd").style("border-radius", "3px;");
+        }
+
+        function initCSS() {
+            var elementClass = settings.className;
+            $(element).addClass(elementClass);
+            $("<style>").prop("type", "text/css").html("\n                    ." + elementClass + " {\n                        font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n                    }\n                    ." + elementClass + " .node {\n                        font-size: 9px;\n                        line-height: 10px;\n                        overflow: hidden;\n                        position: absolute;\n                        text-indent: 2px;\n                        text-align: center;\n                        text-overflow: ellipsis;\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .node:hover {\n                        outline: 1px solid white;\n                    }\n                    ." + elementClass + " .breadcrumbs {\n                        font-size: 11px;\n                        line-height: 20px;\n                        padding-left: 5px;\n                        font-weight: bold;\n                        color: white;\n                        box-sizing: border-box;\n                    }\n                    .full-screen ." + elementClass + " .breadcrumbs {\n                        width: 100% !important;\n                    }\n                    ." + elementClass + " .crumb {\n                        cursor: pointer;\n                    }\n                    ." + elementClass + " .crumb .link:hover {\n                        text-decoration: underline;\n                    }\n                    ." + elementClass + " .breadcrumbs .crumb + .crumb::before {\n                        content: \" > \";\n                        cursor: default;\n                    }\n                ").appendTo("head");
+        }
+
+        function draw(data) {
+            $(element).empty();
+
+            treemapLayout = d3.layout.treemap().size([settings.width + 1, settings.height + 1]).padding([settings.labelHeight, 0, 0, 0]).value(settings.countAccessor);
+
+            colorScale = d3.scale.linear().domain([0, settings.levels]).range([settings.colorRoot, settings.colorLeaf]).interpolate(d3.interpolateLab);
+
+            breadcrumbs = d3.select(element).append("div").attr("class", "breadcrumbs").style("position", "relative").style("width", settings.width + "px").style("height", "20px").style("background-color", settings.colorBreadcrumbs);
+
+            treemap = d3.select(element).append("div").style("position", "relative").style("width", settings.width + "px").style("height", settings.height + "px").style("left", MARGIN.left + "px").style("top", MARGIN.top + "px");
+        }
+
+        function setBreadcrumbs() {
+            var crumbs = [];
+            var temp = current;
+            while (temp) {
+                crumbs.push(temp);
+                temp = temp.parent;
+            }
+            crumbs.reverse();
+            breadcrumbs.html("");
+            breadcrumbs.selectAll(".crumb").data(crumbs).enter().append("span").attr("class", "crumb").attr("title", settings.getBreadcrumbTooltip).html(function (d) {
+                return "<span class='link'>" + d.name + "</span>";
+            }).on("click", function (d) {
+                reroot(d);
+            });
+        }
+
+        function reroot(data) {
+            var triggerCallback = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
+            current = data;
+
+            setBreadcrumbs();
+
+            var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
+                return d.id || (d.id = ++nodeId);
+            });
+
+            nodes.enter().append("div").attr("class", "node").style("background", function (d) {
+                return colorScale(settings.getLevel(d));
+            }).style("color", function (d) {
+                return getReadableColorFor(colorScale(settings.getLevel(d)));
+            }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(settings.getLabel).on("click", function (d) {
+                reroot(d);
+            }).on("contextmenu", function (d) {
+                d3.event.preventDefault();
+                if (current.parent) {
+                    reroot(current.parent);
+                }
+            }).on("mouseover", tooltipIn).on("mousemove", tooltipMove).on("mouseout", tooltipOut);
+
+            nodes.order().transition().call(position);
+
+            nodes.exit().remove();
+
+            if (triggerCallback && settings.rerootCallback) {
+                settings.rerootCallback.call(null, current);
+            }
+        }
+
+        function update() {
+            var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
+                return d.id;
+            }).order().transition().call(position);
+        }
+
+        /**
+         * sets the position of a square
+         */
+        function position() {
+            this.style("left", function (d) {
+                return d.x + "px";
+            }).style("top", function (d) {
+                return d.y + "px";
+            }).style("width", function (d) {
+                return Math.max(0, d.dx - 1) + "px";
+            }).style("height", function (d) {
+                return Math.max(0, d.dy - 1) + "px";
+            });
+        }
+
+        /**
+         * Resizes the treemap for a given width and height
+         */
+        function resize(width, height) {
+            treemapLayout = d3.layout.treemap().size([width + 1, height + 1]).padding([10, 0, 0, 0]).value(settings.countAccessor);
+            update();
+        }
+
+        // tooltip functions
+        function tooltipIn(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.html(settings.getTooltip(d)).style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px").style("visibility", "visible");
+        }
+
+        function tooltipOut(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.style("visibility", "hidden");
+        }
+
+        function tooltipMove(d, i) {
+            if (!settings.enableTooltips) {
+                return;
+            }
+            tooltip.style("top", d3.event.pageY - 5 + "px").style("left", d3.event.pageX + 15 + "px");
+        }
+
+        function getTooltip(d) {
+            return "<h3 class='tip-title'>" + settings.getTooltipTitle(d) + "</h3><p>" + settings.getTooltipText(d) + "</p>";
+        }
+
+        function getTooltipTitle(d) {
+            return d.name;
+        }
+
+        function getTooltipText(d) {
+            return d.data.count + " hits";
+        }
+
+        /*
+         * Returns the readable text color based on the brightness of a given backgroud color
+         */
+        function getReadableColorFor(color) {
+            var textColor = "#000";
+            try {
+                textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
+            } catch (err) {}
+            return textColor;
+        }
+
+        /*
+         * Returns the brightness of an rgb-color
+         * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
+         */
+        function brightness(rgb) {
+            return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
+        }
+
+        var Node = function () {
+            function Node() {
+                _classCallCheck(this, Node);
+
+                this.data = {};
+            }
+
+            _createClass(Node, [{
+                key: "getHeight",
+                value: function getHeight() {
+                    if (this._height === undefined) {
+                        if (this.isLeaf()) {
+                            this._height = 0;
+                        } else {
+                            this._height = d3.max(this.children, function (c) {
+                                return c.getHeight();
+                            }) + 1;
+                        }
+                    }
+                    return this._height;
+                }
+            }, {
+                key: "getDepth",
+                value: function getDepth() {
+                    if (this._depth === undefined) {
+                        if (this.parent === undefined) {
+                            this._depth = 0;
+                        } else {
+                            this._depth = this.parent.getDepth() + 1;
+                        }
+                    }
+                    return this._depth;
+                }
+            }, {
+                key: "isLeaf",
+                value: function isLeaf() {
+                    return !this.children && !this._children || this.children && this.children.length === 0 || this._children && this._children.length === 0;
+                }
+            }], [{
+                key: "createNode",
+                value: function createNode(node) {
+                    if (node.children) {
+                        node.children = node.children.map(function (n) {
+                            return Node.createNode(n);
+                        });
+                    }
+                    return _extends(new Node(), node);
+                }
+            }]);
+
+            return Node;
+        }();
+
+        /*************** Public methods ***************/
+        /**
+         * Resets the treemap to its initial position
+         */
+
+
+        that.reset = function reset() {
+            reroot(root);
+        };
+
+        /**
+         * Sets the visualisation in full screen mode
+         *
+         * @param <boolean> isFullScreen indicates if we're in full screen mode
+         */
+        that.setFullScreen = function setFullScreen(isFullScreen) {
+            // the delay is because the event fires before we're in fullscreen
+            // so the height en width functions don't give a correct result
+            // without the delay
+            setTimeout(function () {
+                var w = settings.width;
+                var h = settings.height;
+
+                if (isFullScreen) {
+                    w = $(window).width();
+                    h = $(window).height() - 44;
+                }
+                resize(w, h);
+            }, 1000);
+        };
+
+        // initialize the object
+        init();
+
+        return that;
+    };
+
+    function Plugin(userData, option) {
+        return this.each(function () {
+            var $this = $(this);
+            var data = $this.data('vis.treemap');
+            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
+
+            if (!data) {
+                $this.data('vis.treemap', data = new TreeMap(this, userData, options));
+            }
+            if (typeof option === 'string') {
+                data[option]();
+            }
+        });
+    }
+
+    $.fn.treemap = Plugin;
+    $.fn.treemap.Constructor = TreeMap;
+})();
+; /**
+  * Zoomable treeview, inspiration from
+  * - http://bl.ocks.org/mbostock/4339083
+  * - https://gist.github.com/robschmuecker/7880033
+  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
+  */
 (function () {
     var TreeView = function TreeView(element, data) {
         var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
