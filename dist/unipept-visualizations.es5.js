@@ -29,15 +29,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             className: 'unipept-treemap',
             levels: undefined,
-            rerootCallback: undefined,
+            getLevel: function getLevel(d) {
+                return d.getDepth();
+            },
 
             countAccessor: function countAccessor(d) {
                 return d.data.self_count;
             },
+            rerootCallback: undefined,
 
-            getLevel: function getLevel(d) {
-                return d.getDepth();
-            },
             getBreadcrumbTooltip: function getBreadcrumbTooltip(d) {
                 return d.name;
             },
@@ -59,6 +59,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var settings = void 0;
 
         var root = void 0,
+            nodeId = 0,
             current = void 0,
             treemapLayout = void 0,
             breadcrumbs = void 0,
@@ -136,7 +137,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             setBreadcrumbs();
 
             var nodes = treemap.selectAll(".node").data(treemapLayout.nodes(data), function (d) {
-                return d.id;
+                return d.id || (d.id = ++nodeId);
             });
 
             nodes.enter().append("div").attr("class", "node").style("background", function (d) {

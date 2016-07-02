@@ -17,11 +17,11 @@
 
                 className: 'unipept-treemap',
                 levels: undefined,
-                rerootCallback: undefined,
+                getLevel: d => d.getDepth(),
 
                 countAccessor: d => d.data.self_count,
+                rerootCallback: undefined,
 
-                getLevel: d => d.getDepth(),
                 getBreadcrumbTooltip: d => d.name,
                 colorRoot: "#104B7D",
                 colorLeaf: "#fdffcc",
@@ -39,6 +39,7 @@
         let settings;
 
         let root,
+            nodeId = 0,
             current,
             treemapLayout,
             breadcrumbs,
@@ -185,7 +186,7 @@
             setBreadcrumbs();
 
             let nodes = treemap.selectAll(".node")
-                .data(treemapLayout.nodes(data), d => d.id);
+                .data(treemapLayout.nodes(data), d => d.id || (d.id = ++nodeId));
 
             nodes.enter()
                 .append("div")
