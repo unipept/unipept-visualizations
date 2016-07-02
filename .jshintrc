@@ -1,5 +1,5 @@
 {
-  "predef": [ "module", "ZeroClipboard", "confirm", "requestAnimFrame", "self", "init_phylogram", "Newick", "indexedDB", "IDBKeyRange", "constructSelectionTree", "constructGenomeTable", "constructPancoreGraph", "constructSimMatrix", "constructMyGenomes", "downloadDataByForm", "d3", "html2canvas", "console", "_gaq", "delay", "stringHash", "logToGoogle", "info", "highlight", "error", "addCopy", "fullScreenApi", "triggerDownloadModal", "getReadableColorFor"],
+  "predef": [ "univis", "module", "ZeroClipboard", "confirm", "requestAnimFrame", "self", "init_phylogram", "Newick", "indexedDB", "IDBKeyRange", "constructSelectionTree", "constructGenomeTable", "constructPancoreGraph", "constructSimMatrix", "constructMyGenomes", "downloadDataByForm", "d3", "html2canvas", "console", "_gaq", "delay", "stringHash", "logToGoogle", "info", "highlight", "error", "addCopy", "fullScreenApi", "triggerDownloadModal", "getReadableColorFor"],
 
   "esversion": 6,
 

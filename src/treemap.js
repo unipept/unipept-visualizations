@@ -53,7 +53,7 @@
         function init() {
             settings = Object.assign({}, DEFAULTS, options);
 
-            root = Node.createNode(data);
+            root = TreemapNode.createNode(data);
 
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
@@ -308,44 +308,13 @@
             return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         }
 
-        class Node {
-            constructor() {
-                this.data = {};
+        class TreemapNode extends univis.Node {
+            static new(node = {}) {
+                return new TreemapNode(node);
             }
 
             static createNode(node) {
-                if (node.children) {
-                    node.children = node.children.map(n => Node.createNode(n));
-                }
-                return Object.assign(new Node(), node);
-            }
-
-            getHeight() {
-                if (this._height === undefined) {
-                    if (this.isLeaf()) {
-                        this._height = 0;
-                    } else {
-                        this._height = d3.max(this.children, c => c.getHeight()) + 1;
-                    }
-                }
-                return this._height;
-            }
-
-            getDepth() {
-                if (this._depth === undefined) {
-                    if (this.parent === undefined) {
-                        this._depth = 0;
-                    } else {
-                        this._depth = this.parent.getDepth() + 1;
-                    }
-                }
-                return this._depth;
-            }
-
-            isLeaf() {
-                return (!this.children && !this._children) ||
-                    (this.children && this.children.length === 0) ||
-                    (this._children && this._children.length === 0);
+                return univis.Node.createNode(node, TreemapNode.new);
             }
         }
 

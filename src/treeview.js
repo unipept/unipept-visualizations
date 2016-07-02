@@ -104,7 +104,7 @@
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
                 .append("g");
 
-            draw(Node.createNode(data));
+            draw(TreeviewNode.createNode(data));
         }
 
         function initTooltip() {
@@ -195,9 +195,9 @@
 
             if (settings.enableLabels) {
                 nodeEnter.append("text")
-                    .attr("x", d => d.isLeaf() ? -10 : 10)
+                    .attr("x", d => d.isLeaf() ? 10 : -10)
                     .attr("dy", ".35em")
-                    .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
+                    .attr("text-anchor", d => d.isLeaf() ? "start" : "end")
                     .text(settings.getLabel)
                     .style("font", "10px sans-serif")
                     .style("fill-opacity", 1e-6);
@@ -436,47 +436,28 @@
             return `${d.data.count} hits`;
         }
 
-        class Node {
-            constructor() {
-                this.data = {};
+        class TreeviewNode extends univis.Node {
+            constructor(node = {}) {
+                super(node);
+                this.setCount();
+            }
+
+            static new(node = {}) {
+                return new TreeviewNode(node);
             }
 
             static createNode(node) {
-                if (node.children) {
-                    node.children = node.children.map(n => Node.createNode(n));
-                }
-                let obj = Object.assign(new Node(), node);
-                obj.setCount();
-                return obj;
+                return univis.Node.createNode(node, TreeviewNode.new);
             }
 
             setCount() {
                 if (settings.countAccessor(this)) {
                     this.data.count = settings.countAccessor(this);
-                } else if (this.children){
+                } else if (this.children) {
                     this.data.count = this.children.reduce((sum, c) => sum + c.data.count, 0);
                 } else {
                     this.data.count = 0;
                 }
-            }
-
-            // sets a property for a node and all its children
-            setRecursiveProperty(property, value) {
-                this[property] = value;
-                if (this.children) {
-                    this.children.forEach(c => {
-                        c.setRecursiveProperty(property, value);
-                    });
-                } else if (this._children) {
-                    this._children.forEach(c => {
-                        c.setRecursiveProperty(property, value);
-                    });
-                }
-            }
-
-            // Returns true if a node is a leaf
-            isLeaf() {
-                return this.children || this._children;
             }
 
             setSelected(value) {

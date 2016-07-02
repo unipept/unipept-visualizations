@@ -1,4 +1,67 @@
-/**
+/*jshint -W079 */
+let univis = univis || {};
+
+univis.Node = class Node {
+    constructor(node = {}) {
+        this.data = {};
+        Object.assign(this, node);
+    }
+
+    static new(node = {}) {
+        return new Node(node);
+    }
+
+    static createNode(node, construct = Node.new) {
+        if (node.children) {
+            node.children = node.children.map(n => Node.createNode(n, construct));
+        }
+        return construct.call(null, node);
+    }
+
+    // sets a property for a node and all its children
+    setRecursiveProperty(property, value) {
+        this[property] = value;
+        if (this.children) {
+            this.children.forEach(c => {
+                c.setRecursiveProperty(property, value);
+            });
+        } else if (this._children) {
+            this._children.forEach(c => {
+                c.setRecursiveProperty(property, value);
+            });
+        }
+    }
+
+    // Returns true if a node is a leaf
+    isLeaf() {
+        return (!this.children && !this._children) ||
+            (this.children && this.children.length === 0) ||
+            (this._children && this._children.length === 0);
+    }
+
+    getHeight() {
+        if (this._height === undefined) {
+            if (this.isLeaf()) {
+                this._height = 0;
+            } else {
+                this._height = d3.max(this.children, c => c.getHeight()) + 1;
+            }
+        }
+        return this._height;
+    }
+
+    getDepth() {
+        if (this._depth === undefined) {
+            if (this.parent === undefined) {
+                this._depth = 0;
+            } else {
+                this._depth = this.parent.getDepth() + 1;
+            }
+        }
+        return this._depth;
+    }
+};
+;/**
  * Interactive treemap
  */
 (function () {
@@ -53,7 +116,7 @@
         function init() {
             settings = Object.assign({}, DEFAULTS, options);
 
-            root = Node.createNode(data);
+            root = TreemapNode.createNode(data);
 
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
@@ -308,44 +371,13 @@
             return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         }
 
-        class Node {
-            constructor() {
-                this.data = {};
+        class TreemapNode extends univis.Node {
+            static new(node = {}) {
+                return new TreemapNode(node);
             }
 
             static createNode(node) {
-                if (node.children) {
-                    node.children = node.children.map(n => Node.createNode(n));
-                }
-                return Object.assign(new Node(), node);
-            }
-
-            getHeight() {
-                if (this._height === undefined) {
-                    if (this.isLeaf()) {
-                        this._height = 0;
-                    } else {
-                        this._height = d3.max(this.children, c => c.getHeight()) + 1;
-                    }
-                }
-                return this._height;
-            }
-
-            getDepth() {
-                if (this._depth === undefined) {
-                    if (this.parent === undefined) {
-                        this._depth = 0;
-                    } else {
-                        this._depth = this.parent.getDepth() + 1;
-                    }
-                }
-                return this._depth;
-            }
-
-            isLeaf() {
-                return (!this.children && !this._children) ||
-                    (this.children && this.children.length === 0) ||
-                    (this._children && this._children.length === 0);
+                return univis.Node.createNode(node, TreemapNode.new);
             }
         }
 
@@ -507,7 +539,7 @@
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
                 .append("g");
 
-            draw(Node.createNode(data));
+            draw(TreeviewNode.createNode(data));
         }
 
         function initTooltip() {
@@ -598,9 +630,9 @@
 
             if (settings.enableLabels) {
                 nodeEnter.append("text")
-                    .attr("x", d => d.isLeaf() ? -10 : 10)
+                    .attr("x", d => d.isLeaf() ? 10 : -10)
                     .attr("dy", ".35em")
-                    .attr("text-anchor", d => d.isLeaf() ? "end" : "start")
+                    .attr("text-anchor", d => d.isLeaf() ? "start" : "end")
                     .text(settings.getLabel)
                     .style("font", "10px sans-serif")
                     .style("fill-opacity", 1e-6);
@@ -839,47 +871,28 @@
             return `${d.data.count} hits`;
         }
 
-        class Node {
-            constructor() {
-                this.data = {};
+        class TreeviewNode extends univis.Node {
+            constructor(node = {}) {
+                super(node);
+                this.setCount();
+            }
+
+            static new(node = {}) {
+                return new TreeviewNode(node);
             }
 
             static createNode(node) {
-                if (node.children) {
-                    node.children = node.children.map(n => Node.createNode(n));
-                }
-                let obj = Object.assign(new Node(), node);
-                obj.setCount();
-                return obj;
+                return univis.Node.createNode(node, TreeviewNode.new);
             }
 
             setCount() {
                 if (settings.countAccessor(this)) {
                     this.data.count = settings.countAccessor(this);
-                } else if (this.children){
+                } else if (this.children) {
                     this.data.count = this.children.reduce((sum, c) => sum + c.data.count, 0);
                 } else {
                     this.data.count = 0;
                 }
-            }
-
-            // sets a property for a node and all its children
-            setRecursiveProperty(property, value) {
-                this[property] = value;
-                if (this.children) {
-                    this.children.forEach(c => {
-                        c.setRecursiveProperty(property, value);
-                    });
-                } else if (this._children) {
-                    this._children.forEach(c => {
-                        c.setRecursiveProperty(property, value);
-                    });
-                }
-            }
-
-            // Returns true if a node is a leaf
-            isLeaf() {
-                return this.children || this._children;
             }
 
             setSelected(value) {

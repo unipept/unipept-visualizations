@@ -2,15 +2,106 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/**
- * Interactive treemap
- */
+/*jshint -W079 */
+var univis = univis || {};
+
+univis.Node = function () {
+    function Node() {
+        var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+        _classCallCheck(this, Node);
+
+        this.data = {};
+        _extends(this, node);
+    }
+
+    _createClass(Node, [{
+        key: "setRecursiveProperty",
+
+
+        // sets a property for a node and all its children
+        value: function setRecursiveProperty(property, value) {
+            this[property] = value;
+            if (this.children) {
+                this.children.forEach(function (c) {
+                    c.setRecursiveProperty(property, value);
+                });
+            } else if (this._children) {
+                this._children.forEach(function (c) {
+                    c.setRecursiveProperty(property, value);
+                });
+            }
+        }
+
+        // Returns true if a node is a leaf
+
+    }, {
+        key: "isLeaf",
+        value: function isLeaf() {
+            return !this.children && !this._children || this.children && this.children.length === 0 || this._children && this._children.length === 0;
+        }
+    }, {
+        key: "getHeight",
+        value: function getHeight() {
+            if (this._height === undefined) {
+                if (this.isLeaf()) {
+                    this._height = 0;
+                } else {
+                    this._height = d3.max(this.children, function (c) {
+                        return c.getHeight();
+                    }) + 1;
+                }
+            }
+            return this._height;
+        }
+    }, {
+        key: "getDepth",
+        value: function getDepth() {
+            if (this._depth === undefined) {
+                if (this.parent === undefined) {
+                    this._depth = 0;
+                } else {
+                    this._depth = this.parent.getDepth() + 1;
+                }
+            }
+            return this._depth;
+        }
+    }], [{
+        key: "new",
+        value: function _new() {
+            var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+            return new Node(node);
+        }
+    }, {
+        key: "createNode",
+        value: function createNode(node) {
+            var construct = arguments.length <= 1 || arguments[1] === undefined ? Node.new : arguments[1];
+
+            if (node.children) {
+                node.children = node.children.map(function (n) {
+                    return Node.createNode(n, construct);
+                });
+            }
+            return construct.call(null, node);
+        }
+    }]);
+
+    return Node;
+}();
+; /**
+  * Interactive treemap
+  */
 (function () {
     var TreeMap = function TreeMap(element, data) {
         var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
@@ -73,7 +164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function init() {
             settings = _extends({}, DEFAULTS, options);
 
-            root = Node.createNode(data);
+            root = TreemapNode.createNode(data);
 
             settings.width = settings.width - MARGIN.right - MARGIN.left;
             settings.height = settings.height - MARGIN.top - MARGIN.bottom;
@@ -244,58 +335,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         }
 
-        var Node = function () {
-            function Node() {
-                _classCallCheck(this, Node);
+        var TreemapNode = function (_univis$Node) {
+            _inherits(TreemapNode, _univis$Node);
 
-                this.data = {};
+            function TreemapNode() {
+                _classCallCheck(this, TreemapNode);
+
+                return _possibleConstructorReturn(this, Object.getPrototypeOf(TreemapNode).apply(this, arguments));
             }
 
-            _createClass(Node, [{
-                key: "getHeight",
-                value: function getHeight() {
-                    if (this._height === undefined) {
-                        if (this.isLeaf()) {
-                            this._height = 0;
-                        } else {
-                            this._height = d3.max(this.children, function (c) {
-                                return c.getHeight();
-                            }) + 1;
-                        }
-                    }
-                    return this._height;
+            _createClass(TreemapNode, null, [{
+                key: "new",
+                value: function _new() {
+                    var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+                    return new TreemapNode(node);
                 }
             }, {
-                key: "getDepth",
-                value: function getDepth() {
-                    if (this._depth === undefined) {
-                        if (this.parent === undefined) {
-                            this._depth = 0;
-                        } else {
-                            this._depth = this.parent.getDepth() + 1;
-                        }
-                    }
-                    return this._depth;
-                }
-            }, {
-                key: "isLeaf",
-                value: function isLeaf() {
-                    return !this.children && !this._children || this.children && this.children.length === 0 || this._children && this._children.length === 0;
-                }
-            }], [{
                 key: "createNode",
                 value: function createNode(node) {
-                    if (node.children) {
-                        node.children = node.children.map(function (n) {
-                            return Node.createNode(n);
-                        });
-                    }
-                    return _extends(new Node(), node);
+                    return univis.Node.createNode(node, TreemapNode.new);
                 }
             }]);
 
-            return Node;
-        }();
+            return TreemapNode;
+        }(univis.Node);
 
         /*************** Public methods ***************/
         /**
@@ -455,7 +519,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (settings.width + MARGIN.right + MARGIN.left) + " " + (settings.height + MARGIN.top + MARGIN.bottom)).attr("width", settings.width + MARGIN.right + MARGIN.left).attr("height", settings.height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
-            draw(Node.createNode(data));
+            draw(TreeviewNode.createNode(data));
         }
 
         function initTooltip() {
@@ -471,7 +535,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function draw(data) {
-            var _this = this;
+            var _this2 = this;
 
             widthScale.domain([0, data.data.count]);
 
@@ -483,7 +547,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             root.setSelected(true);
 
             root.children.forEach(function (d, i) {
-                d.color = d3.functor(settings.colors).call(_this, d, i);
+                d.color = d3.functor(settings.colors).call(_this2, d, i);
                 d.setRecursiveProperty("color", d.color);
             });
 
@@ -526,9 +590,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             if (settings.enableLabels) {
                 nodeEnter.append("text").attr("x", function (d) {
-                    return d.isLeaf() ? -10 : 10;
+                    return d.isLeaf() ? 10 : -10;
                 }).attr("dy", ".35em").attr("text-anchor", function (d) {
-                    return d.isLeaf() ? "end" : "start";
+                    return d.isLeaf() ? "start" : "end";
                 }).text(settings.getLabel).style("font", "10px sans-serif").style("fill-opacity", 1e-6);
             }
 
@@ -740,14 +804,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return d.data.count + " hits";
         }
 
-        var Node = function () {
-            function Node() {
-                _classCallCheck(this, Node);
+        var TreeviewNode = function (_univis$Node2) {
+            _inherits(TreeviewNode, _univis$Node2);
 
-                this.data = {};
+            function TreeviewNode() {
+                var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+                _classCallCheck(this, TreeviewNode);
+
+                var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(TreeviewNode).call(this, node));
+
+                _this3.setCount();
+                return _this3;
             }
 
-            _createClass(Node, [{
+            _createClass(TreeviewNode, [{
                 key: "setCount",
                 value: function setCount() {
                     if (settings.countAccessor(this)) {
@@ -759,31 +830,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     } else {
                         this.data.count = 0;
                     }
-                }
-
-                // sets a property for a node and all its children
-
-            }, {
-                key: "setRecursiveProperty",
-                value: function setRecursiveProperty(property, value) {
-                    this[property] = value;
-                    if (this.children) {
-                        this.children.forEach(function (c) {
-                            c.setRecursiveProperty(property, value);
-                        });
-                    } else if (this._children) {
-                        this._children.forEach(function (c) {
-                            c.setRecursiveProperty(property, value);
-                        });
-                    }
-                }
-
-                // Returns true if a node is a leaf
-
-            }, {
-                key: "isLeaf",
-                value: function isLeaf() {
-                    return this.children || this._children;
                 }
             }, {
                 key: "setSelected",
@@ -844,21 +890,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                 }
             }], [{
+                key: "new",
+                value: function _new() {
+                    var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+                    return new TreeviewNode(node);
+                }
+            }, {
                 key: "createNode",
                 value: function createNode(node) {
-                    if (node.children) {
-                        node.children = node.children.map(function (n) {
-                            return Node.createNode(n);
-                        });
-                    }
-                    var obj = _extends(new Node(), node);
-                    obj.setCount();
-                    return obj;
+                    return univis.Node.createNode(node, TreeviewNode.new);
                 }
             }]);
 
-            return Node;
-        }();
+            return TreeviewNode;
+        }(univis.Node);
 
         /*************** Public methods ***************/
 
