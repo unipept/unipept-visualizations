@@ -1,7 +1,7 @@
 /**
  * Interactive treemap
  */
-import Node from "./node";
+import Node from "../shared/node";
 
 export default function TreeMap(element, data, options = {}) {
     let that = {};

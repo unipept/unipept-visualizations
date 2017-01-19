@@ -4,7 +4,7 @@
  * - https://gist.github.com/robschmuecker/7880033
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
-import Node from "./node";
+import Node from "../shared/node";
 
 export default function TreeView(element, data, options = {}) {
     let that = {};
