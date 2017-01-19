@@ -1,6 +1,4 @@
-let univis = {};
-
-univis.Node = class Node {
+export default class Node {
     constructor(node = {}) {
         this.data = {};
         Object.assign(this, node);
@@ -61,4 +59,4 @@ univis.Node = class Node {
         }
         return this._depth;
     }
-};
+}

@@ -4,77 +4,78 @@
  * - https://gist.github.com/robschmuecker/7880033
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
-(function () {
-    let TreeView = function TreeView(element, data, options = {}) {
-        let that = {};
+import Node from "./node";
 
-        const MARGIN = {
-                top: 5,
-                right: 5,
-                bottom: 5,
-                left: 5,
-            },
-            DURATION = 750,
-            COLOR_SCALE = d3.scale.category10(),
-            DEFAULTS = {
-                height: 300,
-                width: 600,
-                nodeDistance: 180,
-                levelsToExpand: 2,
-                minNodeSize: 2,
-                maxNodeSize: 105,
+export default function TreeView(element, data, options = {}) {
+    let that = {};
 
-                countAccessor: d => d.data.count,
+    const MARGIN = {
+            top: 5,
+            right: 5,
+            bottom: 5,
+            left: 5,
+        },
+        DURATION = 750,
+        COLOR_SCALE = d3.scale.category10(),
+        DEFAULTS = {
+            height: 300,
+            width: 600,
+            nodeDistance: 180,
+            levelsToExpand: 2,
+            minNodeSize: 2,
+            maxNodeSize: 105,
 
-                colors: d => COLOR_SCALE(d.name),
-                nodeFillColor: nodeFillColor,
-                nodeStrokeColor: nodeStrokeColor,
-                linkStrokeColor: linkStrokeColor,
+            countAccessor: d => d.data.count,
 
-                enableInnerArcs: true,
-                enableExpandOnClick: true,
-                enableRightClick: true,
+            colors: d => COLOR_SCALE(d.name),
+            nodeFillColor: nodeFillColor,
+            nodeStrokeColor: nodeStrokeColor,
+            linkStrokeColor: linkStrokeColor,
 
-                enableLabels: true,
-                getLabel: d => d.name,
+            enableInnerArcs: true,
+            enableExpandOnClick: true,
+            enableRightClick: true,
 
-                enableTooltips: true,
-                getTooltip: getTooltip,
-                getTooltipTitle: getTooltipTitle,
-                getTooltipText: getTooltipText,
-            };
+            enableLabels: true,
+            getLabel: d => d.name,
 
-        let settings;
+            enableTooltips: true,
+            getTooltip: getTooltip,
+            getTooltipTitle: getTooltipTitle,
+            getTooltipText: getTooltipText,
+        };
 
-        let visibleRoot,
-            tooltipTimer;
+    let settings;
 
-        let nodeId = 0,
-            root;
+    let visibleRoot,
+        tooltipTimer;
 
-        let tree,
-            tooltip,
-            diagonal,
-            widthScale,
-            innerArc,
-            zoomListener,
-            svg;
+    let nodeId = 0,
+        root;
 
-        function init() {
-            settings = Object.assign({}, DEFAULTS, options);
+    let tree,
+        tooltip,
+        diagonal,
+        widthScale,
+        innerArc,
+        zoomListener,
+        svg;
 
-            settings.width = settings.width - MARGIN.right - MARGIN.left;
-            settings.height = settings.height - MARGIN.top - MARGIN.bottom;
+    function init() {
+        settings = Object.assign({}, DEFAULTS, options);
 
-            if (settings.enableTooltips) {
-                initTooltip();
-            }
+        settings.width = settings.width - MARGIN.right - MARGIN.left;
+        settings.height = settings.height - MARGIN.top - MARGIN.bottom;
 
-            if (settings.enableInnerArcs) {
-                initInnerArcs();
-            }
+        if (settings.enableTooltips) {
+            initTooltip();
+        }
 
-            tree = d3.layout.tree()
+        if (settings.enableInnerArcs) {
+            initInnerArcs();
+        }
+
+        tree = d3.layout.tree()
                 .nodeSize([2, 10])
                 .separation((a, b) => {
                     let width = (nodeSize(a) + nodeSize(b)),
@@ -82,18 +83,18 @@
                     return (a.parent === b.parent) ? distance : distance + 4;
                 });
 
-            diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
+        diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
 
-            widthScale = d3.scale.linear().range([settings.minNodeSize, settings.maxNodeSize]);
+        widthScale = d3.scale.linear().range([settings.minNodeSize, settings.maxNodeSize]);
 
             // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-            zoomListener = d3.behavior.zoom()
+        zoomListener = d3.behavior.zoom()
                 .scaleExtent([0.1, 3])
                 .on("zoom", () => {
                     svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
                 });
 
-            svg = d3.select(element).append("svg")
+        svg = d3.select(element).append("svg")
                 .attr("version", "1.1")
                 .attr("xmlns", "http://www.w3.org/2000/svg")
                 .attr("viewBox", `0 0 ${settings.width + MARGIN.right + MARGIN.left} ${settings.height + MARGIN.top + MARGIN.bottom}`)
@@ -104,11 +105,11 @@
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
                 .append("g");
 
-            draw(TreeviewNode.createNode(data));
-        }
+        draw(TreeviewNode.createNode(data));
+    }
 
-        function initTooltip() {
-            tooltip = d3.select("body")
+    function initTooltip() {
+        tooltip = d3.select("body")
                 .append("div")
                 .attr("id", element.id + "-tooltip")
                 .attr("class", "tip")
@@ -119,59 +120,59 @@
                 .style("padding", "2px")
                 .style("border", "1px solid #dddddd")
                 .style("border-radius", "3px;");
-        }
+    }
 
-        function initInnerArcs() {
-            let arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
+    function initInnerArcs() {
+        let arcScale = d3.scale.linear().range([0, 2 * Math.PI]);
 
-            innerArc = d3.svg.arc()
+        innerArc = d3.svg.arc()
                 .outerRadius(nodeSize)
                 .startAngle(0)
                 .endAngle(d => arcScale(d.data.self_count / d.data.count) || 0);
-        }
+    }
 
-        function draw(data) {
-            widthScale.domain([0, data.data.count]);
+    function draw(data) {
+        widthScale.domain([0, data.data.count]);
 
-            root = data;
-            root.x0 = settings.height / 2;
-            root.y0 = 0;
+        root = data;
+        root.x0 = settings.height / 2;
+        root.y0 = 0;
 
             // set everything visible
-            root.setSelected(true);
+        root.setSelected(true);
 
-            root.children.forEach((d, i) => {
-                d.color = d3.functor(settings.colors).call(this, d, i);
-                d.setRecursiveProperty("color", d.color);
-            });
+        root.children.forEach((d, i) => {
+            d.color = d3.functor(settings.colors).call(this, d, i);
+            d.setRecursiveProperty("color", d.color);
+        });
 
-            if (settings.enableExpandOnClick) {
-                root.collapseAll();
-                root.expand();
-            } else {
-                root.expandAll();
-            }
-
-            update(root);
-            centerNode(root);
+        if (settings.enableExpandOnClick) {
+            root.collapseAll();
+            root.expand();
+        } else {
+            root.expandAll();
         }
 
-        function update(source) {
+        update(root);
+        centerNode(root);
+    }
+
+    function update(source) {
             // Compute the new tree layout.
-            let nodes = tree.nodes(root).reverse(),
-                links = tree.links(nodes);
+        let nodes = tree.nodes(root).reverse(),
+            links = tree.links(nodes);
 
             // Normalize for fixed-depth.
-            nodes.forEach(d => {
-                d.y = d.depth * settings.nodeDistance;
-            });
+        nodes.forEach(d => {
+            d.y = d.depth * settings.nodeDistance;
+        });
 
             // Update the nodes…
-            let node = svg.selectAll("g.node")
+        let node = svg.selectAll("g.node")
                 .data(nodes, d => d.id || (d.id = ++nodeId));
 
             // Enter any new nodes at the parent's previous position.
-            let nodeEnter = node.enter().append("g")
+        let nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .style("cursor", "pointer")
                 .attr("transform", d => `translate(${source.y || 0},${source.x0 || 0})`)
@@ -180,73 +181,73 @@
                 .on("mouseout", tooltipOut)
                 .on("contextmenu", rightClick);
 
-            nodeEnter.append("circle")
+        nodeEnter.append("circle")
                 .attr("r", 1e-6)
                 .style("stroke-width", "1.5px")
                 .style("stroke", settings.nodeStrokeColor)
                 .style("fill", settings.nodeFillColor);
 
-            if (settings.enableInnerArcs) {
-                nodeEnter.append("path")
+        if (settings.enableInnerArcs) {
+            nodeEnter.append("path")
                     .attr("d", innerArc)
                     .style("fill", settings.nodeStrokeColor)
                     .style("fill-opacity", 0);
-            }
+        }
 
-            if (settings.enableLabels) {
-                nodeEnter.append("text")
+        if (settings.enableLabels) {
+            nodeEnter.append("text")
                     .attr("x", d => d.isLeaf() ? 10 : -10)
                     .attr("dy", ".35em")
                     .attr("text-anchor", d => d.isLeaf() ? "start" : "end")
                     .text(settings.getLabel)
                     .style("font", "10px sans-serif")
                     .style("fill-opacity", 1e-6);
-            }
+        }
 
             // Transition nodes to their new position.
-            let nodeUpdate = node.transition()
+        let nodeUpdate = node.transition()
                 .duration(DURATION)
                 .attr("transform", d => `translate(${d.y},${d.x})`);
 
-            nodeUpdate.select("circle")
+        nodeUpdate.select("circle")
                 .attr("r", nodeSize)
                 .style("fill-opacity", d => d._children ? 1 : 0)
                 .style("stroke", settings.nodeStrokeColor)
                 .style("fill", settings.nodeFillColor);
 
-            if (settings.enableLabels) {
-                nodeUpdate.select("text")
+        if (settings.enableLabels) {
+            nodeUpdate.select("text")
                     .style("fill-opacity", 1);
-            }
+        }
 
-            if (settings.enableInnerArcs) {
-                nodeUpdate.select("path")
+        if (settings.enableInnerArcs) {
+            nodeUpdate.select("path")
                     .duration(DURATION)
                     .attr("d", innerArc)
                     .style("fill-opacity", 0.8);
-            }
+        }
 
             // Transition exiting nodes to the parent's new position.
-            let nodeExit = node.exit().transition()
+        let nodeExit = node.exit().transition()
                 .duration(DURATION)
                 .attr("transform", d => `translate(${source.y},${source.x})`)
                 .remove();
 
-            nodeExit.select("circle")
+        nodeExit.select("circle")
                 .attr("r", 1e-6);
 
-            nodeExit.select("path")
+        nodeExit.select("path")
                 .style("fill-opacity", 1e-6);
 
-            nodeExit.select("text")
+        nodeExit.select("text")
                 .style("fill-opacity", 1e-6);
 
             // Update the links…
-            let link = svg.selectAll("path.link")
+        let link = svg.selectAll("path.link")
                 .data(links, d => d.target.id);
 
             // Enter any new links at the parent's previous position.
-            link.enter().insert("path", "g")
+        link.enter().insert("path", "g")
                 .attr("class", "link")
                 .style("fill", "none")
                 .style("stroke-opacity", "0.5")
@@ -265,7 +266,7 @@
                 });
 
             // Transition links to their new position.
-            link.transition()
+        link.transition()
                 .duration(DURATION)
                 .attr("d", diagonal)
                 .style("stroke", settings.linkStrokeColor)
@@ -278,7 +279,7 @@
                 });
 
             // Transition exiting nodes to the parent's new position.
-            link.exit().transition()
+        link.exit().transition()
                 .duration(DURATION)
                 .style("stroke-width", 1e-6)
                 .attr("d", d => {
@@ -294,245 +295,244 @@
                 .remove();
 
             // Stash the old positions for transition.
-            nodes.forEach(d => {
-                [d.x0, d.y0] = [d.x, d.y];
-            });
-        }
-
-        function nodeSize(d) {
-            if (d.selected) {
-                return widthScale(d.data.count) / 2;
-            } else {
-                return 2;
-            }
-        }
-
-        // Toggle children on click.
-        function click(d) {
-            if (!settings.enableExpandOnClick) {
-                return;
-            }
-
-            // check if click is triggered by panning on a node
-            if (d3.event.defaultPrevented) {
-                return;
-            }
-
-            if (d3.event.shiftKey) {
-                d.expandAll();
-            } else if (d.children) {
-                d.collapse();
-            } else {
-                d.expand();
-            }
-            update(d);
-            centerNode(d);
-        }
-
-        function rightClick(d) {
-            if (settings.enableRightClick) {
-                reroot(d);
-            }
-        }
-
-        // Sets the width of the right clicked node to 100%
-        function reroot(d) {
-            if (d === visibleRoot && d !== root) {
-                reroot(root);
-                return;
-            }
-            visibleRoot = d;
-
-            // set Selection properties
-            root.setSelected(false);
-            d.setSelected(true);
-
-            // scale the lines
-            widthScale.domain([0, d.data.count]);
-
-            d.expand();
-
-            // redraw
-            if (d3.event !== null) {
-                d3.event.preventDefault();
-            }
-            update(d);
-            centerNode(d);
-        }
-
-        // Center a node
-        function centerNode(source) {
-            let scale = zoomListener.scale(),
-                [x, y] = [-source.y0, -source.x0];
-            x = x * scale + settings.width / 4;
-            y = y * scale + settings.height / 2;
-            svg.transition()
-                .duration(DURATION)
-                .attr("transform", `translate(${x},${y})scale(${scale})`);
-            zoomListener.scale(scale);
-            zoomListener.translate([x, y]);
-        }
-
-        // tooltip functions
-        function tooltipIn(d, i) {
-            if (!settings.enableTooltips) {
-                return;
-            }
-            tooltip.html(settings.getTooltip(d))
-                .style("top", (d3.event.pageY - 5) + "px")
-                .style("left", (d3.event.pageX + 15) + "px");
-
-            tooltipTimer = setTimeout(() => {
-                tooltip.style("visibility", "visible");
-            }, 1000);
-        }
-
-        function tooltipOut(d, i) {
-            if (!settings.enableTooltips) {
-                return;
-            }
-            clearTimeout(tooltipTimer);
-            tooltip.style("visibility", "hidden");
-        }
-
-        /** ************ Default methods ***************/
-        // set fill color
-        function nodeFillColor(d) {
-            if (d.selected) {
-                return d._children ? d.color || "#aaa" : "#fff";
-            } else {
-                return "#aaa";
-            }
-        }
-
-        // set node stroke color
-        function nodeStrokeColor(d) {
-            if (d.selected) {
-                return d.color || "#aaa";
-            } else {
-                return "#aaa";
-            }
-        }
-
-        // set link stroke color
-        function linkStrokeColor(d) {
-            if (d.source.selected) {
-                return d.target.color;
-            } else {
-                return "#aaa";
-            }
-        }
-
-        function getTooltip(d) {
-            return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
-        }
-
-        function getTooltipTitle(d) {
-            return d.name;
-        }
-
-        function getTooltipText(d) {
-            return `${d.data.count} hits`;
-        }
-
-        class TreeviewNode extends univis.Node {
-            constructor(node = {}) {
-                super(node);
-                this.setCount();
-            }
-
-            static new(node = {}) {
-                return new TreeviewNode(node);
-            }
-
-            static createNode(node) {
-                return univis.Node.createNode(node, TreeviewNode.new);
-            }
-
-            setCount() {
-                if (settings.countAccessor(this)) {
-                    this.data.count = settings.countAccessor(this);
-                } else if (this.children) {
-                    this.data.count = this.children.reduce((sum, c) => sum + c.data.count, 0);
-                } else {
-                    this.data.count = 0;
-                }
-            }
-
-            setSelected(value) {
-                this.setRecursiveProperty("selected", value);
-            }
-
-            // collapse everything
-            collapseAll() {
-                if (this.children && this.children.length === 0) {
-                    this.children = null;
-                }
-                if (this.children) {
-                    this._children = this.children;
-                    this._children.forEach(c => {
-                        c.collapseAll();
-                    });
-                    this.children = null;
-                }
-            }
-
-            // Collapses a node
-            collapse() {
-                if (this.children) {
-                    this._children = this.children;
-                    this.children = null;
-                }
-            }
-
-            expandAll() {
-                this.expand(100);
-            }
-
-            // Expands a node and its children
-            expand(i = settings.levelsToExpand) {
-                if (i > 0) {
-                    if (this._children) {
-                        this.children = this._children;
-                        this._children = null;
-                    }
-                    if (this.children) {
-                        this.children.forEach(c => {
-                            c.expand(i - 1);
-                        });
-                    }
-                }
-            }
-        }
-
-        /** ************* Public methods ***************/
-        that.reset = function reset() {
-            zoomListener.scale(1);
-            reroot(root);
-        };
-
-        // initialize the object
-        init();
-
-        // return the object
-        return that;
-    };
-
-    function Plugin(userData, option) {
-        return this.each(function () {
-            let $this = $(this);
-            let data = $this.data("vis.treeview");
-            let options = $.extend({}, $this.data(), typeof option === "object" && option);
-
-            if (!data) {
-                $this.data("vis.treeview", (data = new TreeView(this, userData, options)));
-            }
-            if (typeof option === "string") {
-                data[option]();
-            }
+        nodes.forEach(d => {
+            [d.x0, d.y0] = [d.x, d.y];
         });
     }
 
-    $.fn.treeview = Plugin;
-    $.fn.treeview.Constructor = TreeView;
-})();
+    function nodeSize(d) {
+        if (d.selected) {
+            return widthScale(d.data.count) / 2;
+        } else {
+            return 2;
+        }
+    }
+
+        // Toggle children on click.
+    function click(d) {
+        if (!settings.enableExpandOnClick) {
+            return;
+        }
+
+            // check if click is triggered by panning on a node
+        if (d3.event.defaultPrevented) {
+            return;
+        }
+
+        if (d3.event.shiftKey) {
+            d.expandAll();
+        } else if (d.children) {
+            d.collapse();
+        } else {
+            d.expand();
+        }
+        update(d);
+        centerNode(d);
+    }
+
+    function rightClick(d) {
+        if (settings.enableRightClick) {
+            reroot(d);
+        }
+    }
+
+        // Sets the width of the right clicked node to 100%
+    function reroot(d) {
+        if (d === visibleRoot && d !== root) {
+            reroot(root);
+            return;
+        }
+        visibleRoot = d;
+
+            // set Selection properties
+        root.setSelected(false);
+        d.setSelected(true);
+
+            // scale the lines
+        widthScale.domain([0, d.data.count]);
+
+        d.expand();
+
+            // redraw
+        if (d3.event !== null) {
+            d3.event.preventDefault();
+        }
+        update(d);
+        centerNode(d);
+    }
+
+        // Center a node
+    function centerNode(source) {
+        let scale = zoomListener.scale(),
+            [x, y] = [-source.y0, -source.x0];
+        x = x * scale + settings.width / 4;
+        y = y * scale + settings.height / 2;
+        svg.transition()
+                .duration(DURATION)
+                .attr("transform", `translate(${x},${y})scale(${scale})`);
+        zoomListener.scale(scale);
+        zoomListener.translate([x, y]);
+    }
+
+        // tooltip functions
+    function tooltipIn(d, i) {
+        if (!settings.enableTooltips) {
+            return;
+        }
+        tooltip.html(settings.getTooltip(d))
+                .style("top", (d3.event.pageY - 5) + "px")
+                .style("left", (d3.event.pageX + 15) + "px");
+
+        tooltipTimer = setTimeout(() => {
+            tooltip.style("visibility", "visible");
+        }, 1000);
+    }
+
+    function tooltipOut(d, i) {
+        if (!settings.enableTooltips) {
+            return;
+        }
+        clearTimeout(tooltipTimer);
+        tooltip.style("visibility", "hidden");
+    }
+
+        /** ************ Default methods ***************/
+        // set fill color
+    function nodeFillColor(d) {
+        if (d.selected) {
+            return d._children ? d.color || "#aaa" : "#fff";
+        } else {
+            return "#aaa";
+        }
+    }
+
+        // set node stroke color
+    function nodeStrokeColor(d) {
+        if (d.selected) {
+            return d.color || "#aaa";
+        } else {
+            return "#aaa";
+        }
+    }
+
+        // set link stroke color
+    function linkStrokeColor(d) {
+        if (d.source.selected) {
+            return d.target.color;
+        } else {
+            return "#aaa";
+        }
+    }
+
+    function getTooltip(d) {
+        return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
+    }
+
+    function getTooltipTitle(d) {
+        return d.name;
+    }
+
+    function getTooltipText(d) {
+        return `${d.data.count} hits`;
+    }
+
+    class TreeviewNode extends Node {
+        constructor(node = {}) {
+            super(node);
+            this.setCount();
+        }
+
+        static new(node = {}) {
+            return new TreeviewNode(node);
+        }
+
+        static createNode(node) {
+            return Node.createNode(node, TreeviewNode.new);
+        }
+
+        setCount() {
+            if (settings.countAccessor(this)) {
+                this.data.count = settings.countAccessor(this);
+            } else if (this.children) {
+                this.data.count = this.children.reduce((sum, c) => sum + c.data.count, 0);
+            } else {
+                this.data.count = 0;
+            }
+        }
+
+        setSelected(value) {
+            this.setRecursiveProperty("selected", value);
+        }
+
+            // collapse everything
+        collapseAll() {
+            if (this.children && this.children.length === 0) {
+                this.children = null;
+            }
+            if (this.children) {
+                this._children = this.children;
+                this._children.forEach(c => {
+                    c.collapseAll();
+                });
+                this.children = null;
+            }
+        }
+
+            // Collapses a node
+        collapse() {
+            if (this.children) {
+                this._children = this.children;
+                this.children = null;
+            }
+        }
+
+        expandAll() {
+            this.expand(100);
+        }
+
+            // Expands a node and its children
+        expand(i = settings.levelsToExpand) {
+            if (i > 0) {
+                if (this._children) {
+                    this.children = this._children;
+                    this._children = null;
+                }
+                if (this.children) {
+                    this.children.forEach(c => {
+                        c.expand(i - 1);
+                    });
+                }
+            }
+        }
+        }
+
+        /** ************* Public methods ***************/
+    that.reset = function reset() {
+        zoomListener.scale(1);
+        reroot(root);
+    };
+
+        // initialize the object
+    init();
+
+        // return the object
+    return that;
+}
+
+function Plugin(userData, option) {
+    return this.each(function () {
+        let $this = $(this);
+        let data = $this.data("vis.treeview");
+        let options = $.extend({}, $this.data(), typeof option === "object" && option);
+
+        if (!data) {
+            $this.data("vis.treeview", (data = new TreeView(this, userData, options)));
+        }
+        if (typeof option === "string") {
+            data[option]();
+        }
+    });
+}
+
+$.fn.treeview = Plugin;
+$.fn.treeview.Constructor = TreeView;

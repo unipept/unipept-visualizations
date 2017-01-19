@@ -1,16 +1,21 @@
 module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
-        concat: {
-            options: {
-                // define a string to put between each file in the concatenated output
-                separator: ";",
-            },
+        webpack: {
             dist: {
-                // the files to concatenate
-                src: ["src/**/*.js"],
-                // the location of the resulting JS file
-                dest: "dist/<%= pkg.name %>.js",
+                entry: "./src/index.js",
+                output: {
+                    path: "dist/",
+                    filename: "<%= pkg.name %>.js",
+                },
+                devtool: "source-map",
+                module: {
+                    loaders: [
+                        {
+                            loader: "babel-loader",
+                        },
+                    ],
+                },
             },
         },
         eslint: {
@@ -33,17 +38,17 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    "dist/<%= pkg.name %>.es5.js": ["<%= concat.dist.dest %>"],
+                    "dist/<%= pkg.name %>.es5.js": ["dist/<%= pkg.name %>.js"],
                 },
             },
         },
     });
 
     grunt.loadNpmTasks("grunt-contrib-uglify");
-    grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-babel");
+    grunt.loadNpmTasks("grunt-webpack");
     grunt.loadNpmTasks("gruntify-eslint");
 
     // the default task can be run just by typing "grunt" on the command line
-    grunt.registerTask("default", ["eslint", "concat", "babel", "uglify"]);
+    grunt.registerTask("default", ["eslint", "webpack", "babel", "uglify"]);
 };

@@ -1,8 +1,10 @@
 {
     "parserOptions": {
-        "ecmaVersion": 6
+        "ecmaVersion": 6,
+        "sourceType": "module"
     },
     "extends": ["eslint:recommended", "google"],
+    "plugins": ["import"],
     "rules": {
         "arrow-parens": ["error", "as-needed"],
         "no-underscore-dangle": "off",
@@ -19,14 +21,14 @@
         "indent": ["error", 4],
         "max-len": "off",
         "quotes": ["error", "double"],
-        "new-cap": "off"
+        "new-cap": "off",
+        "no-invalid-this": "off"
     },
     "env": {
         "browser": true
     },
     "globals": {
         "d3": false,
-        "$": false,
-        "univis": true
+        "$": false
     }
 }
