@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -12,12 +12,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/*jshint -W079 */
-var univis = univis || {};
+var univis = {};
 
 univis.Node = function () {
     function Node() {
-        var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+        var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         _classCallCheck(this, Node);
 
@@ -79,14 +78,14 @@ univis.Node = function () {
     }], [{
         key: "new",
         value: function _new() {
-            var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+            var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             return new Node(node);
         }
     }, {
         key: "createNode",
         value: function createNode(node) {
-            var construct = arguments.length <= 1 || arguments[1] === undefined ? Node.new : arguments[1];
+            var construct = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Node.new;
 
             if (node.children) {
                 node.children = node.children.map(function (n) {
@@ -104,7 +103,7 @@ univis.Node = function () {
   */
 (function () {
     var TreeMap = function TreeMap(element, data) {
-        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
         var that = {};
 
@@ -118,7 +117,7 @@ univis.Node = function () {
             height: 300,
             width: 600,
 
-            className: 'unipept-treemap',
+            className: "unipept-treemap",
             levels: undefined,
             getLevel: function getLevel(d) {
                 return d.getDepth();
@@ -221,7 +220,7 @@ univis.Node = function () {
         }
 
         function reroot(data) {
-            var triggerCallback = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+            var triggerCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
             current = data;
 
@@ -323,7 +322,7 @@ univis.Node = function () {
             var textColor = "#000";
             try {
                 textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-            } catch (err) {}
+            } catch (err) {/* go on */}
             return textColor;
         }
 
@@ -341,13 +340,13 @@ univis.Node = function () {
             function TreemapNode() {
                 _classCallCheck(this, TreemapNode);
 
-                return _possibleConstructorReturn(this, Object.getPrototypeOf(TreemapNode).apply(this, arguments));
+                return _possibleConstructorReturn(this, (TreemapNode.__proto__ || Object.getPrototypeOf(TreemapNode)).apply(this, arguments));
             }
 
             _createClass(TreemapNode, null, [{
                 key: "new",
                 value: function _new() {
-                    var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+                    var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
                     return new TreemapNode(node);
                 }
@@ -361,7 +360,7 @@ univis.Node = function () {
             return TreemapNode;
         }(univis.Node);
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
         /**
          * Resets the treemap to its initial position
          */
@@ -381,8 +380,9 @@ univis.Node = function () {
             // so the height en width functions don't give a correct result
             // without the delay
             setTimeout(function () {
-                var w = settings.width;
-                var h = settings.height;
+                var _ref = [settings.width, settings.height],
+                    w = _ref[0],
+                    h = _ref[1];
 
                 if (isFullScreen) {
                     w = $(window).width();
@@ -401,13 +401,13 @@ univis.Node = function () {
     function Plugin(userData, option) {
         return this.each(function () {
             var $this = $(this);
-            var data = $this.data('vis.treemap');
-            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
+            var data = $this.data("vis.treemap");
+            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
 
             if (!data) {
-                $this.data('vis.treemap', data = new TreeMap(this, userData, options));
+                $this.data("vis.treemap", data = new TreeMap(this, userData, options));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });
@@ -424,7 +424,7 @@ univis.Node = function () {
   */
 (function () {
     var TreeView = function TreeView(element, data) {
-        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
         var that = {};
 
@@ -664,9 +664,9 @@ univis.Node = function () {
 
             // Stash the old positions for transition.
             nodes.forEach(function (d) {
-                var _ref = [d.x, d.y];
-                d.x0 = _ref[0];
-                d.y0 = _ref[1];
+                var _ref2 = [d.x, d.y];
+                d.x0 = _ref2[0];
+                d.y0 = _ref2[1];
             });
         }
 
@@ -733,9 +733,9 @@ univis.Node = function () {
 
         // Center a node
         function centerNode(source) {
-            var scale = zoomListener.scale();
-            var x = -source.y0;
-            var y = -source.x0;
+            var scale = zoomListener.scale(),
+                x = -source.y0,
+                y = -source.x0;
 
             x = x * scale + settings.width / 4;
             y = y * scale + settings.height / 2;
@@ -764,7 +764,7 @@ univis.Node = function () {
             tooltip.style("visibility", "hidden");
         }
 
-        /************** Default methods ***************/
+        /** ************ Default methods ***************/
         // set fill color
         function nodeFillColor(d) {
             if (d.selected) {
@@ -808,11 +808,11 @@ univis.Node = function () {
             _inherits(TreeviewNode, _univis$Node2);
 
             function TreeviewNode() {
-                var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+                var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
                 _classCallCheck(this, TreeviewNode);
 
-                var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(TreeviewNode).call(this, node));
+                var _this3 = _possibleConstructorReturn(this, (TreeviewNode.__proto__ || Object.getPrototypeOf(TreeviewNode)).call(this, node));
 
                 _this3.setCount();
                 return _this3;
@@ -875,7 +875,7 @@ univis.Node = function () {
             }, {
                 key: "expand",
                 value: function expand() {
-                    var i = arguments.length <= 0 || arguments[0] === undefined ? settings.levelsToExpand : arguments[0];
+                    var i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : settings.levelsToExpand;
 
                     if (i > 0) {
                         if (this._children) {
@@ -892,7 +892,7 @@ univis.Node = function () {
             }], [{
                 key: "new",
                 value: function _new() {
-                    var node = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+                    var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
                     return new TreeviewNode(node);
                 }
@@ -906,7 +906,7 @@ univis.Node = function () {
             return TreeviewNode;
         }(univis.Node);
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
 
 
         that.reset = function reset() {
@@ -924,13 +924,13 @@ univis.Node = function () {
     function Plugin(userData, option) {
         return this.each(function () {
             var $this = $(this);
-            var data = $this.data('vis.treeview');
-            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === 'object' && option);
+            var data = $this.data("vis.treeview");
+            var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
 
             if (!data) {
-                $this.data('vis.treeview', data = new TreeView(this, userData, options));
+                $this.data("vis.treeview", data = new TreeView(this, userData, options));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });

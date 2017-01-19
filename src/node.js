@@ -1,5 +1,4 @@
-/*jshint -W079 */
-let univis = univis || {};
+let univis = {};
 
 univis.Node = class Node {
     constructor(node = {}) {
@@ -13,7 +12,9 @@ univis.Node = class Node {
 
     static createNode(node, construct = Node.new) {
         if (node.children) {
-            node.children = node.children.map(n => Node.createNode(n, construct));
+            node.children = node.children.map(
+                n => Node.createNode(n, construct)
+            );
         }
         return construct.call(null, node);
     }

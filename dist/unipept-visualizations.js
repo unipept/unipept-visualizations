@@ -1,5 +1,4 @@
-/*jshint -W079 */
-let univis = univis || {};
+let univis = {};
 
 univis.Node = class Node {
     constructor(node = {}) {
@@ -13,7 +12,9 @@ univis.Node = class Node {
 
     static createNode(node, construct = Node.new) {
         if (node.children) {
-            node.children = node.children.map(n => Node.createNode(n, construct));
+            node.children = node.children.map(
+                n => Node.createNode(n, construct)
+            );
         }
         return construct.call(null, node);
     }
@@ -65,20 +66,20 @@ univis.Node = class Node {
  * Interactive treemap
  */
 (function () {
-    var TreeMap = function TreeMap(element, data, options = {}) {
+    let TreeMap = function TreeMap(element, data, options = {}) {
         let that = {};
 
         const MARGIN = {
                 top: 0,
                 right: 0,
                 bottom: 0,
-                left: 0
+                left: 0,
             },
             DEFAULTS = {
                 height: 300,
                 width: 600,
 
-                className: 'unipept-treemap',
+                className: "unipept-treemap",
                 levels: undefined,
                 getLevel: d => d.getDepth(),
 
@@ -96,7 +97,7 @@ univis.Node = class Node {
                 enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
-                getTooltipText: getTooltipText
+                getTooltipText: getTooltipText,
             };
 
         let settings;
@@ -359,7 +360,7 @@ univis.Node = class Node {
             let textColor = "#000";
             try {
                 textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-            } catch (err) {}
+            } catch (err) { /* go on */ }
             return textColor;
         }
 
@@ -382,7 +383,7 @@ univis.Node = class Node {
         }
 
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
         /**
          * Resets the treemap to its initial position
          */
@@ -418,13 +419,13 @@ univis.Node = class Node {
     function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
-            let data = $this.data('vis.treemap');
-            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
+            let data = $this.data("vis.treemap");
+            let options = $.extend({}, $this.data(), typeof option === "object" && option);
 
             if (!data) {
-                $this.data('vis.treemap', (data = new TreeMap(this, userData, options)));
+                $this.data("vis.treemap", (data = new TreeMap(this, userData, options)));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });
@@ -440,14 +441,14 @@ univis.Node = class Node {
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, data, options = {}) {
+    let TreeView = function TreeView(element, data, options = {}) {
         let that = {};
 
         const MARGIN = {
                 top: 5,
                 right: 5,
                 bottom: 5,
-                left: 5
+                left: 5,
             },
             DURATION = 750,
             COLOR_SCALE = d3.scale.category10(),
@@ -476,7 +477,7 @@ univis.Node = class Node {
                 enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
-                getTooltipText: getTooltipText
+                getTooltipText: getTooltipText,
             };
 
         let settings;
@@ -691,11 +692,11 @@ univis.Node = class Node {
                 .attr("d", d => {
                     let o = {
                         x: (source.x0 || 0),
-                        y: (source.y0 || 0)
+                        y: (source.y0 || 0),
                     };
                     return diagonal({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 });
 
@@ -719,11 +720,11 @@ univis.Node = class Node {
                 .attr("d", d => {
                     let o = {
                         x: source.x,
-                        y: source.y
+                        y: source.y,
                     };
                     return diagonal({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 })
                 .remove();
@@ -820,7 +821,6 @@ univis.Node = class Node {
             tooltipTimer = setTimeout(() => {
                 tooltip.style("visibility", "visible");
             }, 1000);
-
         }
 
         function tooltipOut(d, i) {
@@ -831,7 +831,7 @@ univis.Node = class Node {
             tooltip.style("visibility", "hidden");
         }
 
-        /************** Default methods ***************/
+        /** ************ Default methods ***************/
         // set fill color
         function nodeFillColor(d) {
             if (d.selected) {
@@ -941,7 +941,7 @@ univis.Node = class Node {
             }
         }
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
         that.reset = function reset() {
             zoomListener.scale(1);
             reroot(root);
@@ -957,13 +957,13 @@ univis.Node = class Node {
     function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
-            let data = $this.data('vis.treeview');
-            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
+            let data = $this.data("vis.treeview");
+            let options = $.extend({}, $this.data(), typeof option === "object" && option);
 
             if (!data) {
-                $this.data('vis.treeview', (data = new TreeView(this, userData, options)));
+                $this.data("vis.treeview", (data = new TreeView(this, userData, options)));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });

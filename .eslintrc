@@ -1,0 +1,32 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "extends": ["eslint:recommended", "google"],
+    "rules": {
+        "arrow-parens": ["error", "as-needed"],
+        "no-underscore-dangle": "off",
+        "no-use-before-define": "off",
+        "no-confusing-arrow": "off",
+        "no-unused-vars": "off",
+        "no-plusplus": "off",
+        "no-else-return": "off",
+        "one-var": "off",
+        "require-jsdoc": "off",
+        "valid-jsdoc": "off",
+        "space-before-function-paren": ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
+        "no-param-reassign": ["error", { "props": false }],
+        "indent": ["error", 4],
+        "max-len": "off",
+        "quotes": ["error", "double"],
+        "new-cap": "off"
+    },
+    "env": {
+        "browser": true
+    },
+    "globals": {
+        "d3": false,
+        "$": false,
+        "univis": true
+    }
+}

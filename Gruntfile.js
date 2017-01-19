@@ -1,60 +1,49 @@
 module.exports = function (grunt) {
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: grunt.file.readJSON("package.json"),
         concat: {
             options: {
                 // define a string to put between each file in the concatenated output
-                separator: ';'
+                separator: ";",
             },
             dist: {
                 // the files to concatenate
-                src: ['src/**/*.js'],
+                src: ["src/**/*.js"],
                 // the location of the resulting JS file
-                dest: 'dist/<%= pkg.name %>.js'
-            }
+                dest: "dist/<%= pkg.name %>.js",
+            },
+        },
+        eslint: {
+            src: ["src/**/*.js"],
         },
         uglify: {
             options: {
                 // the banner is inserted at the top of the output
-                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+                banner: "/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today(\"dd-mm-yyyy\") %> */\n",
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.min.js': ['dist/<%= pkg.name %>.es5.js']
-                }
-            }
-        },
-        jshint: {
-            // define the files to lint
-            files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
-            // configure JSHint (documented at http://www.jshint.com/docs/)
-            options: {
-                // more options here if you want to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true
+                    "dist/<%= pkg.name %>.min.js": ["dist/<%= pkg.name %>.es5.js"],
                 },
-                jshintrc: true
-            }
+            },
         },
         babel: {
             options: {
-                sourceMap: true
+                sourceMap: true,
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.es5.js': ['<%= concat.dist.dest %>']
-                }
-            }
-        }
+                    "dist/<%= pkg.name %>.es5.js": ["<%= concat.dist.dest %>"],
+                },
+            },
+        },
     });
 
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks("grunt-contrib-uglify");
+    grunt.loadNpmTasks("grunt-contrib-concat");
+    grunt.loadNpmTasks("grunt-babel");
+    grunt.loadNpmTasks("gruntify-eslint");
 
     // the default task can be run just by typing "grunt" on the command line
-    grunt.registerTask('default', ['jshint', 'concat', 'babel', 'uglify']);
+    grunt.registerTask("default", ["eslint", "concat", "babel", "uglify"]);
 };

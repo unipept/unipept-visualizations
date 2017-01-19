@@ -2,20 +2,20 @@
  * Interactive treemap
  */
 (function () {
-    var TreeMap = function TreeMap(element, data, options = {}) {
+    let TreeMap = function TreeMap(element, data, options = {}) {
         let that = {};
 
         const MARGIN = {
                 top: 0,
                 right: 0,
                 bottom: 0,
-                left: 0
+                left: 0,
             },
             DEFAULTS = {
                 height: 300,
                 width: 600,
 
-                className: 'unipept-treemap',
+                className: "unipept-treemap",
                 levels: undefined,
                 getLevel: d => d.getDepth(),
 
@@ -33,7 +33,7 @@
                 enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
-                getTooltipText: getTooltipText
+                getTooltipText: getTooltipText,
             };
 
         let settings;
@@ -296,7 +296,7 @@
             let textColor = "#000";
             try {
                 textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-            } catch (err) {}
+            } catch (err) { /* go on */ }
             return textColor;
         }
 
@@ -319,7 +319,7 @@
         }
 
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
         /**
          * Resets the treemap to its initial position
          */
@@ -355,13 +355,13 @@
     function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
-            let data = $this.data('vis.treemap');
-            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
+            let data = $this.data("vis.treemap");
+            let options = $.extend({}, $this.data(), typeof option === "object" && option);
 
             if (!data) {
-                $this.data('vis.treemap', (data = new TreeMap(this, userData, options)));
+                $this.data("vis.treemap", (data = new TreeMap(this, userData, options)));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });

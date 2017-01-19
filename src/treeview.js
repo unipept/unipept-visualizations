@@ -5,14 +5,14 @@
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 (function () {
-    var TreeView = function TreeView(element, data, options = {}) {
+    let TreeView = function TreeView(element, data, options = {}) {
         let that = {};
 
         const MARGIN = {
                 top: 5,
                 right: 5,
                 bottom: 5,
-                left: 5
+                left: 5,
             },
             DURATION = 750,
             COLOR_SCALE = d3.scale.category10(),
@@ -41,7 +41,7 @@
                 enableTooltips: true,
                 getTooltip: getTooltip,
                 getTooltipTitle: getTooltipTitle,
-                getTooltipText: getTooltipText
+                getTooltipText: getTooltipText,
             };
 
         let settings;
@@ -256,11 +256,11 @@
                 .attr("d", d => {
                     let o = {
                         x: (source.x0 || 0),
-                        y: (source.y0 || 0)
+                        y: (source.y0 || 0),
                     };
                     return diagonal({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 });
 
@@ -284,11 +284,11 @@
                 .attr("d", d => {
                     let o = {
                         x: source.x,
-                        y: source.y
+                        y: source.y,
                     };
                     return diagonal({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 })
                 .remove();
@@ -385,7 +385,6 @@
             tooltipTimer = setTimeout(() => {
                 tooltip.style("visibility", "visible");
             }, 1000);
-
         }
 
         function tooltipOut(d, i) {
@@ -396,7 +395,7 @@
             tooltip.style("visibility", "hidden");
         }
 
-        /************** Default methods ***************/
+        /** ************ Default methods ***************/
         // set fill color
         function nodeFillColor(d) {
             if (d.selected) {
@@ -506,7 +505,7 @@
             }
         }
 
-        /*************** Public methods ***************/
+        /** ************* Public methods ***************/
         that.reset = function reset() {
             zoomListener.scale(1);
             reroot(root);
@@ -522,13 +521,13 @@
     function Plugin(userData, option) {
         return this.each(function () {
             let $this = $(this);
-            let data = $this.data('vis.treeview');
-            let options = $.extend({}, $this.data(), typeof option === 'object' && option);
+            let data = $this.data("vis.treeview");
+            let options = $.extend({}, $this.data(), typeof option === "object" && option);
 
             if (!data) {
-                $this.data('vis.treeview', (data = new TreeView(this, userData, options)));
+                $this.data("vis.treeview", (data = new TreeView(this, userData, options)));
             }
-            if (typeof option === 'string') {
+            if (typeof option === "string") {
                 data[option]();
             }
         });
