@@ -22,7 +22,8 @@
         "max-len": "off",
         "quotes": ["error", "double"],
         "new-cap": "off",
-        "no-invalid-this": "off"
+        "no-invalid-this": "off",
+        "no-console": "off",
     },
     "env": {
         "browser": true

@@ -57,7 +57,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	var _treeview2 = _interopRequireDefault(_treeview);
 
-	var _treemap = __webpack_require__(3);
+	var _treemap = __webpack_require__(4);
 
 	var _treemap2 = _interopRequireDefault(_treemap);
 
@@ -82,16 +82,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
 	};
 
-	var _createClass = function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-		};
-	}();
-
 	var _extends = Object.assign || function (target) {
 		for (var i = 1; i < arguments.length; i++) {
 			var source = arguments[i];for (var key in source) {
@@ -109,30 +99,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	exports.default = TreeView;
 
-	var _node = __webpack_require__(2);
+	var _treeviewNode = __webpack_require__(2);
 
-	var _node2 = _interopRequireDefault(_node);
+	var _treeviewNode2 = _interopRequireDefault(_treeviewNode);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : { default: obj };
-	}
-
-	function _classCallCheck(instance, Constructor) {
-		if (!(instance instanceof Constructor)) {
-			throw new TypeError("Cannot call a class as a function");
-		}
-	}
-
-	function _possibleConstructorReturn(self, call) {
-		if (!self) {
-			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
-	}
-
-	function _inherits(subClass, superClass) {
-		if (typeof superClass !== "function" && superClass !== null) {
-			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
-		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
 	function TreeView(element, data) {
@@ -200,6 +172,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 		function init() {
 			settings = _extends({}, DEFAULTS, options);
+			_treeviewNode2.default.settings = settings;
 
 			settings.width = settings.width - MARGIN.right - MARGIN.left;
 			settings.height = settings.height - MARGIN.top - MARGIN.bottom;
@@ -231,7 +204,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 			svg = d3.select(element).append("svg").attr("version", "1.1").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", "0 0 " + (settings.width + MARGIN.right + MARGIN.left) + " " + (settings.height + MARGIN.top + MARGIN.bottom)).attr("width", settings.width + MARGIN.right + MARGIN.left).attr("height", settings.height + MARGIN.top + MARGIN.bottom).call(zoomListener).append("g").attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")").append("g");
 
-			draw(TreeviewNode.createNode(data));
+			draw(_treeviewNode2.default.createNode(data));
 		}
 
 		function initTooltip() {
@@ -516,110 +489,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			return d.data.count + " hits";
 		}
 
-		var TreeviewNode = function (_Node) {
-			_inherits(TreeviewNode, _Node);
-
-			function TreeviewNode() {
-				var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-				_classCallCheck(this, TreeviewNode);
-
-				var _this2 = _possibleConstructorReturn(this, (TreeviewNode.__proto__ || Object.getPrototypeOf(TreeviewNode)).call(this, node));
-
-				_this2.setCount();
-				return _this2;
-			}
-
-			_createClass(TreeviewNode, [{
-				key: "setCount",
-				value: function setCount() {
-					if (settings.countAccessor(this)) {
-						this.data.count = settings.countAccessor(this);
-					} else if (this.children) {
-						this.data.count = this.children.reduce(function (sum, c) {
-							return sum + c.data.count;
-						}, 0);
-					} else {
-						this.data.count = 0;
-					}
-				}
-			}, {
-				key: "setSelected",
-				value: function setSelected(value) {
-					this.setRecursiveProperty("selected", value);
-				}
-
-				// collapse everything
-
-			}, {
-				key: "collapseAll",
-				value: function collapseAll() {
-					if (this.children && this.children.length === 0) {
-						this.children = null;
-					}
-					if (this.children) {
-						this._children = this.children;
-						this._children.forEach(function (c) {
-							c.collapseAll();
-						});
-						this.children = null;
-					}
-				}
-
-				// Collapses a node
-
-			}, {
-				key: "collapse",
-				value: function collapse() {
-					if (this.children) {
-						this._children = this.children;
-						this.children = null;
-					}
-				}
-			}, {
-				key: "expandAll",
-				value: function expandAll() {
-					this.expand(100);
-				}
-
-				// Expands a node and its children
-
-			}, {
-				key: "expand",
-				value: function expand() {
-					var i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : settings.levelsToExpand;
-
-					if (i > 0) {
-						if (this._children) {
-							this.children = this._children;
-							this._children = null;
-						}
-						if (this.children) {
-							this.children.forEach(function (c) {
-								c.expand(i - 1);
-							});
-						}
-					}
-				}
-			}], [{
-				key: "new",
-				value: function _new() {
-					var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-					return new TreeviewNode(node);
-				}
-			}, {
-				key: "createNode",
-				value: function createNode(node) {
-					return _node2.default.createNode(node, TreeviewNode.new);
-				}
-			}]);
-
-			return TreeviewNode;
-		}(_node2.default);
-
 		/** ************* Public methods ***************/
-
 		that.reset = function reset() {
 			zoomListener.scale(1);
 			reroot(root);
@@ -653,6 +523,158 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	/***/
 },
 /* 2 */
+/***/function (module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+		};
+	}();
+
+	var _node = __webpack_require__(3);
+
+	var _node2 = _interopRequireDefault(_node);
+
+	function _interopRequireDefault(obj) {
+		return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	function _classCallCheck(instance, Constructor) {
+		if (!(instance instanceof Constructor)) {
+			throw new TypeError("Cannot call a class as a function");
+		}
+	}
+
+	function _possibleConstructorReturn(self, call) {
+		if (!self) {
+			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+	}
+
+	function _inherits(subClass, superClass) {
+		if (typeof superClass !== "function" && superClass !== null) {
+			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
+		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+	}
+
+	var TreeviewNode = function (_Node) {
+		_inherits(TreeviewNode, _Node);
+
+		function TreeviewNode() {
+			var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+			_classCallCheck(this, TreeviewNode);
+
+			var _this = _possibleConstructorReturn(this, (TreeviewNode.__proto__ || Object.getPrototypeOf(TreeviewNode)).call(this, node));
+
+			_this.settings = TreeviewNode.settings;
+			_this.setCount();
+			return _this;
+		}
+
+		_createClass(TreeviewNode, [{
+			key: "setCount",
+			value: function setCount() {
+				if (this.settings.countAccessor(this)) {
+					this.data.count = this.settings.countAccessor(this);
+				} else if (this.children) {
+					this.data.count = this.children.reduce(function (sum, c) {
+						return sum + c.data.count;
+					}, 0);
+				} else {
+					this.data.count = 0;
+				}
+			}
+		}, {
+			key: "setSelected",
+			value: function setSelected(value) {
+				this.setRecursiveProperty("selected", value);
+			}
+
+			// collapse everything
+
+		}, {
+			key: "collapseAll",
+			value: function collapseAll() {
+				if (this.children && this.children.length === 0) {
+					this.children = null;
+				}
+				if (this.children) {
+					this._children = this.children;
+					this._children.forEach(function (c) {
+						c.collapseAll();
+					});
+					this.children = null;
+				}
+			}
+
+			// Collapses a node
+
+		}, {
+			key: "collapse",
+			value: function collapse() {
+				if (this.children) {
+					this._children = this.children;
+					this.children = null;
+				}
+			}
+		}, {
+			key: "expandAll",
+			value: function expandAll() {
+				this.expand(100);
+			}
+
+			// Expands a node and its children
+
+		}, {
+			key: "expand",
+			value: function expand() {
+				var i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.settings.levelsToExpand;
+
+				if (i > 0) {
+					if (this._children) {
+						this.children = this._children;
+						this._children = null;
+					}
+					if (this.children) {
+						this.children.forEach(function (c) {
+							c.expand(i - 1);
+						});
+					}
+				}
+			}
+		}], [{
+			key: "new",
+			value: function _new() {
+				var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+				return new TreeviewNode(node);
+			}
+		}, {
+			key: "createNode",
+			value: function createNode(node) {
+				return _node2.default.createNode(node, TreeviewNode.new);
+			}
+		}]);
+
+		return TreeviewNode;
+	}(_node2.default);
+
+	exports.default = TreeviewNode;
+
+	/***/
+},
+/* 3 */
 /***/function (module, exports) {
 
 	"use strict";
@@ -775,7 +797,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	/***/
 },
-/* 3 */
+/* 4 */
 /***/function (module, exports, __webpack_require__) {
 
 	"use strict";
@@ -789,16 +811,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	} : function (obj) {
 		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
 	};
-
-	var _createClass = function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-		};
-	}();
 
 	var _extends = Object.assign || function (target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -814,30 +826,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	exports.default = TreeMap;
 
-	var _node = __webpack_require__(2);
+	var _treemapNode = __webpack_require__(5);
 
-	var _node2 = _interopRequireDefault(_node);
+	var _treemapNode2 = _interopRequireDefault(_treemapNode);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : { default: obj };
-	}
-
-	function _classCallCheck(instance, Constructor) {
-		if (!(instance instanceof Constructor)) {
-			throw new TypeError("Cannot call a class as a function");
-		}
-	}
-
-	function _possibleConstructorReturn(self, call) {
-		if (!self) {
-			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
-	}
-
-	function _inherits(subClass, superClass) {
-		if (typeof superClass !== "function" && superClass !== null) {
-			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
-		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
 	function TreeMap(element, data) {
@@ -901,7 +895,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 		function init() {
 			settings = _extends({}, DEFAULTS, options);
 
-			root = TreemapNode.createNode(data);
+			root = _treemapNode2.default.createNode(data);
 
 			settings.width = settings.width - MARGIN.right - MARGIN.left;
 			settings.height = settings.height - MARGIN.top - MARGIN.bottom;
@@ -1072,37 +1066,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
 		}
 
-		var TreemapNode = function (_Node) {
-			_inherits(TreemapNode, _Node);
-
-			function TreemapNode() {
-				_classCallCheck(this, TreemapNode);
-
-				return _possibleConstructorReturn(this, (TreemapNode.__proto__ || Object.getPrototypeOf(TreemapNode)).apply(this, arguments));
-			}
-
-			_createClass(TreemapNode, null, [{
-				key: "new",
-				value: function _new() {
-					var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-					return new TreemapNode(node);
-				}
-			}, {
-				key: "createNode",
-				value: function createNode(node) {
-					return _node2.default.createNode(node, TreemapNode.new);
-				}
-			}]);
-
-			return TreemapNode;
-		}(_node2.default);
-
 		/** ************* Public methods ***************/
 		/**
    * Resets the treemap to its initial position
    */
-
 		that.reset = function reset() {
 			reroot(root);
 		};
@@ -1152,6 +1119,81 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	$.fn.treemap = Plugin;
 	$.fn.treemap.Constructor = TreeMap;
+
+	/***/
+},
+/* 5 */
+/***/function (module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+		};
+	}();
+
+	var _node = __webpack_require__(3);
+
+	var _node2 = _interopRequireDefault(_node);
+
+	function _interopRequireDefault(obj) {
+		return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	function _classCallCheck(instance, Constructor) {
+		if (!(instance instanceof Constructor)) {
+			throw new TypeError("Cannot call a class as a function");
+		}
+	}
+
+	function _possibleConstructorReturn(self, call) {
+		if (!self) {
+			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+	}
+
+	function _inherits(subClass, superClass) {
+		if (typeof superClass !== "function" && superClass !== null) {
+			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
+		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+	}
+
+	var TreemapNode = function (_Node) {
+		_inherits(TreemapNode, _Node);
+
+		function TreemapNode() {
+			_classCallCheck(this, TreemapNode);
+
+			return _possibleConstructorReturn(this, (TreemapNode.__proto__ || Object.getPrototypeOf(TreemapNode)).apply(this, arguments));
+		}
+
+		_createClass(TreemapNode, null, [{
+			key: "new",
+			value: function _new() {
+				var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+				return new TreemapNode(node);
+			}
+		}, {
+			key: "createNode",
+			value: function createNode(node) {
+				return _node2.default.createNode(node, TreemapNode.new);
+			}
+		}]);
+
+		return TreemapNode;
+	}(_node2.default);
+
+	exports.default = TreemapNode;
 
 	/***/
 }

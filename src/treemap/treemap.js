@@ -1,7 +1,7 @@
 /**
  * Interactive treemap
  */
-import Node from "../shared/node";
+import TreemapNode from "./treemapNode";
 
 export default function TreeMap(element, data, options = {}) {
     let that = {};
@@ -308,17 +308,6 @@ export default function TreeMap(element, data, options = {}) {
     function brightness(rgb) {
         return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     }
-
-    class TreemapNode extends Node {
-        static new(node = {}) {
-            return new TreemapNode(node);
-        }
-
-        static createNode(node) {
-            return Node.createNode(node, TreemapNode.new);
-        }
-        }
-
 
         /** ************* Public methods ***************/
         /**
