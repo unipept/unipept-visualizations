@@ -1352,7 +1352,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 		function initCSS() {
 			var elementClass = settings.className;
 			$(element).addClass(elementClass);
-			$("<style>").prop("type", "text/css").html("\n." + elementClass + " {\n    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n    width: " + (settings.width + settings.breadcrumbWidth) + "px;\n}\n." + elementClass + " .sunburst-breadcrumbs {\n    width: 176px;\n    float: right;\n    margin-top: 10px;\n    padding-left: 5px;\n}\n." + elementClass + " .sunburst-breadcrumbs ul {\n    padding-left: 0;\n    list-style: none;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb {\n    margin-bottom: 5px;\n    cursor: pointer;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb svg {\n    float: left;\n    margin-right: 3px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb p {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    margin: 0;\n    font-size: 14px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb .percentage {\n    font-size: 11px;\n}\n                ").appendTo("head");
+			$("<style>").prop("type", "text/css").html("\n." + elementClass + " {\n    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n    width: " + (settings.width + settings.breadcrumbWidth) + "px;\n}\n." + elementClass + " .sunburst-breadcrumbs {\n    width: 176px;\n    float: right;\n    margin-top: 10px;\n    padding-left: 5px;\n}\n." + elementClass + " .sunburst-breadcrumbs ul {\n    padding-left: 0;\n    list-style: none;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb {\n    margin-bottom: 5px;\n    cursor: pointer;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb svg {\n    float: left;\n    margin-right: 3px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb p {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    margin: 0;\n    font-size: 14px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb .percentage {\n    font-size: 11px;\n}").appendTo("head");
 		}
 
 		/**
@@ -1421,14 +1421,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			// calculate arcs out of partition coordinates
 			arc = d3.svg.arc().startAngle(function (d) {
 				return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
-			}) // start between 0 and 2Pi
-			.endAngle(function (d) {
+			}).endAngle(function (d) {
 				return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
-			}) // stop between 0 and 2Pi
+			})
+			// prevent y-calculation on 0
 			.innerRadius(function (d) {
 				return Math.max(0, d.y ? y(d.y) : d.y);
-			}) // prevent y-calculation on 0
-			.outerRadius(function (d) {
+			}).outerRadius(function (d) {
 				return Math.max(0, y(d.y + d.dy)) + 1;
 			});
 
@@ -1524,7 +1523,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			}).attr("class", "crumb").style("opacity", "0").attr("title", function (d) {
 				return "[" + d.data.rank + "] " + d.name;
 			}).html(function (d) {
-				return "<p class='name'>" + d.name + "</p><p class='percentage'>" + Math.round(100 * d.data.count / d.parent.data.count) + "% of " + d.parent.name + "</p>";
+				return "\n<p class='name'>" + d.name + "</p>\n<p class='percentage'>" + Math.round(100 * d.data.count / d.parent.data.count) + "% of " + d.parent.name + "</p>";
 			}).insert("svg", ":first-child").attr("width", 30).attr("height", 30).append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", colour);
 			bc.transition().duration(settings.duration).style("opacity", "1");
 			bc.exit().transition().duration(settings.duration).style("opacity", "0").remove();
@@ -1536,6 +1535,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
    * @param <Object> d The data object of the clicked arc
    */
 		function click(d) {
+			var _this = this;
+
 			if (d.name === "empty") {
 				return;
 			}
@@ -1549,15 +1550,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			// perform animation
 			currentMaxLevel = d.depth + settings.levels;
 			path.transition().duration(settings.duration).attrTween("d", arcTween(d)).attr("class", function (d) {
-				if (d.depth >= currentMaxLevel) {
-					return "arc toHide";
-				}
-				return "arc";
+				return d.depth >= currentMaxLevel ? "arc toHide" : "arc";
 			}).attr("fill-opacity", function (d) {
-				if (d.depth >= currentMaxLevel) {
-					return 0.2;
-				}
-				return 1;
+				return d.depth >= currentMaxLevel ? 0.2 : 1;
 			});
 
 			// Somewhat of a hack as we rely on arcTween updating the scales.
@@ -1577,7 +1572,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			}).style("fill-opacity", function (e) {
 				return isParentOf(d, e) ? 1 : 1e-6;
 			}).each("end", function (e) {
-				d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
+				d3.select(_this).style("visibility", isParentOf(d, e) ? null : "hidden");
 			});
 		}
 

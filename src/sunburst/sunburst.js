@@ -132,8 +132,7 @@ export default function Sunburst(element, data, options = {}) {
 }
 .${elementClass} .sunburst-breadcrumbs .crumb .percentage {
     font-size: 11px;
-}
-                `)
+}`)
                 .appendTo("head");
     }
 
@@ -205,24 +204,15 @@ export default function Sunburst(element, data, options = {}) {
 
         partition = d3.layout.partition() // creates a new partition layout
             .sort(null) // don't sort,  use tree traversal order
-            .value(function (d) {
-                return d.data.self_count;
-            }); // set the size of the pieces
+            .value(d => d.data.self_count); // set the size of the pieces
 
         // calculate arcs out of partition coordinates
         arc = d3.svg.arc()
-            .startAngle(function (d) {
-                return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
-            }) // start between 0 and 2Pi
-            .endAngle(function (d) {
-                return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
-            }) // stop between 0 and 2Pi
-            .innerRadius(function (d) {
-                return Math.max(0, d.y ? y(d.y) : d.y);
-            }) // prevent y-calculation on 0
-            .outerRadius(function (d) {
-                return Math.max(0, y(d.y + d.dy)) + 1;
-            });
+                .startAngle(d => Math.max(0, Math.min(2 * Math.PI, x(d.x))))
+                .endAngle(d => Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))))
+                // prevent y-calculation on 0
+                .innerRadius(d => Math.max(0, d.y ? y(d.y) : d.y))
+                .outerRadius(d => Math.max(0, y(d.y + d.dy)) + 1);
 
         // run the partition layout
         nodes = partition.nodes(data);
@@ -230,9 +220,7 @@ export default function Sunburst(element, data, options = {}) {
         path = vis.selectAll("path").data(nodes);
         path.enter().append("path") // for every node, draw an arc
             .attr("class", "arc")
-            .attr("id", function (d, i) {
-                return "path-" + i;
-            }) // id based on index
+            .attr("id", (d, i) => "path-" + i) // id based on index
             .attr("d", arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
             .style("fill", colour) // call function for colour
@@ -249,9 +237,7 @@ export default function Sunburst(element, data, options = {}) {
         text = vis.selectAll("text").data(nodes);
 
         textEnter = text.enter().append("text")
-            .style("fill", function (d) {
-                return getReadableColorFor(colour(d));
-            })
+            .style("fill", d => getReadableColorFor(colour(d)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
@@ -259,23 +245,17 @@ export default function Sunburst(element, data, options = {}) {
 
         textEnter.append("tspan")
             .attr("x", 0)
-            .text(function (d) {
-                return d.depth && d.name !== "empty" ? d.name.split(" ")[0] : "";
-            });
+            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[0] : "");
 
         textEnter.append("tspan")
             .attr("x", 0)
             .attr("dy", "1em")
-            .text(function (d) {
-                return d.depth && d.name !== "empty" ? d.name.split(" ")[1] || "" : "";
-            });
+            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[1] || "" : "");
 
         textEnter.append("tspan")
             .attr("x", 0)
             .attr("dy", "1em")
-            .text(function (d) {
-                return d.depth && d.name !== "empty" ? d.name.split(" ")[2] || "" : "";
-            });
+            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[2] || "" : "");
 
         textEnter.style("font-size", function (d) {
             return Math.min(((settings.radius / settings.levels) / this.getComputedTextLength() * 10) + 1, 12) + "px";
@@ -294,12 +274,10 @@ export default function Sunburst(element, data, options = {}) {
             xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
             yd = d3.interpolate(y.domain(), [d.y, my]),
             yr = d3.interpolate(y.range(), [d.y ? 20 : 0, settings.radius]);
-        return function (d) {
-            return function (t) {
-                x.domain(xd(t));
-                y.domain(yd(t)).range(yr(t));
-                return arc(d);
-            };
+        return d => function (t) {
+            x.domain(xd(t));
+            y.domain(yd(t)).range(yr(t));
+            return arc(d);
         };
     }
 
@@ -326,30 +304,20 @@ export default function Sunburst(element, data, options = {}) {
             .innerRadius(0)
             .outerRadius(15)
             .startAngle(0)
-            .endAngle(function (d) {
-                return 2 * Math.PI * d.data.count / d.parent.data.count;
-            });
+            .endAngle(d => 2 * Math.PI * d.data.count / d.parent.data.count);
         let bc = breadcrumbs.selectAll(".crumb")
             .data(crumbs);
         bc.enter()
             .append("li")
-            .on("click", function (d) {
+            .on("click", d => {
                 click(d.parent);
             })
             .attr("class", "crumb")
             .style("opacity", "0")
-            .attr("title", function (d) {
-                return "[" + d.data.rank + "] " + d.name;
-            })
-            .html(function (d) {
-                return "<p class='name'>" +
-                    d.name +
-                    "</p><p class='percentage'>" +
-                    Math.round(100 * d.data.count / d.parent.data.count) +
-                    "% of " +
-                    d.parent.name +
-                    "</p>";
-            })
+            .attr("title", d => `[${d.data.rank}] ${d.name}`)
+            .html(d => `
+<p class='name'>${d.name}</p>
+<p class='percentage'>${Math.round(100 * d.data.count / d.parent.data.count)}% of ${d.parent.name}</p>`)
             .insert("svg", ":first-child").attr("width", 30).attr("height", 30)
             .append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", colour);
         bc.transition()
@@ -382,18 +350,8 @@ export default function Sunburst(element, data, options = {}) {
         path.transition()
             .duration(settings.duration)
             .attrTween("d", arcTween(d))
-            .attr("class", function (d) {
-                if (d.depth >= currentMaxLevel) {
-                    return "arc toHide";
-                }
-                return "arc";
-            })
-            .attr("fill-opacity", function (d) {
-                if (d.depth >= currentMaxLevel) {
-                    return 0.2;
-                }
-                return 1;
-            });
+            .attr("class", d => d.depth >= currentMaxLevel ? "arc toHide" : "arc")
+            .attr("fill-opacity", d => d.depth >= currentMaxLevel ? 0.2 : 1);
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
         text
@@ -401,10 +359,8 @@ export default function Sunburst(element, data, options = {}) {
                 return isParentOf(d, e) ? null : d3.select(this).style("visibility");
             })
             .transition().duration(settings.duration)
-            .attrTween("text-anchor", function (d) {
-                return function () {
-                    return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-                };
+            .attrTween("text-anchor", d => function () {
+                return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
             })
             .attrTween("transform", function (d) {
                 let multiline = (d.name || "").split(" ").length > 1;
@@ -414,10 +370,8 @@ export default function Sunburst(element, data, options = {}) {
                     return "rotate(" + rotate + ")translate(" + (y(d.y)) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
                 };
             })
-            .style("fill-opacity", function (e) {
-                return isParentOf(d, e) ? 1 : 1e-6;
-            })
-            .each("end", function (e) {
+            .style("fill-opacity", e => isParentOf(d, e) ? 1 : 1e-6)
+            .each("end", e => {
                 d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
             });
     }
