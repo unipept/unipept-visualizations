@@ -17,6 +17,7 @@ export default function Sunburst(element, data, options = {}) {
         DEFAULTS = {
             height: 600,
             width: 600,
+            breadcrumbWidth: 200,
             radius: 300,
 
             className: "unipept-sunburst",
@@ -72,6 +73,8 @@ export default function Sunburst(element, data, options = {}) {
             initTooltip();
         }
 
+        initCSS();
+
         // draw everything
         redraw();
 
@@ -91,6 +94,47 @@ export default function Sunburst(element, data, options = {}) {
             .style("padding", "2px")
             .style("border", "1px solid #dddddd")
             .style("border-radius", "3px;");
+    }
+
+    function initCSS() {
+        let elementClass = settings.className;
+        $(element).addClass(elementClass);
+        $("<style>").prop("type", "text/css")
+                .html(`
+.${elementClass} {
+    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    width: ${settings.width + settings.breadcrumbWidth}px;
+}
+.${elementClass} .sunburst-breadcrumbs {
+    width: 176px;
+    float: right;
+    margin-top: 10px;
+    padding-left: 5px;
+}
+.${elementClass} .sunburst-breadcrumbs ul {
+    padding-left: 0;
+    list-style: none;
+}
+.${elementClass} .sunburst-breadcrumbs .crumb {
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+.${elementClass} .sunburst-breadcrumbs .crumb svg {
+    float: left;
+    margin-right: 3px;
+}
+.${elementClass} .sunburst-breadcrumbs .crumb p {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0;
+    font-size: 14px;
+}
+.${elementClass} .sunburst-breadcrumbs .crumb .percentage {
+    font-size: 11px;
+}
+                `)
+                .appendTo("head");
     }
 
     /**
@@ -136,7 +180,8 @@ export default function Sunburst(element, data, options = {}) {
 
         breadcrumbs = d3.select(element)
             .append("div")
-                .attr("class", "breadcrumbs")
+                .attr("id", element.id + "-breadcrumbs")
+                .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
         x = d3.scale.linear().range([0, 2 * Math.PI]); // use full circle

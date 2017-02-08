@@ -18,9 +18,14 @@
         d3.json("data/taxonomy.json", function(error, data) {
           if (error) return console.warn(error);
 
-          var ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
-
-          $("#d3Sunburst").sunburst(data);
+          $("#d3Sunburst").sunburst(data, {
+              rerootCallback: d => {console.log(d.name);},
+              getTooltip: function(d) {
+                let numberFormat = d3.format(",d");
+                return "<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") +
+                  " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
+              }
+          });
         });
       });
 
