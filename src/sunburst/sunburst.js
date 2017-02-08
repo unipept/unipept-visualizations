@@ -1,6 +1,7 @@
 /**
  * Interactive Sunburst
  */
+import Univis from "../shared/univis";
 import SunburstNode from "./sunburstNode";
 
 export default function Sunburst(element, data, options = {}) {
@@ -37,8 +38,8 @@ export default function Sunburst(element, data, options = {}) {
 
             enableTooltips: true,
             getTooltip: getTooltip,
-            getTooltipTitle: getTooltipTitle,
-            getTooltipText: getTooltipText,
+            getTooltipTitle: Univis.getTooltipTitle,
+            getTooltipText: Univis.getTooltipText,
         };
 
     let settings;
@@ -237,7 +238,7 @@ export default function Sunburst(element, data, options = {}) {
         text = vis.selectAll("text").data(nodes);
 
         textEnter = text.enter().append("text")
-            .style("fill", d => getReadableColorFor(colour(d)))
+            .style("fill", d => Univis.getReadableColorFor(colour(d)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
@@ -406,7 +407,7 @@ export default function Sunburst(element, data, options = {}) {
             return "white";
         }
         if (settings.useFixedColors) {
-            return settings.fixedColors[Math.abs(stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
+            return settings.fixedColors[Math.abs(Univis.stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
         } else {
             if (d.children) {
                 let colours = d.children.map(colour),
@@ -472,45 +473,6 @@ export default function Sunburst(element, data, options = {}) {
         return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
     }
 
-    function getTooltipTitle(d) {
-        return d.name;
-    }
-
-    function getTooltipText(d) {
-        return `${d.data.count} hits`;
-    }
-
-
-    /*
-     * Returns the readable text color based on the brightness of a given backgroud color
-     */
-    function getReadableColorFor(color) {
-        let textColor = "#000";
-        try {
-            textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-        } catch (err) { /* go on */ }
-        return textColor;
-    }
-
-    /*
-     * Returns the brightness of an rgb-color
-     * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
-     */
-    function brightness(rgb) {
-        return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
-    }
-
-    /**
-     * Hash function for strings from
-     * http://stackoverflow.com/a/15710692/865696
-     */
-    function stringHash(s) {
-        return s.split("").reduce(function (a, b) {
-            let c = ((a << 5) - a) + b.charCodeAt(0);
-            return c & c;
-        }, 0);
-    }
-
     /** ************* Public methods ***************/
 
     /**
@@ -530,7 +492,7 @@ export default function Sunburst(element, data, options = {}) {
             .style("fill", colour);
         text.transition()
             .style("fill", function (d) {
-                return getReadableColorFor(colour(d));
+                return Univis.getReadableColorFor(colour(d));
             });
     };
 

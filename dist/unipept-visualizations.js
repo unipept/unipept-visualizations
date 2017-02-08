@@ -50,11 +50,11 @@
 	
 	var _treeview2 = _interopRequireDefault(_treeview);
 	
-	var _treemap = __webpack_require__(4);
+	var _treemap = __webpack_require__(5);
 	
 	var _treemap2 = _interopRequireDefault(_treemap);
 	
-	var _sunburst = __webpack_require__(6);
+	var _sunburst = __webpack_require__(7);
 	
 	var _sunburst2 = _interopRequireDefault(_sunburst);
 
@@ -82,7 +82,11 @@
 	
 	exports.default = TreeView;
 	
-	var _treeviewNode = __webpack_require__(2);
+	var _univis = __webpack_require__(2);
+	
+	var _univis2 = _interopRequireDefault(_univis);
+	
+	var _treeviewNode = __webpack_require__(3);
 	
 	var _treeviewNode2 = _interopRequireDefault(_treeviewNode);
 	
@@ -131,8 +135,8 @@
 	
 	        enableTooltips: true,
 	        getTooltip: getTooltip,
-	        getTooltipTitle: getTooltipTitle,
-	        getTooltipText: getTooltipText
+	        getTooltipTitle: _univis2.default.getTooltipTitle,
+	        getTooltipText: _univis2.default.getTooltipText
 	    };
 	
 	    var settings = void 0;
@@ -462,14 +466,6 @@
 	        return "<h3 class='tip-title'>" + settings.getTooltipTitle(d) + "</h3><p>" + settings.getTooltipText(d) + "</p>";
 	    }
 	
-	    function getTooltipTitle(d) {
-	        return d.name;
-	    }
-	
-	    function getTooltipText(d) {
-	        return d.data.count + " hits";
-	    }
-	
 	    /** ************* Public methods ***************/
 	    that.reset = function reset() {
 	        zoomListener.scale(1);
@@ -503,6 +499,81 @@
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Univis = function () {
+	    function Univis() {
+	        _classCallCheck(this, Univis);
+	    }
+	
+	    _createClass(Univis, null, [{
+	        key: "stringHash",
+	
+	
+	        /**
+	         * Hash function for strings from
+	         * http://stackoverflow.com/a/15710692/865696
+	         */
+	        value: function stringHash(s) {
+	            return s.split("").reduce(function (a, b) {
+	                var c = (a << 5) - a + b.charCodeAt(0);
+	                return c & c;
+	            }, 0);
+	        }
+	
+	        /*
+	         * Returns the readable text color based on the brightness of a given backgroud color
+	         */
+	
+	    }, {
+	        key: "getReadableColorFor",
+	        value: function getReadableColorFor(color) {
+	            var textColor = "#000";
+	            try {
+	                textColor = Univis.brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
+	            } catch (err) {/* go on */}
+	            return textColor;
+	        }
+	
+	        /*
+	         * Returns the brightness of an rgb-color
+	         * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
+	         */
+	
+	    }, {
+	        key: "brightness",
+	        value: function brightness(rgb) {
+	            return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
+	        }
+	    }, {
+	        key: "getTooltipTitle",
+	        value: function getTooltipTitle(d) {
+	            return d.name;
+	        }
+	    }, {
+	        key: "getTooltipText",
+	        value: function getTooltipText(d) {
+	            return d.data.count + " hits";
+	        }
+	    }]);
+	
+	    return Univis;
+	}();
+	
+	exports.default = Univis;
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -513,7 +584,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(3);
+	var _node = __webpack_require__(4);
 	
 	var _node2 = _interopRequireDefault(_node);
 	
@@ -631,7 +702,7 @@
 	exports.default = TreeviewNode;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -734,7 +805,7 @@
 	exports.default = Node;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -752,7 +823,11 @@
 	
 	exports.default = TreeMap;
 	
-	var _treemapNode = __webpack_require__(5);
+	var _univis = __webpack_require__(2);
+	
+	var _univis2 = _interopRequireDefault(_univis);
+	
+	var _treemapNode = __webpack_require__(6);
 	
 	var _treemapNode2 = _interopRequireDefault(_treemapNode);
 	
@@ -798,8 +873,8 @@
 	
 	        enableTooltips: true,
 	        getTooltip: getTooltip,
-	        getTooltipTitle: getTooltipTitle,
-	        getTooltipText: getTooltipText
+	        getTooltipTitle: _univis2.default.getTooltipTitle,
+	        getTooltipText: _univis2.default.getTooltipText
 	    };
 	
 	    var settings = void 0;
@@ -889,7 +964,7 @@
 	        nodes.enter().append("div").attr("class", "node").style("background", function (d) {
 	            return colorScale(settings.getLevel(d));
 	        }).style("color", function (d) {
-	            return getReadableColorFor(colorScale(settings.getLevel(d)));
+	            return _univis2.default.getReadableColorFor(colorScale(settings.getLevel(d)));
 	        }).style("left", "0px").style("top", "0px").style("width", "0px").style("height", "0px").text(settings.getLabel).on("click", function (d) {
 	            reroot(d);
 	        }).on("contextmenu", function (d) {
@@ -963,33 +1038,6 @@
 	        return "<h3 class='tip-title'>" + settings.getTooltipTitle(d) + "</h3><p>" + settings.getTooltipText(d) + "</p>";
 	    }
 	
-	    function getTooltipTitle(d) {
-	        return d.name;
-	    }
-	
-	    function getTooltipText(d) {
-	        return d.data.count + " hits";
-	    }
-	
-	    /*
-	     * Returns the readable text color based on the brightness of a given backgroud color
-	     */
-	    function getReadableColorFor(color) {
-	        var textColor = "#000";
-	        try {
-	            textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-	        } catch (err) {/* go on */}
-	        return textColor;
-	    }
-	
-	    /*
-	     * Returns the brightness of an rgb-color
-	     * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
-	     */
-	    function brightness(rgb) {
-	        return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
-	    }
-	
 	    /** ************* Public methods ***************/
 	    /**
 	     * Resets the treemap to its initial position
@@ -1045,7 +1093,7 @@
 	$.fn.treemap.Constructor = TreeMap;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1056,7 +1104,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(3);
+	var _node = __webpack_require__(4);
 	
 	var _node2 = _interopRequireDefault(_node);
 	
@@ -1097,7 +1145,7 @@
 	exports.default = TreemapNode;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1115,7 +1163,11 @@
 	
 	exports.default = Sunburst;
 	
-	var _sunburstNode = __webpack_require__(7);
+	var _univis = __webpack_require__(2);
+	
+	var _univis2 = _interopRequireDefault(_univis);
+	
+	var _sunburstNode = __webpack_require__(8);
 	
 	var _sunburstNode2 = _interopRequireDefault(_sunburstNode);
 	
@@ -1165,8 +1217,8 @@
 	
 	        enableTooltips: true,
 	        getTooltip: getTooltip,
-	        getTooltipTitle: getTooltipTitle,
-	        getTooltipText: getTooltipText
+	        getTooltipTitle: _univis2.default.getTooltipTitle,
+	        getTooltipText: _univis2.default.getTooltipText
 	    };
 	
 	    var settings = void 0;
@@ -1320,7 +1372,7 @@
 	        text = vis.selectAll("text").data(nodes);
 	
 	        textEnter = text.enter().append("text").style("fill", function (d) {
-	            return getReadableColorFor(colour(d));
+	            return _univis2.default.getReadableColorFor(colour(d));
 	        }).style("fill-opacity", 0).style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif").style("pointer-events", "none") // don't invoke mouse events
 	        .attr("dy", ".2em");
 	
@@ -1473,7 +1525,7 @@
 	            return "white";
 	        }
 	        if (settings.useFixedColors) {
-	            return settings.fixedColors[Math.abs(stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
+	            return settings.fixedColors[Math.abs(_univis2.default.stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
 	        } else {
 	            if (d.children) {
 	                var colours = d.children.map(colour),
@@ -1534,44 +1586,6 @@
 	        return "<h3 class='tip-title'>" + settings.getTooltipTitle(d) + "</h3><p>" + settings.getTooltipText(d) + "</p>";
 	    }
 	
-	    function getTooltipTitle(d) {
-	        return d.name;
-	    }
-	
-	    function getTooltipText(d) {
-	        return d.data.count + " hits";
-	    }
-	
-	    /*
-	     * Returns the readable text color based on the brightness of a given backgroud color
-	     */
-	    function getReadableColorFor(color) {
-	        var textColor = "#000";
-	        try {
-	            textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-	        } catch (err) {/* go on */}
-	        return textColor;
-	    }
-	
-	    /*
-	     * Returns the brightness of an rgb-color
-	     * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
-	     */
-	    function brightness(rgb) {
-	        return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
-	    }
-	
-	    /**
-	     * Hash function for strings from
-	     * http://stackoverflow.com/a/15710692/865696
-	     */
-	    function stringHash(s) {
-	        return s.split("").reduce(function (a, b) {
-	            var c = (a << 5) - a + b.charCodeAt(0);
-	            return c & c;
-	        }, 0);
-	    }
-	
 	    /** ************* Public methods ***************/
 	
 	    /**
@@ -1588,7 +1602,7 @@
 	        d3.selectAll(".crumb path").transition().style("fill", colour);
 	        path.transition().style("fill", colour);
 	        text.transition().style("fill", function (d) {
-	            return getReadableColorFor(colour(d));
+	            return _univis2.default.getReadableColorFor(colour(d));
 	        });
 	    };
 	
@@ -1635,7 +1649,7 @@
 	$.fn.sunburst.Constructor = Sunburst;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1646,7 +1660,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(3);
+	var _node = __webpack_require__(4);
 	
 	var _node2 = _interopRequireDefault(_node);
 	

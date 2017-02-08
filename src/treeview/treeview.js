@@ -4,6 +4,7 @@
  * - https://gist.github.com/robschmuecker/7880033
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
+import Univis from "../shared/univis";
 import TreeviewNode from "./treeviewNode";
 
 export default function TreeView(element, data, options = {}) {
@@ -41,8 +42,8 @@ export default function TreeView(element, data, options = {}) {
 
             enableTooltips: true,
             getTooltip: getTooltip,
-            getTooltipTitle: getTooltipTitle,
-            getTooltipText: getTooltipText,
+            getTooltipTitle: Univis.getTooltipTitle,
+            getTooltipText: Univis.getTooltipText,
         };
 
     let settings;
@@ -427,14 +428,6 @@ export default function TreeView(element, data, options = {}) {
 
     function getTooltip(d) {
         return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
-    }
-
-    function getTooltipTitle(d) {
-        return d.name;
-    }
-
-    function getTooltipText(d) {
-        return `${d.data.count} hits`;
     }
 
         /** ************* Public methods ***************/
