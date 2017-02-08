@@ -1606,14 +1606,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 				return "white";
 			}
 			if (settings.useFixedColors) {
-				switch (d.name) {
-					case "Bacteria":
-						return settings.fixedColors[0];
-					case "Eukaryota":
-						return settings.fixedColors[1];
-					default:
-						return settings.fixedColors[Math.abs(stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
-				}
+				return settings.fixedColors[Math.abs(stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
 			} else {
 				if (d.children) {
 					var colours = d.children.map(colour),
