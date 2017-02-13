@@ -172,8 +172,7 @@ export default function Sunburst(element, data, options = {}) {
     function redraw() {
         let vis, // the visualisation
             partition, // the partition layout
-            nodes, // the result of the partition layout
-            textEnter; // new text nodes
+            nodes; // the result of the partition layout
 
         // clear everything
         $(element).empty();
@@ -237,30 +236,16 @@ export default function Sunburst(element, data, options = {}) {
         // put labels on the nodes
         text = vis.selectAll("text").data(nodes);
 
-        textEnter = text.enter().append("text")
+        text.enter().append("text")
             .style("fill", d => Univis.getReadableColorFor(colour(d)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
-            .attr("dy", ".2em");
-
-        textEnter.append("tspan")
-            .attr("x", 0)
-            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[0] : "");
-
-        textEnter.append("tspan")
-            .attr("x", 0)
-            .attr("dy", "1em")
-            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[1] || "" : "");
-
-        textEnter.append("tspan")
-            .attr("x", 0)
-            .attr("dy", "1em")
-            .text(d => d.depth && d.name !== "empty" ? d.name.split(" ")[2] || "" : "");
-
-        textEnter.style("font-size", function (d) {
-            return Math.min(((settings.radius / settings.levels) / this.getComputedTextLength() * 10) + 1, 12) + "px";
-        });
+            .attr("dy", ".2em")
+            .text(d => d.name === "empty" ? "" : d.name)
+            .style("font-size", function (d) {
+                return Math.floor(Math.min(((settings.radius / settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
+            });
     }
 
     /**
@@ -363,13 +348,9 @@ export default function Sunburst(element, data, options = {}) {
             .attrTween("text-anchor", d => function () {
                 return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
             })
-            .attrTween("transform", function (d) {
-                let multiline = (d.name || "").split(" ").length > 1;
-                return function () {
-                    let angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-                        rotate = angle + (multiline ? -0.5 : 0);
-                    return "rotate(" + rotate + ")translate(" + (y(d.y)) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-                };
+            .attrTween("transform", d => function () {
+                let angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90;
+                return `rotate(${angle})translate(${y(d.y)})rotate(${angle > 90 ? -180 : 0})`;
             })
             .style("fill-opacity", e => isParentOf(d, e) ? 1 : 1e-6)
             .each("end", e => {

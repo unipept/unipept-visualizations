@@ -1458,10 +1458,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			partition = void 0,
 
 			// the partition layout
-			nodes = void 0,
-
-			// the result of the partition layout
-			textEnter = void 0; // new text nodes
+			nodes = void 0; // the result of the partition layout
 
 			// clear everything
 			$(element).empty();
@@ -1516,25 +1513,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			// put labels on the nodes
 			text = vis.selectAll("text").data(nodes);
 
-			textEnter = text.enter().append("text").style("fill", function (d) {
+			text.enter().append("text").style("fill", function (d) {
 				return _univis2.default.getReadableColorFor(colour(d));
 			}).style("fill-opacity", 0).style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif").style("pointer-events", "none") // don't invoke mouse events
-			.attr("dy", ".2em");
-
-			textEnter.append("tspan").attr("x", 0).text(function (d) {
-				return d.depth && d.name !== "empty" ? d.name.split(" ")[0] : "";
-			});
-
-			textEnter.append("tspan").attr("x", 0).attr("dy", "1em").text(function (d) {
-				return d.depth && d.name !== "empty" ? d.name.split(" ")[1] || "" : "";
-			});
-
-			textEnter.append("tspan").attr("x", 0).attr("dy", "1em").text(function (d) {
-				return d.depth && d.name !== "empty" ? d.name.split(" ")[2] || "" : "";
-			});
-
-			textEnter.style("font-size", function (d) {
-				return Math.min(settings.radius / settings.levels / this.getComputedTextLength() * 10 + 1, 12) + "px";
+			.attr("dy", ".2em").text(function (d) {
+				return d.name === "empty" ? "" : d.name;
+			}).style("font-size", function (d) {
+				return Math.floor(Math.min(settings.radius / settings.levels / this.getComputedTextLength() * 10 + 1, 12)) + "px";
 			});
 		}
 
@@ -1627,11 +1612,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 					return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
 				};
 			}).attrTween("transform", function (d) {
-				var multiline = (d.name || "").split(" ").length > 1;
 				return function () {
-					var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-					    rotate = angle + (multiline ? -0.5 : 0);
-					return "rotate(" + rotate + ")translate(" + y(d.y) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
+					var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90;
+					return "rotate(" + angle + ")translate(" + y(d.y) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
 				};
 			}).style("fill-opacity", function (e) {
 				return isParentOf(d, e) ? 1 : 1e-6;
