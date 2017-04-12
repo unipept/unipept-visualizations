@@ -4,89 +4,38 @@
 import Univis from "../shared/univis";
 import SunburstNode from "./sunburstNode";
 
-export default function Sunburst(element, data, options = {}) {
-    let that = {};
+export default class Sunburst {
 
-    const MARGIN = {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-        },
-        COLORS = ["#f9f0ab", "#e8e596", "#f0e2a3", "#ede487", "#efd580", "#f1cb82", "#f1c298", "#e8b598", "#d5dda1", "#c9d2b5", "#aec1ad", "#a7b8a8", "#b49a3d", "#b28647", "#a97d32", "#b68334", "#d6a680", "#dfad70", "#a2765d", "#9f6652", "#b9763f", "#bf6e5d", "#af643c", "#9b4c3f", "#72659d", "#8a6e9e", "#8f5c85", "#934b8b", "#9d4e87", "#92538c", "#8b6397", "#716084", "#2e6093", "#3a5988", "#4a5072", "#393e64", "#aaa1cc", "#e0b5c9", "#e098b0", "#ee82a2", "#ef91ac", "#eda994", "#eeb798", "#ecc099", "#f6d5aa", "#f0d48a", "#efd95f", "#eee469", "#dbdc7f", "#dfd961", "#ebe378", "#f5e351"],
-        FIXED_COLORS = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5", "#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39", "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd", "#de9ed6", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9d9d9"],
-        DEFAULTS = {
-            height: 600,
-            width: 600,
-            breadcrumbWidth: 200,
-            radius: 300,
+    constructor(element, data, options = {}) {
+        this.element = element;
+        this.data = data;
+        this.settings = Object.assign({}, Sunburst.DEFAULTS, options);
 
-            className: "unipept-sunburst",
-            levels: 4,
-            getLevel: d => d.getDepth(),
+        this.settings.width = this.settings.width - Sunburst.MARGIN.right - Sunburst.MARGIN.left;
+        this.settings.height = this.settings.height - Sunburst.MARGIN.top - Sunburst.MARGIN.bottom;
 
-            duration: 1000,
-            colors: COLORS,
-            fixedColors: FIXED_COLORS,
-            useFixedColors: false,
-
-            countAccessor: d => d.data.self_count,
-            rerootCallback: undefined,
-
-            labelHeight: 10,
-            getLabel: d => d.name,
-
-            enableTooltips: true,
-            getTooltip: getTooltip,
-            getTooltipTitle: Univis.getTooltipTitle,
-            getTooltipText: Univis.getTooltipText,
-        };
-
-    let settings;
-
-    let colorCounter = -1;
-
-    // components
-    let tooltip,
-        breadcrumbs,
-        path, // the arcs
-        x, // the x-scale
-        y, // the y-scale
-        arc, // the arc function
-        text, // all text nodes
-        currentMaxLevel;
-
-    /** ************* Private methods ***************/
-
-    /**
-     * Initializes Sunburst
-     */
-    function init() {
-        settings = Object.assign({}, DEFAULTS, options);
-
-        settings.width = settings.width - MARGIN.right - MARGIN.left;
-        settings.height = settings.height - MARGIN.top - MARGIN.bottom;
+        this.colorCounter = -1;
 
         // prepare data
-        data.children = addEmptyChildren(data.children, data.data.self_count);
+        this.data.children = this.addEmptyChildren(this.data.children, this.data.data.self_count);
 
-        if (settings.enableTooltips) {
-            initTooltip();
+        if (this.settings.enableTooltips) {
+            this.initTooltip();
         }
 
-        initCSS();
+        this.initCSS();
 
         // draw everything
-        redraw();
+        this.redraw();
 
         // fake click on the center node
-        setTimeout(that.reset, 1000);
+        setTimeout(() => this.reset(), 1000);
     }
 
-    function initTooltip() {
-        tooltip = d3.select("body")
+    initTooltip() {
+        this.tooltip = d3.select("body")
             .append("div")
-            .attr("id", element.id + "-tooltip")
+            .attr("id", this.element.id + "-tooltip")
             .attr("class", "tip")
             .style("position", "absolute")
             .style("z-index", "10")
@@ -97,14 +46,14 @@ export default function Sunburst(element, data, options = {}) {
             .style("border-radius", "3px;");
     }
 
-    function initCSS() {
-        let elementClass = settings.className;
-        $(element).addClass(elementClass);
+    initCSS() {
+        let elementClass = this.settings.className;
+        $(this.element).addClass(elementClass);
         $("<style>").prop("type", "text/css")
                 .html(`
 .${elementClass} {
     font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    width: ${settings.width + settings.breadcrumbWidth}px;
+    width: ${this.settings.width + this.settings.breadcrumbWidth}px;
 }
 .${elementClass} .sunburst-breadcrumbs {
     width: 176px;
@@ -137,6 +86,7 @@ export default function Sunburst(element, data, options = {}) {
                 .appendTo("head");
     }
 
+    /** ****** private functions ********/
     /**
      * Adds data for the peptides on the self level
      * Is called recursively
@@ -146,11 +96,10 @@ export default function Sunburst(element, data, options = {}) {
      *          children count
      * @return <Array> The modified list of children
      */
-    function addEmptyChildren(children, count) {
-        let i;
-        for (i = 0; i < children.length; i++) {
+    addEmptyChildren(children, count) {
+        for (let i = 0; i < children.length; i++) {
             if (typeof children[i].children !== "undefined") {
-                children[i].children = addEmptyChildren(children[i].children, children[i].data.self_count);
+                children[i].children = this.addEmptyChildren(children[i].children, children[i].data.self_count);
             }
         }
         if (children.length > 0 && count !== 0 && count !== undefined) {
@@ -169,82 +118,81 @@ export default function Sunburst(element, data, options = {}) {
     /**
      * Redraws the pancore graph
      */
-    function redraw() {
-        let vis, // the visualisation
-            partition, // the partition layout
-            nodes; // the result of the partition layout
-
+    redraw() {
         // clear everything
-        $(element).empty();
+        $(this.element).empty();
 
-        breadcrumbs = d3.select(element)
+        this.breadcrumbs = d3.select(this.element)
             .append("div")
-                .attr("id", element.id + "-breadcrumbs")
+                .attr("id", this.element.id + "-breadcrumbs")
                 .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
-        x = d3.scale.linear().range([0, 2 * Math.PI]); // use full circle
-        y = d3.scale.linear().domain([0, 1]).range([0, settings.radius]);
-        currentMaxLevel = 4;
+        this.x = d3.scale.linear().range([0, 2 * Math.PI]); // use full circle
+        this.y = d3.scale.linear().domain([0, 1]).range([0, this.settings.radius]);
+        this.currentMaxLevel = 4;
 
-        vis = d3.select(element)
+        let vis = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
-            .attr("viewBox", `0 0 ${settings.width + MARGIN.right + MARGIN.left} ${settings.height + MARGIN.top + MARGIN.bottom}`)
-            .attr("width", settings.width + MARGIN.right + MARGIN.left)
-            .attr("height", settings.height + MARGIN.top + MARGIN.bottom)
+            .attr("viewBox", `0 0 ${this.settings.width + Sunburst.MARGIN.right + Sunburst.MARGIN.left} ${this.settings.height + Sunburst.MARGIN.top + Sunburst.MARGIN.bottom}`)
+            .attr("width", this.settings.width + Sunburst.MARGIN.right + Sunburst.MARGIN.left)
+            .attr("height", this.settings.height + Sunburst.MARGIN.top + Sunburst.MARGIN.bottom)
             .attr("overflow", "hidden")
             .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
         vis.append("style")
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
         vis = vis.append("g")
-            .attr("transform", "translate(" + settings.radius + "," + settings.radius + ")"); // set origin to radius center
+            .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")"); // set origin to radius center
 
-        partition = d3.layout.partition() // creates a new partition layout
+        let partition = d3.layout.partition() // creates a new partition layout
             .sort(null) // don't sort,  use tree traversal order
             .value(d => d.data.self_count); // set the size of the pieces
 
         // calculate arcs out of partition coordinates
-        arc = d3.svg.arc()
-                .startAngle(d => Math.max(0, Math.min(2 * Math.PI, x(d.x))))
-                .endAngle(d => Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))))
+        this.arc = d3.svg.arc()
+                .startAngle(d => Math.max(0, Math.min(2 * Math.PI, this.x(d.x))))
+                .endAngle(d => Math.max(0, Math.min(2 * Math.PI, this.x(d.x + d.dx))))
                 // prevent y-calculation on 0
-                .innerRadius(d => Math.max(0, d.y ? y(d.y) : d.y))
-                .outerRadius(d => Math.max(0, y(d.y + d.dy)) + 1);
+                .innerRadius(d => Math.max(0, d.y ? this.y(d.y) : d.y))
+                .outerRadius(d => Math.max(0, this.y(d.y + d.dy)) + 1);
 
         // run the partition layout
-        nodes = partition.nodes(data);
+        let nodes = partition.nodes(this.data);
 
-        path = vis.selectAll("path").data(nodes);
-        path.enter().append("path") // for every node, draw an arc
+        this.path = vis.selectAll("path").data(nodes);
+        this.path.enter().append("path") // for every node, draw an arc
             .attr("class", "arc")
             .attr("id", (d, i) => "path-" + i) // id based on index
-            .attr("d", arc) // path data
+            .attr("d", this.arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
-            .style("fill", colour) // call function for colour
-            .on("click", function (d) {
-                if (d.depth < currentMaxLevel) {
-                    click(d);
+            .style("fill", d => this.colour(d, this)) // call function for colour
+            .on("click", d => {
+                if (d.depth < this.currentMaxLevel) {
+                    this.click(d);
                 }
             }) // call function on click
-            .on("mouseover", tooltipIn)
-            .on("mousemove", tooltipMove)
-            .on("mouseout", tooltipOut);
+            .on("mouseover", (d, i) => this.tooltipIn(d, i))
+            .on("mousemove", (d, i) => this.tooltipMove(d, i))
+            .on("mouseout", (d, i) => this.tooltipOut(d, i));
 
         // put labels on the nodes
-        text = vis.selectAll("text").data(nodes);
+        this.text = vis.selectAll("text").data(nodes);
 
-        text.enter().append("text")
-            .style("fill", d => Univis.getReadableColorFor(colour(d)))
+        // hack for the getComputedTextLength
+        let that = this;
+
+        this.text.enter().append("text")
+            .style("fill", d => Univis.getReadableColorFor(this.colour(d, this)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
             .text(d => d.name === "empty" ? "" : d.name)
             .style("font-size", function (d) {
-                return Math.floor(Math.min(((settings.radius / settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
+                return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
             });
     }
 
@@ -255,29 +203,19 @@ export default function Sunburst(element, data, options = {}) {
      * @param <Object> d The clicked item
      * @return <Scale> new scales
      */
-    function arcTween(d) {
-        let my = Math.min(maxY(d), d.y + settings.levels * d.dy),
-            xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-            yd = d3.interpolate(y.domain(), [d.y, my]),
-            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, settings.radius]);
+    arcTween(d, that) {
+        let my = Math.min(Sunburst.maxY(d), d.y + that.settings.levels * d.dy),
+            xd = d3.interpolate(that.x.domain(), [d.x, d.x + d.dx]),
+            yd = d3.interpolate(that.y.domain(), [d.y, my]),
+            yr = d3.interpolate(that.y.range(), [d.y ? 20 : 0, that.settings.radius]);
         return d => function (t) {
-            x.domain(xd(t));
-            y.domain(yd(t)).range(yr(t));
-            return arc(d);
+            that.x.domain(xd(t));
+            that.y.domain(yd(t)).range(yr(t));
+            return that.arc(d);
         };
     }
 
-    /**
-     * calculate the max-y of the clicked item
-     *
-     * @param <Object> d The clicked item
-     * @return <Number> The maximal y-value
-     */
-    function maxY(d) {
-        return d.children ? Math.max(...d.children.map(maxY)) : d.y + d.dy;
-    }
-
-    function setBreadcrumbs(d) {
+    setBreadcrumbs(d) {
         // breadcrumbs
         let crumbs = [];
         let temp = d;
@@ -291,12 +229,12 @@ export default function Sunburst(element, data, options = {}) {
             .outerRadius(15)
             .startAngle(0)
             .endAngle(d => 2 * Math.PI * d.data.count / d.parent.data.count);
-        let bc = breadcrumbs.selectAll(".crumb")
+        let bc = this.breadcrumbs.selectAll(".crumb")
             .data(crumbs);
         bc.enter()
             .append("li")
             .on("click", d => {
-                click(d.parent);
+                this.click(d.parent);
             })
             .attr("class", "crumb")
             .style("opacity", "0")
@@ -305,12 +243,12 @@ export default function Sunburst(element, data, options = {}) {
 <p class='name'>${d.name}</p>
 <p class='percentage'>${Math.round(100 * d.data.count / d.parent.data.count)}% of ${d.parent.name}</p>`)
             .insert("svg", ":first-child").attr("width", 30).attr("height", 30)
-            .append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", colour);
+            .append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", d => this.colour(d, this));
         bc.transition()
-            .duration(settings.duration)
+            .duration(this.settings.duration)
             .style("opacity", "1");
         bc.exit().transition()
-            .duration(settings.duration)
+            .duration(this.settings.duration)
             .style("opacity", "0")
             .remove();
     }
@@ -320,62 +258,46 @@ export default function Sunburst(element, data, options = {}) {
      *
      * @param <Object> d The data object of the clicked arc
      */
-    function click(d) {
+    click(d) {
         if (d.name === "empty") {
             return;
         }
 
-        setBreadcrumbs(d);
+        this.setBreadcrumbs(d);
 
-        if (settings.rerootCallback) {
-            settings.rerootCallback.call(null, d);
+        if (this.settings.rerootCallback) {
+            this.settings.rerootCallback.call(null, d);
         }
 
         // perform animation
-        currentMaxLevel = d.depth + settings.levels;
-        path.transition()
-            .duration(settings.duration)
-            .attrTween("d", arcTween(d))
-            .attr("class", d => d.depth >= currentMaxLevel ? "arc toHide" : "arc")
-            .attr("fill-opacity", d => d.depth >= currentMaxLevel ? 0.2 : 1);
+        this.currentMaxLevel = d.depth + this.settings.levels;
+        this.path.transition()
+            .duration(this.settings.duration)
+            .attrTween("d", this.arcTween(d, this))
+            .attr("class", d => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
+            .attr("fill-opacity", d => d.depth >= this.currentMaxLevel ? 0.2 : 1);
+
+        let that = this;
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
-        text
+        this.text
             .style("visibility", function (e) {
-                return isParentOf(d, e) ? null : d3.select(this).style("visibility");
+                return Sunburst.isParentOf(d, e, that.currentMaxLevel) ? null : d3.select(this).style("visibility");
             })
-            .transition().duration(settings.duration)
+            .transition().duration(this.settings.duration)
             .attrTween("text-anchor", d => function () {
-                return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
+                return that.x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
             })
             .attrTween("transform", d => function () {
-                let angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90;
-                return `rotate(${angle})translate(${y(d.y)})rotate(${angle > 90 ? -180 : 0})`;
+                let angle = that.x(d.x + d.dx / 2) * 180 / Math.PI - 90;
+                return `rotate(${angle})translate(${that.y(d.y)})rotate(${angle > 90 ? -180 : 0})`;
             })
-            .style("fill-opacity", e => isParentOf(d, e) ? 1 : 1e-6)
-            .each("end", e => {
-                d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
+            .style("fill-opacity", e => Sunburst.isParentOf(d, e, that.currentMaxLevel) ? 1 : 1e-6)
+            .each("end", function (e) {
+                d3.select(this).style("visibility", Sunburst.isParentOf(d, e, that.currentMaxLevel) ? null : "hidden");
             });
     }
 
-    /**
-     * Calculates if p is a parent of c
-     * Returns true is label must be drawn
-     */
-    function isParentOf(p, c) {
-        if (c.depth >= currentMaxLevel) {
-            return false;
-        }
-        if (p === c) {
-            return true;
-        }
-        if (p.children) {
-            return p.children.some(function (d) {
-                return isParentOf(d, c);
-            });
-        }
-        return false;
-    }
 
     /**
      * Calculates the color of an arc based on the color of his children
@@ -383,15 +305,15 @@ export default function Sunburst(element, data, options = {}) {
      * @param <Object> d The node for which we want the color
      * @return <Color> The calculated color
      */
-    function colour(d) {
+    colour(d, that) {
         if (d.name === "empty") {
             return "white";
         }
-        if (settings.useFixedColors) {
-            return settings.fixedColors[Math.abs(Univis.stringHash(d.name + " " + d.data.rank)) % settings.fixedColors.length];
+        if (that.settings.useFixedColors) {
+            return that.settings.fixedColors[Math.abs(Univis.stringHash(d.name + " " + d.data.rank)) % that.settings.fixedColors.length];
         } else {
             if (d.children) {
-                let colours = d.children.map(colour),
+                let colours = d.children.map(c => that.colour(c, that)),
                     a = d3.hsl(colours[0]),
                     b = d3.hsl(colours[1]),
                     singleChild = d.children.length === 1 || d.children[1].name === "empty";
@@ -404,7 +326,7 @@ export default function Sunburst(element, data, options = {}) {
             }
             // if we don't have children, pick a new color
             if (!d.color) {
-                d.color = getColor();
+                d.color = that.getColor();
             }
             return d.color;
         }
@@ -416,42 +338,119 @@ export default function Sunburst(element, data, options = {}) {
      *
      * @return <Color> The generated color
      */
-    function getColor() {
-        colorCounter = (colorCounter + 1) % settings.colors.length;
-        return settings.colors[colorCounter];
+    getColor() {
+        this.colorCounter = (this.colorCounter + 1) % this.settings.colors.length;
+        return this.settings.colors[this.colorCounter];
     }
 
-
     // tooltip functions
-    function tooltipIn(d, i) {
-        if (!settings.enableTooltips) {
+    tooltipIn(d, i) {
+        if (!this.settings.enableTooltips) {
             return;
         }
-        if (d.depth < currentMaxLevel && d.name !== "empty") {
-            tooltip.html(settings.getTooltip(d))
+        if (d.depth < this.currentMaxLevel && d.name !== "empty") {
+            this.tooltip.html(this.settings.getTooltip(d))
                 .style("top", (d3.event.pageY - 5) + "px")
                 .style("left", (d3.event.pageX + 15) + "px")
                 .style("visibility", "visible");
         }
     }
 
-    function tooltipOut(d, i) {
-        if (!settings.enableTooltips) {
+    tooltipOut(d, i) {
+        if (!this.settings.enableTooltips) {
             return;
         }
-        tooltip.style("visibility", "hidden");
+        this.tooltip.style("visibility", "hidden");
     }
 
-    function tooltipMove(d, i) {
-        if (!settings.enableTooltips) {
+    tooltipMove(d, i) {
+        if (!this.settings.enableTooltips) {
             return;
         }
-        tooltip.style("top", (d3.event.pageY - 5) + "px")
+        this.tooltip.style("top", (d3.event.pageY - 5) + "px")
             .style("left", (d3.event.pageX + 15) + "px");
     }
 
-    function getTooltip(d) {
-        return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
+    getTooltip(d) {
+        return `<h3 class='tip-title'>${this.settings.getTooltipTitle(d)}</h3><p>${this.settings.getTooltipText(d)}</p>`;
+    }
+
+    /** ****** util methods *************/
+    /**
+     * Calculates if p is a parent of c
+     * Returns true is label must be drawn
+     */
+    static isParentOf(p, c, ml) {
+        if (c.depth >= ml) {
+            return false;
+        }
+        if (p === c) {
+            return true;
+        }
+        if (p.children) {
+            return p.children.some(function (d) {
+                return Sunburst.isParentOf(d, c, ml);
+            });
+        }
+        return false;
+    }
+
+    /**
+     * calculate the max-y of the clicked item
+     *
+     * @param <Object> d The clicked item
+     * @return <Number> The maximal y-value
+     */
+    static maxY(d) {
+        return d.children ? Math.max(...d.children.map(Sunburst.maxY)) : d.y + d.dy;
+    }
+
+    /** ****** class constants **********/
+
+    static get MARGIN() {
+        return {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+        };
+    }
+
+    static get COLORS() {
+        return ["#f9f0ab", "#e8e596", "#f0e2a3", "#ede487", "#efd580", "#f1cb82", "#f1c298", "#e8b598", "#d5dda1", "#c9d2b5", "#aec1ad", "#a7b8a8", "#b49a3d", "#b28647", "#a97d32", "#b68334", "#d6a680", "#dfad70", "#a2765d", "#9f6652", "#b9763f", "#bf6e5d", "#af643c", "#9b4c3f", "#72659d", "#8a6e9e", "#8f5c85", "#934b8b", "#9d4e87", "#92538c", "#8b6397", "#716084", "#2e6093", "#3a5988", "#4a5072", "#393e64", "#aaa1cc", "#e0b5c9", "#e098b0", "#ee82a2", "#ef91ac", "#eda994", "#eeb798", "#ecc099", "#f6d5aa", "#f0d48a", "#efd95f", "#eee469", "#dbdc7f", "#dfd961", "#ebe378", "#f5e351"];
+    }
+
+    static get FIXED_COLORS() {
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5", "#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39", "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd", "#de9ed6", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9d9d9"];
+    }
+
+    static get DEFAULTS() {
+        return {
+            height: 600,
+            width: 600,
+            breadcrumbWidth: 200,
+            radius: 300,
+
+            className: "unipept-sunburst",
+            levels: 4,
+            getLevel: d => d.getDepth(),
+
+            duration: 1000,
+            colors: Sunburst.COLORS,
+            fixedColors: Sunburst.FIXED_COLORS,
+            useFixedColors: false,
+
+            countAccessor: d => d.data.self_count,
+            rerootCallback: undefined,
+
+            labelHeight: 10,
+            getLabel: d => d.name,
+
+            enableTooltips: true,
+            getTooltip: this.getTooltip,
+            getTooltipTitle: Univis.getTooltipTitle,
+            getTooltipText: Univis.getTooltipText,
+        };
     }
 
     /** ************* Public methods ***************/
@@ -459,30 +458,28 @@ export default function Sunburst(element, data, options = {}) {
     /**
      * Resets the sunburst to its initial position
      */
-    that.reset = function reset() {
-        click(data);
-    };
+    reset() {
+        this.click(this.data);
+    }
 
     /**
      * redraws the colors of the sunburst
      */
-    that.redrawColors = function redrawColors() {
+    redrawColors() {
         d3.selectAll(".crumb path").transition()
-            .style("fill", colour);
-        path.transition()
-            .style("fill", colour);
-        text.transition()
-            .style("fill", function (d) {
-                return Univis.getReadableColorFor(colour(d));
-            });
-    };
+            .style("fill", d => this.colour(d, this));
+        this.path.transition()
+            .style("fill", d => this.colour(d, this));
+        this.text.transition()
+            .style("fill", d => Univis.getReadableColorFor(this.colour(d, this)));
+    }
 
     /**
      * Sets the visualisation in full screen mode
      *
      * @param <boolean> isFullScreen indicates if we're in full screen mode
      */
-    that.setFullScreen = function setFullScreen(isFullScreen) {
+    setFullScreen(isFullScreen) {
         // the delay is because the event fires before we're in fullscreen
         // so the height en width functions don't give a correct result
         // without the delay
@@ -491,16 +488,11 @@ export default function Sunburst(element, data, options = {}) {
             if (isFullScreen) {
                 size = Math.min($(window).height() - 44, $(window).width() - 250);
             }
-            $(element).children("svg")
+            $(this.element).children("svg")
                 .attr("width", size)
                 .attr("height", size);
         }, 1000);
-    };
-
-    // initialize the object
-    init();
-
-    return that;
+    }
 }
 
 function Plugin(userData, option) {
