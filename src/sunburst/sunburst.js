@@ -288,6 +288,9 @@ export default class Sunburst {
             .attrTween("text-anchor", d => function () {
                 return that.x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
             })
+            .attrTween("dx", d => function () {
+                return that.x(d.x + d.dx / 2) > Math.PI ? "-4px" : "4px";
+            })
             .attrTween("transform", d => function () {
                 let angle = that.x(d.x + d.dx / 2) * 180 / Math.PI - 90;
                 return `rotate(${angle})translate(${that.y(d.y)})rotate(${angle > 90 ? -180 : 0})`;

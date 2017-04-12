@@ -1578,6 +1578,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 					return function () {
 						return that.x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
 					};
+				}).attrTween("dx", function (d) {
+					return function () {
+						return that.x(d.x + d.dx / 2) > Math.PI ? "-4px" : "4px";
+					};
 				}).attrTween("transform", function (d) {
 					return function () {
 						var angle = that.x(d.x + d.dx / 2) * 180 / Math.PI - 90;
