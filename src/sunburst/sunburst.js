@@ -17,7 +17,7 @@ export default class Sunburst {
         this.colorCounter = -1;
 
         // prepare data
-        this.data.children = this.addEmptyChildren(this.data.children, this.data.data.self_count);
+        this.data.children = this.addEmptyChildren(this.data.children, this.settings.countAccessor.call(null, this.data));
 
         if (this.settings.enableTooltips) {
             this.initTooltip();
@@ -99,7 +99,7 @@ export default class Sunburst {
     addEmptyChildren(children, count) {
         for (let i = 0; i < children.length; i++) {
             if (typeof children[i].children !== "undefined") {
-                children[i].children = this.addEmptyChildren(children[i].children, children[i].data.self_count);
+                children[i].children = this.addEmptyChildren(children[i].children, this.settings.countAccessor.call(null, children[i]));
             }
         }
         if (children.length > 0 && count !== 0 && count !== undefined) {
@@ -149,7 +149,7 @@ export default class Sunburst {
 
         let partition = d3.layout.partition() // creates a new partition layout
             .sort(null) // don't sort,  use tree traversal order
-            .value(d => d.data.self_count); // set the size of the pieces
+            .value(this.settings.countAccessor); // set the size of the pieces
 
         // calculate arcs out of partition coordinates
         this.arc = d3.svg.arc()
