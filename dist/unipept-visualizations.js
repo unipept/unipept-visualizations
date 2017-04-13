@@ -1331,9 +1331,7 @@
 	            this.text.enter().append("text").style("fill", function (d) {
 	                return _univis2.default.getReadableColorFor(_this2.colour(d, _this2));
 	            }).style("fill-opacity", 0).style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif").style("pointer-events", "none") // don't invoke mouse events
-	            .attr("dy", ".2em").text(function (d) {
-	                return d.name === "empty" ? "" : d.name;
-	            }).style("font-size", function (d) {
+	            .attr("dy", ".2em").text(this.settings.getLabel).style("font-size", function (d) {
 	                return Math.floor(Math.min(that.settings.radius / that.settings.levels / this.getComputedTextLength() * 10 + 1, 12)) + "px";
 	            });
 	        }
@@ -1667,9 +1665,8 @@
 	                },
 	                rerootCallback: undefined,
 	
-	                labelHeight: 10,
 	                getLabel: function getLabel(d) {
-	                    return d.name;
+	                    return d.name === "empty" ? "" : d.name;
 	                },
 	
 	                enableTooltips: true,

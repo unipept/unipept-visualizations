@@ -190,7 +190,7 @@ export default class Sunburst {
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
-            .text(d => d.name === "empty" ? "" : d.name)
+            .text(this.settings.getLabel)
             .style("font-size", function (d) {
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
             });
@@ -446,8 +446,7 @@ export default class Sunburst {
             countAccessor: d => d.data.self_count,
             rerootCallback: undefined,
 
-            labelHeight: 10,
-            getLabel: d => d.name,
+            getLabel: d => d.name === "empty" ? "" : d.name,
 
             enableTooltips: true,
             getTooltip: this.getTooltip,

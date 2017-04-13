@@ -86,3 +86,35 @@ The options object is an optional parameter and allows to override the default v
 * `countAccessor`: Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.self_count` is used.
 * `getLevel`: Function that returns the depth of a node (used for determining the color). Is called with a node as parameter. By default the actual depth is used.
 * `rerootCallback`: Function that gets called after every "reroot" of the visualization. Is called with a node as parameter. By default, this is empty.
+
+
+## Sunburst
+
+### The data object
+The data object is a hierarchical Node object. It consists out of:
+* `id`: A way to uniquely identify the node
+* `name`: The name of the node
+* `data`: An object containing additional data of choice
+* `children` (optional): An array containing one or more node objects that are the children of the current object
+
+### The options object
+The options object is an optional parameter and allows to override the default visualization settings.
+
+#### Values
+* `height` (default: 600): The height in pixels of the visualization.
+* `width` (default: 600): The width in pixels of the visualization.
+* `breadcrumbWidth` (default: 200): The width of the breadcrumb bar.
+* `radius` (default: 300): The radius of a single slice.
+* `className` (default: `unipept-sunburst`): The class added to the visualization. Used for styling.
+* `levels` (default: 4): The maximum depth of the data object. By default the actual depth is used.
+* `duration` (default: 1000): The duration of the animations in ms.
+* `useFixedColors` (default: false): Base colors on the name of the nodes.
+* `enableTooltips` (default: true): Should tooltips be shown on mouseover?
+
+#### Functions
+* `getLabel`: Function that returns a string to use as label for a node. Is called with a node as parameter. By default, the `name` attribute of the node is used.
+* `getTooltip`: Function that returns the html to use as tooltip for a node. Is called with a node as parameter. By default, the result of `getTooltipTitle` is used in a header tag and the result of `getTooltipText` is used in a paragraph tag.
+* `getTooltipTitle`: Function that returns the text to use as tooltip title. Is called with a node as parameter. By default, the `name` attribute of the node is used.
+* `getTooltipText`: Function that returns the text to use as tooltip text. Is called with a node as parameter. By default, the value of `data.count` the node is used.
+* `countAccessor`: Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.self_count` is used.
+* `rerootCallback`: Function that gets called after every "reroot" of the visualization. Is called with a node as parameter. By default, this is empty.
