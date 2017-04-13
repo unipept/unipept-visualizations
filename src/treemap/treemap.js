@@ -1,6 +1,7 @@
 /**
  * Interactive treemap
  */
+import Univis from "../shared/univis";
 import TreemapNode from "./treemapNode";
 
 export default function TreeMap(element, data, options = {}) {
@@ -33,8 +34,8 @@ export default function TreeMap(element, data, options = {}) {
 
             enableTooltips: true,
             getTooltip: getTooltip,
-            getTooltipTitle: getTooltipTitle,
-            getTooltipText: getTooltipText,
+            getTooltipTitle: Univis.getTooltipTitle,
+            getTooltipText: Univis.getTooltipText,
         };
 
     let settings;
@@ -193,7 +194,7 @@ export default function TreeMap(element, data, options = {}) {
                 .append("div")
                 .attr("class", "node")
                 .style("background", d => colorScale(settings.getLevel(d)))
-                .style("color", d => getReadableColorFor(colorScale(settings.getLevel(d))))
+                .style("color", d => Univis.getReadableColorFor(colorScale(settings.getLevel(d))))
                 .style("left", "0px")
                 .style("top", "0px")
                 .style("width", "0px")
@@ -280,33 +281,6 @@ export default function TreeMap(element, data, options = {}) {
 
     function getTooltip(d) {
         return `<h3 class='tip-title'>${settings.getTooltipTitle(d)}</h3><p>${settings.getTooltipText(d)}</p>`;
-    }
-
-    function getTooltipTitle(d) {
-        return d.name;
-    }
-
-    function getTooltipText(d) {
-        return `${d.data.count} hits`;
-    }
-
-        /*
-         * Returns the readable text color based on the brightness of a given backgroud color
-         */
-    function getReadableColorFor(color) {
-        let textColor = "#000";
-        try {
-            textColor = brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
-        } catch (err) { /* go on */ }
-        return textColor;
-    }
-
-        /*
-         * Returns the brightness of an rgb-color
-         * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
-         */
-    function brightness(rgb) {
-        return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     }
 
         /** ************* Public methods ***************/
