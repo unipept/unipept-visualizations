@@ -1,9 +1,10 @@
 # Unipept visualizations
 
-This repository contains stand-alone versions of the unipept visualizations. At this time, a treeview and treemap is available. A sunburst graph should follow in the next release.
+This repository contains stand-alone versions of the unipept visualizations. At this time, a treeview, a treemap and a sunburst graph is available.
 
 ![treeview example](examples/treeview-taxonomy.png)
 ![treemap example](examples/treemap-taxonomy.png)
+![sunburst example](examples/sunburst-taxonomy.png)
 
 A live example of this visualization can be found [on http://bl.ocks.org/bmesuere/162572f2d70c1a3a3e09](http://bl.ocks.org/bmesuere/162572f2d70c1a3a3e09) with additional examples in the examples directory.
 
