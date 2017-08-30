@@ -1,6 +1,6 @@
 {
   "name": "unipept-visualizations",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Unipept visualisation tools",
   "main": "index.js",
   "scripts": {
