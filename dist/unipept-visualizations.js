@@ -1187,7 +1187,7 @@
 	
 	        this.element = element;
 	        this.data = data;
-	        this.settings = _extends({}, Sunburst.DEFAULTS, options);
+	        this.settings = _extends({}, this.DEFAULTS, options);
 	
 	        this.settings.width = this.settings.width - Sunburst.MARGIN.right - Sunburst.MARGIN.left;
 	        this.settings.height = this.settings.height - Sunburst.MARGIN.top - Sunburst.MARGIN.bottom;
@@ -1588,6 +1588,45 @@
 	                $(this.element).children("svg").attr("width", size).attr("height", size);
 	            }, 1000);
 	        }
+	    }, {
+	        key: "DEFAULTS",
+	        get: function get() {
+	            var _this6 = this;
+	
+	            return {
+	                height: 600,
+	                width: 600,
+	                breadcrumbWidth: 200,
+	                radius: 300,
+	
+	                className: "unipept-sunburst",
+	                levels: 4,
+	                getLevel: function getLevel(d) {
+	                    return d.getDepth();
+	                },
+	
+	                duration: 1000,
+	                colors: Sunburst.COLORS,
+	                fixedColors: Sunburst.FIXED_COLORS,
+	                useFixedColors: false,
+	
+	                countAccessor: function countAccessor(d) {
+	                    return d.data.self_count;
+	                },
+	                rerootCallback: undefined,
+	
+	                getLabel: function getLabel(d) {
+	                    return d.name === "empty" ? "" : d.name;
+	                },
+	
+	                enableTooltips: true,
+	                getTooltip: function getTooltip(d) {
+	                    return _this6.getTooltip.call(_this6, d);
+	                },
+	                getTooltipTitle: _univis2.default.getTooltipTitle,
+	                getTooltipText: _univis2.default.getTooltipText
+	            };
+	        }
 	    }], [{
 	        key: "isParentOf",
 	        value: function isParentOf(p, c, ml) {
@@ -1639,41 +1678,6 @@
 	        key: "FIXED_COLORS",
 	        get: function get() {
 	            return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5", "#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39", "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd", "#de9ed6", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9d9d9"];
-	        }
-	    }, {
-	        key: "DEFAULTS",
-	        get: function get() {
-	            return {
-	                height: 600,
-	                width: 600,
-	                breadcrumbWidth: 200,
-	                radius: 300,
-	
-	                className: "unipept-sunburst",
-	                levels: 4,
-	                getLevel: function getLevel(d) {
-	                    return d.getDepth();
-	                },
-	
-	                duration: 1000,
-	                colors: Sunburst.COLORS,
-	                fixedColors: Sunburst.FIXED_COLORS,
-	                useFixedColors: false,
-	
-	                countAccessor: function countAccessor(d) {
-	                    return d.data.self_count;
-	                },
-	                rerootCallback: undefined,
-	
-	                getLabel: function getLabel(d) {
-	                    return d.name === "empty" ? "" : d.name;
-	                },
-	
-	                enableTooltips: true,
-	                getTooltip: this.getTooltip,
-	                getTooltipTitle: _univis2.default.getTooltipTitle,
-	                getTooltipText: _univis2.default.getTooltipText
-	            };
 	        }
 	    }]);
 	
