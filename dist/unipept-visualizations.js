@@ -1378,9 +1378,7 @@
 	            var bc = this.breadcrumbs.selectAll(".crumb").data(crumbs);
 	            bc.enter().append("li").on("click", function (d) {
 	                _this3.click(d.parent);
-	            }).attr("class", "crumb").style("opacity", "0").attr("title", function (d) {
-	                return "[" + d.data.rank + "] " + d.name;
-	            }).html(function (d) {
+	            }).attr("class", "crumb").style("opacity", "0").attr("title", this.settings.getTitleText).html(function (d) {
 	                return "\n<p class='name'>" + d.name + "</p>\n<p class='percentage'>" + Math.round(100 * d.data.count / d.parent.data.count) + "% of " + d.parent.name + "</p>";
 	            }).insert("svg", ":first-child").attr("width", 30).attr("height", 30).append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", function (d) {
 	                return _this3.colour(d, _this3);
@@ -1404,7 +1402,9 @@
 	                return;
 	            }
 	
-	            this.setBreadcrumbs(d);
+	            if (this.settings.enableBreadcrumbs) {
+	                this.setBreadcrumbs(d);
+	            }
 	
 	            if (this.settings.rerootCallback) {
 	                this.settings.rerootCallback.call(null, d);
@@ -1624,7 +1624,12 @@
 	                    return _this6.getTooltip.call(_this6, d);
 	                },
 	                getTooltipTitle: _univis2.default.getTooltipTitle,
-	                getTooltipText: _univis2.default.getTooltipText
+	                getTooltipText: _univis2.default.getTooltipText,
+	
+	                enableBreadcrumbs: true,
+	                getTitleText: function getTitleText(d) {
+	                    return _this6.settings.getLabel(d);
+	                }
 	            };
 	        }
 	    }], [{

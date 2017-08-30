@@ -91,6 +91,8 @@ The options object is an optional parameter and allows to override the default v
 
 ## Sunburst
 
+**Known issue**: breadcrumbs currently don't work in combination with custom accessors. You can disable them using `enableBreadcrumbs: false`.
+
 ### The data object
 The data object is a hierarchical Node object. It consists out of:
 * `id`: A way to uniquely identify the node
@@ -111,11 +113,14 @@ The options object is an optional parameter and allows to override the default v
 * `duration` (default: 1000): The duration of the animations in ms.
 * `useFixedColors` (default: false): Base colors on the name of the nodes.
 * `enableTooltips` (default: true): Should tooltips be shown on mouseover?
+* `enableBreadcrumbs` (default: true): Should breadcrumbs be shown?
+
 
 #### Functions
 * `getLabel`: Function that returns a string to use as label for a node. Is called with a node as parameter. By default, the `name` attribute of the node is used.
 * `getTooltip`: Function that returns the html to use as tooltip for a node. Is called with a node as parameter. By default, the result of `getTooltipTitle` is used in a header tag and the result of `getTooltipText` is used in a paragraph tag.
 * `getTooltipTitle`: Function that returns the text to use as tooltip title. Is called with a node as parameter. By default, the `name` attribute of the node is used.
 * `getTooltipText`: Function that returns the text to use as tooltip text. Is called with a node as parameter. By default, the value of `data.count` the node is used.
+* `getTitle`: Function that returns the string to use as mouseover text for the breadcrumbs. By default, `getLabel` is used.
 * `countAccessor`: Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.self_count` is used.
 * `rerootCallback`: Function that gets called after every "reroot" of the visualization. Is called with a node as parameter. By default, this is empty.

@@ -238,7 +238,7 @@ export default class Sunburst {
             })
             .attr("class", "crumb")
             .style("opacity", "0")
-            .attr("title", d => `[${d.data.rank}] ${d.name}`)
+            .attr("title", this.settings.getTitleText)
             .html(d => `
 <p class='name'>${d.name}</p>
 <p class='percentage'>${Math.round(100 * d.data.count / d.parent.data.count)}% of ${d.parent.name}</p>`)
@@ -263,7 +263,9 @@ export default class Sunburst {
             return;
         }
 
-        this.setBreadcrumbs(d);
+        if (this.settings.enableBreadcrumbs) {
+            this.setBreadcrumbs(d);
+        }
 
         if (this.settings.rerootCallback) {
             this.settings.rerootCallback.call(null, d);
@@ -452,6 +454,9 @@ export default class Sunburst {
             getTooltip: d => this.getTooltip.call(this, d),
             getTooltipTitle: Univis.getTooltipTitle,
             getTooltipText: Univis.getTooltipText,
+
+            enableBreadcrumbs: true,
+            getTitleText: d => this.settings.getLabel(d),
         };
     }
 
