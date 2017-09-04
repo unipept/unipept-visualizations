@@ -58,6 +58,7 @@ export default class Sunburst {
 .${elementClass} .sunburst-breadcrumbs {
     width: 176px;
     float: right;
+    margin-right: 15px;
     margin-top: 10px;
     padding-left: 5px;
 }
