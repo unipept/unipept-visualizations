@@ -1371,7 +1371,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			value: function initCSS() {
 				var elementClass = this.settings.className;
 				$(this.element).addClass(elementClass);
-				$("<style>").prop("type", "text/css").html("\n." + elementClass + " {\n    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n    width: " + (this.settings.width + this.settings.breadcrumbWidth) + "px;\n}\n." + elementClass + " .sunburst-breadcrumbs {\n    width: 176px;\n    float: right;\n    margin-top: 10px;\n    padding-left: 5px;\n}\n." + elementClass + " .sunburst-breadcrumbs ul {\n    padding-left: 0;\n    list-style: none;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb {\n    margin-bottom: 5px;\n    cursor: pointer;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb svg {\n    float: left;\n    margin-right: 3px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb p {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    margin: 0;\n    font-size: 14px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb .percentage {\n    font-size: 11px;\n}").appendTo("head");
+				$("<style>").prop("type", "text/css").html("\n." + elementClass + " {\n    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;\n    width: " + (this.settings.width + this.settings.breadcrumbWidth) + "px;\n}\n." + elementClass + " .sunburst-breadcrumbs {\n    width: 176px;\n    float: right;\n    margin-right: 15px;\n    margin-top: 10px;\n    padding-left: 5px;\n}\n." + elementClass + " .sunburst-breadcrumbs ul {\n    padding-left: 0;\n    list-style: none;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb {\n    margin-bottom: 5px;\n    cursor: pointer;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb svg {\n    float: left;\n    margin-right: 3px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb p {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    margin: 0;\n    font-size: 14px;\n}\n." + elementClass + " .sunburst-breadcrumbs .crumb .percentage {\n    font-size: 11px;\n}").appendTo("head");
 			}
 
 			/** ****** private functions ********/
@@ -1745,7 +1745,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 					height: 600,
 					width: 600,
 					breadcrumbWidth: 200,
-					radius: 300,
+					radius: this.settings.width / 2,
 
 					className: "unipept-sunburst",
 					levels: 4,
