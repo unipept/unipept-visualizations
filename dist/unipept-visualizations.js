@@ -116,6 +116,7 @@
 	        countAccessor: function countAccessor(d) {
 	            return d.data.count;
 	        },
+	        rerootCallback: undefined,
 	
 	        colors: function colors(d) {
 	            return COLOR_SCALE(d.name);
@@ -399,6 +400,10 @@
 	        }
 	        update(d);
 	        centerNode(d);
+	
+	        if (settings.rerootCallback) {
+	            settings.rerootCallback.call(null, d);
+	        }
 	    }
 	
 	    // Center a node
@@ -1597,7 +1602,7 @@
 	                height: 600,
 	                width: 600,
 	                breadcrumbWidth: 200,
-	                radius: this.settings.width / 2,
+	                radius: 300,
 	
 	                className: "unipept-sunburst",
 	                levels: 4,

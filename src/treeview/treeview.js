@@ -27,6 +27,7 @@ export default function TreeView(element, data, options = {}) {
             maxNodeSize: 105,
 
             countAccessor: d => d.data.count,
+            rerootCallback: undefined,
 
             colors: d => COLOR_SCALE(d.name),
             nodeFillColor: nodeFillColor,
@@ -310,13 +311,13 @@ export default function TreeView(element, data, options = {}) {
         }
     }
 
-        // Toggle children on click.
+    // Toggle children on click.
     function click(d) {
         if (!settings.enableExpandOnClick) {
             return;
         }
 
-            // check if click is triggered by panning on a node
+        // check if click is triggered by panning on a node
         if (d3.event.defaultPrevented) {
             return;
         }
@@ -361,6 +362,10 @@ export default function TreeView(element, data, options = {}) {
         }
         update(d);
         centerNode(d);
+
+        if (settings.rerootCallback) {
+            settings.rerootCallback.call(null, d);
+        }
     }
 
         // Center a node

@@ -139,6 +139,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			countAccessor: function countAccessor(d) {
 				return d.data.count;
 			},
+			rerootCallback: undefined,
 
 			colors: function colors(d) {
 				return COLOR_SCALE(d.name);
@@ -422,6 +423,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 			}
 			update(d);
 			centerNode(d);
+
+			if (settings.rerootCallback) {
+				settings.rerootCallback.call(null, d);
+			}
 		}
 
 		// Center a node
@@ -1745,7 +1750,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 					height: 600,
 					width: 600,
 					breadcrumbWidth: 200,
-					radius: this.settings.width / 2,
+					radius: 300,
 
 					className: "unipept-sunburst",
 					levels: 4,

@@ -54,6 +54,7 @@ The options object is an optional parameter and allows to override the default v
 * `nodeStrokeColor`: Function that returns a color to use as stroke color. Is called with a node as parameter. By default, the node color is used.
 * `linkStrokeColor`: Function that returns a color to use as link color between two nodes. Is called with an object containing a `source` and `target` node as parameter. By default, the target node color is used.
 * `countAccessor` : Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.count` is used.
+* `rerootCallback`: Function that gets called after every "reroot" (rightClick) of the visualization. Is called with a node as parameter. By default, this is empty.
 
 ## Treemap
 

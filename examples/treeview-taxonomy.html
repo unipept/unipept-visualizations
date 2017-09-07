@@ -21,6 +21,7 @@
           $("#d3TreeView").treeview(data, {
             width: 900,
             height: 600,
+            rerootCallback: d => {console.log(d.name);},
             getTooltip: function(d) {
               let numberFormat = d3.format(",d");
               return "<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") +
