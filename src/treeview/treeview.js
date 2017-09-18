@@ -448,20 +448,6 @@ export default function TreeView(element, data, options = {}) {
     return that;
 }
 
-function Plugin(userData, option) {
-    return this.each(function () {
-        let $this = $(this);
-        let data = $this.data("vis.treeview");
-        let options = $.extend({}, $this.data(), typeof option === "object" && option);
-
-        if (!data) {
-            $this.data("vis.treeview", (data = new TreeView(this, userData, options)));
-        }
-        if (typeof option === "string") {
-            data[option]();
-        }
-    });
-}
-
-$.fn.treeview = Plugin;
-$.fn.treeview.Constructor = TreeView;
+$.fn.treeview = function (data, options) {
+    return new TreeView(this.get(0), data, options);
+};

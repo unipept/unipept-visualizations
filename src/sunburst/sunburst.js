@@ -503,20 +503,6 @@ export default class Sunburst {
     }
 }
 
-function Plugin(userData, option) {
-    return this.each(function () {
-        let $this = $(this);
-        let data = $this.data("vis.sunburst");
-        let options = $.extend({}, $this.data(), typeof option === "object" && option);
-
-        if (!data) {
-            $this.data("vis.sunburst", (data = new Sunburst(this, userData, options)));
-        }
-        if (typeof option === "string") {
-            data[option]();
-        }
-    });
-}
-
-$.fn.sunburst = Plugin;
-$.fn.sunburst.Constructor = Sunburst;
+$.fn.sunburst = function (data, options) {
+    return new Sunburst(this.get(0), data, options);
+};

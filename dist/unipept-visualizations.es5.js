@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /******/(function (modules) {
 	// webpackBootstrap
@@ -79,12 +79,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-		return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	};
 
 	var _extends = Object.assign || function (target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -507,23 +501,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 		return that;
 	}
 
-	function Plugin(userData, option) {
-		return this.each(function () {
-			var $this = $(this);
-			var data = $this.data("vis.treeview");
-			var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-
-			if (!data) {
-				$this.data("vis.treeview", data = new TreeView(this, userData, options));
-			}
-			if (typeof option === "string") {
-				data[option]();
-			}
-		});
-	}
-
-	$.fn.treeview = Plugin;
-	$.fn.treeview.Constructor = TreeView;
+	$.fn.treeview = function (data, options) {
+		return new TreeView(this.get(0), data, options);
+	};
 
 	/***/
 },
@@ -650,12 +630,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+		}return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
-			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
+			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
 		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
@@ -897,12 +877,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-		return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	};
 
 	var _extends = Object.assign || function (target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -1171,23 +1145,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 		return that;
 	}
 
-	function Plugin(userData, option) {
-		return this.each(function () {
-			var $this = $(this);
-			var data = $this.data("vis.treemap");
-			var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-
-			if (!data) {
-				$this.data("vis.treemap", data = new TreeMap(this, userData, options));
-			}
-			if (typeof option === "string") {
-				data[option]();
-			}
-		});
-	}
-
-	$.fn.treemap = Plugin;
-	$.fn.treemap.Constructor = TreeMap;
+	$.fn.treemap = function (data, options) {
+		return new TreeMap(this.get(0), data, options);
+	};
 
 	/***/
 },
@@ -1227,12 +1187,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+		}return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
-			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
+			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
 		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
@@ -1274,12 +1234,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-		return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	};
 
 	var _extends = Object.assign || function (target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -1844,23 +1798,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
 	exports.default = Sunburst;
 
-	function Plugin(userData, option) {
-		return this.each(function () {
-			var $this = $(this);
-			var data = $this.data("vis.sunburst");
-			var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-
-			if (!data) {
-				$this.data("vis.sunburst", data = new Sunburst(this, userData, options));
-			}
-			if (typeof option === "string") {
-				data[option]();
-			}
-		});
-	}
-
-	$.fn.sunburst = Plugin;
-	$.fn.sunburst.Constructor = Sunburst;
+	$.fn.sunburst = function (data, options) {
+		return new Sunburst(this.get(0), data, options);
+	};
 
 	/***/
 },
@@ -1900,12 +1840,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+		}return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
-			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
+			throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
 		}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 

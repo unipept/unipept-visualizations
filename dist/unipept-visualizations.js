@@ -70,8 +70,6 @@
 	    value: true
 	});
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
 	                                                                                                                                                                                                                                                                   * Zoomable treeview, inspiration from
 	                                                                                                                                                                                                                                                                   * - http://bl.ocks.org/mbostock/4339083
@@ -484,23 +482,9 @@
 	    return that;
 	}
 	
-	function Plugin(userData, option) {
-	    return this.each(function () {
-	        var $this = $(this);
-	        var data = $this.data("vis.treeview");
-	        var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-	
-	        if (!data) {
-	            $this.data("vis.treeview", data = new TreeView(this, userData, options));
-	        }
-	        if (typeof option === "string") {
-	            data[option]();
-	        }
-	    });
-	}
-	
-	$.fn.treeview = Plugin;
-	$.fn.treeview.Constructor = TreeView;
+	$.fn.treeview = function (data, options) {
+	    return new TreeView(this.get(0), data, options);
+	};
 
 /***/ },
 /* 2 */
@@ -819,8 +803,6 @@
 	    value: true
 	});
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
 	                                                                                                                                                                                                                                                                   * Interactive treemap
 	                                                                                                                                                                                                                                                                   */
@@ -1079,23 +1061,9 @@
 	    return that;
 	}
 	
-	function Plugin(userData, option) {
-	    return this.each(function () {
-	        var $this = $(this);
-	        var data = $this.data("vis.treemap");
-	        var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-	
-	        if (!data) {
-	            $this.data("vis.treemap", data = new TreeMap(this, userData, options));
-	        }
-	        if (typeof option === "string") {
-	            data[option]();
-	        }
-	    });
-	}
-	
-	$.fn.treemap = Plugin;
-	$.fn.treemap.Constructor = TreeMap;
+	$.fn.treemap = function (data, options) {
+	    return new TreeMap(this.get(0), data, options);
+	};
 
 /***/ },
 /* 6 */
@@ -1158,8 +1126,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -1697,23 +1663,9 @@
 	exports.default = Sunburst;
 	
 	
-	function Plugin(userData, option) {
-	    return this.each(function () {
-	        var $this = $(this);
-	        var data = $this.data("vis.sunburst");
-	        var options = $.extend({}, $this.data(), (typeof option === "undefined" ? "undefined" : _typeof(option)) === "object" && option);
-	
-	        if (!data) {
-	            $this.data("vis.sunburst", data = new Sunburst(this, userData, options));
-	        }
-	        if (typeof option === "string") {
-	            data[option]();
-	        }
-	    });
-	}
-	
-	$.fn.sunburst = Plugin;
-	$.fn.sunburst.Constructor = Sunburst;
+	$.fn.sunburst = function (data, options) {
+	    return new Sunburst(this.get(0), data, options);
+	};
 
 /***/ },
 /* 8 */

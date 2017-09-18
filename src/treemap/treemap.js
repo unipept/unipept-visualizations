@@ -316,20 +316,6 @@ export default function TreeMap(element, data, options = {}) {
     return that;
 }
 
-function Plugin(userData, option) {
-    return this.each(function () {
-        let $this = $(this);
-        let data = $this.data("vis.treemap");
-        let options = $.extend({}, $this.data(), typeof option === "object" && option);
-
-        if (!data) {
-            $this.data("vis.treemap", (data = new TreeMap(this, userData, options)));
-        }
-        if (typeof option === "string") {
-            data[option]();
-        }
-    });
-}
-
-$.fn.treemap = Plugin;
-$.fn.treemap.Constructor = TreeMap;
+$.fn.treemap = function (data, options) {
+    return new TreeMap(this.get(0), data, options);
+};
