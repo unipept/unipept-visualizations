@@ -494,6 +494,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			reroot(root);
 		};
 
+		/**
+   * Sets the visualisation in full screen mode
+   *
+   * @param <boolean> isFullScreen indicates if we're in full screen mode
+   */
+		that.setFullScreen = function setFullScreen(isFullScreen) {
+			// the delay is because the event fires before we're in fullscreen
+			// so the height en width functions don't give a correct result
+			// without the delay
+			setTimeout(function () {
+				var _ref2 = [settings.width, settings.height],
+				    w = _ref2[0],
+				    h = _ref2[1];
+
+				if (isFullScreen) {
+					w = $(window).width();
+					h = $(window).height() - 44;
+				}
+				$(element).children("svg").attr("width", w).attr("height", h);
+			}, 1000);
+		};
+
 		// initialize the object
 		init();
 
@@ -1684,21 +1706,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}, {
 			key: "setFullScreen",
 			value: function setFullScreen(isFullScreen) {
+				var _this6 = this;
+
 				// the delay is because the event fires before we're in fullscreen
 				// so the height en width functions don't give a correct result
 				// without the delay
 				setTimeout(function () {
-					var size = 740;
+					var size = _this6.settings.width;
 					if (isFullScreen) {
 						size = Math.min($(window).height() - 44, $(window).width() - 250);
 					}
-					$(this.element).children("svg").attr("width", size).attr("height", size);
+					$(_this6.element).children("svg").attr("width", size).attr("height", size);
 				}, 1000);
 			}
 		}, {
 			key: "DEFAULTS",
 			get: function get() {
-				var _this6 = this;
+				var _this7 = this;
 
 				return {
 					height: 600,
@@ -1728,14 +1752,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 					enableTooltips: true,
 					getTooltip: function getTooltip(d) {
-						return _this6.getTooltip.call(_this6, d);
+						return _this7.getTooltip.call(_this7, d);
 					},
 					getTooltipTitle: _univis2.default.getTooltipTitle,
 					getTooltipText: _univis2.default.getTooltipText,
 
 					enableBreadcrumbs: true,
 					getTitleText: function getTitleText(d) {
-						return _this6.settings.getLabel(d);
+						return _this7.settings.getLabel(d);
 					}
 				};
 			}

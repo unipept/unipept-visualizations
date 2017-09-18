@@ -441,6 +441,27 @@ export default function TreeView(element, data, options = {}) {
         reroot(root);
     };
 
+    /**
+     * Sets the visualisation in full screen mode
+     *
+     * @param <boolean> isFullScreen indicates if we're in full screen mode
+     */
+    that.setFullScreen = function setFullScreen(isFullScreen) {
+        // the delay is because the event fires before we're in fullscreen
+        // so the height en width functions don't give a correct result
+        // without the delay
+        setTimeout(() => {
+            let [w, h] = [settings.width, settings.height];
+            if (isFullScreen) {
+                w = $(window).width();
+                h = $(window).height() - 44;
+            }
+            $(element).children("svg")
+                .attr("width", w)
+                .attr("height", h);
+        }, 1000);
+    };
+
         // initialize the object
     init();
 

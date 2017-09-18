@@ -491,8 +491,8 @@ export default class Sunburst {
         // the delay is because the event fires before we're in fullscreen
         // so the height en width functions don't give a correct result
         // without the delay
-        setTimeout(function () {
-            let size = 740;
+        setTimeout(() => {
+            let size = this.settings.width;
             if (isFullScreen) {
                 size = Math.min($(window).height() - 44, $(window).width() - 250);
             }
