@@ -310,6 +310,20 @@ export default function TreeMap(element, data, options = {}) {
         }, 1000);
     };
 
+    /**
+     * Get the root of the visual tree
+     *
+     * @return {TreeviewNode}   The root node of the visualisation
+     */
+    that.getRoot = function getRoot() {
+        return root;
+    };
+
+    /**
+     * Apply changes made to the tree or its data
+     */
+    that.update = update;
+
         // initialize the object
     init();
 

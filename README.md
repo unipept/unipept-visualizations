@@ -56,6 +56,14 @@ The options object is an optional parameter and allows to override the default v
 * `countAccessor` : Function that returns the value associated with the node. Is called with a node as parameter. By default, the value of `node.data.count` is used.
 * `rerootCallback`: Function that gets called after every "reroot" (rightClick) of the visualization. Is called with a node as parameter. By default, this is empty.
 
+### Methods
+Methods you can call on instances of TreeView, for example on the return value of `$(...).treeview(...)`.
+
+* `reset()`: Resets the treeview to default zoom with centered root.
+* `setFullScreen(isFullScreen)`: Sets the visualisation in full screen mode. Is called with a Boolean as parameter indicating if full screen is to be enabled.
+* `getRoot()`: Returns the root of the visualisation tree. This is a [TreeviewNode](/src/treeview/treeviewNode.js).
+* `update()`: Applies changes made to the tree or its data.
+
 ## Treemap
 
 ### The data object
@@ -89,6 +97,13 @@ The options object is an optional parameter and allows to override the default v
 * `getLevel`: Function that returns the depth of a node (used for determining the color). Is called with a node as parameter. By default the actual depth is used.
 * `rerootCallback`: Function that gets called after every "reroot" of the visualization. Is called with a node as parameter. By default, this is empty.
 
+### Methods
+Methods you can call on instances of Treemap, for example on the return value of `$(...).treemap(...)`.
+
+* `reset()`: Resets the treeview to default zoom with centered root.
+* `setFullScreen(isFullScreen)`: Sets the visualisation in full screen mode. Is called with a Boolean as parameter indicating if full screen is to be enabled.
+* `getRoot()`: Returns the root of the visualisation treemap. This is a [TreemapNode](/src/treeview/treemapNode.js).
+* `update()`: Applies changes made to the treemap or its data.
 
 ## Sunburst
 
