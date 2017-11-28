@@ -1930,7 +1930,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	exports.default = SunburstNode;
 
 	/***/
-}
-/******/]);
+}]
+/******/);
 //# sourceMappingURL=unipept-visualizations.js.map
 //# sourceMappingURL=unipept-visualizations.es5.js.map
