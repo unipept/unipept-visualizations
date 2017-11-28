@@ -1175,6 +1175,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}, 1000);
 		};
 
+		/**
+   * Get the root of the visual tree
+   *
+   * @return {TreeviewNode}   The root node of the visualisation
+   */
+		that.getRoot = function getRoot() {
+			return root;
+		};
+
+		/**
+   * Apply changes made to the tree or its data
+   */
+		that.update = update;
+
 		// initialize the object
 		init();
 
@@ -1916,7 +1930,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	exports.default = SunburstNode;
 
 	/***/
-}]
-/******/);
+}
+/******/]);
 //# sourceMappingURL=unipept-visualizations.js.map
 //# sourceMappingURL=unipept-visualizations.es5.js.map

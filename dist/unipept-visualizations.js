@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -60,9 +60,9 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/***/ }),
+/***/ },
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -522,9 +522,9 @@
 	    return new TreeView(this.get(0), data, options);
 	};
 
-/***/ }),
+/***/ },
 /* 2 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -597,9 +597,9 @@
 	
 	exports.default = Univis;
 
-/***/ }),
+/***/ },
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -726,9 +726,9 @@
 	
 	exports.default = TreeviewNode;
 
-/***/ }),
+/***/ },
 /* 4 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -829,9 +829,9 @@
 	
 	exports.default = Node;
 
-/***/ }),
+/***/ },
 /* 5 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -1091,6 +1091,20 @@
 	        }, 1000);
 	    };
 	
+	    /**
+	     * Get the root of the visual tree
+	     *
+	     * @return {TreeviewNode}   The root node of the visualisation
+	     */
+	    that.getRoot = function getRoot() {
+	        return root;
+	    };
+	
+	    /**
+	     * Apply changes made to the tree or its data
+	     */
+	    that.update = update;
+	
 	    // initialize the object
 	    init();
 	
@@ -1101,9 +1115,9 @@
 	    return new TreeMap(this.get(0), data, options);
 	};
 
-/***/ }),
+/***/ },
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -1153,9 +1167,9 @@
 	
 	exports.default = TreemapNode;
 
-/***/ }),
+/***/ },
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -1705,9 +1719,9 @@
 	    return new Sunburst(this.get(0), data, options);
 	};
 
-/***/ }),
+/***/ },
 /* 8 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -1757,6 +1771,6 @@
 	
 	exports.default = SunburstNode;
 
-/***/ })
+/***/ }
 /******/ ]);
 //# sourceMappingURL=unipept-visualizations.js.map
