@@ -63,7 +63,7 @@ Methods you can call on instances of TreeView, for example on the return value o
 * `setFullScreen(isFullScreen)`: Sets the visualisation in full screen mode. Is called with a Boolean as parameter indicating if full screen is to be enabled.
 * `getRoot()`: Returns the root of the visualisation tree. This is a [TreeviewNode](/src/treeview/treeviewNode.js).
 * `update(TreeviewNode)`: Applies changes made to the tree or its data starting form the given [TreeviewNode](/src/treeview/treeviewNode.js) `Node`.
-* `center(TreeviewNode)`: Centers the given node 
+* `centerNode(TreeviewNode)`: Centers the given node 
   * only works for nodes that were visible during the previous `update`
 
 ## Treemap
