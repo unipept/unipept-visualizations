@@ -511,6 +511,11 @@
 	     */
 	    that.update = update;
 	
+	    /**
+	     * Center a node of the tree
+	     */
+	    that.centerNode = centerNode;
+	
 	    // initialize the object
 	    init();
 	

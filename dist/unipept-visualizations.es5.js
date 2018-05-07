@@ -530,6 +530,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    */
 		that.update = update;
 
+		/**
+   * Center a node of the tree
+   */
+		that.centerNode = centerNode;
+
 		// initialize the object
 		init();
 
