@@ -50,11 +50,11 @@
 	
 	var _treeview2 = _interopRequireDefault(_treeview);
 	
-	var _treemap = __webpack_require__(5);
+	var _treemap = __webpack_require__(6);
 	
 	var _treemap2 = _interopRequireDefault(_treemap);
 	
-	var _sunburst = __webpack_require__(7);
+	var _sunburst = __webpack_require__(8);
 	
 	var _sunburst2 = _interopRequireDefault(_sunburst);
 
@@ -84,7 +84,11 @@
 	
 	var _univis2 = _interopRequireDefault(_univis);
 	
-	var _treeviewNode = __webpack_require__(3);
+	var _maxcountheap = __webpack_require__(3);
+	
+	var _maxcountheap2 = _interopRequireDefault(_maxcountheap);
+	
+	var _treeviewNode = __webpack_require__(4);
 	
 	var _treeviewNode2 = _interopRequireDefault(_treeviewNode);
 	
@@ -135,7 +139,8 @@
 	        enableTooltips: true,
 	        getTooltip: getTooltip,
 	        getTooltipTitle: _univis2.default.getTooltipTitle,
-	        getTooltipText: _univis2.default.getTooltipText
+	        getTooltipText: _univis2.default.getTooltipText,
+	        enableAutoExpand: false
 	    };
 	
 	    var settings = void 0;
@@ -222,13 +227,32 @@
 	
 	        if (settings.enableExpandOnClick) {
 	            root.collapseAll();
-	            root.expand();
+	            initialExpand(root);
 	        } else {
 	            root.expandAll();
 	        }
 	
 	        update(root);
 	        centerNode(root);
+	    }
+	
+	    function initialExpand(root) {
+	        if (!settings.enableAutoExpand) {
+	            root.expand();
+	            return;
+	        }
+	
+	        root.expand(1);
+	        var allowedCount = root.data.count * (isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
+	        var pq = new _maxcountheap2.default(root.children || []);
+	        while (allowedCount > 0 && pq.size > 0) {
+	            var toExpand = pq.remove();
+	            allowedCount -= toExpand.data.count;
+	            toExpand.expand(1);
+	            (toExpand.children || []).forEach(function (c) {
+	                return pq.add(c);
+	            });
+	        }
 	    }
 	
 	    function update(source) {
@@ -604,6 +628,124 @@
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/*
+	 * A priority qeueue that works with Nodes.
+	 * Based on https://github.com/gkz/es-collections
+	 */
+	
+	/* eslint-disable require-jsdoc, no-param-reassign */
+	
+	var comp = function comp(a, b) {
+	    return b.data.count - a.data.count;
+	};
+	
+	function heapify(data) {
+	    for (var i = Math.floor((data.length - 2) / 2); i >= 0; i--) {
+	        sink(data, comp, i);
+	    }
+	    return data;
+	}
+	
+	function bubbleUp(data, index) {
+	    var value = data[index];
+	
+	    while (index > 0) {
+	        var parentIndex = Math.floor((index - 1) / 2);
+	        var parent = data[parentIndex];
+	        if (comp(value, parent) < 0) {
+	            data[index] = parent;
+	        } else {
+	            break;
+	        }
+	        index = parentIndex;
+	    }
+	    data[index] = value;
+	    return index;
+	}
+	
+	function sink(data, index) {
+	    var value = data[index];
+	    var size = data.length;
+	
+	    while (2 * index + 1 < size) {
+	        var targetIndex = 2 * index + 1;
+	        if (targetIndex < size - 1 && comp(data[targetIndex + 1], data[targetIndex]) < 0) {
+	            targetIndex++;
+	        }
+	        if (comp(value, data[targetIndex]) <= 0) {
+	            break;
+	        }
+	        data[index] = data[targetIndex];
+	        index = targetIndex;
+	    }
+	    data[index] = value;
+	    return index;
+	}
+	
+	var MaxCountHeap = function () {
+	    function MaxCountHeap() {
+	        var iterable = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	
+	        _classCallCheck(this, MaxCountHeap);
+	
+	        this._data = heapify(Array.from(iterable));
+	    }
+	
+	    _createClass(MaxCountHeap, [{
+	        key: "add",
+	        value: function add(item) {
+	            this._data.push(item);
+	            bubbleUp(this._data, this.size - 1);
+	            return this;
+	        }
+	    }, {
+	        key: "peek",
+	        value: function peek() {
+	            return this._data[0];
+	        }
+	    }, {
+	        key: "remove",
+	        value: function remove() {
+	            var output = this._data[0];
+	            if (this.size > 1) {
+	                this._data[0] = this._data.pop();
+	                sink(this._data, 0);
+	            } else {
+	                this._data.pop();
+	            }
+	            return output;
+	        }
+	    }, {
+	        key: "clear",
+	        value: function clear() {
+	            this._data = [];
+	        }
+	    }, {
+	        key: "size",
+	        get: function get() {
+	            return this._data.length;
+	        }
+	    }]);
+	
+	    return MaxCountHeap;
+	}();
+	
+	exports.default = MaxCountHeap;
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -614,7 +756,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(4);
+	var _node = __webpack_require__(5);
 	
 	var _node2 = _interopRequireDefault(_node);
 	
@@ -732,7 +874,7 @@
 	exports.default = TreeviewNode;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -835,7 +977,7 @@
 	exports.default = Node;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -855,7 +997,7 @@
 	
 	var _univis2 = _interopRequireDefault(_univis);
 	
-	var _treemapNode = __webpack_require__(6);
+	var _treemapNode = __webpack_require__(7);
 	
 	var _treemapNode2 = _interopRequireDefault(_treemapNode);
 	
@@ -1121,7 +1263,7 @@
 	};
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1132,7 +1274,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(4);
+	var _node = __webpack_require__(5);
 	
 	var _node2 = _interopRequireDefault(_node);
 	
@@ -1173,7 +1315,7 @@
 	exports.default = TreemapNode;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1193,7 +1335,7 @@
 	
 	var _univis2 = _interopRequireDefault(_univis);
 	
-	var _sunburstNode = __webpack_require__(8);
+	var _sunburstNode = __webpack_require__(9);
 	
 	var _sunburstNode2 = _interopRequireDefault(_sunburstNode);
 	
@@ -1725,7 +1867,7 @@
 	};
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1736,7 +1878,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _node = __webpack_require__(4);
+	var _node = __webpack_require__(5);
 	
 	var _node2 = _interopRequireDefault(_node);
 	

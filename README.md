@@ -43,6 +43,7 @@ The options object is an optional parameter and allows to override the default v
 * `enableExpandOnClick` (default: true): Should the tree collapse and expand when clicking on nodes? If disabled, the entire tree is automatically expanded when loaded.
 * `enableRightClick` (default: true): Should the tree *reroot* when right clicking a node?
 * `enableLabels` (default: true): Should labels (containing the node names) next to the nodes be shown?
+* `enableAutoExpand` (default: false): Should a heuristic be used to expand the most important branches when loading the initial visualization. If a number is supplied, that number will be used as parameter for the heuristic, a higher value causes more expansion. If set to true the parameter will be set to is 0.8.
 
 #### Functions
 * `getLabel`: Function that returns a string to use as label for a node. Is called with a node as parameter. By default, the `name` attribute of the node is used.

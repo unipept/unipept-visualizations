@@ -5,7 +5,9 @@
  * - http://www.brightpointinc.com/interactive/budget/index.html?source=d3js
  */
 import Univis from "../shared/univis";
+import MaxCountHeap from "../shared/maxcountheap";
 import TreeviewNode from "./treeviewNode";
+
 
 export default function TreeView(element, data, options = {}) {
     let that = {};
@@ -45,6 +47,7 @@ export default function TreeView(element, data, options = {}) {
             getTooltip: getTooltip,
             getTooltipTitle: Univis.getTooltipTitle,
             getTooltipText: Univis.getTooltipText,
+            enableAutoExpand: false,
         };
 
     let settings;
@@ -151,13 +154,30 @@ export default function TreeView(element, data, options = {}) {
 
         if (settings.enableExpandOnClick) {
             root.collapseAll();
-            root.expand();
+            initialExpand(root);
         } else {
             root.expandAll();
         }
 
         update(root);
         centerNode(root);
+    }
+
+    function initialExpand(root) {
+        if(!settings.enableAutoExpand) {
+            root.expand();
+            return;
+        }
+
+        root.expand(1);
+        let allowedCount = root.data.count * (isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
+        const pq = new MaxCountHeap(root.children || []);
+        while (allowedCount > 0 && pq.size > 0) {
+            const toExpand = pq.remove();
+            allowedCount -= toExpand.data.count;
+            toExpand.expand(1);
+            (toExpand.children || []).forEach(c => pq.add(c));
+        }
     }
 
     function update(source) {
