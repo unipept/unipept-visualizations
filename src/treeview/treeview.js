@@ -106,6 +106,7 @@ export default function TreeView(element, data, options = {}) {
                 .attr("viewBox", `0 0 ${settings.width + MARGIN.right + MARGIN.left} ${settings.height + MARGIN.top + MARGIN.bottom}`)
                 .attr("width", settings.width + MARGIN.right + MARGIN.left)
                 .attr("height", settings.height + MARGIN.top + MARGIN.bottom)
+                .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
                 .call(zoomListener)
                 .append("g")
                 .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
