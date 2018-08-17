@@ -171,7 +171,7 @@ export default function TreeView(element, data, options = {}) {
         }
 
         root.expand(1);
-        let allowedCount = root.data.count * (isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
+        let allowedCount = root.data.count * (Number.isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
         const pq = new MaxCountHeap(root.children || []);
         while (allowedCount > 0 && pq.size > 0) {
             const toExpand = pq.remove();
