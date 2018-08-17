@@ -9,7 +9,7 @@ const comp = (a, b) => b.data.count - a.data.count;
 
 function heapify(data) {
     for (let i = Math.floor((data.length - 2) / 2); i >= 0; i--) {
-        sink(data, comp, i);
+        sink(data, i);
     }
     return data;
 }
