@@ -262,7 +262,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 
 			root.expand(1);
-			var allowedCount = root.data.count * (isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
+			var allowedCount = root.data.count * (Number.isFinite(settings.enableAutoExpand) ? settings.enableAutoExpand : 0.8);
 			var pq = new _maxcountheap2.default(root.children || []);
 			while (allowedCount > 0 && pq.size > 0) {
 				var toExpand = pq.remove();
@@ -697,7 +697,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	function heapify(data) {
 		for (var i = Math.floor((data.length - 2) / 2); i >= 0; i--) {
-			sink(data, comp, i);
+			sink(data, i);
 		}
 		return data;
 	}
