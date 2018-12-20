@@ -30,10 +30,19 @@ export class Heatmap {
         this.redraw();
     }
 
+    /**
+     * Reset the complete view to it's initial state with the options and data passed in the constructor.
+     */
     public reset() {
-
+        this.redraw();
     }
 
+    /**
+     * Preprocess an array of features. This function sanitizes the user input by filling in the optional parts (if
+     * they're missing). Id's are generated using the index of each element in the array.
+     *
+     * @param data
+     */
     private preprocessFeatures(data: HeatmapElement[]): HeatmapElement[] {
         return data.map((val: HeatmapElement, idx: number, arr: HeatmapElement[]) => {
             if (!val.id) {
@@ -44,6 +53,12 @@ export class Heatmap {
         });
     }
 
+    /**
+     * Preprocess the actual value objects that are to be plotted. This function sanitizes the user input by filling in
+     * the optional parts.
+     *
+     * @param data
+     */
     private preprocessValues(data: HeatmapValue[][] | number[][]): HeatmapValue[][] {
         let values: HeatmapValue[][] = [];
         for (let i = 0; i < data.length; i++) {
@@ -76,10 +91,16 @@ export class Heatmap {
         return values;
     }
 
+    /**
+     * Append all Heatmap-specific styling to the document to which we render this information.
+     */
     private initCSS() {
 
     }
 
+    /**
+     * Redraw the complete Heatmap and clear the view first.
+     */
     private redraw() {
         $(this.element).empty();
 
