@@ -102,7 +102,17 @@ export default class Heatmap {
             .attr("viewBox", `0 0 ${this.settings.width + this.MARGIN.right + this.MARGIN.left} ${this.settings.height + this.MARGIN.top + this.MARGIN.bottom}`)
             .attr("width", this.settings.width + this.MARGIN.right + this.MARGIN.left)
             .attr("height", this.settings.height + this.MARGIN.top + this.MARGIN.bottom)
-            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
+            .style("font-size", this.settings.fontSize);
+
+        this.redrawGrid(vis);
+        this.redrawRowTitles(vis);
+        this.redrawColumnTitles(vis);
+    }
+
+    private redrawGrid(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let interpolator = d3.interpolateHsl(d3.hsl("#EEEEEE"), d3.hsl("#1565C0"));
 
         vis.append("g")
             .data([{a: 1, b: 2}, 2, 3])
@@ -112,5 +122,38 @@ export default class Heatmap {
             .attr("y", d => 50)
             .attr("width", d => 50)
             .attr("heigh", d => 50);
+    }
+
+    private redrawRowTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let textStart = squareWidth * this.columns.length + this.settings.squarePadding * (this.columns.length - 1) + this.settings.visualizationTextPadding;
+
+        let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
+
+        vis.selectAll("svg")
+            .data(this.rows)
+            .enter()
+            .append("text")
+            .text(d => d.name)
+            .attr("dominant-baseline", "hanging")
+            .attr("x", textStart)
+            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter);
+    }
+
+    private redrawColumnTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let textStart = squareWidth * (this.rows.length + 1) + this.settings.squarePadding + this.rows.length + this.settings.visualizationTextPadding;
+
+        let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
+
+        vis.selectAll("svg")
+            .data(this.columns)
+            .enter()
+            .append("text")
+            .text(d => d.name)
+            .attr("text-anchor", "start")
+            .attr("x",(d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter)
+            .attr("y", textStart)
+            .attr("transform", (d, i) => `rotate(90, ${(squareWidth + this.settings.squarePadding) * i + textCenter}, ${textStart})`)
     }
 }
