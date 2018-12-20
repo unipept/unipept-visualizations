@@ -158,11 +158,17 @@ export class Heatmap {
         vis.selectAll("svg")
             .data(this.rows)
             .enter()
-            .append("text")
-            .text(d => d.name)
-            .attr("dominant-baseline", "hanging")
+            .append("foreignObject")
+            .attr("width", this.settings.textWidth)
+            .attr("height", squareWidth)
             .attr("x", textStart)
-            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter);
+            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter)
+            .append("xhtml:span")
+            .style("text-overflow", "ellipsis")
+            .style("overflow", "hidden")
+            .style("display", "block")
+            // TODO prevent reflected XSS here
+            .html(d => d.name);
     }
 
     private redrawColumnTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
