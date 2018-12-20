@@ -91,11 +91,11 @@ export default class Heatmap {
     }
 
     /**
-     * Redraw the complete Heatmap and clear the view first.
+     * Determines the dimensions of one square based upon the current width and height-settings and the amount of rows
+     * and columns currently set to be visualized.
      */
     private redraw() {
         $(this.element).empty();
-
         let vis = d3.select(this.element)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
