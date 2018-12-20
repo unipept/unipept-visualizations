@@ -99,16 +99,26 @@ export class Heatmap {
     }
 
     /**
-     * Redraw the complete Heatmap and clear the view first.
+     * Determines the dimensions of one square based upon the current width and height-settings and the amount of rows
+     * and columns currently set to be visualized.
      */
-    private redraw() {
-        $(this.element).empty();
-
+    private determineSquareWidth() {
         let visualizationWidth = this.settings.width - this.settings.textWidth;
         let visualizationHeight = this.settings.height - this.settings.textHeight;
 
         let squareWidth = Math.floor(visualizationWidth / this.columns.length);
         let squareHeight = Math.floor(visualizationHeight / this.rows.length);
+
+        return Math.min(squareWidth, squareHeight, this.settings.maximumSquareWidth)
+    }
+
+    /**
+     * Redraw the complete Heatmap and clear the view first.
+     */
+    private redraw() {
+        $(this.element).empty();
+
+        let squareWidth = this.determineSquareWidth();
 
         let interpolator = d3.interpolateHsl(d3.hsl("yellow"), d3.hsl("red"));
 
@@ -126,9 +136,9 @@ export class Heatmap {
                 .enter()
                 .append("rect")
                 .attr("x", (d, i) => i * squareWidth)
-                .attr("y", (d, i) => row * squareHeight)
+                .attr("y", (d, i) => row * squareWidth)
                 .attr("width", d => squareWidth)
-                .attr("height", d => squareHeight)
+                .attr("height", d => squareWidth)
                 .attr("fill", d => interpolator(d.value));
         }
     }
