@@ -142,7 +142,7 @@ export default class Heatmap {
 
     private redrawColumnTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
         let squareWidth = this.determineSquareWidth();
-        let textStart = squareWidth * (this.rows.length + 1) + this.settings.squarePadding + this.rows.length + this.settings.visualizationTextPadding;
+        let textStart = squareWidth * this.rows.length + this.settings.squarePadding * (this.rows.length - 1) + this.settings.visualizationTextPadding;
 
         let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
 
