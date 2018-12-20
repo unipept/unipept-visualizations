@@ -2,7 +2,7 @@ import {HeatmapData, HeatmapElement, HeatmapValue} from "typings"
 import * as d3 from "d3";
 import HeatmapSettings from "./heatmapSettings";
 
-export default class Heatmap {
+export class Heatmap {
     private element: string;
     private settings: HeatmapSettings;
 
@@ -59,6 +59,14 @@ export default class Heatmap {
                         value: value
                     });
                 } else {
+                    if (!value.rowId) {
+                        value.rowId = this.rows[i].id;
+                    }
+
+                    if (!value.columnId) {
+                        value.columnId = this.columns[j].id;
+                    }
+
                     rowValues.push(value);
                 }
             }
@@ -75,6 +83,14 @@ export default class Heatmap {
     private redraw() {
         $(this.element).empty();
 
+        let visualizationWidth = this.settings.width - this.settings.textWidth;
+        let visualizationHeight = this.settings.height - this.settings.textHeight;
+
+        let squareWidth = Math.floor(visualizationWidth / this.columns.length);
+        let squareHeight = Math.floor(visualizationHeight / this.rows.length);
+
+        let interpolator = d3.interpolateHsl(d3.hsl("yellow"), d3.hsl("red"));
+
         let vis = d3.select(this.element)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -83,13 +99,16 @@ export default class Heatmap {
             .attr("height", this.settings.height + this.MARGIN.top + this.MARGIN.bottom)
             .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
 
-        vis.append("g")
-            .data([{a: 1, b: 2}, 2, 3])
-            .enter()
-            .append("rect")
-            .attr("x", d => 50)
-            .attr("y", d => 50)
-            .attr("width", d => 50)
-            .attr("heigh", d => 50);
+        for (let row = 0; row < this.values.length; row++) {
+            vis.selectAll("svg")
+                .data(this.values[row])
+                .enter()
+                .append("rect")
+                .attr("x", (d, i) => i * squareWidth)
+                .attr("y", (d, i) => row * squareHeight)
+                .attr("width", d => squareWidth)
+                .attr("height", d => squareHeight)
+                .attr("fill", d => interpolator(d.value));
+        }
     }
 }

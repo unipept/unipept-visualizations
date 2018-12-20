@@ -1,12 +1,15 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/index.ts',
+    entry: './src/index.js',
+    devtool: 'inline-source-map',
     module: {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                use: [
+                    'ts-loader'
+                ],
                 exclude: /node_modules/
             }
         ]
@@ -16,7 +19,9 @@ module.exports = {
     },
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        library: 'Heatmap',
+        libraryTarget: 'umd'
     },
     mode: 'development'
 };
