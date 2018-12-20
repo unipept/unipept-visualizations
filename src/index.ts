@@ -8,3 +8,4 @@ const sunburst: (data: BasicNode, options?: ISunburstSettingsData) => Sunburst
   new Sunburst(data, new SunburstSettings(options));
 
 export { ColorPalette, sunburst, Sunburst };
+
