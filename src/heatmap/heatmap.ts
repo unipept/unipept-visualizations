@@ -103,8 +103,8 @@ export class Heatmap {
      * and columns currently set to be visualized.
      */
     private determineSquareWidth() {
-        let visualizationWidth = this.settings.width - this.settings.textWidth;
-        let visualizationHeight = this.settings.height - this.settings.textHeight;
+        let visualizationWidth = this.settings.width - this.settings.textWidth - (this.columns.length - 1) * this.settings.squarePadding;
+        let visualizationHeight = this.settings.height - this.settings.textHeight - (this.rows.length - 1) * this.settings.squarePadding;
 
         let squareWidth = Math.floor(visualizationWidth / this.columns.length);
         let squareHeight = Math.floor(visualizationHeight / this.rows.length);
@@ -118,28 +118,67 @@ export class Heatmap {
     private redraw() {
         $(this.element).empty();
 
-        let squareWidth = this.determineSquareWidth();
-
-        let interpolator = d3.interpolateHsl(d3.hsl("yellow"), d3.hsl("red"));
-
         let vis = d3.select(this.element)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("viewBox", `0 0 ${this.settings.width + this.MARGIN.right + this.MARGIN.left} ${this.settings.height + this.MARGIN.top + this.MARGIN.bottom}`)
             .attr("width", this.settings.width + this.MARGIN.right + this.MARGIN.left)
             .attr("height", this.settings.height + this.MARGIN.top + this.MARGIN.bottom)
-            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
+            .style("font-size", this.settings.fontSize);
+
+        this.redrawGrid(vis);
+        this.redrawRowTitles(vis);
+        this.redrawColumnTitles(vis);
+    }
+
+    private redrawGrid(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let interpolator = d3.interpolateHsl(d3.hsl("#EEEEEE"), d3.hsl("#1565C0"));
 
         for (let row = 0; row < this.values.length; row++) {
             vis.selectAll("svg")
                 .data(this.values[row])
                 .enter()
                 .append("rect")
-                .attr("x", (d, i) => i * squareWidth)
-                .attr("y", (d, i) => row * squareWidth)
+                .attr("x", (d, i) => i * squareWidth + i * this.settings.squarePadding)
+                .attr("y", (d, i) => row * squareWidth + row * this.settings.squarePadding)
                 .attr("width", d => squareWidth)
                 .attr("height", d => squareWidth)
                 .attr("fill", d => interpolator(d.value));
         }
+    }
+
+    private redrawRowTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let textStart = squareWidth * this.columns.length + this.settings.squarePadding * (this.columns.length - 1) + this.settings.visualizationTextPadding;
+
+        let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
+
+        vis.selectAll("svg")
+            .data(this.rows)
+            .enter()
+            .append("text")
+            .text(d => d.name)
+            .attr("dominant-baseline", "hanging")
+            .attr("x", textStart)
+            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter);
+    }
+
+    private redrawColumnTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
+        let squareWidth = this.determineSquareWidth();
+        let textStart = squareWidth * (this.rows.length + 1) + this.settings.squarePadding + this.rows.length + this.settings.visualizationTextPadding;
+
+        let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
+
+        vis.selectAll("svg")
+            .data(this.columns)
+            .enter()
+            .append("text")
+            .text(d => d.name)
+            .attr("text-anchor", "start")
+            .attr("x",(d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter)
+            .attr("y", textStart)
+            .attr("transform", (d, i) => `rotate(90, ${(squareWidth + this.settings.squarePadding) * i + textCenter}, ${textStart})`)
     }
 }
