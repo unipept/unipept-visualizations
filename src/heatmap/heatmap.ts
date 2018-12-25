@@ -224,9 +224,9 @@ export class Heatmap {
             .style("z-index", "10")
             .style("visibility", "hidden")
             .style("background-color", "white")
-            .style("padding", "2px")
+            .style("padding", "5px")
             .style("border", "1px solid #dddddd")
-            .style("border-radius", "3px;");
+            .style("border-radius", "3px");
     }
 
     private tooltipIn(d: HeatmapValue, i: number) {
