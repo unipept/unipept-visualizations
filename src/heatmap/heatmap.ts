@@ -4,6 +4,7 @@ import HeatmapSettings from "./heatmapSettings";
 import Clusterer from "../shared/clusterer";
 import HierarchicalClusterer from "../shared/hierarchicalClusterer";
 import EuclidianDistanceMetric from "../shared/euclidianDistanceMetric";
+import ClusterElement from "../shared/clusterElement";
 
 export class Heatmap {
     private element: string;
@@ -56,8 +57,9 @@ export class Heatmap {
      * Cluster the data found in the Heatmap according to the default clustering algorithm.
      */
     public cluster() {
-        let clusterer = new HierarchicalClusterer();
-        clusterer.cluster(this.values.map((row, idx, arr) => row.map((el, idx2, arr2) => el.value)), new EuclidianDistanceMetric(), "rows");
+        let clusterer = new HierarchicalClusterer<HeatmapValue>(new EuclidianDistanceMetric<HeatmapValue>());
+        let result = clusterer.cluster(this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el))), "rows");
+        console.log(result);
     }
 
     /**
