@@ -31,11 +31,11 @@ export default class HeatmapSettings extends Settings {
     // and the row and column objects associated with the highlighted cell as parameters. By default, the
     // result of getTooltipTitle is used in a header and getTooltipText is used in a paragraph tag.
     getTooltip: (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
-        return `<h3 class='tip-title' style="margin: 0;">${this.getTooltipTitle(cell, row, column)}</h3><p style="margin: 0;">${this.getTooltipText(cell)}</p>`
+        return `<b class='tip-title'>${this.getTooltipTitle(cell, row, column)}</b><br>${this.getTooltipText(cell)}`
     };
 
     getTooltipTitle: (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
-        return `${row.name ? row.name : ''}${row.name ? ' <> ' : ''}${column.name ? column.name : ''}`;
+        return `${column.name ? column.name : ''}${column.name ? ' - ' : ''}${row.name ? row.name : ''}`;
     };
 
     // Text that's displayed inside a tooltip. This is equal to the current cell's value by default.

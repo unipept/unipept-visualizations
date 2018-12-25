@@ -14,10 +14,8 @@
         <script src="../dist/bundle.js"></script>
 
         <script>
-            d3.csv('data/family_agg.csv')
+            d3.csv('data/random_data.csv')
                 .then(function(data) {
-                    data = data.slice(0, 25);
-
                     let grid = [];
                     let rows = [];
                     let cols = [];
@@ -41,27 +39,27 @@
                         let rowValues = [];
 
                         for (let col of cols) {
-                            let val = parseInt(row[col.name]);
+                            let val = parseFloat(row[col.name]);
                             rowValues.push({
                                 value: val
                             });
 
-                            if (val > maxValue) {
-                                maxValue = val;
-                            }
+                            // if (val > maxValue) {
+                            //     maxValue = val;
+                            // }
                         }
 
                         grid.push(rowValues);
                     }
 
                     // Normalize all rows
-                    for (let i = 0; i < grid.length; i++) {
-                        grid[i] = grid[i].map(x => {
-                            return {
-                                value: x.value / maxValue
-                            };
-                        })
-                    }
+                    // for (let i = 0; i < grid.length; i++) {
+                    //     grid[i] = grid[i].map(x => {
+                    //         return {
+                    //             value: x.value / maxValue
+                    //         };
+                    //     })
+                    // }
 
                     $("#heatmap").heatmap({
                         rows: rows,
