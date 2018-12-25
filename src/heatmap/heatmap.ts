@@ -1,6 +1,9 @@
 import {HeatmapData, HeatmapElement, HeatmapValue} from "typings"
 import * as d3 from "d3";
 import HeatmapSettings from "./heatmapSettings";
+import Clusterer from "../shared/clusterer";
+import HierarchicalClusterer from "../shared/hierarchicalClusterer";
+import EuclidianDistanceMetric from "../shared/euclidianDistanceMetric";
 
 export class Heatmap {
     private element: string;
@@ -47,6 +50,14 @@ export class Heatmap {
      */
     public reset() {
         this.redraw();
+    }
+
+    /**
+     * Cluster the data found in the Heatmap according to the default clustering algorithm.
+     */
+    public cluster() {
+        let clusterer = new HierarchicalClusterer();
+        clusterer.cluster(this.values.map((row, idx, arr) => row.map((el, idx2, arr2) => el.value)), new EuclidianDistanceMetric(), "rows");
     }
 
     /**

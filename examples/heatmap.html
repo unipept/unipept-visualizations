@@ -61,11 +61,13 @@
                     //     })
                     // }
 
-                    $("#heatmap").heatmap({
+                    let heatmap = $("#heatmap").heatmap({
                         rows: rows,
                         columns: cols,
                         values: grid
-                    })
+                    });
+
+                    heatmap.cluster();
                 });
         </script>
     </head>
