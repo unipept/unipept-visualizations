@@ -4,10 +4,10 @@ import {HeatmapElement, HeatmapValue} from "./typings";
 export default class HeatmapSettings extends Settings {
     /***** VALUES *****/
 
-    // Amount of pixels that are allowed to be occupied by the text of the rows.
+    // Amount of pixels that are allowed to be occupied by the labels of the rows.
     textWidth: number = 100;
 
-    // Amount of pixels that are allowed to be occupied by the text of the columns.
+    // Amount of pixels that are allowed to be occupied by the labels of the columns.
     textHeight: number = 100;
 
     // The maximum dimension of one square.
@@ -16,11 +16,14 @@ export default class HeatmapSettings extends Settings {
     // Space between the squares in the grid (0 for no padding)
     squarePadding: number = 2;
 
-    // Space between the visualization grid itself and rendering the titles (in pixels)
+    // Space between the visualization grid itself and rendering the labels (in pixels). This space is applied to both
+    // the rows and columns labels.
     visualizationTextPadding = 5;
 
-    // Size of text used in the visualization (for row and column titles)
+    // Size of text used in the visualization (for row and column labels)
     fontSize: number = 12;
+
+    className = 'heatmap';
 
     /***** FUNCTIONS *****/
 
@@ -28,7 +31,7 @@ export default class HeatmapSettings extends Settings {
     // and the row and column objects associated with the highlighted cell as parameters. By default, the
     // result of getTooltipTitle is used in a header and getTooltipText is used in a paragraph tag.
     getTooltip: (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
-        return `<h3 class='tip-title'>${this.getTooltipTitle(cell, row, column)}</h3><p>${this.getTooltipText(cell)}</p>`
+        return `<h3 class='tip-title' style="margin: 0;">${this.getTooltipTitle(cell, row, column)}</h3><p style="margin: 0;">${this.getTooltipText(cell)}</p>`
     };
 
     getTooltipTitle: (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
@@ -37,6 +40,6 @@ export default class HeatmapSettings extends Settings {
 
     // Text that's displayed inside a tooltip. This is equal to the current cell's value by default.
     getTooltipText: (x: HeatmapValue) => string = (x: HeatmapValue) => {
-        return x.value.toString();
+        return (x.value * 100).toString() + '%';
     };
 }
