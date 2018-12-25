@@ -1,4 +1,6 @@
-export default interface DistanceMetric {
+import ClusterElement from "./clusterElement";
+
+export default interface DistanceMetric<T> {
     /**
      * Returns the distance between value1 and value2 measured according to this object's specific metric.
      *
@@ -6,5 +8,5 @@ export default interface DistanceMetric {
      * @param value2
      * @return The distance between both values.
      */
-    getDistance(value1: number[], value2: number[]): number;
+    getDistance(value1: ClusterElement<T>[], value2: ClusterElement<T>[]): number;
 }
