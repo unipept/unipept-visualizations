@@ -1,5 +1,5 @@
 # General
-dist/
+dist/*
 .DS_Store
 
 # backup files
@@ -127,5 +127,3 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
-
-dist/*

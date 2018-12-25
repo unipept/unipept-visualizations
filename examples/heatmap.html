@@ -4,7 +4,72 @@
         <meta charset="UTF-8">
         <title>Heatmap example</title>
 
-        <script></script>
+        <!-- Jquery -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+
+        <!-- D3 v5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.js" integrity="sha256-qNzZal0keStZ8CLwnu0Fxs+6BGnD5tpk4D1BevFGQDQ=" crossorigin="anonymous"></script>
+
+        <!-- Visualizations -->
+        <script src="../dist/bundle.js"></script>
+
+        <script>
+            d3.csv('data/family_agg.csv')
+                .then(function(data) {
+                    data = data.slice(0, 25);
+
+                    let grid = [];
+                    let rows = [];
+                    let cols = [];
+
+                    // First process the header row and create the columns that correspond with the given column headers
+                    for (let key in data[0]) {
+                        if (key !== 'Family' && data[0].hasOwnProperty(key)) {
+                            cols.push({
+                                name: key
+                            })
+                        }
+                    }
+
+                    // Then process all rows (including the row-objects) and fill in the grid
+                    let maxValue = 0;
+                    for (let row of data.slice(1)) {
+                        rows.push({
+                            name: row.Family
+                        });
+
+                        let rowValues = [];
+
+                        for (let col of cols) {
+                            let val = parseInt(row[col.name]);
+                            rowValues.push({
+                                value: val
+                            });
+
+                            if (val > maxValue) {
+                                maxValue = val;
+                            }
+                        }
+
+                        grid.push(rowValues);
+                    }
+
+                    // Normalize all rows
+                    for (let i = 0; i < grid.length; i++) {
+                        grid[i] = grid[i].map(x => {
+                            return {
+                                value: x.value / maxValue
+                            };
+                        })
+                    }
+
+                    $("#heatmap").heatmap({
+                        rows: rows,
+                        columns: cols,
+                        values: grid
+                    })
+                });
+        </script>
     </head>
     <body>
         <div id="heatmap"></div>
