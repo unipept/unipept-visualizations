@@ -12,7 +12,21 @@ export default class HierarchicalClusterer<T> implements Clusterer<T> {
     }
 
     cluster(data: ClusterElement<T>[][], axis: "columns" | "rows"): TreeNode<T[]> {
-        // TODO implement columns (for now only rows supported!)
+        if (axis == "columns") {
+            let newData: ClusterElement<T>[][] = [];
+
+            // Transpose input array!
+            for (let i = 0; i < data[0].length; i++) {
+                let row: ClusterElement<T>[] = [];
+                for (let j = 0; j < data.length; j++) {
+                    row.push(data[j][i]);
+                }
+                newData.push(row);
+            }
+
+            data = newData;
+        }
+
         let distanceMatrix: number[][] = [];
 
         let clusters: Map<number, Cluster<T[]>> = new Map();
@@ -41,15 +55,13 @@ export default class HierarchicalClusterer<T> implements Clusterer<T> {
                             smallestDistance = distanceMatrix[i][j];
                             x = i;
                             y = j;
-                        }                    }
+                        }
+                    }
                 }
             }
 
             let xCluster = clusters.get(x);
             let yCluster = clusters.get(y);
-
-            console.log(xCluster);
-            console.log(yCluster);
 
             if (!xCluster || !yCluster) {
                 throw "At least one cluster is invalid!";

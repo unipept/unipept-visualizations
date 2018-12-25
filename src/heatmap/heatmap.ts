@@ -5,6 +5,7 @@ import Clusterer from "../shared/clusterer";
 import HierarchicalClusterer from "../shared/hierarchicalClusterer";
 import EuclidianDistanceMetric from "../shared/euclidianDistanceMetric";
 import ClusterElement from "../shared/clusterElement";
+import TreeNode from "../shared/treeNode";
 
 export class Heatmap {
     private element: string;
@@ -58,8 +59,87 @@ export class Heatmap {
      */
     public cluster() {
         let clusterer = new HierarchicalClusterer<HeatmapValue>(new EuclidianDistanceMetric<HeatmapValue>());
-        let result = clusterer.cluster(this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el))), "rows");
-        console.log(result);
+        let mappedValues = this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el)));
+
+        let rowResult = clusterer.cluster(mappedValues, "rows");
+
+        // Now we perform a depth first search on the result in order to find the order of the values
+        let rowOrder: number[] = [];
+        this.determineOrder(rowResult, rowOrder, this.rowMap, this.rows, (x: HeatmapValue) => {
+            let id = x.rowId;
+
+            if (!id) {
+                throw "An invalid row was encountered!";
+            }
+
+            return id;
+        });
+
+        let columnResult = clusterer.cluster(mappedValues, "columns");
+
+        let columnOrder: number[] = [];
+        this.determineOrder(columnResult, columnOrder, this.columnMap, this.columns, (x: HeatmapValue) => {
+            let id = x.columnId;
+
+            if (!id) {
+                throw "An invalid column was encountered!";
+            }
+
+            return id;
+        });
+
+
+        // Swap rows and columns
+        let newValues: HeatmapValue[][] = [];
+        for (let row of rowOrder) {
+            let newRow: HeatmapValue[] = [];
+            for (let column of columnOrder) {
+                newRow.push(this.values[row][column]);
+            }
+            newValues.push(newRow);
+        }
+
+        this.values = newValues;
+
+        let newRows: HeatmapElement[] = [];
+        for (let rowIdx in rowOrder) {
+            newRows.push(this.rows[rowIdx])
+        }
+        this.rows = newRows;
+
+        let newColumns: HeatmapElement[] = [];
+        for (let colIdx in columnOrder) {
+            newColumns.push(this.columns[colIdx]);
+        }
+        this.columns = newColumns;
+
+        this.redraw();
+    }
+
+    private determineOrder(treeNode: TreeNode<HeatmapValue[]>, order: number[], elementMap: Map<string, HeatmapElement>, elements: HeatmapElement[], idExtractor: (val: HeatmapValue) => string) {
+        if (!treeNode.leftChild && !treeNode.rightChild) {
+            let id = idExtractor(treeNode.values[0][0]);
+
+            if (!id) {
+                return;
+            }
+
+            let el = elementMap.get(id);
+
+            if (!el) {
+                return;
+            }
+
+            order.push(elements.indexOf(el));
+        }
+
+        if (treeNode.leftChild) {
+            this.determineOrder(treeNode.leftChild, order, elementMap, elements, idExtractor);
+        }
+
+        if (treeNode.rightChild) {
+            this.determineOrder(treeNode.rightChild, order, elementMap, elements, idExtractor);
+        }
     }
 
     /**
