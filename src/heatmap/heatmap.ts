@@ -102,6 +102,7 @@ export class Heatmap {
         this.values = newValues;
 
         let squareWidth = this.determineSquareWidth();
+        let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
 
         // First animate the rows
         for (let i = 0; i < this.rows.length; i++) {
@@ -112,7 +113,14 @@ export class Heatmap {
                 .transition()
                 .duration(1000)
                 .attr("y", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding);
+
+            d3.select(".row-label-" + row.id)
+                .transition()
+                .duration(1000)
+                .attr("y",  (d) => (squareWidth + this.settings.squarePadding) * newLocation + textCenter);
         }
+
+        let textStart = squareWidth * this.rows.length + this.settings.squarePadding * (this.rows.length - 1) + this.settings.visualizationTextPadding;
 
         // Then animate the columns in the same way
         for (let i = 0; i < this.columns.length; i++) {
@@ -123,7 +131,14 @@ export class Heatmap {
                 .transition()
                 .delay(1000)
                 .duration(1000)
-                .attr("x", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding)
+                .attr("x", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding);
+
+            d3.selectAll(".column-label-" + column.id)
+                .transition()
+                .delay(1000)
+                .duration(1000)
+                .attr("x", (d) => (squareWidth + this.settings.squarePadding) * newLocation + textCenter)
+                .attr("transform", (d) => `rotate(90, ${(squareWidth + this.settings.squarePadding) * newLocation + textCenter}, ${textStart})`);
         }
 
         let newRows: HeatmapElement[] = [];
@@ -240,8 +255,6 @@ export class Heatmap {
                         width: ${this.settings.width}px;
                     }
                 `)
-
-
     }
 
     /**
@@ -312,7 +325,8 @@ export class Heatmap {
             .text(d => d.name)
             .attr("dominant-baseline", "hanging")
             .attr("x", textStart)
-            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter);
+            .attr("y", (d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter)
+            .attr("class", (d, i) => `row-label-${this.rows[i].id}`);
     }
 
     private redrawColumnTitles(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
@@ -330,6 +344,7 @@ export class Heatmap {
             .attr("x",(d, i) => (squareWidth + this.settings.squarePadding) * i + textCenter)
             .attr("y", textStart)
             .attr("transform", (d, i) => `rotate(90, ${(squareWidth + this.settings.squarePadding) * i + textCenter}, ${textStart})`)
+            .attr("class", (d, i) => `column-label-${this.columns[i].id}`);
     }
 
     private initTooltip() {
