@@ -101,19 +101,42 @@ export class Heatmap {
 
         this.values = newValues;
 
+        let squareWidth = this.determineSquareWidth();
+
+        // First animate the rows
+        for (let i = 0; i < this.rows.length; i++) {
+            let newLocation = rowOrder.indexOf(i);
+            let row = this.rows[i];
+
+            d3.selectAll(".row-" + row.id)
+                .transition()
+                .duration(1000)
+                .attr("y", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding);
+        }
+
+        // Then animate the columns in the same way
+        for (let i = 0; i < this.columns.length; i++) {
+            let newLocation = columnOrder.indexOf(i);
+            let column = this.columns[i];
+
+            d3.selectAll(".column-" + column.id)
+                .transition()
+                .delay(1000)
+                .duration(1000)
+                .attr("x", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding)
+        }
+
         let newRows: HeatmapElement[] = [];
-        for (let rowIdx in rowOrder) {
-            newRows.push(this.rows[rowIdx])
+        for (let rowIdx of rowOrder) {
+            newRows.push(this.rows[rowIdx]);
         }
         this.rows = newRows;
 
         let newColumns: HeatmapElement[] = [];
-        for (let colIdx in columnOrder) {
+        for (let colIdx of columnOrder) {
             newColumns.push(this.columns[colIdx]);
         }
         this.columns = newColumns;
-
-        this.redraw();
     }
 
     private determineOrder(treeNode: TreeNode<HeatmapValue[]>, order: number[], elementMap: Map<string, HeatmapElement>, elements: HeatmapElement[], idExtractor: (val: HeatmapValue) => string) {
@@ -269,6 +292,7 @@ export class Heatmap {
                 .attr("width", d => squareWidth)
                 .attr("height", d => squareWidth)
                 .attr("fill", d => interpolator(d.value))
+                .attr("class", (d, i) => `row-${this.rows[row].id} column-${this.columns[i].id}`)
                 .on("mouseover", (d, i) => this.tooltipIn(d, i))
                 .on("mousemove", (d, i) => this.tooltipMove(d, i))
                 .on("mouseout", (d, i) => this.tooltipOut(d, i));
