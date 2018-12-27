@@ -67,6 +67,35 @@ export default class HierarchicalClusterer<T> implements Clusterer<T> {
                 throw "At least one cluster is invalid!";
             }
 
+            // Recalculate distance from this cluster to other clusters (Use average distance)
+            for (let j of clusters.keys()) {
+                if (j != x && j != y) {
+                    // Our matrix is lower triangular (because it is symmetric). This means we should extract the value
+                    // from the right part of the matrix.
+                    let xDistance;
+                    if (j > x) {
+                        xDistance = distanceMatrix[j][x]
+                    } else {
+                        xDistance = distanceMatrix[x][j]
+                    }
+
+                    let yDistance;
+                    if (j > y) {
+                        yDistance = distanceMatrix[j][y]
+                    } else {
+                        yDistance = distanceMatrix[y][j]
+                    }
+
+                    // TODO check this! Is this equivalent to the average of the pairwise distances?
+                    let temp = (xCluster.elements.length * xDistance + yCluster.elements.length * yDistance) / (xCluster.elements.length + yCluster.elements.length);
+                    if (j > x) {
+                        distanceMatrix[j][x] = temp;
+                    } else {
+                        distanceMatrix[x][j] = temp;
+                    }
+                }
+            }
+
             xCluster.merge(yCluster);
             clusters.delete(y);
 
