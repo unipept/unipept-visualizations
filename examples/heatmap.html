@@ -14,8 +14,9 @@
         <script src="../dist/bundle.js"></script>
 
         <script>
-            d3.csv('data/random_data.csv')
+            d3.csv('data/random_data_large.csv')
                 .then(function(data) {
+
                     let grid = [];
                     let rows = [];
                     let cols = [];
@@ -31,7 +32,7 @@
 
                     // Then process all rows (including the row-objects) and fill in the grid
                     let maxValue = 0;
-                    for (let row of data.slice(1)) {
+                    for (let row of data.slice(0)) {
                         rows.push({
                             name: row.Family
                         });

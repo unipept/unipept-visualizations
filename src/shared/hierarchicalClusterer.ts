@@ -86,7 +86,6 @@ export default class HierarchicalClusterer<T> implements Clusterer<T> {
                         yDistance = distanceMatrix[y][j]
                     }
 
-                    // TODO check this! Is this equivalent to the average of the pairwise distances?
                     let temp = (xCluster.elements.length * xDistance + yCluster.elements.length * yDistance) / (xCluster.elements.length + yCluster.elements.length);
                     if (j > x) {
                         distanceMatrix[j][x] = temp;
