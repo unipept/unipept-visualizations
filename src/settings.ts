@@ -1,9 +1,9 @@
 export default abstract class Settings {
     // Total width of the visualization in pixels.
-    public width: number = 600;
+    public width: number = 800;
 
     // Total height of the visualization in pixels.
-    public height: number = 600;
+    public height: number = 800;
 
     // Are tooltips being generated when hoovering over an item?
     public enableTooltips: boolean = true;
