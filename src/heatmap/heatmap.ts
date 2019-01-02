@@ -2,7 +2,7 @@ import {HeatmapData, HeatmapElement, HeatmapValue} from "typings"
 import * as d3 from "d3";
 import HeatmapSettings from "./heatmapSettings";
 import Clusterer from "../shared/clusterer";
-import HierarchicalClusterer from "../shared/hierarchicalClusterer";
+import UPGMAClusterer from "../shared/UPGMAClusterer";
 import EuclidianDistanceMetric from "../shared/euclidianDistanceMetric";
 import ClusterElement from "../shared/clusterElement";
 import TreeNode from "../shared/treeNode";
@@ -58,10 +58,11 @@ export class Heatmap {
      * Cluster the data found in the Heatmap according to the default clustering algorithm.
      */
     public cluster() {
-        let clusterer = new HierarchicalClusterer<HeatmapValue>(new EuclidianDistanceMetric<HeatmapValue>());
+        let clusterer = new UPGMAClusterer<HeatmapValue>(new EuclidianDistanceMetric());
         let mappedValues = this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el)));
 
         let rowResult = clusterer.cluster(mappedValues, "rows");
+        this.printDotGraph(rowResult);
 
         // Now we perform a depth first search on the result in order to find the order of the values
         let rowOrder: number[] = [];
@@ -87,7 +88,6 @@ export class Heatmap {
 
             return id;
         });
-
 
         // Swap rows and columns
         let newValues: HeatmapValue[][] = [];
@@ -152,6 +152,55 @@ export class Heatmap {
             newColumns.push(this.columns[colIdx]);
         }
         this.columns = newColumns;
+    }
+
+    /**
+     * Test function to get a DOT-file representing the dendrogram constructed.
+     */
+    private printDotGraph(root: TreeNode<HeatmapValue[]> | undefined, axis: "rows" | "columns" = "rows") {
+        if (!root) {
+            console.log('Undefined root!');
+            return;
+        }
+
+        let output = 'digraph dendrogram {\n';
+        let labels = '';
+        let edges = '';
+
+        let toCheck: TreeNode<HeatmapValue[]>[] = [root];
+        while (toCheck.length > 0) {
+            root = toCheck.shift();
+
+            if (!root) {
+                break;
+            }
+
+            if (root.leftChild || root.rightChild) {
+                labels += `    ${root.id} [label="${root.id}"];\n`;
+            } else {
+                let current: HeatmapElement | undefined;
+                if (axis == "rows") {
+                    current = this.rowMap.get(root.values[0][0].rowId ? root.values[0][0].rowId : '');
+                } else {
+                    current = this.columnMap.get(root.values[0][0].columnId ? root.values[0][0].columnId : '');
+                }
+                if (current) {
+                    labels += `    ${root.id} [label="${current.name}"];\n`;
+                }
+            }
+
+            if (root.leftChild) {
+                edges += `    ${root.id} -> ${root.leftChild.id};\n`;
+                toCheck.push(root.leftChild);
+            }
+
+            if (root.rightChild) {
+                edges += `    ${root.id} -> ${root.rightChild.id};\n`;
+                toCheck.push(root.rightChild);
+            }
+        }
+        output += labels + edges + '}';
+        console.log(output);
     }
 
     private determineOrder(treeNode: TreeNode<HeatmapValue[]>, order: number[], elementMap: Map<string, HeatmapElement>, elements: HeatmapElement[], idExtractor: (val: HeatmapValue) => string) {
