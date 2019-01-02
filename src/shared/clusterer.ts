@@ -1,5 +1,5 @@
 import TreeNode from "./treeNode";
-import DistanceMetric from "./distanceMetric";
+import Metric from "./metric";
 import ClusterElement from "./clusterElement";
 
 export default interface Clusterer<T> {
