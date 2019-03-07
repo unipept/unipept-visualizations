@@ -6,6 +6,8 @@ import UPGMAClusterer from "../shared/UPGMAClusterer";
 import EuclidianDistanceMetric from "../shared/euclidianDistanceMetric";
 import ClusterElement from "../shared/clusterElement";
 import TreeNode from "../shared/treeNode";
+import PearsonCorrelationMetric from "../shared/pearsonCorrelationMetric";
+import Cluster from "../shared/cluster";
 
 export class Heatmap {
     private element: string;
@@ -77,6 +79,7 @@ export class Heatmap {
         });
 
         let columnResult = clusterer.cluster(mappedValues, "columns");
+        this.printDotGraph(columnResult, "columns");
 
         let columnOrder: number[] = [];
         this.determineOrder(columnResult, columnOrder, this.columnMap, this.columns, (x: HeatmapValue) => {
@@ -89,8 +92,9 @@ export class Heatmap {
             return id;
         });
 
+
+        let newValues = [];
         // Swap rows and columns
-        let newValues: HeatmapValue[][] = [];
         for (let row of rowOrder) {
             let newRow: HeatmapValue[] = [];
             for (let column of columnOrder) {
@@ -98,7 +102,6 @@ export class Heatmap {
             }
             newValues.push(newRow);
         }
-
         this.values = newValues;
 
         let squareWidth = this.determineSquareWidth();
@@ -186,6 +189,8 @@ export class Heatmap {
                 }
                 if (current) {
                     labels += `    ${root.id} [label="${current.name}"];\n`;
+                    console.log("Root without children -> " + current.name);
+                    console.log(root);
                 }
             }
 
@@ -342,6 +347,7 @@ export class Heatmap {
 
     private redrawGrid(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
         let squareWidth = this.determineSquareWidth();
+        // TODO change this to CieLAB color space
         let interpolator = d3.interpolateHsl(d3.hsl("#EEEEEE"), d3.hsl("#1565C0"));
 
         for (let row = 0; row < this.rows.length; row++) {
