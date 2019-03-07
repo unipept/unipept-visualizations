@@ -12,8 +12,14 @@ export default class Cluster<T> {
         this.treeNode = treeNode;
     }
 
-    public merge(other: Cluster<T> ) {
+    /**
+     * Merge 2 clusters with each other and create the associated nodes of the dendrogram.
+     *
+     * @param other The other cluster with whom this one needs to be merged.
+     * @param height The height of the dendrogram at which the clustering occurs.
+     */
+    public merge(other: Cluster<T>, height: number) {
         this.elements.push(...other.elements);
-        this.treeNode = new TreeNode<T>(this.treeNode, other.treeNode, this.elements.slice());
+        this.treeNode = new TreeNode<T>(this.treeNode, other.treeNode, this.elements.slice(), height);
     }
 }

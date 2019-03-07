@@ -2,13 +2,19 @@ export default class TreeNode<T> {
     public readonly leftChild: TreeNode<T> | null;
     public readonly rightChild: TreeNode<T> | null;
     public readonly values: T[];
-    // ID used for constructing graphs (this is not guaranteed to be 100% unique)
+    public readonly height: number;
+
+    // Keep track of which ID's are already assigned to TreeNode's.
+    public static currentID = 0;
+    // ID used for constructing graphs.
     public readonly id: string;
 
-    constructor(leftChild: TreeNode<T> | null, rightChild: TreeNode<T> | null, values: T[]) {
+    constructor(leftChild: TreeNode<T> | null, rightChild: TreeNode<T> | null, values: T[], height: number) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.values = values;
-        this.id = Math.floor((Math.random() * 65536)).toString();
+        this.height = height;
+        this.id = TreeNode.currentID.toString();
+        TreeNode.currentID++;
     }
 }
