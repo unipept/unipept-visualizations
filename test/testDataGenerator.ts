@@ -1,4 +1,5 @@
 import ClusterElement from "../src/shared/clusterElement";
+import * as d3 from "d3";
 
 export default class TestDataGenerator {
     public getSmall2DDataSet(): number[][] {
@@ -11,4 +12,8 @@ export default class TestDataGenerator {
 
         return data;
     }
+
+    // public getLargeMultiDimensionalDataSet(): number[][] {
+    //
+    // }
 }

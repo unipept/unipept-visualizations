@@ -14,7 +14,7 @@ it('should produce lower triangular matrices', () => {
     }
 });
 
-it('should correctly calculate euclidean distance for small 2D dataset', () => {
+it('should correctly calculate euclidean distances for small 2D dataset', () => {
     let dataGenerator: TestDataGenerator = new TestDataGenerator();
     let data: number[][] = dataGenerator.getSmall2DDataSet();
 
