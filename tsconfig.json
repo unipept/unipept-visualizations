@@ -8,6 +8,6 @@
     "sourceMap": true,
     "strict": true,
     "moduleResolution": "node",
-    "types": ["jest"]
+    "types": ["jest", "jquery", "d3"]
   }
 }

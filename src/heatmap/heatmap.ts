@@ -1,4 +1,4 @@
-import {HeatmapData, HeatmapElement, HeatmapValue} from "typings"
+
 import * as d3 from "d3";
 import HeatmapSettings from "./heatmapSettings";
 import Clusterer from "../shared/clusterer";
@@ -8,6 +8,7 @@ import ClusterElement from "../shared/clusterElement";
 import TreeNode from "../shared/treeNode";
 import PearsonCorrelationMetric from "../shared/pearsonCorrelationMetric";
 import Cluster from "../shared/cluster";
+import {HeatmapData, HeatmapElement, HeatmapValue} from "./typings";
 
 export class Heatmap {
     private element: string;
