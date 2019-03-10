@@ -1,14 +1,12 @@
+import TestDataGenerator from "./testDataGenerator";
+import ClusterElement from "../src/cluster/clusterElement";
 import UPGMAClusterer from "../src/cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "../src/metric/euclidianDistanceMetric";
-import ClusterElement from "../src/cluster/clusterElement";
-import TestDataGenerator from "./testDataGenerator";
 import TreeNode from "../src/cluster/treeNode";
+import Reorderer from "../src/reorder/reorderer";
+import MoloReorderer from "../src/reorder/moloReorderer";
 import Utils from "./utils";
 
-/**
- * The topology of the output dendrogram was created by hand, and needs to match the one calculated by the
- * UPGMAClusterer.
- */
 let getExpectedSmallDendrogram = function() {
     // First create the leaf nodes
     let a: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
@@ -17,28 +15,24 @@ let getExpectedSmallDendrogram = function() {
     let d: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
     let e: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
 
-    // Now connect all leafs as they were merged
-    let ab: TreeNode<number[]> = new TreeNode<number[]>(b, a, [], 0.1);
-    let ed: TreeNode<number[]> = new TreeNode<number[]>(e, d, [], 0.25);
-    let cba: TreeNode<number[]> = new TreeNode<number[]>(c, ab, [], 0.77);
-    let root: TreeNode<number[]> = new TreeNode<number[]>(ed, cba, [], 1.036);
+    let ab: TreeNode<number[]> = new TreeNode<number[]>(a, b, [], 0.1);
+    let de: TreeNode<number[]> = new TreeNode<number[]>(d, e, [], 0.25);
+    let abc: TreeNode<number[]> = new TreeNode<number[]>(ab, c, [], 0.77);
+    let root: TreeNode<number[]> = new TreeNode<number[]>(abc, de, [], 1.036);
 
     return root;
 };
 
-let getExpectedLargeDendrogram = function() {
-
-};
-
-it('should produce dendrograms with correct topology', () => {
+it('should correctly reorder dendrograms', () => {
     let dataGenerator = new TestDataGenerator();
     let originalData: number[][] = dataGenerator.getSmall2DDataSet();
     let data: ClusterElement<number>[][] = originalData.map((row: number[]) => row.map((el: number) => new ClusterElement<number>(el, 0)));
     let clusterer = new UPGMAClusterer<number>(new EuclidianDistanceMetric());
 
     let actualDendroRoot: TreeNode<number[]> = clusterer.cluster(data, "rows");
-    let expectedDendroRoot: TreeNode<number[]> = getExpectedSmallDendrogram();
+    let molo: Reorderer<number[]> = new MoloReorderer();
+    let reorderedDendroRoot = molo.reorder(actualDendroRoot);
+    let expectedDendroRoot = getExpectedSmallDendrogram();
 
-    Utils.compareDendrograms(actualDendroRoot, expectedDendroRoot);
+    Utils.compareDendrograms(reorderedDendroRoot, expectedDendroRoot);
 });
-
