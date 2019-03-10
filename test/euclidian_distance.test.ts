@@ -1,6 +1,6 @@
 import TestDataGenerator from "./testDataGenerator";
-import ClusterElement from "../src/shared/clusterElement";
-import EuclidianDistanceMetric from "../src/shared/euclidianDistanceMetric";
+import ClusterElement from "../src/cluster/clusterElement";
+import EuclidianDistanceMetric from "../src/metric/euclidianDistanceMetric";
 
 it('should produce lower triangular matrices', () => {
     let dataGenerator: TestDataGenerator = new TestDataGenerator();

@@ -1,4 +1,4 @@
-import ClusterElement from "../src/shared/clusterElement";
+import ClusterElement from "../src/cluster/clusterElement";
 import * as d3 from "d3";
 
 export default class TestDataGenerator {
