@@ -3,14 +3,13 @@ import EuclidianDistanceMetric from "../src/shared/euclidianDistanceMetric";
 import ClusterElement from "../src/shared/clusterElement";
 import TestDataGenerator from "./testDataGenerator";
 import TreeNode from "../src/shared/treeNode";
-import {HeatmapElement, HeatmapValue} from "../src/heatmap/typings";
 
 /**
  * The topology of the output dendrogram was created by hand, and needs to match the one calculated by the
  * UPGMAClusterer.
  */
 let getExpectedSmallDendrogram = function() {
-    // First make leaf nodes
+    // First create the leaf nodes
     let a: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
     let b: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
     let c: TreeNode<number[]> = new TreeNode<number[]>(null, null, [], 0);
@@ -24,6 +23,10 @@ let getExpectedSmallDendrogram = function() {
     let root: TreeNode<number[]> = new TreeNode<number[]>(ed, cba, [], 1.036);
 
     return root;
+};
+
+let getExpectedLargeDendrogram = function() {
+
 };
 
 /**
@@ -43,10 +46,14 @@ let compareDendrograms = function(firstRoot: TreeNode<number[]> | null, secondRo
 
         if (firstRoot.leftChild) {
             compareDendrograms(firstRoot.leftChild, secondRoot.leftChild);
+        } else {
+            expect(secondRoot.leftChild == null).toBe(true);
         }
 
         if (firstRoot.rightChild) {
             compareDendrograms(firstRoot.rightChild, secondRoot.rightChild);
+        } else {
+            expect(secondRoot.rightChild == null).toBe(true);
         }
     }
 };
