@@ -1,8 +1,8 @@
-import UPGMAClusterer from "../src/shared/UPGMAClusterer";
-import EuclidianDistanceMetric from "../src/shared/euclidianDistanceMetric";
-import ClusterElement from "../src/shared/clusterElement";
+import UPGMAClusterer from "../src/cluster/UPGMAClusterer";
+import EuclidianDistanceMetric from "../src/metric/euclidianDistanceMetric";
+import ClusterElement from "../src/cluster/clusterElement";
 import TestDataGenerator from "./testDataGenerator";
-import TreeNode from "../src/shared/treeNode";
+import TreeNode from "../src/cluster/treeNode";
 
 /**
  * The topology of the output dendrogram was created by hand, and needs to match the one calculated by the
