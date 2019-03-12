@@ -9,6 +9,8 @@ import TreeNode from "../cluster/treeNode";
 import PearsonCorrelationMetric from "../metric/pearsonCorrelationMetric";
 import Cluster from "../cluster/cluster";
 import {HeatmapData, HeatmapElement, HeatmapValue} from "./typings";
+import Reorderer from "../reorder/reorderer";
+import MoloReorderer from "../reorder/moloReorderer";
 
 export class Heatmap {
     private element: string;
@@ -64,7 +66,9 @@ export class Heatmap {
         let clusterer = new UPGMAClusterer<HeatmapValue>(new EuclidianDistanceMetric());
         let mappedValues = this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el)));
 
-        let rowResult = clusterer.cluster(mappedValues, "rows");
+        let molo: Reorderer<HeatmapValue[]> = new MoloReorderer();
+
+        let rowResult = molo.reorder(clusterer.cluster(mappedValues, "rows"));
         this.printDotGraph(rowResult);
 
         // Now we perform a depth first search on the result in order to find the order of the values
@@ -79,7 +83,7 @@ export class Heatmap {
             return id;
         });
 
-        let columnResult = clusterer.cluster(mappedValues, "columns");
+        let columnResult = molo.reorder(clusterer.cluster(mappedValues, "columns"));
         this.printDotGraph(columnResult, "columns");
 
         let columnOrder: number[] = [];
