@@ -41,26 +41,26 @@ export default class TreeNode {
     /**
      * Convert this tree and all of it's children to the Newic-format.
      *
-     * @param: idExtractor Function that extract's the ID from a given node's value.
+     * @param: idExtractor Function that extract's the name from a given node's id.
      */
-    public toNewic(): string {
+    public toNewic(nameExtractor: (id: string) => string): string {
         let output: string = "";
 
         if (!this.leftChild && !this.rightChild) {
-            return this.id + ":" + this.height;
+            return nameExtractor(this.values[0].id) + ":" + this.height;
         }
 
         output += '(';
 
         if (this.leftChild) {
-            output += this.leftChild.toNewic();
+            output += this.leftChild.toNewic(nameExtractor) + ',';
         }
 
         if (this.rightChild) {
-            output += this.rightChild.toNewic();
+            output += this.rightChild.toNewic(nameExtractor);
         }
 
-        output += ')';
+        output += ')' + this.id + ':' + this.height;
 
         return output;
     }
@@ -68,7 +68,7 @@ export default class TreeNode {
     /**
      * Convert this tree and all of it's children to the dot GraphViz-format.
      */
-    public toGraphViz(): string {
+    public toGraphViz(nameExtractor: (id: string) => string): string {
         let root: TreeNode | undefined = this;
 
         let output = 'digraph dendrogram {\n';
@@ -83,7 +83,13 @@ export default class TreeNode {
                 break;
             }
 
-            labels += `    ${root.id} [label="${root.id}"];\n`;
+            if (!root.leftChild && !root.rightChild) {
+                labels += `    ${root.id} [label="${nameExtractor(root.values[0].id)}"];\n`;
+            } else {
+                labels += `    ${root.id} [label="${root.id}"];\n`;
+            }
+
+
 
             if (root.leftChild) {
                 edges += `    ${root.id} -> ${root.leftChild.id};\n`;

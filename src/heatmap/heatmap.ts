@@ -1,13 +1,9 @@
-
 import * as d3 from "d3";
 import HeatmapSettings from "./heatmapSettings";
-import Clusterer from "../cluster/clusterer";
 import UPGMAClusterer from "../cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "../metric/euclidianDistanceMetric";
 import ClusterElement from "../cluster/clusterElement";
 import TreeNode from "../cluster/treeNode";
-import PearsonCorrelationMetric from "../metric/pearsonCorrelationMetric";
-import Cluster from "../cluster/cluster";
 import {HeatmapData, HeatmapElement, HeatmapValue} from "./typings";
 import Reorderer from "../reorder/reorderer";
 import MoloReorderer from "../reorder/moloReorderer";
@@ -69,7 +65,8 @@ export class Heatmap {
 
         let molo: Reorderer = new MoloReorderer();
         let rowResult = molo.reorder(clusterer.cluster(rowElements));
-        console.log(rowResult.toNewic());
+        console.log(rowResult.toNewic((id: string) => this.rowMap.get(id)!.name));
+        console.log(rowResult.toGraphViz((id: string) => this.rowMap.get(id)!.name));
 
         // Now we perform a depth first search on the result in order to find the order of the values
         let rowOrder: number[] = this.determineOrder(rowResult, (id: string) => this.rowMap.get(id)!.idx!);
@@ -78,7 +75,7 @@ export class Heatmap {
         // Create a new ClusterElement for every column that exists.
         let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
         let columnResult = molo.reorder(clusterer.cluster(columnElements));
-        console.log(columnResult.toNewic());
+        console.log(columnResult.toNewic((id: string) => this.columnMap.get(id)!.name));
 
         let columnOrder: number[] = this.determineOrder(columnResult, (id: string) => this.columnMap.get(id)!.idx!);
 
