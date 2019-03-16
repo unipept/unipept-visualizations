@@ -26,13 +26,13 @@ let getExpectedSmallDendrogram = function() {
 it('should correctly reorder dendrograms', () => {
     let dataGenerator = new TestDataGenerator();
     let originalData: number[][] = dataGenerator.getSmall2DDataSet();
-    // let data: ClusterElement[] = originalData.map((row: number[]) => row.map((el: number) => new ClusterElement<number>(el, 0)));
-    // let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
-    //
-    // let actualDendroRoot: TreeNode = clusterer.cluster(data);
-    // let molo: Reorderer = new MoloReorderer();
-    // let reorderedDendroRoot = molo.reorder(actualDendroRoot);
-    // let expectedDendroRoot = getExpectedSmallDendrogram();
-    //
-    // Utils.compareDendrograms(reorderedDendroRoot, expectedDendroRoot);
+    let data: ClusterElement[] = originalData.map((row: number[]) => new ClusterElement(row, "0"));
+    let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
+
+    let actualDendroRoot: TreeNode = clusterer.cluster(data);
+    let molo: Reorderer = new MoloReorderer();
+    let reorderedDendroRoot = molo.reorder(actualDendroRoot);
+    let expectedDendroRoot = getExpectedSmallDendrogram();
+
+    Utils.compareDendrograms(reorderedDendroRoot, expectedDendroRoot);
 });
