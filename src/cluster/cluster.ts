@@ -1,12 +1,12 @@
 import ClusterElement from "./clusterElement";
 import TreeNode from "./treeNode";
 
-export default class Cluster<T> {
-    public elements: T[];
+export default class Cluster {
+    public elements: ClusterElement[];
     public index: number;
-    public treeNode: TreeNode<T>;
+    public treeNode: TreeNode;
 
-    constructor(elements: T[], index: number, treeNode: TreeNode<T>) {
+    constructor(elements: ClusterElement[], index: number, treeNode: TreeNode) {
         this.elements = elements;
         this.index = index;
         this.treeNode = treeNode;
@@ -18,8 +18,8 @@ export default class Cluster<T> {
      * @param other The other cluster with whom this one needs to be merged.
      * @param height The height of the dendrogram at which the clustering occurs.
      */
-    public merge(other: Cluster<T>, height: number) {
+    public merge(other: Cluster, height: number) {
         this.elements.push(...other.elements);
-        this.treeNode = new TreeNode<T>(this.treeNode, other.treeNode, this.elements.slice(), height);
+        this.treeNode = new TreeNode(this.treeNode, other.treeNode, this.elements.slice(), height);
     }
 }

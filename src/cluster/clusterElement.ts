@@ -1,9 +1,9 @@
-export default class ClusterElement<T> {
-    public readonly value: number;
-    public readonly extra: T;
+export default class ClusterElement {
+    public readonly values: number[];
+    public readonly id: string;
 
-    constructor(value: number, extra: T) {
-        this.value = value;
-        this.extra = extra;
+    constructor(values: number[], id: string) {
+        this.values = values;
+        this.id = id;
     }
 }

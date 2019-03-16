@@ -3,8 +3,9 @@ import TreeNode from "./treeNode";
 import Metric from "../metric/metric";
 import ClusterElement from "./clusterElement";
 import Cluster from "./cluster";
+import metric from "../metric/metric";
 
-export default class UPGMAClusterer<T> implements Clusterer<T> {
+export default class UPGMAClusterer implements Clusterer {
     private readonly metric: Metric;
 
     /**
@@ -20,52 +21,27 @@ export default class UPGMAClusterer<T> implements Clusterer<T> {
      *
      * @param data A matrix containing data elements that should be clustered. The elements are either clustered on row
      *        or column similarity.
-     * @param axis The axis against which the clustering should be performed. When given "columns", the elements to be
-     *        clustered are considered to be the columns, otherwise the rows are seen as the elements-to-be-clustered.
      */
-    cluster(data: ClusterElement<T>[][], axis: "columns" | "rows"): TreeNode<T[]> {
-        // When the given axis is columns, the input data needs to be transposed. The rest of the following algorithm
-        // works identically for columns or rows.
-        if (axis == "columns") {
-            let newData: ClusterElement<T>[][] = [];
+    cluster(data: ClusterElement[]): TreeNode {
+        // All clusters that exist in a current step.
+        let clusters: Map<number, Cluster> = new Map();
 
-            // Transpose input array!
-            for (let i = 0; i < data[0].length; i++) {
-                let row: ClusterElement<T>[] = [];
-                for (let j = 0; j < data.length; j++) {
-                    row.push(data[j][i]);
-                }
-                newData.push(row);
-            }
-
-            data = newData;
-        }
-
-        // A map containing all clusters that are produced during the algorithm.
-        let clusters: Map<number, Cluster<T[]>> = new Map();
-
-        // Construct a matrix only containing the values from the given input matrix.
+        // Now we need to compute a distance matrix. A distance matrix needs a matrix with raw values to be calculated.
+        // We thus need to convert the input into a value matrix, before proceeding.
         let valueMatrix: number[][] = [];
-        // First we compute the distance matrix according to the given distance metric.
         for (let i = 0; i < data.length; i++) {
-            let row: number[] = [];
-            for (let j = 0; j < data[i].length; j++) {
-                row.push(data[i][j].value);
-            }
+            let row: number[] = data[i].values;
+            clusters.set(i, new Cluster([data[i]], i, new TreeNode(null, null, [data[i]], 0)));
             valueMatrix.push(row);
-            let mappedData: T[] = data[i].map((val) => val.extra);
-            // Every item starts in a singleton cluster initially.
-            clusters.set(i, new Cluster<T[]>([mappedData], i, new TreeNode<T[]>(null, null, [mappedData], 0)));
         }
 
-        // Effectively compute the distance matrix.
-        let distanceMatrix = this.metric.getDistance(valueMatrix);
-        let done = 0;
+        // Compute the distance matrix!
+        let distanceMatrix: number[][] = this.metric.getDistance(valueMatrix);
 
-        // Then we keep adding the 2 closest clusters together until there is only one cluster left. During this process
-        // a dendrogram is built. This dendrogram is what is returned eventually by this method.
+        // Start the UPGMA iterations. Loop until only 1 cluster remains.
+        let done: number = 0;
         while (done != distanceMatrix.length - 1) {
-            // Compute the distance between all pairs of nodes
+            // Look for the smallest value in the distance matrix.
             let smallestDistance = Infinity;
             let x = -1;
             let y = -1;
@@ -92,8 +68,8 @@ export default class UPGMAClusterer<T> implements Clusterer<T> {
             }
 
             // Recalculate distance from this cluster to other clusters (Use average distance)
-            // TODO optimize this here! A copy is not necessary here
             let updatedDistanceMatrix: number[][] = this.copyDistanceMatrix(distanceMatrix);
+            // Cluster.keys() returns a reference to every cluster at the current step
             for (let j of clusters.keys()) {
                 if (j != x && j != y) {
                     // Our matrix is lower triangular (because it is symmetric). This means we should extract the value
