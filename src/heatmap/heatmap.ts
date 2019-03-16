@@ -67,7 +67,7 @@ export class Heatmap {
         // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
         let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
 
-        let molo: Reorderer<HeatmapValue[]> = new MoloReorderer();
+        let molo: Reorderer = new MoloReorderer();
         let rowResult = molo.reorder(clusterer.cluster(rowElements));
         console.log(rowResult.toNewic());
 
