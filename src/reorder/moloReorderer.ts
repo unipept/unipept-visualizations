@@ -7,23 +7,23 @@ import TreeNode from "../cluster/treeNode";
  *
  * @author Pieter Verschaffelt
  */
-export default class MoloReorderer<T> implements Reorderer<T> {
+export default class MoloReorderer implements Reorderer {
     // Map a node onto it's minimum distance between previous merges.
-    private nodeMinMap: Map<TreeNode<T>, number> = new Map();
+    private nodeMinMap: Map<TreeNode, number> = new Map();
 
-    reorder(root: TreeNode<T>): TreeNode<T> {
+    reorder(root: TreeNode): TreeNode {
         this.nodeMinMap.clear();
         return this.sortMinimum(root);
     }
 
-    private sortMinimum(root: TreeNode<T>): TreeNode<T> {
+    private sortMinimum(root: TreeNode): TreeNode {
         // TODO: take a better look at this and fix!
         if (!root.leftChild || !root.rightChild) {
             throw "Invalid tree topology for MOLO reordering!";
         }
 
-        let leftTree: TreeNode<T> = root.leftChild;
-        let rightTree: TreeNode<T> = root.rightChild;
+        let leftTree: TreeNode = root.leftChild;
+        let rightTree: TreeNode = root.rightChild;
 
         let leftSingleton: boolean = !leftTree.leftChild && !leftTree.rightChild;
         let rightSingleton: boolean = !rightTree.leftChild && !rightTree.rightChild;
@@ -31,7 +31,7 @@ export default class MoloReorderer<T> implements Reorderer<T> {
         if (leftSingleton && rightSingleton) {
             this.nodeMinMap.set(root, root.height);
         } else if (!leftSingleton && rightSingleton) {
-            let sorted: TreeNode<T> = this.sortMinimum(leftTree);
+            let sorted: TreeNode = this.sortMinimum(leftTree);
             root.leftChild = sorted;
 
             let sortedMin = this.nodeMinMap.get(sorted);
@@ -42,7 +42,7 @@ export default class MoloReorderer<T> implements Reorderer<T> {
 
             this.nodeMinMap.set(root, Math.min(root.height, sortedMin));
         } else if (leftSingleton && !rightSingleton) {
-            let sorted: TreeNode<T> = this.sortMinimum(rightTree);
+            let sorted: TreeNode = this.sortMinimum(rightTree);
             root.leftChild = sorted;
             root.rightChild = leftTree;
 
@@ -55,8 +55,8 @@ export default class MoloReorderer<T> implements Reorderer<T> {
             this.nodeMinMap.set(root, Math.min(root.height, sortedMin));
         } else  {
             // Both trees are non-leaves
-            let leftSorted: TreeNode<T> = this.sortMinimum(leftTree);
-            let rightSorted: TreeNode<T> = this.sortMinimum(rightTree);
+            let leftSorted: TreeNode = this.sortMinimum(leftTree);
+            let rightSorted: TreeNode = this.sortMinimum(rightTree);
 
             let leftMin = this.nodeMinMap.get(leftSorted);
             let rightMin = this.nodeMinMap.get(rightSorted);

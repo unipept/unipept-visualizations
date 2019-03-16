@@ -5,6 +5,7 @@
 export interface HeatmapElement {
     id?: string,
     name: string,
+    idx?: number,
     extras?: any
 }
 
