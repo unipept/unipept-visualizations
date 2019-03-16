@@ -69,7 +69,7 @@ export class Heatmap {
         let molo: Reorderer<HeatmapValue[]> = new MoloReorderer();
 
         let rowResult = molo.reorder(clusterer.cluster(mappedValues, "rows"));
-        this.printDotGraph(rowResult);
+        console.log(rowResult.toNewic());
 
         // Now we perform a depth first search on the result in order to find the order of the values
         let rowOrder: number[] = [];
@@ -84,7 +84,7 @@ export class Heatmap {
         });
 
         let columnResult = molo.reorder(clusterer.cluster(mappedValues, "columns"));
-        this.printDotGraph(columnResult, "columns");
+        console.log(columnResult.toNewic());
 
         let columnOrder: number[] = [];
         this.determineOrder(columnResult, columnOrder, this.columnMap, this.columns, (x: HeatmapValue) => {
@@ -163,56 +163,14 @@ export class Heatmap {
     }
 
     /**
-     * Test function to get a DOT-file representing the dendrogram constructed.
+     * Extracts a linear order from a dendrogram by following all branches up to leaves in a depth-first ordering.
+     *
+     * @param treeNode Root of a dendrogram for which a linear leaf ordering needs to be extracted.
+     * @param order The array that's filled in by this function and that eventually contains the expected linear order.
+     * @param elementMap Mapping of element id to element.
+     * @param elements All data points from the cluster input.
+     * @param idExtractor Function that given a value, extracts the corresponding value's id from it.
      */
-    private printDotGraph(root: TreeNode<HeatmapValue[]> | undefined, axis: "rows" | "columns" = "rows") {
-        if (!root) {
-            console.log('Undefined root!');
-            return;
-        }
-
-        let output = 'digraph dendrogram {\n';
-        let labels = '';
-        let edges = '';
-
-        let toCheck: TreeNode<HeatmapValue[]>[] = [root];
-        while (toCheck.length > 0) {
-            root = toCheck.shift();
-
-            if (!root) {
-                break;
-            }
-
-            if (root.leftChild || root.rightChild) {
-                labels += `    ${root.id} [label="${root.id}"];\n`;
-            } else {
-                let current: HeatmapElement | undefined;
-                if (axis == "rows") {
-                    current = this.rowMap.get(root.values[0][0].rowId ? root.values[0][0].rowId : '');
-                } else {
-                    current = this.columnMap.get(root.values[0][0].columnId ? root.values[0][0].columnId : '');
-                }
-                if (current) {
-                    labels += `    ${root.id} [label="${current.name}"];\n`;
-                    console.log("Root without children -> " + current.name);
-                    console.log(root);
-                }
-            }
-
-            if (root.leftChild) {
-                edges += `    ${root.id} -> ${root.leftChild.id};\n`;
-                toCheck.push(root.leftChild);
-            }
-
-            if (root.rightChild) {
-                edges += `    ${root.id} -> ${root.rightChild.id};\n`;
-                toCheck.push(root.rightChild);
-            }
-        }
-        output += labels + edges + '}';
-        console.log(output);
-    }
-
     private determineOrder(treeNode: TreeNode<HeatmapValue[]>, order: number[], elementMap: Map<string, HeatmapElement>, elements: HeatmapElement[], idExtractor: (val: HeatmapValue) => string) {
         if (!treeNode.leftChild && !treeNode.rightChild) {
             let id = idExtractor(treeNode.values[0][0]);
