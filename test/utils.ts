@@ -8,7 +8,7 @@ export default class Utils {
      * @param firstRoot Root of the first dendrogram
      * @param secondRoot Root of the second dendrogram
      */
-     static compareDendrograms(firstRoot: TreeNode<number[]> | null, secondRoot: TreeNode<number[]> | null) {
+     static compareDendrograms(firstRoot: TreeNode | null, secondRoot: TreeNode | null) {
         if (firstRoot) {
             expect(secondRoot != null).toBe(true);
         }

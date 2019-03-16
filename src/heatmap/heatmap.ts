@@ -17,7 +17,7 @@ export class Heatmap {
     private settings: HeatmapSettings;
 
     // We need to be both able to fast index the array of elements and find an element by id. That's why both a Map
-    // and an array are kept in memory.
+    // and an array are kept in memory for the rows and columns.
     private rowMap: Map<string, HeatmapElement>;
     private rows: HeatmapElement[];
     private columnMap: Map<string, HeatmapElement>;
@@ -63,39 +63,24 @@ export class Heatmap {
      * Cluster the data found in the Heatmap according to the default clustering algorithm.
      */
     public cluster() {
-        let clusterer = new UPGMAClusterer<HeatmapValue>(new EuclidianDistanceMetric());
-        let mappedValues = this.values.map((row) => row.map((el) => new ClusterElement<HeatmapValue>(el.value, el)));
+        let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
+        // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
+        let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
 
         let molo: Reorderer<HeatmapValue[]> = new MoloReorderer();
-
-        let rowResult = molo.reorder(clusterer.cluster(mappedValues, "rows"));
+        let rowResult = molo.reorder(clusterer.cluster(rowElements));
         console.log(rowResult.toNewic());
 
         // Now we perform a depth first search on the result in order to find the order of the values
-        let rowOrder: number[] = [];
-        this.determineOrder(rowResult, rowOrder, this.rowMap, this.rows, (x: HeatmapValue) => {
-            let id = x.rowId;
+        let rowOrder: number[] = this.determineOrder(rowResult, (id: string) => this.rowMap.get(id)!.idx!);
 
-            if (!id) {
-                throw "An invalid row was encountered!";
-            }
 
-            return id;
-        });
-
-        let columnResult = molo.reorder(clusterer.cluster(mappedValues, "columns"));
+        // Create a new ClusterElement for every column that exists.
+        let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
+        let columnResult = molo.reorder(clusterer.cluster(columnElements));
         console.log(columnResult.toNewic());
 
-        let columnOrder: number[] = [];
-        this.determineOrder(columnResult, columnOrder, this.columnMap, this.columns, (x: HeatmapValue) => {
-            let id = x.columnId;
-
-            if (!id) {
-                throw "An invalid column was encountered!";
-            }
-
-            return id;
-        });
+        let columnOrder: number[] = this.determineOrder(columnResult, (id: string) => this.columnMap.get(id)!.idx!);
 
 
         let newValues = [];
@@ -166,35 +151,25 @@ export class Heatmap {
      * Extracts a linear order from a dendrogram by following all branches up to leaves in a depth-first ordering.
      *
      * @param treeNode Root of a dendrogram for which a linear leaf ordering needs to be extracted.
-     * @param order The array that's filled in by this function and that eventually contains the expected linear order.
-     * @param elementMap Mapping of element id to element.
-     * @param elements All data points from the cluster input.
-     * @param idExtractor Function that given a value, extracts the corresponding value's id from it.
+     * @param idxExtractor Function that, given an HeatmapElement's id is able to retrieve an index associated with that
+     *        element.
      */
-    private determineOrder(treeNode: TreeNode<HeatmapValue[]>, order: number[], elementMap: Map<string, HeatmapElement>, elements: HeatmapElement[], idExtractor: (val: HeatmapValue) => string) {
+    private determineOrder(treeNode: TreeNode, idxExtractor: (x: string) => number): number[] {
         if (!treeNode.leftChild && !treeNode.rightChild) {
-            let id = idExtractor(treeNode.values[0][0]);
-
-            if (!id) {
-                return;
-            }
-
-            let el = elementMap.get(id);
-
-            if (!el) {
-                return;
-            }
-
-            order.push(elements.indexOf(el));
+            return [idxExtractor(treeNode.values[0].id)];
         }
 
+        let left: number[] = [];
         if (treeNode.leftChild) {
-            this.determineOrder(treeNode.leftChild, order, elementMap, elements, idExtractor);
+            left = this.determineOrder(treeNode.leftChild, idxExtractor);
         }
 
+        let right: number[] = [];
         if (treeNode.rightChild) {
-            this.determineOrder(treeNode.rightChild, order, elementMap, elements, idExtractor);
+            right = this.determineOrder(treeNode.rightChild, idxExtractor);
         }
+
+        return left.concat(right);
     }
 
     /**
@@ -213,6 +188,7 @@ export class Heatmap {
                 val.id = idx.toString();
             }
 
+            val.idx = idx;
             output.set(val.id, val);
         }
 
