@@ -33,12 +33,12 @@ let getExpectedLargeDendrogram = function() {
 it('should produce dendrograms with correct topology', () => {
     let dataGenerator = new TestDataGenerator();
     let originalData: number[][] = dataGenerator.getSmall2DDataSet();
-    // let data: ClusterElement[] = originalData.map((row: number[]) => row.map((el: number) => new ClusterElement<number>(el, 0)));
-    // let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
-    //
-    // let actualDendroRoot: TreeNode = clusterer.cluster(data);
-    // let expectedDendroRoot: TreeNode = getExpectedSmallDendrogram();
-    //
-    // Utils.compareDendrograms(actualDendroRoot, expectedDendroRoot);
+    let data: ClusterElement[] = originalData.map((row: number[]) => new ClusterElement(row, "0"));
+    let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
+
+    let actualDendroRoot: TreeNode = clusterer.cluster(data);
+    let expectedDendroRoot: TreeNode = getExpectedSmallDendrogram();
+
+    Utils.compareDendrograms(actualDendroRoot, expectedDendroRoot);
 });
 
