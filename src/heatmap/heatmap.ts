@@ -64,9 +64,12 @@ export class Heatmap {
         let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
 
         let molo: Reorderer = new MoloReorderer();
-        let rowResult = molo.reorder(clusterer.cluster(rowElements));
+        let temp = clusterer.cluster(rowElements);
+        let start = performance.now();
+        let rowResult = molo.reorder(temp);
+        let end = performance.now();
+        console.log("MOLO took: " + (end - start) + "ms");
         console.log(rowResult.toNewic((id: string) => this.rowMap.get(id)!.name));
-        console.log(rowResult.toGraphViz((id: string) => this.rowMap.get(id)!.name));
 
         // Now we perform a depth first search on the result in order to find the order of the values
         let rowOrder: number[] = this.determineOrder(rowResult, (id: string) => this.rowMap.get(id)!.idx!);
