@@ -17,7 +17,6 @@ export default class MoloReorderer implements Reorderer {
     }
 
     private sortMinimum(root: TreeNode): TreeNode {
-        // TODO: take a better look at this and fix!
         if (!root.leftChild || !root.rightChild) {
             throw "Invalid tree topology for MOLO reordering!";
         }

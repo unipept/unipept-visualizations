@@ -3,7 +3,6 @@ import TreeNode from "./treeNode";
 import Metric from "../metric/metric";
 import ClusterElement from "./clusterElement";
 import Cluster from "./cluster";
-import metric from "../metric/metric";
 
 export default class UPGMAClusterer implements Clusterer {
     private readonly metric: Metric;

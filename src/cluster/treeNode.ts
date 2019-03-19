@@ -90,7 +90,6 @@ export default class TreeNode {
             }
 
 
-
             if (root.leftChild) {
                 edges += `    ${root.id} -> ${root.leftChild.id};\n`;
                 toCheck.push(root.leftChild);
