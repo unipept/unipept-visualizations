@@ -14,6 +14,8 @@
         <script src="../dist/bundle.js"></script>
 
         <script>
+            import {Heatmap} from "../src/heatmap/heatmap";
+
             d3.csv('data/dendrogram.csv')
                 .then(function(data) {
 
@@ -62,7 +64,7 @@
                         })
                     }
 
-                    let heatmap = $("#heatmap").heatmap({
+                    let heatmap = new Heatmap({
                         rows: rows,
                         columns: cols,
                         values: grid

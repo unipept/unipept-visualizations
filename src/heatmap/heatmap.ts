@@ -9,7 +9,7 @@ import Reorderer from "../reorder/reorderer";
 import MoloReorderer from "../reorder/moloReorderer";
 
 export class Heatmap {
-    private element: string;
+    private element: HTMLElement;
     private settings: HeatmapSettings;
 
     // We need to be both able to fast index the array of elements and find an element by id. That's why both a Map
@@ -29,10 +29,11 @@ export class Heatmap {
         bottom: 0
     };
 
-    constructor(element: string, data: HeatmapData, options: any = undefined) {
+    constructor(elementIdentifier: HTMLElement, data: HeatmapData, options: HeatmapSettings = new HeatmapSettings()) {
         this.settings = this.fillInOptions(options);
 
-        this.element = element;
+        this.element = elementIdentifier;
+        this.element.id = "U_HEATMAP_" + Math.random() * 2**16;
 
         this.rowMap = this.preprocessFeatures(data.rows);
         this.rows = Array.from(this.rowMap.values());
@@ -247,15 +248,25 @@ export class Heatmap {
     private initCSS() {
         let elementClass = this.settings.className;
 
-        $(this.element).addClass(elementClass);
-        $("<style>").prop("type", "text/css")
-            .html(
-                `
+        this.element.className += " " + elementClass;
+
+        let document: Document | null = this.element.ownerDocument;
+        if (document != null) {
+            let head: HTMLHeadElement = document.head;
+            let style: HTMLStyleElement = new HTMLStyleElement();
+            style.type = "text/css";
+
+            style.innerHTML = `
                     .${elementClass} {
                         font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
                         width: ${this.settings.width}px;
                     }
-                `)
+                `;
+
+            head.appendChild(style);
+        } else {
+            throw "No parent document for the given element has been set!";
+        }
     }
 
     /**
@@ -276,9 +287,9 @@ export class Heatmap {
      * Redraw the complete Heatmap and clear the view first.
      */
     private redraw() {
-        $(this.element).empty();
+        this.element.innerHTML = "";
 
-        let vis = d3.select(this.element)
+        let vis = d3.select(this.element.id)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("viewBox", `0 0 ${this.settings.width + this.MARGIN.right + this.MARGIN.left} ${this.settings.height + this.MARGIN.top + this.MARGIN.bottom}`)
@@ -355,7 +366,7 @@ export class Heatmap {
     private initTooltip() {
         return d3.select("body")
             .append("div")
-            .attr("id", $(this.element).attr('id') + "-tooltip")
+            .attr("id", this.element.id + "-tooltip")
             .attr("class", "tip")
             .style("position", "absolute")
             .style("z-index", "10")
