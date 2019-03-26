@@ -3,7 +3,6 @@ import {HeatmapElement, HeatmapValue} from "./typings";
 
 export default class HeatmapSettings extends Settings {
     /***** VALUES *****/
-
     // Amount of pixels that are allowed to be occupied by the labels of the rows.
     textWidth: number = 100;
 
