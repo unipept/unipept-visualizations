@@ -29,7 +29,9 @@ export class Heatmap {
         bottom: 0
     };
 
-    constructor(element: string, data: HeatmapData, options: HeatmapSettings = new HeatmapSettings()) {
+    constructor(element: string, data: HeatmapData, options: any = undefined) {
+        this.settings = this.fillInOptions(options);
+
         this.element = element;
 
         this.rowMap = this.preprocessFeatures(data.rows);
@@ -38,14 +40,30 @@ export class Heatmap {
         this.columns = Array.from(this.columnMap.values());
         this.values = this.preprocessValues(data.values);
 
-        this.settings = options;
-
         if (this.settings.enableTooltips) {
             this.tooltip = this.initTooltip();
         }
 
         this.initCSS();
         this.redraw();
+    }
+
+    private fillInOptions(options: any = undefined): HeatmapSettings {
+        let output = new HeatmapSettings();
+
+        // Override all user-specific options in our created HeatmapSettings-object.
+        for (let property in options) {
+            if (options.hasOwnProperty(property)) {
+                if (output.hasOwnProperty(property)) {
+                    // @ts-ignore
+                    output[property] = options[property];
+                } else {
+                    throw property + " is not a valid option for HeatMap!";
+                }
+            }
+        }
+
+        return output;
     }
 
     /**
@@ -276,7 +294,6 @@ export class Heatmap {
 
     private redrawGrid(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
         let squareWidth = this.determineSquareWidth();
-        // TODO change this to CieLAB color space
         let interpolator = d3.interpolateLab(d3.lab("#EEEEEE"), d3.lab("#1565C0"));
 
         for (let row = 0; row < this.rows.length; row++) {
