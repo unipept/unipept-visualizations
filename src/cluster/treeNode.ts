@@ -43,7 +43,7 @@ export default class TreeNode {
      *
      * @param: idExtractor Function that extract's the name from a given node's id.
      */
-    public toNewic(nameExtractor: (id: string) => string): string {
+    public toNewick(nameExtractor: (id: string) => string): string {
         let output: string = "";
 
         if (!this.leftChild && !this.rightChild) {
@@ -53,11 +53,11 @@ export default class TreeNode {
         output += '(';
 
         if (this.leftChild) {
-            output += this.leftChild.toNewic(nameExtractor) + ',';
+            output += this.leftChild.toNewick(nameExtractor) + ',';
         }
 
         if (this.rightChild) {
-            output += this.rightChild.toNewic(nameExtractor);
+            output += this.rightChild.toNewick(nameExtractor);
         }
 
         output += ')' + this.id + ':' + this.height;
