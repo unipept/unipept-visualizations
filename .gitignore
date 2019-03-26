@@ -122,3 +122,5 @@ typings/
 .dynamodb/
 
 dist/*
+*.iml
+*.lock
