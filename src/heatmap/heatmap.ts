@@ -60,28 +60,18 @@ export class Heatmap {
      */
     public cluster() {
         let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
-        // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
-        let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
 
         let molo: Reorderer = new MoloReorderer();
-        let temp = clusterer.cluster(rowElements);
-        let start = performance.now();
-        let rowResult = molo.reorder(temp);
-        let end = performance.now();
-        console.log("MOLO took: " + (end - start) + "ms");
-        console.log(rowResult.toNewic((id: string) => this.rowMap.get(id)!.name));
 
+        // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
+        let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
         // Now we perform a depth first search on the result in order to find the order of the values
-        let rowOrder: number[] = this.determineOrder(rowResult, (id: string) => this.rowMap.get(id)!.idx!);
+        let rowOrder: number[] = this.determineOrder(molo.reorder(clusterer.cluster(rowElements)), (id: string) => this.rowMap.get(id)!.idx!);
 
 
         // Create a new ClusterElement for every column that exists.
         let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
-        let columnResult = molo.reorder(clusterer.cluster(columnElements));
-        console.log(columnResult.toNewic((id: string) => this.columnMap.get(id)!.name));
-
-        let columnOrder: number[] = this.determineOrder(columnResult, (id: string) => this.columnMap.get(id)!.idx!);
-
+        let columnOrder: number[] = this.determineOrder(clusterer.cluster(columnElements), (id: string) => this.columnMap.get(id)!.idx!);
 
         let newValues = [];
         // Swap rows and columns
@@ -287,7 +277,7 @@ export class Heatmap {
     private redrawGrid(vis: d3.Selection<SVGSVGElement, {}, HTMLElement, any>) {
         let squareWidth = this.determineSquareWidth();
         // TODO change this to CieLAB color space
-        let interpolator = d3.interpolateHsl(d3.hsl("#EEEEEE"), d3.hsl("#1565C0"));
+        let interpolator = d3.interpolateLab(d3.lab("#EEEEEE"), d3.lab("#1565C0"));
 
         for (let row = 0; row < this.rows.length; row++) {
             vis.selectAll("svg")
