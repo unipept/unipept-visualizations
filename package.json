@@ -1,6 +1,6 @@
 {
   "name": "unipept-heatmap",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "HeatMap built for the Unipept project. See http://unipept.ugent.be for more information. This HeatMap supports UPGMA-clustering and MOLO-reordering.",
   "main": "dist/bundle.js",
   "dependencies": {
@@ -9,7 +9,6 @@
   "devDependencies": {
     "@types/d3": "^5.7.1",
     "@types/jest": "^24.0.9",
-    "@types/jquery": "^3.3.29",
     "@types/node": "^10.12.17",
     "babel-register": "^6.26.0",
     "d3": "^5.7.0",
@@ -29,7 +28,12 @@
     "type": "git",
     "url": "https://github.ugent.be/pverscha/unipept-heatmap.git"
   },
-  "keywords": ["visualization", "heatmap", "clustering", "upgma"],
+  "keywords": [
+    "visualization",
+    "heatmap",
+    "clustering",
+    "upgma"
+  ],
   "author": "Pieter Verschaffelt",
   "license": "ISC"
 }
