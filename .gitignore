@@ -124,3 +124,5 @@ typings/
 dist/*
 *.iml
 *.lock
+
+.idea/*.*
