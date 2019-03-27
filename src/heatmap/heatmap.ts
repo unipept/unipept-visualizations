@@ -33,7 +33,7 @@ export class Heatmap {
         this.settings = this.fillInOptions(options);
 
         this.element = elementIdentifier;
-        this.element.id = "U_HEATMAP_" + Math.random() * 2**16;
+        this.element.id = "U_HEATMAP_" + Math.floor(Math.random() * 2**16);
 
         this.rowMap = this.preprocessFeatures(data.rows);
         this.rows = Array.from(this.rowMap.values());
@@ -253,7 +253,7 @@ export class Heatmap {
         let document: Document | null = this.element.ownerDocument;
         if (document != null) {
             let head: HTMLHeadElement = document.head;
-            let style: HTMLStyleElement = new HTMLStyleElement();
+            let style: HTMLStyleElement = document.createElement("style");
             style.type = "text/css";
 
             style.innerHTML = `
@@ -289,7 +289,7 @@ export class Heatmap {
     private redraw() {
         this.element.innerHTML = "";
 
-        let vis = d3.select(this.element.id)
+        let vis = d3.select("#" + this.element.id)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("viewBox", `0 0 ${this.settings.width + this.MARGIN.right + this.MARGIN.left} ${this.settings.height + this.MARGIN.top + this.MARGIN.bottom}`)
