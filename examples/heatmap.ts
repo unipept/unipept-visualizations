@@ -1,6 +1,6 @@
 import {Heatmap} from "../src/heatmap/heatmap";
 import * as d3 from "d3";
-import {HeatmapElement} from "../src/heatmap/typings";
+import {HeatmapElement} from "../src/heatmap/input";
 
 d3.csv('data/dendrogram.csv')
     .then(function(data) {

@@ -1,0 +1,5 @@
+{
+  "name": "unipept-heatmap",
+  "main": "dist/src/index.d.ts",
+  "out": "../index.d.ts"
+}

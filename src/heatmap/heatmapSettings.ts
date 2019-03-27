@@ -1,5 +1,5 @@
 import Settings from "../settings";
-import {HeatmapElement, HeatmapValue} from "./typings";
+import {HeatmapElement, HeatmapValue} from "./input";
 
 export default class HeatmapSettings extends Settings {
     /***** VALUES *****/
