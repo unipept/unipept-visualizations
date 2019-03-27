@@ -9,6 +9,6 @@
     "strict": true,
     "moduleResolution": "node",
     "declaration": true,
-    "types": ["jest", "jquery", "d3"]
+    "types": ["jest", "d3"]
   }
 }

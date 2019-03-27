@@ -4,7 +4,7 @@ import UPGMAClusterer from "../cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "../metric/euclidianDistanceMetric";
 import ClusterElement from "../cluster/clusterElement";
 import TreeNode from "../cluster/treeNode";
-import {HeatmapData, HeatmapElement, HeatmapValue} from "./typings";
+import {HeatmapData, HeatmapElement, HeatmapValue} from "./input";
 import Reorderer from "../reorder/reorderer";
 import MoloReorderer from "../reorder/moloReorderer";
 
