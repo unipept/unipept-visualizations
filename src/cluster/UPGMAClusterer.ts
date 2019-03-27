@@ -22,6 +22,10 @@ export default class UPGMAClusterer implements Clusterer {
      *        or column similarity.
      */
     cluster(data: ClusterElement[]): TreeNode {
+        if (data.length < 1) {
+            return new TreeNode(null, null, [], 0);
+        }
+
         // All clusters that exist in a current step.
         let clusters: Map<number, Cluster> = new Map();
 
