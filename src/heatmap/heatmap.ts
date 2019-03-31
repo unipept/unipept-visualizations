@@ -8,7 +8,7 @@ import {HeatmapData, HeatmapElement, HeatmapValue} from "./input";
 import Reorderer from "../reorder/reorderer";
 import MoloReorderer from "../reorder/moloReorderer";
 
-export class Heatmap {
+class Heatmap {
     private element: HTMLElement;
     private settings: HeatmapSettings;
 
