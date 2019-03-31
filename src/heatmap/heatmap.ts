@@ -288,12 +288,16 @@ export class Heatmap {
     private redraw() {
         this.element.innerHTML = "";
 
+        let squareWidth = this.determineSquareWidth();
+        let height = this.rows.length * (squareWidth + this.settings.squarePadding) + this.settings.textHeight;
+        let width = this.columns.length * (squareWidth + this.settings.squarePadding) + this.settings.textWidth;
+
         let vis = d3.select("#" + this.element.id)
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
-            .attr("viewBox", `0 0 ${this.settings.width + this.MARGIN.right + this.MARGIN.left} ${this.settings.height + this.MARGIN.top + this.MARGIN.bottom}`)
-            .attr("width", this.settings.width + this.MARGIN.right + this.MARGIN.left)
-            .attr("height", this.settings.height + this.MARGIN.top + this.MARGIN.bottom)
+            .attr("viewBox", `0 0 ${width + this.MARGIN.right + this.MARGIN.left} ${height + this.MARGIN.top + this.MARGIN.bottom}`)
+            .attr("width", width + this.MARGIN.right + this.MARGIN.left)
+            .attr("height", height + this.MARGIN.top + this.MARGIN.bottom)
             .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
             .style("font-size", this.settings.fontSize);
 
