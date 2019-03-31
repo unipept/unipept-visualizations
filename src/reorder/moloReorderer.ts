@@ -60,7 +60,7 @@ export default class MoloReorderer implements Reorderer {
             let leftMin = this.nodeMinMap.get(leftSorted);
             let rightMin = this.nodeMinMap.get(rightSorted);
 
-            if (!leftMin || !rightMin) {
+            if (leftMin === undefined || rightMin === undefined) {
                 throw "One of the recursive calls to sort a subtree did not yield a minimum value.";
             }
 
