@@ -13,7 +13,8 @@
         <div id="heatmap"></div>
         <button id="cluster">Cluster!</button>
 
-        <script>
+        <script type="module">
+
             d3.csv('data/dendrogram.csv')
                 .then(function(data) {
 
@@ -46,7 +47,6 @@
                         let rowValues = [];
 
                         for (let col of cols) {
-                            // @ts-ignore
                             let val = parseFloat(row[col.name]);
                             rowValues.push({
                                 value: val
