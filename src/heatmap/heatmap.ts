@@ -51,20 +51,7 @@ export class Heatmap {
 
     private fillInOptions(options: any = undefined): HeatmapSettings {
         let output = new HeatmapSettings();
-
-        // Override all user-specific options in our created HeatmapSettings-object.
-        for (let property in options) {
-            if (options.hasOwnProperty(property)) {
-                if (output.hasOwnProperty(property)) {
-                    // @ts-ignore
-                    output[property] = options[property];
-                } else {
-                    throw property + " is not a valid option for HeatMap!";
-                }
-            }
-        }
-
-        return output;
+        return Object.assign(output, options);
     }
 
     /**
