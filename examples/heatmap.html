@@ -13,9 +13,9 @@
         <div id="heatmap"></div>
         <button id="cluster">Cluster!</button>
 
-        <script type="module">
+        <script>
 
-            d3.csv('data/dendrogram.csv')
+            d3.csv('data/breaks.csv')
                 .then(function(data) {
 
                     let grid = [];
