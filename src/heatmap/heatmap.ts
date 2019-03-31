@@ -82,13 +82,11 @@ export class Heatmap {
 
         let molo: Reorderer = new MoloReorderer();
 
-        console.log("Reorder rows");
         // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
         let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
         // Now we perform a depth first search on the result in order to find the order of the values
         let rowOrder: number[] = this.determineOrder(molo.reorder(clusterer.cluster(rowElements)), (id: string) => this.rowMap.get(id)!.idx!);
 
-        console.log("Reorder columns");
         // Create a new ClusterElement for every column that exists.
         let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
         let columnOrder: number[] = this.determineOrder(clusterer.cluster(columnElements), (id: string) => this.columnMap.get(id)!.idx!);
