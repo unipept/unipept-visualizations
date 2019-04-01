@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import HeatmapSettings from "./heatmapSettings";
+import {HeatmapSettings} from "./heatmapSettings";
 import UPGMAClusterer from "../cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "../metric/euclidianDistanceMetric";
 import ClusterElement from "../cluster/clusterElement";
@@ -245,7 +245,6 @@ export class Heatmap {
             style.innerHTML = `
                     .${elementClass} {
                         font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
-                        width: ${this.settings.width}px;
                     }
                 `;
 
