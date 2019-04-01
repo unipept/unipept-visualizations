@@ -1,7 +1,7 @@
 import Settings from "../settings";
 import {HeatmapElement, HeatmapValue} from "./input";
 
-export default class HeatmapSettings extends Settings {
+export class HeatmapSettings extends Settings {
     /***** VALUES *****/
     // Amount of pixels that are allowed to be occupied by the labels of the rows.
     textWidth: number = 100;
