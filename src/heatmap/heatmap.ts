@@ -142,6 +142,22 @@ export class Heatmap {
         this.columns = newColumns;
     }
 
+    public setFullScreen(fullscreen: boolean) {
+        // the delay is because the event fires before we're in fullscreen
+        // so the height en width functions don't give a correct result
+        // without the delay
+        setTimeout(() => {
+            let size = this.settings.width;
+            if (fullscreen) {
+                size = Math.min(window.innerWidth - 44, window.innerHeight - 250);
+            }
+            for (let el of this.element.getElementsByTagName("svg")) {
+                el.style.width = size.toString();
+                el.style.height = size.toString();
+            }
+        }, 1000);
+    }
+
     /**
      * Extracts a linear order from a dendrogram by following all branches up to leaves in a depth-first ordering.
      *
