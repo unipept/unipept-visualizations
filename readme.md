@@ -59,6 +59,11 @@ should contain the following properties:
 ### The HeatmapSettings object
 A `HeatmapSettings` object can be used to fully configure the heatmap and contains the following properties:
 
+* `width` (*optional*, default = 800): Maximum width of the visualization in pixels.
+* `height` (*optional*, default = 800): Maximum height of the visualization in pixels.
+* `textWidth` (*optional*, default = 100): Maximum amount of pixels that can be used for the row labels.
+* `textHeight` (*optional*, default = 100): Maximum amount of pixels that can be used for the column labels.
+* `enableTooltips` (*optional*, default = true): Are tooltips shown when hovering over an element in the heatmap? 
 
 
 
