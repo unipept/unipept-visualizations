@@ -27,6 +27,7 @@ This method performs the UPGMA clustering technique and a heuristic to reorder t
 for a more comprehensive result.
 
 ## Heatmap
+#### Constructor
 The constructor of the `Heatmap` class automatically starts rendering the heatmap upon invokation and has following
 signature:
 
@@ -39,6 +40,13 @@ object:
 * `options` (*optional*): Can be used to configure the Heatmap before rendering. This parameter should receive a
 `HeatmapSettings`-object. See below for full description.
 
+#### Cluster
+By calling `cluster()` upon a previously constructed heatmap object, the rows and columns of the heatmap are clustered
+using the UPGMA-algorithm, and reordered using the MOLO-heuristic. The rows are clustered first. Columns are clustered
+last.
+
+#### Reset
+The complete visualization can be rerendered, by calling `reset()`.
 
 ### The HeatmapElement object
 A HeatmapElement represents one item that can be clustered. The rows and columns of the heatmap are typically 
@@ -64,6 +72,37 @@ A `HeatmapSettings` object can be used to fully configure the heatmap and contai
 * `textWidth` (*optional*, default = 100): Maximum amount of pixels that can be used for the row labels.
 * `textHeight` (*optional*, default = 100): Maximum amount of pixels that can be used for the column labels.
 * `enableTooltips` (*optional*, default = true): Are tooltips shown when hovering over an element in the heatmap? 
-
-
+* `className` (*optional*, default = "heatmap"): An optional class that's appended to the `HTMLElement` wherein the 
+heatmap is rendered.
+* `maximumSquareWidth` (*optional*, default = 50): Absolute maximum size of an individual square in pixels. This value
+is used as an upper range, and the actual square width can be smaller, depending on the number of items in the heatmap.
+* `squarePadding` (*optional*, default = 2): Amount of pixels between successive squares in the heatmap.
+* `visualizationTextPadding` (*optional*, default = 5): Padding in pixels between the heatmap grid and the labels.
+* `fontSize` (*optional*, default = 12): Size of the text in the labels of the heatmap.
+* `animationSpeed` (*optional*, default = 2000): How long should reordering the animations take? This value is given in
+milliseconds.
+* `getTooltip` (*optional*, default = generic tooltip function): The function that's called whenever the user hovers 
+over a cell in the heatmap. This function needs to return a string representing HTML-code that will be executed and 
+receives 3 parameters:
+    * `HeatmapValue`: which represents the current cell over which the user is hovering.
+    * `HeatmapElement`: an element that represents the current row over which the user is hovering.
+    * `HeatmapElement`: an element that represents the current column over which the user is hovering.
+**NOTE: Be very cautious in passing user input directly as a result of this function. Please always sanitize the user's
+input before returning it, as this might lead to reflected XSS-attacks.**
+* `getTooltipTitle` (*optional*, default = column + row name=): This function is used to fill in a 
+tooltip's title. This function needs to return a string representing HTML-code that will be executed and 
+receives 3 parameters:
+     * `HeatmapValue`: which represents the current cell over which the user is hovering.
+     * `HeatmapElement`: an element that represents the current row over which the user is hovering.
+     * `HeatmapElement`: an element that represents the current column over which the user is hovering.
+**NOTE: Be very cautious in passing user input directly as a result of this function. Please always sanitize the user's
+input before returning it, as this might lead to reflected XSS-attacks.**
+* `getTooltipText` (*optional*, default = cell value): This function is used to fill in a 
+tooltip's body text. This function needs to return a string representing HTML-code that will be executed and 
+receives 3 parameters:
+     * `HeatmapValue`: which represents the current cell over which the user is hovering.
+     * `HeatmapElement`: an element that represents the current row over which the user is hovering.
+     * `HeatmapElement`: an element that represents the current column over which the user is hovering.
+**NOTE: Be very cautious in passing user input directly as a result of this function. Please always sanitize the user's
+input before returning it, as this might lead to reflected XSS-attacks.**
 
