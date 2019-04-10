@@ -35,9 +35,9 @@ export class HeatmapSettings extends Settings {
     // result of getTooltipTitle is used in a header and getTooltipText is used in a paragraph tag.
     getTooltip: (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
         return `
-            <b class='tip-title' style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif; color: #777; font-size: 14px;">${this.getTooltipTitle(cell, row, column)}</b>
-            <hr>
-            <a style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 12px;">${this.getTooltipText(cell)}</a>
+            <b class='tip-title' style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;">${this.getTooltipTitle(cell, row, column)}</b>
+            <br>
+            <a style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;">${this.getTooltipText(cell)}</a>
         `
     };
 
@@ -47,6 +47,6 @@ export class HeatmapSettings extends Settings {
 
     // Text that's displayed inside a tooltip. This is equal to the current cell's value by default.
     getTooltipText: (x: HeatmapValue) => string = (x: HeatmapValue) => {
-        return sanitizeHtml(`Score: ${(x.value * 100).toFixed(2)}%`);
+        return sanitizeHtml(`score: ${(x.value * 100).toFixed(2)}%`);
     };
 }
