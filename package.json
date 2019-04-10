@@ -4,6 +4,7 @@
   "description": "HeatMap built for the Unipept project. See http://unipept.ugent.be for more information. This HeatMap supports UPGMA-clustering and MOLO-reordering.",
   "main": "dist/bundle.js",
   "typings": "dist/index.d.ts",
+  "readme": "readme.md",
   "dependencies": {
     "@types/sanitize-html": "^1.18.3",
     "d3": "^5.7.0",
