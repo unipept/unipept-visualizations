@@ -1,18 +1,20 @@
 {
   "name": "unipept-heatmap",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "HeatMap built for the Unipept project. See http://unipept.ugent.be for more information. This HeatMap supports UPGMA-clustering and MOLO-reordering.",
   "main": "dist/bundle.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "d3": "^5.7.0"
+    "@types/sanitize-html": "^1.18.3",
+    "d3": "^5.7.0",
+    "sanitize-html": "^1.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "@types/d3": "^5.7.1",
     "@types/jest": "^24.0.9",
-    "@types/node": "^10.12.17",
+    "@types/node": "^10.14.4",
     "babel-loader": "^8.0.5",
     "d3": "^5.7.0",
     "jest": "^24.3.0",

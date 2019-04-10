@@ -1,5 +1,6 @@
 import Settings from "../settings";
 import {HeatmapElement, HeatmapValue} from "./input";
+let sanitizeHtml = require("sanitize-html");
 
 export class HeatmapSettings extends Settings {
     /***** VALUES *****/
@@ -41,11 +42,11 @@ export class HeatmapSettings extends Settings {
     };
 
     getTooltipTitle: (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
-        return `${column.name ? column.name : ''}${column.name ? ' and ' : ''}${row.name ? row.name : ''}`;
+        return sanitizeHtml(`${column.name ? column.name : ''}${column.name ? ' and ' : ''}${row.name ? row.name : ''}`);
     };
 
     // Text that's displayed inside a tooltip. This is equal to the current cell's value by default.
     getTooltipText: (x: HeatmapValue) => string = (x: HeatmapValue) => {
-        return `Score: ${(x.value * 100).toFixed(2)}%`;
+        return sanitizeHtml(`Score: ${(x.value * 100).toFixed(2)}%`);
     };
 }
