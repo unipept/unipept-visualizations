@@ -27,6 +27,7 @@ This method performs the UPGMA clustering technique and a heuristic to reorder t
 for a more comprehensive result.
 
 ## Heatmap
+### The Heatmap object
 #### Constructor
 The constructor of the `Heatmap` class automatically starts rendering the heatmap upon invokation and has following
 signature:
