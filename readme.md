@@ -2,4 +2,63 @@
 This repository contains a standalone version of the Unipept heatmap. The heatmap is part of the
 Unipept visualizations project and will be merged with that repository in the future.
 
-![Heatmap example]("./static/example.png")
+*Heatmap example image*
+
+A live example of this heatmap can be found on [ObservableHQ](https://observablehq.com/@pverscha/unipept-heatmap-live-example).
+
+## Requirements
+This package uses D3v5 to render an SVG image, containing the heatmap. All necessary dependences
+(including D3) are automatically installed, when adding this package through npm.
+
+## Installation
+The Unipept heatmap can simply be installed by executing `npm install unipept-heatmap`. This package
+comes with type-information and is suitable for TypeScript environments.
+
+## Quickstart
+Setting up the Unipept heatmap is very simple. 
+
+1. Install the package through npm (see installation
+instructions).
+2. Add a `div`-element to the page in which your visualization should be displayed.
+3. Invoke the Heatmap constructor with a reference to the `div`-element, and pass the data that
+should be visualized. 
+4. Call the `cluster()`-method on the newly created Heatmap-object to start clustering the heatmap.
+This method performs the UPGMA clustering technique and a heuristic to reorder the found clusters
+for a more comprehensive result.
+
+## Heatmap
+The constructor of the `Heatmap` class automatically starts rendering the heatmap upon invokation and has following
+signature:
+
+* `elementIdentifier`: The `HTMLElement` in which the heatmap should be rendered.
+* `data`: An object with 3 properties: `rows`, `columns` and `values`. Each of these proeprties needs a special type of
+object:
+     * `rows`: A `HeatmapElement`-array, see below for full description.
+     * `columns`: A `HeatmapElement`-array, see below for full description.
+     * `values`: A two-dimensional `HeatmapValue`-array. See below for full description.
+* `options` (*optional*): Can be used to configure the Heatmap before rendering. This parameter should receive a
+`HeatmapSettings`-object. See below for full description.
+
+
+### The HeatmapElement object
+A HeatmapElement represents one item that can be clustered. The rows and columns of the heatmap are typically 
+`HeatmapElement`'s. This object consists of 3 properties:
+
+* `name`: The name of the element. Will be used as a label for the respective row / column of the heatmap.
+* `id`: (*optional*): An ID that will be used internally by the heatmap to refer to this element. Defaults to the index
+of this element in the `rows` or `columns` array.
+* `extras` (*optional*): Any extra value that can be associated to this element. This value can be referenced from any
+of the overridden options-functions.
+
+### The HeatmapValue object
+All values that should be rendered by the heatmap are given as a two dimensional grid. Every value is an object that
+should contain the following properties:
+
+* `value`: The value of this cell. This should be a float in the [0, 1] interval.
+
+### The HeatmapSettings object
+A `HeatmapSettings` object can be used to fully configure the heatmap and contains the following properties:
+
+
+
+
