@@ -63,20 +63,31 @@ export class Heatmap {
 
     /**
      * Cluster the data found in the Heatmap according to the default clustering algorithm.
+     * @param toCluster One of "all", "columns" or "rows". "All" denotes that clustering on both the rows and columns
+     * should be performed. "Columns" denotes that clustering should only be clustered on the columns only. "Rows"
+     * denotes that the clustering is performed on the rows only.
      */
-    public cluster() {
+    public cluster(toCluster: "all" | "columns" | "rows" | "none" = "all") {
         let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
 
         let molo: Reorderer = new MoloReorderer();
 
-        // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
-        let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
-        // Now we perform a depth first search on the result in order to find the order of the values
-        let rowOrder: number[] = this.determineOrder(molo.reorder(clusterer.cluster(rowElements)), (id: string) => this.rowMap.get(id)!.idx!);
+        //@ts-ignore
+        let rowOrder: number[] = Array.apply(null, {length: this.rows.length}).map(Number.call, Number);
+        if (toCluster === "all" || toCluster === "rows") {
+            // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of numbers that correspond to a row's values.
+            let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(this.values[idx].filter(val => val.rowId == el.id).map(x => x.value), el.id!));
+            // Now we perform a depth first search on the result in order to find the order of the values
+            rowOrder = this.determineOrder(molo.reorder(clusterer.cluster(rowElements)), (id: string) => this.rowMap.get(id)!.idx!);
+        }
 
-        // Create a new ClusterElement for every column that exists.
-        let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
-        let columnOrder: number[] = this.determineOrder(clusterer.cluster(columnElements), (id: string) => this.columnMap.get(id)!.idx!);
+        //@ts-ignore
+        let columnOrder: number[] = Array.apply(null, {length: this.rows.length}).map(Number.call, Number);
+        if (toCluster === "all" || toCluster === "columns") {
+            // Create a new ClusterElement for every column that exists.
+            let columnElements: ClusterElement[] = this.columns.map((el, idx) => new ClusterElement(this.values.map(col => col[idx].value), el.id!));
+            columnOrder = this.determineOrder(clusterer.cluster(columnElements), (id: string) => this.columnMap.get(id)!.idx!);
+        }
 
         let newValues = [];
         // Swap rows and columns
@@ -117,13 +128,13 @@ export class Heatmap {
 
             d3.selectAll(".column-" + column.id)
                 .transition()
-                .delay(this.settings.animationSpeed / 2)
+                .delay(toCluster === "all" ? this.settings.animationSpeed / 2 : 0)
                 .duration(this.settings.animationSpeed / 2)
                 .attr("x", (d) => newLocation * squareWidth + newLocation * this.settings.squarePadding);
 
             d3.selectAll(".column-label-" + column.id)
                 .transition()
-                .delay(this.settings.animationSpeed / 2)
+                .delay(toCluster === "all" ? this.settings.animationSpeed / 2 : 0)
                 .duration(this.settings.animationSpeed / 2)
                 .attr("x", (d) => (squareWidth + this.settings.squarePadding) * newLocation + textCenter)
                 .attr("transform", (d) => `rotate(90, ${(squareWidth + this.settings.squarePadding) * newLocation + textCenter}, ${textStart})`);
