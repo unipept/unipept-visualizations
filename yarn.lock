@@ -214,7 +214,7 @@ atob@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
 
-babel-cli@^6.18.0:
+babel-cli@6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-cli/-/babel-cli-6.26.0.tgz#502ab54874d7db88ad00b887a06383ce03d002f1"
   dependencies:
@@ -243,7 +243,7 @@ babel-code-frame@^6.16.0, babel-code-frame@^6.26.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-babel-core@^6.0.12, babel-core@^6.21.0, babel-core@^6.26.0:
+babel-core@6.26.3, babel-core@^6.0.12, babel-core@^6.26.0:
   version "6.26.3"
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-6.26.3.tgz#b2e2f09e342d0f0c88e2f02e067794125e75c207"
   dependencies:
@@ -355,7 +355,7 @@ babel-helpers@^6.24.1:
     babel-runtime "^6.22.0"
     babel-template "^6.24.1"
 
-babel-loader@^6.2.10:
+babel-loader@6.4.1:
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-6.4.1.tgz#0b34112d5b0748a8dcdbf51acf6f9bd42d50b8ca"
   dependencies:
@@ -544,7 +544,7 @@ babel-plugin-transform-es2015-unicode-regex@^6.24.1:
     babel-runtime "^6.22.0"
     regexpu-core "^2.0.0"
 
-babel-plugin-transform-object-assign@^6.8.0:
+babel-plugin-transform-object-assign@6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-object-assign/-/babel-plugin-transform-object-assign-6.22.0.tgz#f99d2f66f1a0b0d498e346c5359684740caa20ba"
   dependencies:
@@ -571,7 +571,7 @@ babel-polyfill@^6.26.0:
     core-js "^2.5.0"
     regenerator-runtime "^0.10.5"
 
-babel-preset-es2015@^6.18.0:
+babel-preset-es2015@6.24.1:
   version "6.24.1"
   resolved "https://registry.yarnpkg.com/babel-preset-es2015/-/babel-preset-es2015-6.24.1.tgz#d44050d6bc2c9feea702aaf38d727a0210538939"
   dependencies:
@@ -1368,7 +1368,7 @@ escope@^3.6.0:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
 
-eslint-config-google@^0.7.1:
+eslint-config-google@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/eslint-config-google/-/eslint-config-google-0.7.1.tgz#5598f8498e9e078420f34b80495b8d959f651fb2"
 
@@ -1386,7 +1386,7 @@ eslint-module-utils@^2.2.0:
     debug "^2.6.8"
     pkg-dir "^1.0.0"
 
-eslint-plugin-import@^2.2.0:
+eslint-plugin-import@2.14.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.14.0.tgz#6b17626d2e3e6ad52cfce8807a845d15e22111a8"
   dependencies:
@@ -1401,7 +1401,7 @@ eslint-plugin-import@^2.2.0:
     read-pkg-up "^2.0.0"
     resolve "^1.6.0"
 
-eslint@^3.0.0, eslint@^3.13.1:
+eslint@3.19.0, eslint@^3.0.0:
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.19.0.tgz#c8fc6201c7f40dd08941b87c085767386a679acc"
   dependencies:
@@ -1919,7 +1919,7 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.4:
   version "4.1.15"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
 
-grunt-babel@^6.0.0:
+grunt-babel@6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/grunt-babel/-/grunt-babel-6.0.0.tgz#378189b487de1168c4c4a9fc88dd6005b35df960"
   dependencies:
@@ -1934,7 +1934,7 @@ grunt-cli@~1.2.0:
     nopt "~3.0.6"
     resolve "~1.1.0"
 
-grunt-contrib-uglify@^2.0.0:
+grunt-contrib-uglify@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/grunt-contrib-uglify/-/grunt-contrib-uglify-2.3.0.tgz#b3d0260ebdd6cefa12ff2f8e9e1e259f7de4216f"
   dependencies:
@@ -1976,13 +1976,13 @@ grunt-legacy-util@~1.1.1:
     underscore.string "~3.3.4"
     which "~1.3.0"
 
-grunt-webpack@^1.0.18:
+grunt-webpack@1.0.18:
   version "1.0.18"
   resolved "https://registry.yarnpkg.com/grunt-webpack/-/grunt-webpack-1.0.18.tgz#ff26c43ff35bae6cca707a93c4bcdd950a3ecbb7"
   dependencies:
     lodash "^4.7.0"
 
-grunt@^1.0.1:
+grunt@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/grunt/-/grunt-1.0.3.tgz#b3c99260c51d1b42835766e796527b60f7bba374"
   dependencies:
@@ -2004,7 +2004,7 @@ grunt@^1.0.1:
     path-is-absolute "~1.0.0"
     rimraf "~2.6.2"
 
-gruntify-eslint@^3.1.0:
+gruntify-eslint@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/gruntify-eslint/-/gruntify-eslint-3.1.0.tgz#2c777fb388637fe447f8c56cd253caef6c8795e7"
   dependencies:
@@ -2588,7 +2588,7 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-load-grunt-tasks@^3.5.2:
+load-grunt-tasks@3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/load-grunt-tasks/-/load-grunt-tasks-3.5.2.tgz#0728561180fd20ff8a6927505852fc58aaea0c88"
   dependencies:
@@ -4376,7 +4376,7 @@ webpack-dev-middleware@3.4.0:
     range-parser "^1.0.3"
     webpack-log "^2.0.0"
 
-webpack-dev-server@^3.1.14:
+webpack-dev-server@3.1.14:
   version "3.1.14"
   resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-3.1.14.tgz#60fb229b997fc5a0a1fc6237421030180959d469"
   dependencies:
@@ -4418,7 +4418,7 @@ webpack-log@^2.0.0:
     ansi-colors "^3.0.0"
     uuid "^3.3.2"
 
-webpack@^1.14.0:
+webpack@1.15.0:
   version "1.15.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-1.15.0.tgz#4ff31f53db03339e55164a9d468ee0324968fe98"
   dependencies:
