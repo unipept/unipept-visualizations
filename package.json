@@ -2,18 +2,49 @@
   "name": "unipept-visualizations",
   "version": "2.0b",
   "description": "Unipept visualisation tools",
-  "main": "index.js",
+  "main": "dist/bundle.js",
+  "typings": "dist/index.d.ts",
+  "readme": "README.md",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack",
+    "test": "jest"
   },
-  "repository": "git@github.ugent.be:unipept/unipept-visualizations.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com:unipept/unipept-visualizations.git"
+  },
   "keywords": [
     "unipept",
     "d3",
-    "visualisations"
+    "visualisations",
+    "visualisation"
   ],
   "author": "Bart Mesuere",
+  "contributors": [
+    "Bart Mesuere",
+    "Pieter Verschaffelt"
+  ],
   "license": "MIT",
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@types/d3": "^5.7.2",
+    "@types/jest": "^24.0.18",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.2.2",
+    "eslint-plugin-jest": "^22.15.2",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "d3": "^5.11.0"
+  }
 }
