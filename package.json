@@ -1,6 +1,6 @@
 {
   "name": "unipept-visualizations",
-  "version": "1.7.3",
+  "version": "2.0b",
   "description": "Unipept visualisation tools",
   "main": "index.js",
   "scripts": {
@@ -14,23 +14,6 @@
   ],
   "author": "Bart Mesuere",
   "license": "MIT",
-  "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
-    "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-preset-es2015": "^6.18.0",
-    "eslint": "^3.13.1",
-    "eslint-config-google": "^0.7.1",
-    "eslint-plugin-import": "^2.2.0",
-    "grunt": "^1.0.1",
-    "grunt-babel": "^6.0.0",
-    "grunt-contrib-uglify": "^2.0.0",
-    "grunt-webpack": "^1.0.18",
-    "gruntify-eslint": "^3.1.0",
-    "load-grunt-tasks": "^3.5.2",
-    "webpack": "^1.14.0",
-    "webpack-dev-server": "^3.1.14"
-  },
+  "devDependencies": {},
   "dependencies": {}
 }
