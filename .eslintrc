@@ -5,6 +5,9 @@
     "plugin:jest/recommended"
   ],
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "rules": {
     "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/explicit-function-return-type": [
@@ -15,7 +18,7 @@
     ],
     "@typescript-eslint/no-parameter-properties": "off",
     "arrow-parens": ["error", "as-needed"],
-    "indent": ["error", 4],
+    "indent": ["error", 2],
     "max-len": [
       "warn",
       {
