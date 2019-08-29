@@ -1,5 +1,7 @@
 import d3 from "d3";
 
+import { Node } from "./node";
+
 /**
  * Defines default color palettes
  */

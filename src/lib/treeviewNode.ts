@@ -1,17 +1,14 @@
 import { emptyBasicNode, BasicNode } from "./basicNode";
-import { Node } from "./node";
+import { Node, NodeData } from "./node";
 
 type countAccessorFunction = (n: TreeviewNode) => number;
-type nodeData = {
-  count?: number;
-}
 
 export class TreeviewNode extends Node {
 
   public static countAccessor?: countAccessorFunction;
   public static levelsToExpand = 2;
 
-  public data: nodeData = {};
+  public data: NodeData = { count: 0 };
   public x0?: number;
   public y0?: number;
   public color?: string;

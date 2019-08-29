@@ -1,10 +1,14 @@
 import { emptyBasicNode, BasicNode } from "./basicNode";
 import { max as d3Max } from "d3-array";
 
+export type NodeData = {
+  count: number;
+}
+
 export class Node implements BasicNode {
 
-  public data = {};
-  public name = "";
+  public data: NodeData = { count: 0 };
+  public name: string = "";
   public children?: this[];
   public _children?: this[];
   public _height?: number;
