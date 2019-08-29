@@ -22,7 +22,7 @@ export class MaxCountHeap<E> {
   remove(): E {
     const output = this.data[0];
     if (this.size > 1) {
-      this.data[0] = this.data.pop();
+      this.data[0] = this.data.pop() as E;
       MaxCountHeap.sink(this.data, 0);
     } else {
       this.data.pop();
