@@ -1,0 +1,8 @@
+{
+    "baseIndentSize": 2,
+    "indentSize": 2,
+    "tabSize": 2,
+    "indentStyle": 2,
+    "convertTabsToSpaces": true,
+    "insertSpaceBeforeAndAfterBinaryOperators": true,
+}
