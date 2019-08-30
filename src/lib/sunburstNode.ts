@@ -13,7 +13,7 @@ export class SunburstNode extends Node {
     return new SunburstNode(node);
   }
 
-  static createNodes(node: BasicNode): SunburstNode {
-    return Node.createNode(node, SunburstNode.new);
+  static createNodes(nodes: BasicNode): SunburstNode {
+    return Node.createNode(nodes, SunburstNode.new);
   }
 }
