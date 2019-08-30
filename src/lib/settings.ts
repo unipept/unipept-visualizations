@@ -16,29 +16,29 @@ export default abstract class Settings {
   constructor(height?: number, width?: number, enableTooltips?: boolean) {
     this.height = height || 800;
     this.width = width || 800;
-    this.enableTooltips = enableTooltips || true;
+    this.enableTooltips = enableTooltips === undefined ? true : enableTooltips;
   }
 }
 
 export interface SunburstSettingsData extends Settings {
-  radius?: number;
-  levels?: number;
-  duration?: number;
+  radius: number;
+  levels: number;
+  duration: number;
 
-  enableBreadcrumbs?: boolean;
-  breadcrumbWidth?: number;
+  enableBreadcrumbs: boolean;
+  breadcrumbWidth: number;
 
-  colors?: (data: Node) => d3.ScaleOrdinal<string, string>;
+  colors: (data: Node) => d3.ScaleOrdinal<string, string>;
 
-  getLevel?: (data: Node) => number;
-  getLabel?: (data: Node) => string;
+  getLevel: (data: Node) => number;
+  getLabel: (data: Node) => string;
 
-  countAccessor?: (data: Node) => number;
-  rerootCallback?: (data: Node) => void;
+  countAccessor: (data: Node) => number;
+  rerootCallback: (data: Node) => void;
 
-  getTooltipTitle?: (data: Node) => string;
-  getTooltipText?: (data: Node) => string;
-  getTitleText?: (this: SunburstSettings, data: Node) => string;
+  getTooltipTitle: (data: Node) => string;
+  getTooltipText: (data: Node) => string;
+  getTitleText: (this: SunburstSettings, data: Node) => string;
 }
 
 export class SunburstSettings extends Settings {
@@ -100,15 +100,12 @@ export class SunburstSettings extends Settings {
       settings && settings.width,
       settings && settings.enableTooltips);
 
-    //TODO: debug what's going on in the test here
-    // console.log(JSON.stringify(settings));
-    // console.log(settings && settings.enableTooltips || "default");
-
     this.radius = settings && settings.radius || 300;
     this.levels = settings && settings.levels || 4;
     this.duration = settings && settings.duration || 1000;
 
-    this.enableBreadcrumbs = settings && settings.enableBreadcrumbs || true;
+    this.enableBreadcrumbs = (settings && (settings.enableBreadcrumbs !== undefined))
+      ? settings.enableBreadcrumbs : true;
     this.breadcrumbWidth = settings && settings.breadcrumbWidth || 200;
 
     this.colors = settings && settings.colors || ColorPalette.sunburstColors;

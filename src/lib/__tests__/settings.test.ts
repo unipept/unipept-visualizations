@@ -37,20 +37,10 @@ test("initialise custom", () => {
       } as SunburstSettingsData);
   expect(settings.height).toEqual(600);
   expect(settings.width).toEqual(900);
-  //expect(settings.enableTooltips).toEqual(false);
+  expect(settings.enableTooltips).toEqual(false);
   expect(settings.className).toEqual("unipept-sunburst");
   expect(settings.enableBreadcrumbs).toEqual(false);
   expect(settings.breadcrumbWidth).toEqual(200);
   expect(settings.countAccessor(new Node())).toEqual(0);
   expect(settings.rerootCallback).toBe(undefined);
 });
-
-// test("readableColor to return white for dark colors", () => {
-//   expect(getReadableColorFor("black")).toEqual("#fff");
-//   expect(getReadableColorFor("#000")).toEqual("#fff");
-// });
-
-// test("readableColor to return black for white colors", () => {
-//   expect(getReadableColorFor("white")).toEqual("#000");
-//   expect(getReadableColorFor("#fff")).toEqual("#000");
-// }); 
