@@ -11,6 +11,11 @@
         "no-bitwise": true,
         "no-conditional-assignment": true,
         "no-consecutive-blank-lines": false,
+        "no-inferrable-types": false,
+        "member-ordering": false,
+        "completed-docs": false,
+        "no-object-literal-type-assertion": [true, { "allow-arguments": true }],
+        "object-literal-sort-keys": false,
         "no-console": {
             "severity": "warning",
             "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
