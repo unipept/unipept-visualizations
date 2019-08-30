@@ -54,7 +54,7 @@ export class SunburstSettings extends Settings {
 
   public readonly colors: (data: Node) => d3.ScaleOrdinal<string, string>;
   public readonly countAccessor: (data: Node) => number;
-  public readonly rerootCallback: ((data: Node) => void) | undefined;
+  public readonly rerootCallback?: (data: Node) => void;
 
   public readonly getLevel: (data: Node) => number;
   public readonly getLabel: (data: Node) => string;
