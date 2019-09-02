@@ -3,7 +3,7 @@
  */
 import d3 from "d3";
 import { BasicNode } from "./basicNode";
-import { SunburstSettings } from "./settings";
+import { SunburstSettings } from "./sunburstSettings";
 import { SunburstNode } from "./sunburstNode";
 
 
