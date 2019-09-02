@@ -5,15 +5,18 @@ import { BasicNode, emptyBasicNode } from "./basicNode";
 import { Node } from "./node";
 
 export class SunburstNode extends Node {
-  constructor(node: BasicNode = emptyBasicNode()) {
+  public readonly size?: number;
+  public readonly children?: SunburstNode[];
+
+  private constructor(node: BasicNode = emptyBasicNode()) {
     super(node);
   }
 
-  static new(node: BasicNode = emptyBasicNode()): SunburstNode {
+  public static new(node: BasicNode = emptyBasicNode()): SunburstNode {
     return new SunburstNode(node);
   }
 
-  static createNodes(nodes: BasicNode): SunburstNode {
+  public static createNodes<N extends BasicNode>(nodes: N): SunburstNode {
     return Node.createNode(nodes, SunburstNode.new);
   }
 }
