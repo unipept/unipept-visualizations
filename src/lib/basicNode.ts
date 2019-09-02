@@ -5,6 +5,6 @@ export interface BasicNode {
 
 export function emptyBasicNode(): BasicNode {
   return {
-    name: ""
-  }
+    name: "",
+  };
 }

@@ -1,21 +1,21 @@
 import { emptyBasicNode, BasicNode } from "./basicNode";
 import { max as d3Max } from "d3-array";
 
-export type NodeData = {
+export interface INodeData {
   count: number;
 }
 
 export class Node implements BasicNode {
 
-  public data: NodeData = { count: 0 };
+  public data: INodeData = { count: 0 };
   public name: string = "";
-  public children?: this[];
-  public _children?: this[];
+  public children?: Node[];
+  public _children?: Node[];
   public _height?: number;
   public _depth?: number;
   public parent?: Node;
 
-  constructor(node: BasicNode = emptyBasicNode()) {
+  public constructor(node: object = emptyBasicNode()) {
     Object.assign(this, node);
   }
 
@@ -69,16 +69,17 @@ export class Node implements BasicNode {
     return this._depth;
   }
 
-  static new(node: BasicNode = emptyBasicNode()): Node {
+  public static new(node: BasicNode = emptyBasicNode()): Node {
     return new Node(node);
   }
 
-  static createNode<E extends Node>(node: BasicNode, nodeConstructor: (BasicNode) => E): E {
+  public static createNode<E extends Node>(node: BasicNode, nodeConstructor: (arg: BasicNode) => E): E {
     if (node.children) {
       node.children = node.children.map(
-        n => Node.createNode(n, nodeConstructor)
+        (n: BasicNode) => Node.createNode(n, nodeConstructor),
       );
     }
-    return nodeConstructor.call(null, node);
+
+    return nodeConstructor.call(undefined, node);
   }
 }
