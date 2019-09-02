@@ -51,7 +51,7 @@ export class TreeviewNode extends Node {
     }
     if (this.children) {
       this._children = this.children;
-      this._children.forEach(c => {
+      this._children.forEach((c: TreeviewNode) => {
         c.collapseAll();
       });
       delete this.children;
