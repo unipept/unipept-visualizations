@@ -26,12 +26,13 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@types/d3": "^5.7.2",
     "@types/jest": "^24.0.18",
+    "@types/jquery": "^3.3.31",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
+    "babel": "^6.23.0",
     "babel-loader": "^8.0.6",
     "d3": "^5.11.0",
     "eslint": "^6.2.2",
@@ -45,7 +46,10 @@
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@babel/core": "^7.5.5",
+    "@types/babel-core": "^6.25.6"
+  },
   "peerDependencies": {
     "d3": "^5.11.0"
   }
