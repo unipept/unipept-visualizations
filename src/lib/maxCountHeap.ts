@@ -1,8 +1,10 @@
+import { Node } from "./node";
+
 /** 
  * A priority queue that works with Nodes.
  * Based on https://github.com/gkz/es-collections
  */
-export class MaxCountHeap<E> {
+export class MaxCountHeap<E extends Node> {
   private data: E[];
 
   constructor(iterable: E[] = []) {
@@ -38,16 +40,16 @@ export class MaxCountHeap<E> {
     return this.data.length;
   }
 
-  static heapify<E>(data: E[]): E[] {
+  static heapify<E extends Node>(data: E[]): E[] {
     for (let i = Math.floor((data.length - 2) / 2); i >= 0; i--) {
       MaxCountHeap.sink(data, i);
     }
     return data;
   }
 
-  static bubbleUp<E>(data: E[], index: number): number {
+  static bubbleUp<E extends Node>(data: E[], index: number): number {
     let i = index;
-    const value = data[i];
+    const value: E = data[i];
 
     while (i > 0) {
       const parentIndex = Math.floor((i - 1) / 2);
@@ -63,7 +65,7 @@ export class MaxCountHeap<E> {
     return index;
   }
 
-  static sink<E>(data: E[], index: number): number {
+  static sink<E extends Node>(data: E[], index: number): number {
     const value = data[index];
     const size = data.length;
     let i = index;
@@ -84,7 +86,7 @@ export class MaxCountHeap<E> {
     return i;
   }
 
-  static comp(a, b): number {
+  static comp<E extends Node>(a: E, b: E): number {
     return b.data.count - a.data.count;
   }
 }

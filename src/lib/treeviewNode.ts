@@ -40,7 +40,7 @@ export class TreeviewNode extends Node {
     }
   }
 
-  setSelected(value): void {
+  setSelected(value: any): void {
     this.setRecursiveProperty("selected", value);
   }
 

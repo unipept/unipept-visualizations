@@ -1,5 +1,6 @@
-import { emptyBasicNode, BasicNode } from "./basicNode";
 import { max as d3Max } from "d3-array";
+
+import { BasicNode, emptyBasicNode } from "./basicNode";
 
 export interface INodeData {
   count: number;
@@ -19,11 +20,13 @@ export class Node implements BasicNode {
     Object.assign(this, node);
   }
 
-  // sets a property for a node and all its children
-  setRecursiveProperty(property: string, value: any): void {
+  [propName: string]: any;
+
+  // Sets a property for a node and all its children
+  public setRecursiveProperty(property: string, value: any): void {
     this[property] = value;
     if (this.children) {
-      this.children.forEach(c => {
+      this.children.forEach((c: Node) => {
         c.setRecursiveProperty(property, value);
       });
     } else if (this._children) {
