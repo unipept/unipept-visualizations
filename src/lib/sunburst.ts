@@ -1,30 +1,32 @@
 /**
  * Interactive Sunburst
  */
-import d3 from "d3";
+import * as d3 from "d3";
 
 import { BasicNode } from "./basicNode";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
 
 export class Sunburst {
-  private readonly element: Element;
   private readonly settings: SunburstSettings;
-  private readonly svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  sb: d3.Selection<SVGSVGElement, undefined, null, undefined>;
+
   // TODO: private readonly tooltip?:
   // TODO:   d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
-  public constructor(element: Element, data: BasicNode, options?: SunburstSettings) {
-    this.element = element;
+  public constructor(data: BasicNode, options?: SunburstSettings) {
     this.settings = options || SunburstSettings.default();
+    console.log("Options supplied: " + JSON.stringify(options));
 
     // TODO: if (this.settings.enableTooltips) {
     // TODO:   this.tooltip = this.initTooltip();
     // TODO: }
 
-    this.svg = this.initDrawing();
+    this.sb = this.draw(SunburstNode.createNodes(data), this.initDrawing());
+  }
 
-    this.draw(SunburstNode.createNodes(data));
+  public node() {
+    return this.sb.node();
   }
 
   // TODO: private initTooltip(): d3.Selection<HTMLDivElement, unknown, HTMLElement, any> {
@@ -41,10 +43,9 @@ export class Sunburst {
   //     .style("border-radius", "3px;");
   // }
 
-  private initDrawing(): d3.Selection<SVGSVGElement, unknown, null, undefined> {
-    const draw: d3.Selection<SVGSVGElement, unknown, null, undefined> =
-      d3.select(this.element)
-        .append("svg")
+  private initDrawing(): d3.Selection<SVGSVGElement, undefined, null, undefined> {
+    let node: d3.Selection<SVGSVGElement, undefined, null, undefined> =
+      d3.create("svg")
         .attr("version", "1.1")
         .attr("xmlns", "http://www.w3.org/2000/svg")
         .attr("viewBox", `0 0 ${this.settings.width} ${this.settings.height}`)
@@ -52,17 +53,22 @@ export class Sunburst {
         .attr("height", this.settings.height)
         .attr("overflow", "hidden")
         .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
-    draw.append("style")
+    node
+      .append("style")
       .attr("type", "text/css")
       .html(".hidden{ visibility: hidden;}");
-    draw.append("g")
+    node
+      .append("g")
       .attr("transform",
-        `translate(${this.settings.radius}, ${this.settings.radius})`); // Set origin to radius center
+        // Set origin to radius center
+        `translate(${this.settings.radius}, ${this.settings.radius})`);
 
-    return draw;
+    return node;
   }
 
-  private draw(data: SunburstNode): void {
+  private draw(data: SunburstNode,
+    node: d3.Selection<SVGSVGElement, undefined, null, undefined>
+  ): d3.Selection<SVGSVGElement, undefined, null, undefined> {
     const x: d3.ScaleLinear<number, number> = d3.scaleLinear()
       .range([0, Math.PI * 2]); // Use full circle
     const y: d3.ScaleLinear<number, number> = d3.scaleLinear()
@@ -71,6 +77,7 @@ export class Sunburst {
 
     const rootNode: d3.HierarchyNode<SunburstNode> = d3.hierarchy(data);
     rootNode.sum((n: SunburstNode): number => (n.size ? n.size : 0));
+
     // TODO: let image: d3.HierarchyRectangularNode < unknown > =
     d3.partition()
       .size([Math.PI * 2, this.settings.radius])
@@ -87,11 +94,13 @@ export class Sunburst {
         .outerRadius((d: d3.HierarchyRectangularNode<SunburstNode>) =>
           Math.max(0, y(d.y1)));
 
-    this.svg.selectAll("path")
+    node.selectAll("path")
       .data(rootNode.descendants())
       .enter()
       .append("path")
       .attr("d", <any>arc);
-    // ValueFn<SVGPathElement, HierarchyNode<SunburstNode>, any>
+    // TODO: ValueFn<SVGPathElement, HierarchyNode<SunburstNode>, any>
+
+    return node;
   }
 }

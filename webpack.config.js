@@ -1,8 +1,14 @@
 const path = require('path');
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
+  mode: 'development',
   entry: path.join(__dirname, '/src/index.ts'),
   devtool: 'inline-source-map',
+  plugins: [
+    new CleanWebpackPlugin()
+  ],
   module: {
     rules: [
       {
@@ -21,8 +27,6 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    library: 'Heatmap',
     libraryTarget: 'umd'
   },
-  mode: 'development'
 };

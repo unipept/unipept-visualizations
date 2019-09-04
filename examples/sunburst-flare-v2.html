@@ -1,0 +1,39 @@
+<html>
+
+  <head>
+    <title>Sunburst example v2.0</title>
+    <meta charset="UTF-8">
+
+    <!-- Jquery -->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+    
+
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- Visualiations -->
+    <script src="../dist/bundle.js"></script>
+
+
+  </head>
+
+  <body>
+    <div id="d3Sunburst"></div>
+
+    <script>
+      d3.json("data/flare.json").then(function(data) {
+        document.querySelector("#d3Sunburst").appendChild(
+          sunburst(data,
+                   {
+                     width: 900,
+                     height: 600,
+                     countAccessor: function (d) { return d.size; },
+                     enableTooltips: false,
+                     enableBreadcrumbs: false
+                   }));
+      });
+    </script>
+  </body>
+
+</html>
