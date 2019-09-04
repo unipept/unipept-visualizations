@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npm run compile && npm run bundle",
     "bundle": "webpack",
-    "compile": "tsc",
+    "compile": "tsc --noEmit",
     "test": "jest"
   },
   "repository": {
