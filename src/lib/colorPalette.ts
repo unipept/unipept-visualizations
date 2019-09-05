@@ -1,12 +1,10 @@
 import * as d3 from "d3";
 
-import { Node } from "./node";
-
 /**
  * Defines default color palettes
  */
 export class ColorPalette {
-  public static sunburstColors(_data: Node): d3.ScaleOrdinal<string, string> {
+  public static sunburstColors(): d3.ScaleOrdinal<string, string> {
     return d3.scaleOrdinal(
       ["#f9f0ab", "#e8e596", "#f0e2a3", "#ede487", "#efd580", "#f1cb82",
         "#f1c298", "#e8b598", "#d5dda1", "#c9d2b5", "#aec1ad", "#a7b8a8",
@@ -19,7 +17,7 @@ export class ColorPalette {
         "#dbdc7f", "#dfd961", "#ebe378", "#f5e351"]);
   }
 
-  public static sunburstColorsAlt(_data: Node): d3.ScaleOrdinal<string, string> {
+  public static sunburstColorsAlt(): d3.ScaleOrdinal<string, string> {
     return d3.scaleOrdinal(
       ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a",
         "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94",

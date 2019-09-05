@@ -16,7 +16,7 @@ export interface ISunburstSettingsData extends Settings {
   enableBreadcrumbs: boolean;
   breadcrumbWidth: number;
 
-  colors(data: Node): d3.ScaleOrdinal<string, string>;
+  colors(): d3.ScaleOrdinal<string, string>;
 
   getLevel(data: Node): number;
   getLabel(data: Node): string;
@@ -47,8 +47,7 @@ export class SunburstSettings extends Settings {
   public readonly enableBreadcrumbs: boolean = true;
   public readonly breadcrumbWidth: number = SunburstSettings.DEFAULT_BREADCRUMB_WIDTH;
 
-  public colors: (data: Node) => d3.ScaleOrdinal<string, string>
-    = ColorPalette.sunburstColors;
+  public readonly colors: () => d3.ScaleOrdinal<string, string> = ColorPalette.sunburstColors;
   public readonly countAccessor: (data: Node) => number
     = SunburstSettings.defaultCountAccessor;
   public readonly rerootCallback?: (data: Node) => void = undefined;
