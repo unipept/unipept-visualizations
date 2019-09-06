@@ -59,7 +59,7 @@ export class Optional<T> {
    * If a value is present, returns true, otherwise false.
    */
   public isPresent(): boolean {
-    return this.value === undefined;
+    return this.value !== undefined;
   }
 
   /**
