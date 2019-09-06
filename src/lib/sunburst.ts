@@ -4,13 +4,16 @@
 import * as d3 from "d3";
 
 import { BasicNode } from "./basicNode";
+import { averageColor } from "./color";
+import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
 
 export class Sunburst {
   private readonly settings: SunburstSettings;
   private readonly svg: d3.Selection<SVGSVGElement, undefined, null, undefined>;
-  private readonly colourPalette: d3.ScaleOrdinal<string, string>
+  private readonly colourPalette: d3.ScaleOrdinal<string, string>;
+  private static readonly DARKEN: number = 0.05;
 
   // TODO: private readonly tooltip?:
   // TODO:   d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
@@ -54,6 +57,7 @@ export class Sunburst {
       .attr("width", this.settings.width)
       .attr("height", this.settings.height)
       .attr("overflow", "hidden")
+      .attr("role", "img")
       .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
   }
 
@@ -61,12 +65,11 @@ export class Sunburst {
     // Set origin to radius center
     return this.svg.append("g")
       .attr("transform",
-        `translate(${this.settings.radius}, ${this.settings.radius})`);
+            `translate(${this.settings.radius}, ${this.settings.radius})`);
   }
 
   private draw(data: SunburstNode,
-    node: d3.Selection<SVGGElement, undefined, null, undefined>,
-  ): void {
+               node: d3.Selection<SVGGElement, undefined, null, undefined>): void {
 
     const x: d3.ScaleLinear<number, number> = d3.scaleLinear()
       .range([0, Math.PI * 2]); // Use full circle
@@ -93,15 +96,45 @@ export class Sunburst {
           Math.max(0, y(d.y1)));
 
     node.selectAll("path")
-      .data(partition(rootNode).descendants())
+      .data(partition(rootNode)
+        .descendants())
       .enter()
       .append("path")
       .attr("d", <any>arc) // TODO: ValueFn<SVGPathElement, HierarchyNode<SunburstNode>, any>
       .attr("fill-rule", "evenodd")
-      .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string => {
-        const colornode: d3.HierarchyNode<SunburstNode> | null =
-          (datum.children ? datum : datum.parent);
-        return this.colourPalette((colornode != null ? colornode.data.name : ""))
-      });
+      .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
+             this.color(datum))
+      .append("title")
+      .text((datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
+        this.settings.getTooltip(datum.data));
   }
+
+  private color(datum: d3.HierarchyRectangularNode<SunburstNode>): string {
+    if (datum.data.name === "empty") {
+      return "white";
+    }
+
+    if (datum.children) {
+      const childColors: Array<Optional<d3.RGBColor>> =
+        datum.children.map((child: d3.HierarchyRectangularNode<SunburstNode>) =>
+                           Optional.of(d3.rgb(this.color(child))));
+      if (datum.children.length === 1) { // Single child
+        return childColors[0].map((c: d3.RGBColor) =>
+                                  c.darker(Sunburst.DARKEN)
+                                  .toString())
+          .orElse("black");
+      }
+
+      return averageColor(childColors)
+        .map((c: d3.RGBColor | d3.HSLColor) => c.toString())
+        .orElse("black");
+    }
+
+    // Zero children
+    return this.colourPalette(datum.data.name);
+  }
+
+  // private onClick(datum: d3.HierarchyRectangularNode<SunburstNode>): void {
+
+  // }
 }
