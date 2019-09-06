@@ -13,6 +13,8 @@
         "no-magic-numbers": [true, {"allowed-numbers": [0, 1, 2, 3]}],
         "no-consecutive-blank-lines": false,
         "no-inferrable-types": false,
+        "file-name-casing": false,
+        "no-implicit-dependencies": [true, "dev"],
         "member-ordering": false,
         "completed-docs": false,
         "no-object-literal-type-assertion": [true, { "allow-arguments": true }],
