@@ -47,7 +47,7 @@ const getReadableColorFor: (color: string, cutoff?: number) => string
  */
 const averageColor: (colours: OptionalColor[]) => OptionalColor
   = (colours: OptionalColor[]): OptionalColor => {
-    const rgbColour: number[][]
+    const rgbColour: number[]
       = transpose(colours.map((c: OptionalColor): number[] =>
                               c.map((clr: d3.RGBColor | d3.HSLColor): number[] => {
                                 const localClr: d3.RGBColor = clr.rgb();
@@ -57,11 +57,17 @@ const averageColor: (colours: OptionalColor[]) => OptionalColor
                                         localClr.b * localClr.b];
                               })
                               .orElse([]))
-                  .filter((v: number[]): boolean => v.length !== 0));
+                  .filter((v: number[]): boolean => v.length !== 0))
+      .map((channel: number[]): number => arithmeticMean(channel)
+           .map((v: number) => Math.sqrt(v))
+           .orElse(NaN))
+      .filter((channel: number): boolean => !isNaN(channel));
 
-    return Optional.of(rgb(Math.sqrt(arithmeticMean(rgbColour[0])),
-                           Math.sqrt(arithmeticMean(rgbColour[1])),
-                           Math.sqrt(arithmeticMean(rgbColour[2]))));
+    if (rgbColour.length === 3) {
+      return Optional.of(rgb(rgbColour[0], rgbColour[1], rgbColour[2]));
+    }
+
+    return Optional.empty();
   };
 
 

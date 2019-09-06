@@ -1,4 +1,5 @@
-import { sum, arithmeticMean, transpose } from "../math";
+import { arithmeticMean, sum, transpose } from "../math";
+import { Optional } from "../optional";
 
 test("sum empty array", () => {
   expect(sum([])).toEqual(0);
@@ -9,11 +10,11 @@ test("sum valid array", () => {
 });
 
 test("average of empty array", () => {
-  expect(arithmeticMean([])).toEqual(NaN);
+  expect(arithmeticMean([])).toEqual(Optional.empty());
 });
 
 test("average of valid array", () => {
-  expect(arithmeticMean([1, 2, 3])).toEqual(2);
+  expect(arithmeticMean([1, 2, 3])).toEqual(Optional.of(2));
 });
 
 test("Matrix transpose", () => {
@@ -21,3 +22,6 @@ test("Matrix transpose", () => {
     .toEqual([[1, 4, 7, 10], [2, 5, 8, 11], [3, 6, 9, 12]]);
 });
 
+test("Transpose empty matrix", () => {
+  expect(transpose([])).toEqual([]);
+});

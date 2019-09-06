@@ -2,24 +2,32 @@
  * This file defines useful functions beyond those in Math.*
  */
 
+import { Optional } from "./optional";
+
 
 /**
  * Computes the sum of numbers in an array
  */
-export function sum(data: number[]): number {
-  return data.reduce((a: number, b: number) => a + b, 0);
-}
+const sum: (data: number[]) => number
+  = (data: number[]): number => (data ? data.reduce((a: number, b: number) => a + b, 0) : 0);
 
 /**
  * Computes the arithmetic mean of numbers in an array
  */
-export function arithmeticMean(data: number[]): number {
-  return sum(data) / data.length;
-}
+const arithmeticMean: (data: number[]) => Optional<number>
+  = (data: number[]): Optional<number> =>
+  Optional.of(data.length ? (sum(data) / data.length) : undefined);
 
 /**
  * Transposes an input 2D Array
  */
-export function transpose<T>(matrix: T[][]): T[][] {
-  return matrix[0].map((_: T, i: number) => matrix.map((row: T[]) => row[i]));
-}
+const transpose: <T>(matrix: T[][]) => T[][]
+  = <T>(matrix: T[][]): T[][] => {
+    if (matrix.length) {
+      return matrix[0].map((_: T, i: number) => matrix.map((row: T[]) => row[i]));
+    }
+
+    return matrix;
+  };
+
+export { sum, arithmeticMean, transpose };
