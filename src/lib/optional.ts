@@ -13,7 +13,7 @@ export class Optional<T> {
    * Create an Optional instance that wraps the parameter
    * @param element: The value to wrap in an Optional
    */
-  public static of<U>(element: U): Optional<U> {
+  public static of<U>(element: U | undefined): Optional<U> {
     return new Optional<U>(element);
   }
 
