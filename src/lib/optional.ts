@@ -14,7 +14,7 @@ export class Optional<T> {
    * @param element: The value to wrap in an Optional
    */
   public static of<U>(element: U | null | undefined): Optional<U> {
-    if (!element) {
+    if (element === null || element === undefined) {
       return Optional.empty();
     }
 
