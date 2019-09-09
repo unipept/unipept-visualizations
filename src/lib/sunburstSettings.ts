@@ -4,7 +4,7 @@
 
 import d3 from "d3";
 
-import { ColorPalette } from "./colorPalette";
+import { ColorPalette } from "./color";
 import { Node } from "./node";
 import { Settings } from "./settings";
 
@@ -94,8 +94,8 @@ export class SunburstSettings extends Settings {
   // Ctor and factories
   public constructor(settings?: ISunburstSettingsData) {
     super(settings && settings.height,
-      settings && settings.width,
-      settings && settings.enableTooltips);
+          settings && settings.width,
+          settings && settings.enableTooltips);
 
     Object.assign(this, settings);
   }

@@ -8,46 +8,52 @@ import { averageColor } from "./color";
 import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
+import { generateId } from "./utils";
 
 export class Sunburst {
   private readonly settings: SunburstSettings;
-  private readonly svg: d3.Selection<SVGSVGElement, undefined, null, undefined>;
+
+  private readonly topNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
+  private readonly svgNode: d3.Selection<SVGSVGElement, undefined, null, undefined>;
+  private readonly tooltipNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
+
   private readonly colourPalette: d3.ScaleOrdinal<string, string>;
   private static readonly DARKEN: number = 0.05;
-
-  // TODO: private readonly tooltip?:
-  // TODO:   d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
   public constructor(data: BasicNode, options?: SunburstSettings) {
     this.settings = options || SunburstSettings.default();
 
-    // TODO: if (this.settings.enableTooltips) {
-    // TODO:   this.tooltip = this.initTooltip();
-    // TODO: }
-
-    this.svg = this.createSVG();
+    this.topNode = d3.create("div")
+      .attr("id", `${generateId()}-${this.settings.className}`);
+    this.tooltipNode = Sunburst.createTooltip();
+    this.svgNode = this.createSVG();
+    this.topNode.append((): Element =>
+                        Optional.of(this.tooltipNode.node())
+                        .orElse(document.createElement("div")));
+    this.topNode.append((): Element =>
+                        Optional.of(this.svgNode.node())
+                        .orElse(document.createElement("svg") as unknown as SVGSVGElement));
     this.colourPalette = this.settings.colors();
 
     this.draw(SunburstNode.createNodes(data), this.createDrawing());
   }
 
-  public node(): SVGSVGElement | null {
-    return this.svg.node();
+  public node(): HTMLDivElement | null {
+    return this.topNode.node();
   }
 
-  // TODO: private initTooltip(): d3.Selection<HTMLDivElement, unknown, HTMLElement, any> {
-  // TODO:   return d3.select("body")
-  //     .append("div")
-  //     .attr("id", this.element.id + "-tooltip")
-  //     .attr("class", "tip")
-  //     .style("position", "absolute")
-  //     .style("z-index", "10")
-  //     .style("visibility", "hidden")
-  //     .style("background-color", "white")
-  //     .style("padding", "2px")
-  //     .style("border", "1px solid #dddddd")
-  //     .style("border-radius", "3px;");
-  // }
+  private static createTooltip(): d3.Selection<HTMLDivElement, undefined, null, undefined> {
+    return d3.create("div")
+      .attr("id", `${generateId()}-tooltip`)
+      .attr("class", "tip")
+      .style("position", "absolute")
+      .style("z-index", "10")
+      .style("visibility", "hidden")
+      .style("background-color", "white")
+      .style("padding", "2px")
+      .style("border", "1px solid #dddddd")
+      .style("border-radius", "3px;");
+  }
 
   private createSVG(): d3.Selection<SVGSVGElement, undefined, null, undefined> {
     return d3.create("svg")
@@ -63,7 +69,8 @@ export class Sunburst {
 
   private createDrawing(): d3.Selection<SVGGElement, undefined, null, undefined> {
     // Set origin to radius center
-    return this.svg.append("g")
+    return this.svgNode
+      .append("g")
       .attr("transform",
             `translate(${this.settings.radius}, ${this.settings.radius})`);
   }
@@ -81,8 +88,6 @@ export class Sunburst {
     rootNode.sum((n: SunburstNode): number => (n.size ? n.size : 0));
 
     const partition: d3.PartitionLayout<SunburstNode> = d3.partition();
-    // partition.size([Math.PI * 2, this.settings.radius]);
-    // (rootNode);
 
     const arc: d3.Arc<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>> =
       d3.arc<d3.HierarchyRectangularNode<SunburstNode>>()
@@ -103,10 +108,11 @@ export class Sunburst {
       .attr("d", <any>arc) // TODO: ValueFn<SVGPathElement, HierarchyNode<SunburstNode>, any>
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
-             this.color(datum))
-      .append("title")
-      .text((datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
-        this.settings.getTooltip(datum.data));
+             this.color(datum));
+
+      // TODO: .append("title")
+      // TODO: .text((datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
+      // TODO:   this.settings.getTooltip(datum.data));
   }
 
   private color(datum: d3.HierarchyRectangularNode<SunburstNode>): string {
@@ -134,7 +140,7 @@ export class Sunburst {
     return this.colourPalette(datum.data.name);
   }
 
-  // private onClick(datum: d3.HierarchyRectangularNode<SunburstNode>): void {
+  // TODO: private onClick(datum: d3.HierarchyRectangularNode<SunburstNode>): void {
 
   // }
 }

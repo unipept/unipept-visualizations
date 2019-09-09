@@ -1,5 +1,6 @@
 import { rgb } from "d3";
 
+import * as ColorPalette from "./colorPalette";
 import { arithmeticMean, transpose } from "./math";
 import { Optional } from "./optional";
 
@@ -70,5 +71,5 @@ const averageColor: (colours: OptionalColor[]) => OptionalColor
     return Optional.empty();
   };
 
-
-export { brightness, getReadableColorFor, averageColor, OptionalColor };
+export { brightness, ColorPalette, getReadableColorFor,
+         averageColor, OptionalColor };

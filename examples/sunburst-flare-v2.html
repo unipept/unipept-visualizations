@@ -2,12 +2,7 @@
 
   <head>
     <title>Sunburst example v2.0</title>
-    <meta charset="UTF-8">
-
-    <!-- Jquery -->
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
-    
+    <meta charset="UTF-8">    
 
     <!-- D3 -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -28,6 +23,7 @@
                    {
                      width: 900,
                      height: 600,
+                     colors: ColorPalette.sunburstColorsAlt,
                      countAccessor: function (d) { return d.size; },
                      enableTooltips: false,
                      enableBreadcrumbs: false
