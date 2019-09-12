@@ -139,9 +139,12 @@ export class Sunburst {
     }
 
     if (datum.children) {
-      const childColors: Array<Optional<d3.RGBColor>> =
-        datum.children.map((child: d3.HierarchyNode<SunburstNode>) =>
-                           Optional.of(d3.rgb(this.color(child))));
+      const childColors: Array<Optional<d3.RGBColor>>
+        = datum.children
+               .slice(0, 2) // Only care about the first 2 children
+               .map((child: d3.HierarchyNode<SunburstNode>) =>
+                    Optional.of(d3.rgb(this.color(child))));
+
       if (datum.children.length === 1) { // Single child
         return childColors[0].map((c: d3.RGBColor) =>
                                   c.darker(Sunburst.DARKEN)
@@ -169,9 +172,6 @@ export class Sunburst {
   private updateBreadcrumbs(data: d3.HierarchyNode<SunburstNode>): void {
     const crumbs: Array<d3.HierarchyNode<SunburstNode>>
       = Data.branch(data, (node: d3.HierarchyNode<SunburstNode>) => node.parent);
-
-    // : Array<d3.HierarchyRectangularNode<SunburstNode>> | null
-    console.log(crumbs);
 
     let breadArc: d3.Arc<any, d3.HierarchyNode<SunburstNode>>
       = d3.arc<d3.HierarchyNode<SunburstNode>>()
