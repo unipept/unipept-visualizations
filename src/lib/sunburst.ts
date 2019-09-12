@@ -154,7 +154,7 @@ export class Sunburst {
       const children: Array<d3.HierarchyNode<SunburstNode>> = datum.children;
       children.sort((a: d3.HierarchyNode<SunburstNode>,
                      b: d3.HierarchyNode<SunburstNode>): number =>
-                    this.nodeSize(a.data) - this.nodeSize(b.data));
+                    this.nodeSize(b.data) - this.nodeSize(a.data));
       const childColors: Array<Optional<d3.RGBColor>> =
         children
         .slice(0, 2) // Only care about the largest 2 children
