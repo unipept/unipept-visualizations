@@ -21,6 +21,8 @@ export class Sunburst {
   private readonly breadcrumbNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
 
   private readonly colourPalette: d3.ScaleOrdinal<string, string>;
+
+  // Constants:
   private static readonly DARKEN: number = 0.05;
 
   public constructor(data: BasicNode, options?: SunburstSettings) {
@@ -47,6 +49,16 @@ export class Sunburst {
 
     this.draw(SunburstNode.createNodes(data), this.createDrawing());
   }
+
+  private nodeSize(n: SunburstNode): number {
+    return Data.count(n, this.settings.countAccessor);
+  }
+
+  private nodeSizeRatio(n: SunburstNode, d: SunburstNode): number {
+    return Data.countRatio(n, d, this.settings.countAccessor)
+      .orElse(NaN);
+  }
+
 
   public node(): HTMLDivElement | null {
     return this.topNode.node();
@@ -139,11 +151,15 @@ export class Sunburst {
     }
 
     if (datum.children) {
-      const childColors: Array<Optional<d3.RGBColor>>
-        = datum.children
-               .slice(0, 2) // Only care about the first 2 children
-               .map((child: d3.HierarchyNode<SunburstNode>) =>
-                    Optional.of(d3.rgb(this.color(child))));
+      const children: Array<d3.HierarchyNode<SunburstNode>> = datum.children;
+      children.sort((a: d3.HierarchyNode<SunburstNode>,
+                     b: d3.HierarchyNode<SunburstNode>): number =>
+                    this.nodeSize(a.data) - this.nodeSize(b.data));
+      const childColors: Array<Optional<d3.RGBColor>> =
+        children
+        .slice(0, 2) // Only care about the largest 2 children
+        .map((child: d3.HierarchyNode<SunburstNode>) =>
+             Optional.of(d3.rgb(this.color(child))));
 
       if (datum.children.length === 1) { // Single child
         return childColors[0].map((c: d3.RGBColor) =>
@@ -162,7 +178,9 @@ export class Sunburst {
   }
 
   private onClick(datum: d3.HierarchyNode<SunburstNode>): void {
-    this.updateBreadcrumbs(datum);
+    if (this.settings.enableBreadcrumbs) {
+      this.updateBreadcrumbs(datum);
+    }
 
     if (this.settings.rerootCallback) {
       this.settings.rerootCallback(datum.data);
@@ -171,33 +189,49 @@ export class Sunburst {
 
   private updateBreadcrumbs(data: d3.HierarchyNode<SunburstNode>): void {
     const crumbs: Array<d3.HierarchyNode<SunburstNode>>
-      = Data.branch(data, (node: d3.HierarchyNode<SunburstNode>) => node.parent);
-
-    let breadArc: d3.Arc<any, d3.HierarchyNode<SunburstNode>>
-      = d3.arc<d3.HierarchyNode<SunburstNode>>()
-      .innerRadius(0)
-      .outerRadius(15)
-      .startAngle(0)
-      .endAngle((d: d3.HierarchyNode<SunburstNode>): number => Math.PI * 2 * Data.countRatio(d.data));
+      = Data.branch(data, (node: d3.HierarchyNode<SunburstNode>) => node.parent)
+      .slice(1);
 
     const parentSettings: SunburstSettings = this.settings;
 
-    let bc = this.breadcrumbNode.select("ul").selectAll(".crumb").data(crumbs);
+    this.breadcrumbNode.select("ul").selectAll(".crumb").remove();
+    const bc: d3.Selection<d3.BaseType, d3.HierarchyNode<SunburstNode>, d3.BaseType, undefined>
+      = this.breadcrumbNode.select("ul")
+      .selectAll(".crumb")
+      .data(crumbs);
+
     bc.enter()
       .append("li")
       .on("click", (d: d3.HierarchyNode<SunburstNode>) => this.onClick(d))
       .classed("crumb", true)
-      .style("opacity", "0")
-      .attr("title", (d: d3.HierarchyNode<SunburstNode>) => parentSettings.getTitleText(d.data))
-      .html((d: d3.HierarchyNode<SunburstNode>): string => `<p class='name'>${d.data.name}</p><p class='percentage'>${Math.round(100 * Data.countRatio(d.data))}% of ${(d.parent === null) ? "" : d.parent.data.name}</p>`)
-      .insert("svg", ":first-child").attr("width", 30).attr("height", 30)
-      .append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", (d: d3.HierarchyNode<SunburstNode>) => this.color(d));
-    bc.transition()
-      .duration(this.settings.duration)
-      .style("opacity", "1");
-    bc.exit().transition()
-      .duration(this.settings.duration)
-      .style("opacity", "0")
+      .attr("title",
+            (d: d3.HierarchyNode<SunburstNode>) => parentSettings.getTitleText(d.data))
+      .html((d: d3.HierarchyNode<SunburstNode>) => this.crumb(d))
+      .style("background-color", (d: d3.HierarchyNode<SunburstNode>) => this.color(d));
+
+    bc.exit()
       .remove();
+  }
+
+  private crumb(node: d3.HierarchyNode<SunburstNode>): string {
+    const c: HTMLParagraphElement | null = d3.create("p")
+      .classed("breadcrumb-name", true)
+      .text(`${node.data.name}`)
+      .append("p")
+      .classed("breadcrumb-data", true)
+      .text(() => this.crumbText(node))
+      .node();
+
+    return (c === null) ? "" : c.innerHTML;
+  }
+
+  private crumbText(node: d3.HierarchyNode<SunburstNode>): string {
+    if (node.parent) {
+      return `${node.data.name} is `
+        + `${Math.round(100 * this.nodeSizeRatio(node.data, node.parent.data))}% of `
+        + `${node.parent.data.name}`;
+    }
+
+    return "";
   }
 }

@@ -8,6 +8,7 @@
 import { HierarchyNode } from "d3";
 
 import { Node } from "./node";
+import { Optional } from "./optional";
 
 
 const branch: (data: HierarchyNode<Node>,
@@ -25,8 +26,20 @@ const branch: (data: HierarchyNode<Node>,
     return result;
   };
 
-const countRatio: (datum: Node) => number
-  = (datum: Node): number => datum.data.count
-    / ((datum.parent === undefined) ? 1 : datum.parent.data.count);
+const count: (datum: Node, counter: (d: Node) => number) => number
+  = (datum: Node, counter: (d: Node) => number): number => {
+    if (datum.children) {
+      return datum.children.map((v: Node): number => count(v, counter))
+        .reduce(((a: number, b: number): number => a + b), 0);
+    }
 
-export { branch, countRatio };
+    return counter(datum);
+  };
+
+const countRatio: (numerator: Node, denominator: Node, counter: (d: Node) => number) => Optional<number>
+  = (numerator: Node, denominator: Node, counter: (d: Node) => number): Optional<number> =>
+  Optional.of((numerator === undefined || denominator === undefined)
+              ? undefined
+              : (count(numerator, counter) / count(denominator, counter)));
+
+export { branch, count, countRatio };
