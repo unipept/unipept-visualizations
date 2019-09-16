@@ -5,6 +5,7 @@
 import d3 from "d3";
 
 import { ColorPalette } from "./color";
+import * as Data from "./data";
 import { Node } from "./node";
 import { Settings } from "./settings";
 
@@ -55,9 +56,9 @@ export class SunburstSettings extends Settings {
   public readonly getLevel: (data: Node) => number = SunburstSettings.defaultLevel;
   public readonly getLabel: (data: Node) => string = SunburstSettings.defaultLabel;
 
-  public readonly getTooltip: (data: Node) => string = SunburstSettings.defaultTooltip;
+  public readonly getTooltip: (data: Node) => string = this.defaultTooltip;
   public readonly getTooltipTitle: (data: Node) => string = SunburstSettings.defaultTooltipTitle;
-  public readonly getTooltipText: (data: Node) => string = SunburstSettings.defaultTooltipText;
+  public readonly getTooltipText: (data: Node) => string = this.defaultTooltipText;
   public readonly getTitleText: (data: Node) => string = SunburstSettings.defaultTitleText;
 
   /// Private (default) methods
@@ -65,17 +66,17 @@ export class SunburstSettings extends Settings {
     return data.data.count;
   }
 
-  public static defaultTooltip(data: Node): string {
+  public defaultTooltip(data: Node): string {
     return `<h3 class='tip-title'>${SunburstSettings.defaultTooltipTitle(data)}</h3>` +
-      `<p>${SunburstSettings.defaultTooltipText(data)}</p>`;
+      `<p>${this.defaultTooltipText(data)}</p>`;
   }
 
   public static defaultTooltipTitle(data: Node): string {
     return data.name;
   }
 
-  public static defaultTooltipText(data: Node): string {
-    return `${data.data.count} hits`;
+  public defaultTooltipText(data: Node): string {
+    return `${Data.count(data, this.countAccessor)} hits`;
   }
 
   public static defaultLevel(data: Node): number {

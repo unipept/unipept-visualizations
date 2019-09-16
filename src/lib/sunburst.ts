@@ -25,6 +25,12 @@ export class Sunburst {
   // Constants:
   private static readonly DARKEN: number = 0.05;
 
+  private static readonly tooltipMode = {
+    IN: "in",
+    MOVE: "move",
+    OUT: "out"
+  };
+
   public constructor(data: BasicNode, options?: SunburstSettings) {
     this.settings = options || SunburstSettings.default();
     this.id = generateId();
@@ -142,7 +148,41 @@ export class Sunburst {
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
-      .on("click", (d: d3.HierarchyNode<SunburstNode>) => this.onClick(d));
+      .on("click", (d: d3.HierarchyNode<SunburstNode>) => this.onClick(d))
+      .on("mouseover", (d: d3.HierarchyNode<SunburstNode>) =>
+          this.tooltip(d, Sunburst.tooltipMode.IN))
+      .on("mousemove", (d: d3.HierarchyNode<SunburstNode>) =>
+          this.tooltip(d, Sunburst.tooltipMode.MOVE))
+      .on("mouseout", (d: d3.HierarchyNode<SunburstNode>) =>
+          this.tooltip(d, Sunburst.tooltipMode.OUT));
+  }
+
+  private tooltip(d: d3.HierarchyNode<SunburstNode>, mode: string): void {
+    if (!this.settings.enableTooltips) {
+      return;
+    }
+
+    switch (mode) {
+      case Sunburst.tooltipMode.IN:
+        this.tooltipNode
+          .html(this.settings.getTooltip(d.data))
+          .style("top", (d3.event.pageY - 5) + "px")
+          .style("left", (d3.event.pageX + 15) + "px")
+          .style("visibility", "visible");
+        break;
+
+      case Sunburst.tooltipMode.MOVE:
+        this.tooltipNode
+          .style("top", (d3.event.pageY - 5) + "px")
+          .style("left", (d3.event.pageX + 15) + "px");
+        break;
+
+      case Sunburst.tooltipMode.OUT:
+        this.tooltipNode.style("visibility", "hidden");
+        break;
+
+      default:
+    }
   }
 
   private color(datum: d3.HierarchyNode<SunburstNode>): string {
