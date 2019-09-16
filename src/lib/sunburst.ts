@@ -11,6 +11,7 @@ import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
 import { generateId } from "./utils";
 
+
 export class Sunburst {
   private readonly settings: SunburstSettings;
   private readonly id: string;
@@ -24,11 +25,13 @@ export class Sunburst {
 
   // Constants:
   private static readonly DARKEN: number = 0.05;
+  private static readonly TOOLTIP_TOP_PADDING: number = -5;
+  private static readonly TOOLTIP_LEFT_PADDING: number = 15;
 
-  private static readonly tooltipMode = {
+  private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
     MOVE: "move",
-    OUT: "out"
+    OUT: "out",
   };
 
   public constructor(data: BasicNode, options?: SunburstSettings) {
@@ -144,7 +147,7 @@ export class Sunburst {
         .descendants())
       .enter()
       .append("path")
-      .attr("d", <any>arc) // TODO: ValueFn<SVGPathElement, HierarchyNode<SunburstNode>, any>
+      .attr("d", arc as d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string>)
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
@@ -166,15 +169,15 @@ export class Sunburst {
       case Sunburst.tooltipMode.IN:
         this.tooltipNode
           .html(this.settings.getTooltip(d.data))
-          .style("top", (d3.event.pageY - 5) + "px")
-          .style("left", (d3.event.pageX + 15) + "px")
+          .style("top", `${d3.event.pageY + Sunburst.TOOLTIP_TOP_PADDING}px`)
+          .style("left", `${d3.event.pageX + Sunburst.TOOLTIP_LEFT_PADDING}px`)
           .style("visibility", "visible");
         break;
 
       case Sunburst.tooltipMode.MOVE:
         this.tooltipNode
-          .style("top", (d3.event.pageY - 5) + "px")
-          .style("left", (d3.event.pageX + 15) + "px");
+          .style("top", `${d3.event.pageY + Sunburst.TOOLTIP_TOP_PADDING}px`)
+          .style("left", `${d3.event.pageX + Sunburst.TOOLTIP_LEFT_PADDING}px`);
         break;
 
       case Sunburst.tooltipMode.OUT:
@@ -234,7 +237,10 @@ export class Sunburst {
 
     const parentSettings: SunburstSettings = this.settings;
 
-    this.breadcrumbNode.select("ul").selectAll(".crumb").remove();
+    this.breadcrumbNode.select("ul")
+      .selectAll(".crumb")
+      .remove();
+
     const bc: d3.Selection<d3.BaseType, d3.HierarchyNode<SunburstNode>, d3.BaseType, undefined>
       = this.breadcrumbNode.select("ul")
       .selectAll(".crumb")
@@ -268,7 +274,7 @@ export class Sunburst {
   private crumbText(node: d3.HierarchyNode<SunburstNode>): string {
     if (node.parent) {
       return `${node.data.name} is `
-        + `${Math.round(100 * this.nodeSizeRatio(node.data, node.parent.data))}% of `
+        + `${Math.round(this.nodeSizeRatio(node.data, node.parent.data) * 100)}% of `
         + `${node.parent.data.name}`;
     }
 

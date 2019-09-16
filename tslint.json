@@ -10,7 +10,7 @@
         "no-null-keyword": true,
         "no-bitwise": true,
         "no-conditional-assignment": true,
-        "no-magic-numbers": [true, {"allowed-numbers": [0, 1, 2, 3]}],
+      "no-magic-numbers": [true, {"allowed-numbers": [0, 1, 2, 3, 5, 10, 100]}],
         "no-consecutive-blank-lines": false,
         "no-inferrable-types": false,
         "file-name-casing": false,
