@@ -4,7 +4,7 @@
 import * as d3 from "d3";
 
 import { BasicNode } from "./basicNode";
-import { averageColor } from "./color";
+import { averageColor, getReadableColorFor } from "./color";
 import * as Data from "./data";
 import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
@@ -140,11 +140,13 @@ export class Sunburst {
         .innerRadius((d: d3.HierarchyRectangularNode<SunburstNode>) =>
           Math.max(0, y(d.y0)))
         .outerRadius((d: d3.HierarchyRectangularNode<SunburstNode>) =>
-          Math.max(0, y(d.y1)));
+                     Math.max(0, y(d.y1)));
+
+    const nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>> = partition(rootNode)
+      .descendants();
 
     node.selectAll("path")
-      .data(partition(rootNode)
-        .descendants())
+      .data(nodeData)
       .enter()
       .append("path")
       .attr("d", arc as d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string>)
@@ -158,6 +160,19 @@ export class Sunburst {
           this.tooltip(d, Sunburst.tooltipMode.MOVE))
       .on("mouseout", (d: d3.HierarchyNode<SunburstNode>) =>
           this.tooltip(d, Sunburst.tooltipMode.OUT));
+
+    node.selectAll("text")
+      .data(nodeData)
+      .enter()
+      .append("text")
+      .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
+      .style("fill-opacity", 0)
+      .style("font-family", "Helvetica, 'Super Sans', sans-serif")
+      .style("pointer-events", "none")
+      .attr("dy", ".2em")
+      .text((d: d3.HierarchyNode<SunburstNode>) => this.settings.getLabel(d.data));
+      // .style("font-size", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
+      //        `${Math.floor(Math.min(((this.settings.radius / this.settings.levels) / d.height * 10) + 1, 12))}px`);
   }
 
   private tooltip(d: d3.HierarchyNode<SunburstNode>, mode: string): void {
