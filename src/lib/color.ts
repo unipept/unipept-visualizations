@@ -1,4 +1,4 @@
-import { hsl, rgb } from "d3";
+import { rgb } from "d3";
 
 import * as ColorPalette from "./colorPalette";
 import { arithmeticMean, transpose } from "./math";
@@ -40,27 +40,6 @@ const getReadableColorFor: (color: string, cutoff?: number) => string
     return (value < cutoff ? "#fff" : "#000");
   });
 
-const readableText: (color: string) => d3.RGBColor
-  = (color: string): d3.RGBColor => {
-    const alternatives: d3.RGBColor[] = [rgb("black"), rgb("white")];
-    const cr: number[] = alternatives.map((fg: d3.RGBColor) => contrastRatio(rgb(color), fg));
-
-    return alternatives[cr.reduce((lowest: number, next: number, index: number) =>
-                                  (next < cr[lowest]) ? index : lowest,
-                                  0)];
-  };
-
-/**
- *
- * https://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
- * 
- */
-const contrastRatio: (c: d3.ColorCommonInstance, d: d3.ColorCommonInstance) => number
-  = (c: d3.ColorCommonInstance, d: d3.ColorCommonInstance): number => {
-    return (hsl(c).l + 0.05) / (hsl(d).l + 0.05);
-  };
-
-
 /**
  * Computes an average color from a series of colors.
  * Note: Naively computing an average results in incorrect visual perception
@@ -93,4 +72,4 @@ const averageColor: (colours: OptionalColor[]) => OptionalColor
   };
 
 export { brightness, ColorPalette, getReadableColorFor,
-         averageColor, OptionalColor, contrastRatio, readableText };
+         averageColor };

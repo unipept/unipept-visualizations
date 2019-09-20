@@ -4,7 +4,7 @@
 import * as d3 from "d3";
 
 import { BasicNode } from "./basicNode";
-import { averageColor, readableText } from "./color";
+import { averageColor, getReadableColorFor } from "./color";
 import * as Data from "./data";
 import { rad2deg } from "./math";
 import { Optional } from "./optional";
@@ -22,8 +22,10 @@ export class Sunburst {
   private readonly tooltipNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
   private readonly breadcrumbNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
 
-  private readonly pathNodes: d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
-  private readonly textNodes: d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
+  private readonly pathNodes:
+    d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
+  private readonly textNodes:
+    d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
 
   private xScale: d3.ScaleLinear<number, number>;
   private yScale: d3.ScaleLinear<number, number>;
@@ -37,7 +39,7 @@ export class Sunburst {
   private static readonly TOOLTIP_TOP_PADDING: number = -5;
   private static readonly TOOLTIP_LEFT_PADDING: number = 15;
   private static readonly MIN_FONT_SIZE: number = 12;
-  private static readonly WIDTH_THRESHOLD: number = 0.1;
+  private static readonly WIDTH_THRESHOLD: number = 3.5;
 
   private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
@@ -150,6 +152,7 @@ export class Sunburst {
 
     const partition: d3.PartitionLayout<SunburstNode> = d3.partition();
 
+    // TODO: iterate data and extract text length for yScale
     return partition(rootNode)
       .descendants();
   }
@@ -194,8 +197,7 @@ export class Sunburst {
     this.textNodes
       .enter()
       .append("text")
-      .style("fill", (d: d3.HierarchyNode<SunburstNode>) => readableText(this.color(d))
-             .toString())
+      .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
       .style("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) => this.labelVisible(d))
       .style("font-family", "Helvetica, 'Super Sans', sans-serif")
       .style("pointer-events", "none")
@@ -206,10 +208,14 @@ export class Sunburst {
       .text((d: d3.HierarchyNode<SunburstNode>) => this.settings.getLabel(d.data))
       .style("font-size", (d: d3.HierarchyNode<SunburstNode>) =>
              this.labelFontSize(d));
+    console.log(this.nodeData
+                .map(d => new Object({val: this.xScale(d.x1 - d.x0) * this.yScale(d.y1 - d.y0), name: d.data.name}))
+                .sort((a: any, b: any) => a.val - b.val));
   }
 
   private labelVisible(d: d3.HierarchyRectangularNode<SunburstNode>): number {
-    return this.xScale(d.x1 - d.x0) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
+    return (this.xScale(d.x1 - d.x0)
+            * (this.yScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
   }
 
   private labelAnchor(d: d3.HierarchyRectangularNode<SunburstNode>): string {
