@@ -6,6 +6,7 @@ import * as d3 from "d3";
 import { BasicNode } from "./basicNode";
 import { averageColor, readableText } from "./color";
 import * as Data from "./data";
+import { rad2deg } from "./math";
 import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
@@ -36,6 +37,7 @@ export class Sunburst {
   private static readonly TOOLTIP_TOP_PADDING: number = -5;
   private static readonly TOOLTIP_LEFT_PADDING: number = 15;
   private static readonly MIN_FONT_SIZE: number = 12;
+  private static readonly WIDTH_THRESHOLD: number = 0.1;
 
   private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
@@ -204,12 +206,10 @@ export class Sunburst {
       .text((d: d3.HierarchyNode<SunburstNode>) => this.settings.getLabel(d.data))
       .style("font-size", (d: d3.HierarchyNode<SunburstNode>) =>
              this.labelFontSize(d));
-    console.log(this.nodeData.map((d) => (d.y1 - d.y0)));
   }
 
   private labelVisible(d: d3.HierarchyRectangularNode<SunburstNode>): number {
-    //console.log(d.x1 - d.x0);
-    return this.xScale((d.x1 - d.x0)) < 0.1 ? 0 : 1;
+    return this.xScale(d.x1 - d.x0) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
   }
 
   private labelAnchor(d: d3.HierarchyRectangularNode<SunburstNode>): string {
@@ -221,8 +221,9 @@ export class Sunburst {
   }
 
   private labelTransform(d: d3.HierarchyRectangularNode<SunburstNode>): string {
-    const x = this.xScale((d.x0 + d.x1) / 2) * (180 / Math.PI) - 90;
-    const y = this.yScale((d.y0));
+    const x: number = rad2deg(this.xScale((d.x0 + d.x1) / 2)) - 90;
+    const y: number = this.yScale(d.y0);
+
     return `rotate(${x}) translate(${y}) rotate(${x > 90 ? -180 : 0})`;
   }
 

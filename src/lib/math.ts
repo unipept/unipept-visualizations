@@ -30,4 +30,7 @@ const transpose: <T>(matrix: T[][]) => T[][]
     return matrix;
   };
 
-export { sum, arithmeticMean, transpose };
+const rad2deg: (rad: number) => number
+  = (rad: number): number => rad * (180 / Math.PI);
+
+export { arithmeticMean, rad2deg, sum, transpose };
