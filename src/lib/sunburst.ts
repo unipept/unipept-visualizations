@@ -30,7 +30,7 @@ export class Sunburst {
   private xScale: d3.ScaleLinear<number, number>;
   private yScale: d3.ScaleLinear<number, number>;
 
-  private readonly arc: d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null>;
+//  private readonly arc: d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null>;
 
   private readonly nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>>;
 
@@ -86,9 +86,6 @@ export class Sunburst {
     this.textNodes = svgGroup.selectAll("text")
       .data(this.nodeData);
 
-
-    this.arc = this.createArc(this.xScale, this.yScale);
-
     // TODO: iterate data and extract text length for yScale
 
     this.draw();
@@ -107,7 +104,9 @@ export class Sunburst {
     return this.topNode.node();
   }
 
-  private createArc(x: d3.ScaleLinear<number, number>, y: d3.ScaleLinear<number, number>): d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null> {
+  private static createArc(x: d3.ScaleLinear<number, number>,
+                    y: d3.ScaleLinear<number, number>):
+  d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null> {
     return d3.arc<d3.HierarchyRectangularNode<SunburstNode>>()
         .startAngle((d: d3.HierarchyRectangularNode<SunburstNode>) =>
                     Math.max(0, Math.min(Math.PI * 2, x(d.x0))))
@@ -182,7 +181,7 @@ export class Sunburst {
     this.pathNodes
       .enter()
       .append("path")
-      .attr("d", this.arc)
+      .attr("d", Sunburst.createArc(this.xScale, this.yScale))
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
@@ -324,22 +323,28 @@ export class Sunburst {
     const xScale: d3.ScaleLinear<number, number> = this.xScale;
     const yScale: d3.ScaleLinear<number, number> = this.yScale;
     const maxLevel: number = datum.depth + this.settings.levels;
-    const updateArc = this.createArc;
-
     const paths: d3.Selection<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>,
                               d3.EnterElement, unknown>
       = this.pathNodes.enter()
       .selectAll("path");
+    const texts: d3.Selection<SVGTextElement, d3.HierarchyRectangularNode<SunburstNode>,
+                              d3.EnterElement, unknown>
+      = this.pathNodes.enter()
+      .selectAll("text");
 
     paths.transition()
       .duration(this.settings.duration)
-      .attr("d", function(d: d3.HierarchyRectangularNode<SunburstNode>, index: number, groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>): string | null {
+      .tween("attr.d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
+                                index: number,
+                                groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>):
+             (t: number) => string | null {
         const my: number = Math.min(Data.maxY(d), d.y0 + availLevels * (d.y1 - d.y0));
         const xd: (t: number) => number[] = d3.interpolate(xScale.domain(), [d.x0, d.x1]);
         const yd: (t: number) => number[] = d3.interpolate(yScale.domain(), [d.y0, my]);
 
-        return updateArc(xScale.domain(xd(index)), yScale.domain(yd(index)))
-          .call(this, d, index, groups);
+        return (t: number): string | null =>
+          Sunburst.createArc(xScale.domain(xd(t)), yScale.domain(yd(t)))
+            .call(this, d, index, groups);
       })
       .attr("class", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             d.depth >= maxLevel ? "arc toHide" : "arc")
@@ -347,7 +352,8 @@ export class Sunburst {
             d.depth >= maxLevel ? 0 : 1);
 
 
-    this.textNodes
+    texts.transition()
+      .duration(this.settings.duration)
       .style("visibility", (child: d3.HierarchyRectangularNode<SunburstNode>): string =>
           Sunburst.isDisplayable(datum, child, maxLevel) ? "visible" : "none")
       .style("fill-opacity", (child: d3.HierarchyNode<SunburstNode>): number =>
