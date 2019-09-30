@@ -27,8 +27,8 @@ export class Sunburst {
   private readonly textNodes:
     d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
 
-  private xScale: d3.ScaleLinear<number, number>;
-  private yScale: d3.ScaleLinear<number, number>;
+  private angularScale: d3.ScaleLinear<number, number>;
+  private radialScale: d3.ScaleLinear<number, number>;
 
   private readonly nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>>;
 
@@ -42,6 +42,7 @@ export class Sunburst {
   private static readonly WIDTH_THRESHOLD: number = 3.5;
   private static readonly FADED_NODE_OPACITY: number = 0.2;
   private static readonly VISIBLE_NODE_OPACITY: number = 1;
+  private static readonly CHILD_INNER_RADIUS: number = 20;
 
   private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
@@ -69,16 +70,16 @@ export class Sunburst {
                         Optional.of(this.breadcrumbNode.node())
                         .orElse(document.createElement("div")));
 
-    this.xScale = d3.scaleLinear()
+    this.angularScale = d3.scaleLinear()
       .range([0, Math.PI * 2]); // Use full circle
-    this.yScale = d3.scaleLinear()
+    this.radialScale = d3.scaleLinear()
       .domain([0, 1])
       .range([0, this.settings.radius]);
 
 
     this.colourPalette = this.settings.colors();
 
-    this.nodeData = this.initData(SunburstNode.createNodes(data));
+    this.nodeData = Sunburst.initData(SunburstNode.createNodes(data));
     const svgGroup: d3.Selection<SVGGElement, undefined, null, undefined> = this.createDrawing();
 
     this.pathNodes = svgGroup.selectAll("path")
@@ -162,7 +163,7 @@ export class Sunburst {
             `translate(${this.settings.radius}, ${this.settings.radius})`);
   }
 
-  private initData(data: SunburstNode): Array<d3.HierarchyRectangularNode<SunburstNode>> {
+  private static initData(data: SunburstNode): Array<d3.HierarchyRectangularNode<SunburstNode>> {
     const rootNode: d3.HierarchyNode<SunburstNode> = d3.hierarchy(data);
     rootNode.sum((n: SunburstNode): number => (n.size ? n.size : 0));
 
@@ -181,7 +182,7 @@ export class Sunburst {
     this.pathNodes
       .enter()
       .append("path")
-      .attr("d", Sunburst.createArc(this.xScale, this.yScale))
+      .attr("d", Sunburst.createArc(this.angularScale, this.radialScale))
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
@@ -226,24 +227,24 @@ export class Sunburst {
   private labelVisible(d: d3.HierarchyRectangularNode<SunburstNode>,
                        threshold: number): number {
     if (d.depth < threshold) {
-      return (this.xScale(d.x1 - d.x0)
-              * (this.yScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
+      return (this.angularScale(d.x1 - d.x0)
+              * (this.radialScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
     }
 
     return 0;
   }
 
   private labelAnchor(d: d3.HierarchyRectangularNode<SunburstNode>): string {
-    return this.xScale((d.x0 + d.x1) / 2) > Math.PI ? "end" : "start";
+    return this.angularScale((d.x0 + d.x1) / 2) > Math.PI ? "end" : "start";
   }
 
   private labelOffset(d: d3.HierarchyRectangularNode<SunburstNode>): string {
-    return this.xScale((d.x0 + d.x1) / 2) > Math.PI ? "-4px" : "4px";
+    return this.angularScale((d.x0 + d.x1) / 2) > Math.PI ? "-4px" : "4px";
   }
 
   private labelTransform(d: d3.HierarchyRectangularNode<SunburstNode>): string {
-    const direction: number = rad2deg(this.xScale((d.x0 + d.x1) / 2)) - 90;
-    const radius: number = this.yScale(d.y0);
+    const direction: number = rad2deg(this.angularScale((d.x0 + d.x1) / 2)) - 90;
+    const radius: number = this.radialScale(d.y0);
 
     return `rotate(${direction}) translate(${radius}) rotate(${direction > 90 ? -180 : 0})`;
   }
@@ -326,8 +327,9 @@ export class Sunburst {
 
   private animate(datum: d3.HierarchyRectangularNode<SunburstNode>): void {
     const availLevels: number = this.settings.levels;
-    const xScale: d3.ScaleLinear<number, number> = this.xScale;
-    const yScale: d3.ScaleLinear<number, number> = this.yScale;
+    const radius: number = this.settings.radius;
+    const angularScale: d3.ScaleLinear<number, number> = this.angularScale;
+    const radialScale: d3.ScaleLinear<number, number> = this.radialScale;
     const maxLevel: number = datum.depth + this.settings.levels;
     const paths: d3.Selection<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>,
                               d3.EnterElement, unknown>
@@ -340,18 +342,27 @@ export class Sunburst {
 
     paths.transition()
       .duration(this.settings.duration)
-      .tween("d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
-                                index: number,
-                                groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>):
-             (t: number) => string | null {
-        const my: number = Math.min(Data.maxY(d), d.y0 + availLevels * (d.y1 - d.y0));
-        const xd: (t: number) => number[] = d3.interpolate(xScale.domain(), [d.x0, d.x1]);
-        const yd: (t: number) => number[] = d3.interpolate(yScale.domain(), [d.y0, my]);
+      .attrTween("d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
+                               index: number,
+                               groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>):
+             (t: number) => string {
+        const my: number =
+          Math.min(Data.maxY(datum), datum.y0 + availLevels * (datum.y1 - datum.y0));
+        const xd: (t: number) => number[] = d3.interpolate(angularScale.domain(),
+                                                           [datum.x0, datum.x1]);
+        const yd: (t: number) => number[] = d3.interpolate(radialScale.domain(),
+                                                           [datum.y0, my]);
+        const yr: (t: number) => number[] =
+          d3.interpolate(radialScale.range(),
+                         [Sunburst.CHILD_INNER_RADIUS, radius]);
 
-        return (t: number): string | null => {
-          const result: string | null =
-            Sunburst.createArc(xScale.domain(xd(t)), yScale.domain(yd(t)))
-            .call(this, d, index, groups);
+        return (t: number): string => {
+          const result: string =
+            Optional.of(Sunburst.createArc(angularScale.domain(xd(t)),
+                                           radialScale.domain(yd(t))
+                                           .range(yr(t)))
+                        .call(this, d, index, groups))
+            .orElse("");
 
           return result;
         };
