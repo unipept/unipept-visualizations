@@ -30,8 +30,6 @@ export class Sunburst {
   private xScale: d3.ScaleLinear<number, number>;
   private yScale: d3.ScaleLinear<number, number>;
 
-//  private readonly arc: d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null>;
-
   private readonly nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>>;
 
   private readonly colourPalette: d3.ScaleOrdinal<string, string>;
@@ -42,6 +40,8 @@ export class Sunburst {
   private static readonly TOOLTIP_LEFT_PADDING: number = 15;
   private static readonly MIN_FONT_SIZE: number = 12;
   private static readonly WIDTH_THRESHOLD: number = 3.5;
+  private static readonly FADED_NODE_OPACITY: number = 0.2;
+  private static readonly VISIBLE_NODE_OPACITY: number = 1;
 
   private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
@@ -105,7 +105,7 @@ export class Sunburst {
   }
 
   private static createArc(x: d3.ScaleLinear<number, number>,
-                    y: d3.ScaleLinear<number, number>):
+                           y: d3.ScaleLinear<number, number>):
   d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>, string | null> {
     return d3.arc<d3.HierarchyRectangularNode<SunburstNode>>()
         .startAngle((d: d3.HierarchyRectangularNode<SunburstNode>) =>
@@ -185,6 +185,8 @@ export class Sunburst {
       .attr("fill-rule", "evenodd")
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
+      .attr("fill-opacity", (datum: d3.HierarchyRectangularNode<SunburstNode>): number =>
+            Sunburst.nodeOpacity(datum, this.settings.levels))
       .on("click", (d: d3.HierarchyRectangularNode<SunburstNode>) => {
         this.onClick(d);
         this.animate(d);
@@ -202,7 +204,8 @@ export class Sunburst {
       .enter()
       .append("text")
       .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
-      .style("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) => this.labelVisible(d))
+      .style("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
+             this.labelVisible(d, this.settings.levels))
       .style("font-family", "Helvetica, 'Super Sans', sans-serif")
       .style("pointer-events", "none")
       .attr("dy", ".2em")
@@ -212,19 +215,22 @@ export class Sunburst {
       .text((d: d3.HierarchyNode<SunburstNode>) => this.settings.getLabel(d.data))
       .style("font-size", (d: d3.HierarchyNode<SunburstNode>) =>
              this.labelFontSize(d));
-    // console.log(this.nodeData
-    //             .map(d => new Object({val: this.xScale(d.x1 - d.x0) * this.yScale(d.y1 - d.y0),
-    //                                   x: this.xScale(d.x1 - d.x0),
-    //                                   y: this.yScale(d.y1 - d.y0),
-    //                                   name: d.data.name}))
-    //             .sort((a: any, b: any) => a.val - b.val));
-    //this.textNodes.enter().selectAll("text").each(t => console.log(t));
-    //console.log(this.textNodes.enter().selectAll("text").nodes());
   }
 
-  private labelVisible(d: d3.HierarchyRectangularNode<SunburstNode>): number {
-    return (this.xScale(d.x1 - d.x0)
-            * (this.yScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
+  private static nodeOpacity(d: d3.HierarchyRectangularNode<SunburstNode>, threshold: number): number {
+    return d.depth >= threshold
+      ? Sunburst.FADED_NODE_OPACITY
+      : Sunburst.VISIBLE_NODE_OPACITY;
+  }
+
+  private labelVisible(d: d3.HierarchyRectangularNode<SunburstNode>,
+                       threshold: number): number {
+    if (d.depth < threshold) {
+      return (this.xScale(d.x1 - d.x0)
+              * (this.yScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
+    }
+
+    return 0;
   }
 
   private labelAnchor(d: d3.HierarchyRectangularNode<SunburstNode>): string {
@@ -334,7 +340,7 @@ export class Sunburst {
 
     paths.transition()
       .duration(this.settings.duration)
-      .tween("attr.d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
+      .tween("d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
                                 index: number,
                                 groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>):
              (t: number) => string | null {
@@ -342,14 +348,18 @@ export class Sunburst {
         const xd: (t: number) => number[] = d3.interpolate(xScale.domain(), [d.x0, d.x1]);
         const yd: (t: number) => number[] = d3.interpolate(yScale.domain(), [d.y0, my]);
 
-        return (t: number): string | null =>
-          Sunburst.createArc(xScale.domain(xd(t)), yScale.domain(yd(t)))
+        return (t: number): string | null => {
+          const result: string | null =
+            Sunburst.createArc(xScale.domain(xd(t)), yScale.domain(yd(t)))
             .call(this, d, index, groups);
+
+          return result;
+        };
       })
       .attr("class", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             d.depth >= maxLevel ? "arc toHide" : "arc")
       .attr("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            d.depth >= maxLevel ? 0 : 1);
+            Sunburst.nodeOpacity(d, maxLevel));
 
 
     texts.transition()
