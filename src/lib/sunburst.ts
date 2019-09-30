@@ -325,12 +325,12 @@ export class Sunburst {
     }
   }
 
-  private animate(datum: d3.HierarchyRectangularNode<SunburstNode>): void {
+  private animate(parentNode: d3.HierarchyRectangularNode<SunburstNode>): void {
     const availLevels: number = this.settings.levels;
     const radius: number = this.settings.radius;
     const angularScale: d3.ScaleLinear<number, number> = this.angularScale;
     const radialScale: d3.ScaleLinear<number, number> = this.radialScale;
-    const maxLevel: number = datum.depth + this.settings.levels;
+    const maxLevel: number = parentNode.depth + this.settings.levels;
     const paths: d3.Selection<SVGPathElement, d3.HierarchyRectangularNode<SunburstNode>,
                               d3.EnterElement, unknown>
       = this.pathNodes.enter()
@@ -345,16 +345,17 @@ export class Sunburst {
       .attrTween("d", function(d: d3.HierarchyRectangularNode<SunburstNode>,
                                index: number,
                                groups: SVGPathElement[] | d3.ArrayLike<SVGPathElement>):
-             (t: number) => string {
+                 (t: number) => string {
         const my: number =
-          Math.min(Data.maxY(datum), datum.y0 + availLevels * (datum.y1 - datum.y0));
+          Math.min(Data.maxY(parentNode),
+                   parentNode.y0 + availLevels * (parentNode.y1 - parentNode.y0));
         const xd: (t: number) => number[] = d3.interpolate(angularScale.domain(),
-                                                           [datum.x0, datum.x1]);
+                                                           [parentNode.x0, parentNode.x1]);
         const yd: (t: number) => number[] = d3.interpolate(radialScale.domain(),
-                                                           [datum.y0, my]);
+                                                           [parentNode.y0, my]);
         const yr: (t: number) => number[] =
           d3.interpolate(radialScale.range(),
-                         [Sunburst.CHILD_INNER_RADIUS, radius]);
+                         [parentNode.depth > 0 ? Sunburst.CHILD_INNER_RADIUS : 0, radius]);
 
         return (t: number): string => {
           const result: string =
@@ -376,9 +377,9 @@ export class Sunburst {
     texts.transition()
       .duration(this.settings.duration)
       .style("visibility", (child: d3.HierarchyRectangularNode<SunburstNode>): string =>
-          Sunburst.isDisplayable(datum, child, maxLevel) ? "visible" : "none")
+          Sunburst.isDisplayable(parentNode, child, maxLevel) ? "visible" : "none")
       .style("fill-opacity", (child: d3.HierarchyNode<SunburstNode>): number =>
-             Sunburst.isDisplayable(datum, child, maxLevel) ? 1 : 0);
+             Sunburst.isDisplayable(parentNode, child, maxLevel) ? 1 : 0);
   }
 
   private static isDisplayable(ancestor: d3.HierarchyNode<SunburstNode>,
