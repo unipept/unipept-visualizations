@@ -72,4 +72,4 @@ const averageColor: (colours: OptionalColor[]) => OptionalColor
   };
 
 export { brightness, ColorPalette, getReadableColorFor,
-         averageColor };
+         averageColor, OptionalColor };
