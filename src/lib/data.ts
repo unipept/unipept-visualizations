@@ -35,22 +35,17 @@ const ancestorOf: (check: HierarchyNode<Node>,
                    child: HierarchyNode<Node>) => Optional<number>
   = (check: HierarchyNode<Node>,
      child: HierarchyNode<Node>): Optional<number> => {
-    if (check === child) {
-      return Optional.of(0);
-    }
-
-    if (check.children) {
-      const childDepth: Array<Optional<number>> =
-        check.children
-        .map((c: HierarchyNode<Node>): Optional<number> =>
-             ancestorOf(c, child))
-        .filter((d: Optional<number>): boolean => d.isPresent());
-
-      if (childDepth.length === 0) {
-        return Optional.empty();
+    if (check.depth === child.depth) {
+      if (check === child) {
+        return Optional.of(0);
       }
 
-      return childDepth[0].map((depth: number) => depth + 1);
+      return Optional.empty();
+    }
+
+    if ((child.depth > check.depth) && check.children && child.parent) {
+      return ancestorOf(check, child.parent)
+        .map((d: number) => d + 1);
     }
 
     return Optional.empty();

@@ -31,6 +31,20 @@ test("I am the ancestor of my child", () => {
   }
 });
 
+test("I am the ancestor of my grandchild", () => {
+  const child: Array<d3.HierarchyNode<Node>> | undefined
+    = data !== undefined ? data.children : [];
+  const grandchild: Array<d3.HierarchyNode<Node>> | undefined
+    = child !== undefined ? child[0].children : [];
+
+  if (grandchild !== undefined && grandchild.length > 0) {
+    expect(Data.ancestorOf(data, grandchild[0]))
+      .toEqual(Optional.of(2));
+  } else {
+    fail("Grandchild was unexpectedly undefined");
+  }
+});
+
 test("My children are not ancestors of each other", () => {
   const children: Array<d3.HierarchyNode<Node>> | undefined
     = data !== undefined ? data.children : [];
@@ -52,5 +66,19 @@ test("My child is not my ancestor", () => {
       .toEqual(Optional.empty());
   } else {
     fail("Child was unexpectedly undefined");
+  }
+});
+
+test("My grandchild is not my ancestor", () => {
+  const child: Array<d3.HierarchyNode<Node>> | undefined
+    = data !== undefined ? data.children : [];
+  const grandchild: Array<d3.HierarchyNode<Node>> | undefined
+    = child !== undefined ? child[0].children : [];
+
+  if (grandchild !== undefined && grandchild.length > 0) {
+    expect(Data.ancestorOf(grandchild[0], data))
+      .toEqual(Optional.empty());
+  } else {
+    fail("Grandchild was unexpectedly undefined");
   }
 });
