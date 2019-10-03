@@ -40,7 +40,7 @@ export class Sunburst {
   private static readonly TOOLTIP_TOP_PADDING: number = -5;
   private static readonly TOOLTIP_LEFT_PADDING: number = 15;
   private static readonly MIN_FONT_SIZE: number = 12;
-  private static readonly WIDTH_THRESHOLD: number = 3.5;
+  private static readonly NODE_SIZE_THRESHOLD: number = 9;
   private static readonly FADED_NODE_OPACITY: number = 0.2;
   private static readonly VISIBLE_NODE_OPACITY: number = 1;
   private static readonly CHILD_INNER_RADIUS: number = 20;
@@ -207,7 +207,7 @@ export class Sunburst {
       .append("text")
       .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
       .style("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-             this.labelOpacity(d, this.settings.levels))
+             Sunburst.labelOpacity(d, this.angularScale, this.radialScale, this.settings.levels))
       .style("font-family", "Helvetica, 'Super Sans', sans-serif")
       .style("pointer-events", "none")
       .attr("dy", ".2em")
@@ -229,11 +229,15 @@ export class Sunburst {
       : Sunburst.VISIBLE_NODE_OPACITY;
   }
 
-  private labelOpacity(d: d3.HierarchyRectangularNode<SunburstNode>,
-                       threshold: number): number {
+  private static labelOpacity(d: d3.HierarchyRectangularNode<SunburstNode>,
+                              angularScale: d3.ScaleLinear<number, number>,
+                              radialScale: d3.ScaleLinear<number, number>,
+                              threshold: number): number {
     if (d.depth < threshold) {
-      return (this.angularScale(d.x1 - d.x0)
-              * (this.radialScale(d.y1 - d.y0))) < Sunburst.WIDTH_THRESHOLD ? 0 : 1;
+      const area: number = (angularScale(d.x1) - angularScale(d.x0))
+        * (radialScale(d.y1) - radialScale(d.y0));
+
+      return area < Sunburst.NODE_SIZE_THRESHOLD ? 0 : 1;
     }
 
     return 0;
@@ -354,7 +358,8 @@ export class Sunburst {
                        [parentNode.x0, parentNode.x1]);
     const radius: (t: number) => number[]
       = d3.interpolate(radialScale.domain(),
-                       [parentNode.y0, Data.outerRadialDomain(parentNode, this.settings.levels)]);
+                       [parentNode.y0,
+                        Data.outerRadialDomain(parentNode, this.settings.levels)]);
     const yr: (t: number) => number[]
       = d3.interpolate(radialScale.range(),
                        [parentNode.depth > 0 ? Sunburst.CHILD_INNER_RADIUS : 0,
@@ -378,8 +383,6 @@ export class Sunburst {
       .attr("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             Sunburst.nodeOpacity(d, maxLevel));
 
-
-
     texts.transition()
       .duration(this.settings.duration)
       .style("visibility", (child: d3.HierarchyRectangularNode<SunburstNode>): string =>
@@ -389,11 +392,12 @@ export class Sunburst {
       .attrTween("dx", (child: d3.HierarchyRectangularNode<SunburstNode>) =>
                  (): string => Sunburst.labelOffset(this.angularScale, child))
       .attrTween("transform", (child: d3.HierarchyRectangularNode<SunburstNode>) =>
-                 (): string => Sunburst.labelTransform(this.angularScale,
-                                                       this.radialScale,
-                                                       child))
-      .style("fill-opacity", (child: d3.HierarchyRectangularNode<SunburstNode>): number =>
-             this.labelOpacity(child, maxLevel));
+                 (): string => Sunburst.labelTransform(angularScale, radialScale, child))
+      .on("end", function(child: d3.HierarchyRectangularNode<SunburstNode>): void {
+        d3.select(this)
+          .style("fill-opacity",
+                 Sunburst.labelOpacity(child, angularScale, radialScale, maxLevel));
+      });
   }
 
   private static isDisplayable(ancestor: d3.HierarchyNode<SunburstNode>,
