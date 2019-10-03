@@ -44,6 +44,7 @@ export class Sunburst {
   private static readonly FADED_NODE_OPACITY: number = 0.2;
   private static readonly VISIBLE_NODE_OPACITY: number = 1;
   private static readonly CHILD_INNER_RADIUS: number = 20;
+  private static readonly LABEL_OFFSET: number = 4;
 
   private static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
     IN: "in",
@@ -202,12 +203,18 @@ export class Sunburst {
   }
 
   private drawTextLabels(): void {
+    const angularScale: d3.ScaleLinear<number, number> = this.angularScale;
+    const radialScale: d3.ScaleLinear<number, number> = this.radialScale;
+    const maxLevel: number = this.settings.levels;
+
     this.textNodes
       .enter()
       .append("text")
       .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
-      .style("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-             Sunburst.labelOpacity(d, this.angularScale, this.radialScale, this.settings.levels))
+      .style("fill-opacity", function(d: d3.HierarchyRectangularNode<SunburstNode>): number {
+        return Sunburst.labelOpacity(d, angularScale, radialScale,
+                                     this.getComputedTextLength(), maxLevel);
+      })
       .style("font-family", "Helvetica, 'Super Sans', sans-serif")
       .style("pointer-events", "none")
       .attr("dy", ".2em")
@@ -232,10 +239,12 @@ export class Sunburst {
   private static labelOpacity(d: d3.HierarchyRectangularNode<SunburstNode>,
                               angularScale: d3.ScaleLinear<number, number>,
                               radialScale: d3.ScaleLinear<number, number>,
-                              threshold: number): number {
-    if (d.depth < threshold) {
-      const area: number = (angularScale(d.x1) - angularScale(d.x0))
-        * (radialScale(d.y1) - radialScale(d.y0));
+                              labelLength: number,
+                              maxDepth: number): number {
+    const radialSpace: number = radialScale(d.y1) - radialScale(d.y0);
+
+    if ((d.depth < maxDepth) && ((labelLength + Sunburst.LABEL_OFFSET) < radialSpace)) {
+      const area: number = (angularScale(d.x1) - angularScale(d.x0)) * radialSpace;
 
       return area < Sunburst.NODE_SIZE_THRESHOLD ? 0 : 1;
     }
@@ -250,7 +259,8 @@ export class Sunburst {
 
   private static labelOffset(scale: d3.ScaleLinear<number, number>,
                              d: d3.HierarchyRectangularNode<SunburstNode>): string {
-    return scale((d.x0 + d.x1) / 2) > Math.PI ? "-4px" : "4px";
+    return scale((d.x0 + d.x1) / 2) > Math.PI
+      ? `-${Sunburst.LABEL_OFFSET}px` : `${Sunburst.LABEL_OFFSET}px`;
   }
 
   private static labelTransform(angularScale: d3.ScaleLinear<number, number>,
@@ -396,7 +406,8 @@ export class Sunburst {
       .on("end", function(child: d3.HierarchyRectangularNode<SunburstNode>): void {
         d3.select(this)
           .style("fill-opacity",
-                 Sunburst.labelOpacity(child, angularScale, radialScale, maxLevel));
+                 Sunburst.labelOpacity(child, angularScale, radialScale,
+                                       this.getComputedTextLength(), maxLevel));
       });
   }
 
