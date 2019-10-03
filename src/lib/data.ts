@@ -26,11 +26,17 @@ const countRatio: (numerator: Node, denominator: Node, counter: (d: Node) => num
               ? undefined
               : (count(numerator, counter) / count(denominator, counter)));
 
-const maxY: (datum: HierarchyRectangularNode<Node>) => number
+const maxRadius: (datum: HierarchyRectangularNode<Node>) => number
   = (datum: HierarchyRectangularNode<Node>): number =>
-  datum.children ? Math.max(...datum.children.map(maxY)) : datum.y0 + datum.height;
+  datum.children ? Math.max(...datum.children.map(maxRadius)) : datum.y0 + (datum.y1 - datum.y0);
 
-// Calculates if p is an ancestor of c
+const outerRadialDomain: (datum: HierarchyRectangularNode<Node>, levels: number) => number
+  = (datum: HierarchyRectangularNode<Node>, levels: number): number =>
+  Math.min(maxRadius(datum),
+           datum.y0 + levels * (datum.y1 - datum.y0));
+
+// Calculates if check is an ancestor of child.
+// If so, how many levels between them
 const ancestorOf: (check: HierarchyNode<Node>,
                    child: HierarchyNode<Node>) => Optional<number>
   = (check: HierarchyNode<Node>,
@@ -51,4 +57,4 @@ const ancestorOf: (check: HierarchyNode<Node>,
     return Optional.empty();
   };
 
-export { ancestorOf, count, countRatio, maxY };
+export { ancestorOf, count, countRatio, outerRadialDomain };
