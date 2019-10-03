@@ -7,7 +7,7 @@ import * as d3 from "d3";
 import { BasicNode } from "./basicNode";
 import { averageColor, getReadableColorFor } from "./color";
 import * as Data from "./data";
-import { rad2deg } from "./math";
+import { arcLength, interval, rad2deg } from "./math";
 import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
@@ -39,8 +39,9 @@ export class Sunburst {
   private static readonly DARKEN: number = 0.05;
   private static readonly TOOLTIP_TOP_PADDING: number = -5;
   private static readonly TOOLTIP_LEFT_PADDING: number = 15;
-  private static readonly MIN_FONT_SIZE: number = 12;
-  private static readonly NODE_SIZE_THRESHOLD: number = 9;
+  private static readonly MIN_FONT_SIZE: number = 6;
+  private static readonly MAX_FONT_SIZE: number = 12;
+  private static readonly NODE_SIZE_THRESHOLD: number = 8;
   private static readonly FADED_NODE_OPACITY: number = 0.2;
   private static readonly VISIBLE_NODE_OPACITY: number = 1;
   private static readonly CHILD_INNER_RADIUS: number = 20;
@@ -225,8 +226,19 @@ export class Sunburst {
       .attr("text-anchor", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             Sunburst.labelAnchor(this.angularScale, d))
       .text((d: d3.HierarchyNode<SunburstNode>) => this.settings.getLabel(d.data))
-      .style("font-size", (d: d3.HierarchyNode<SunburstNode>) =>
-             this.labelFontSize(d));
+      .style("font-size", (d: d3.HierarchyRectangularNode<SunburstNode>): string =>
+             Sunburst.labelFontSize(d, this.angularScale, this.radialScale));
+  }
+
+  private static labelFontSize(d: d3.HierarchyRectangularNode<SunburstNode>,
+                               angularScale: d3.ScaleLinear<number, number>,
+                               radialScale: d3.ScaleLinear<number, number>): string {
+    const angle: number = angularScale(d.x1) - angularScale(d.x0);
+    const radius: number = Math.max(2, radialScale(d.y0));
+    const angularSpace: number = arcLength(radius, angle);
+    const size: number = interval(angularSpace, Sunburst.MIN_FONT_SIZE, Sunburst.MAX_FONT_SIZE);
+
+    return `${size}px`;
   }
 
   private static nodeOpacity(d: d3.HierarchyRectangularNode<SunburstNode>,
@@ -270,12 +282,6 @@ export class Sunburst {
     const radius: number = radialScale(d.y0);
 
     return `rotate(${direction}) translate(${radius}) rotate(${direction > 90 ? -180 : 0})`;
-  }
-
-  private labelFontSize(d: d3.HierarchyNode<SunburstNode>): string {
-    const height: number = this.settings.radius / this.settings.levels;
-
-    return `${Math.floor(Math.min((height / d.height * 10) + 1, Sunburst.MIN_FONT_SIZE))}px`;
   }
 
   private tooltip(d: d3.HierarchyNode<SunburstNode>, mode: string): void {
@@ -349,7 +355,7 @@ export class Sunburst {
   }
 
   private animate(parentNode: d3.HierarchyRectangularNode<SunburstNode>): void {
-    const angularScale: d3.ScaleLinear<number, number> = this.angularScale;
+    let angularScale: d3.ScaleLinear<number, number> = this.angularScale;
     const radialScale: d3.ScaleLinear<number, number> = this.radialScale;
     const maxLevel: number = parentNode.depth + this.settings.levels;
 
@@ -407,7 +413,9 @@ export class Sunburst {
         d3.select(this)
           .style("fill-opacity",
                  Sunburst.labelOpacity(child, angularScale, radialScale,
-                                       this.getComputedTextLength(), maxLevel));
+                                       this.getComputedTextLength(), maxLevel))
+          .style("font-size",
+                 Sunburst.labelFontSize(child, angularScale, radialScale));
       });
   }
 
