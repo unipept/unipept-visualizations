@@ -18,16 +18,14 @@
 
     <script>
       d3.json("data/flare.json").then(function(data) {
-        document.querySelector("#d3Sunburst").appendChild(
-          sunburst(data,
-                   {
-                     width: 900,
-                     height: 600,
-                     colors: ColorPalette.sunburstColorsAlt,
-                     countAccessor: function (d) { return d.size; },
-                     enableTooltips: true,
-                     enableBreadcrumbs: true
-                   }));
+        sunburst(data, {parent: "#d3Sunburst",
+                        width: 900,
+                        height: 600,
+                        colors: ColorPalette.sunburstColorsAlt,
+                        countAccessor: function (d) { return d.size; },
+                        enableTooltips: true,
+                        enableBreadcrumbs: true
+                       });
       });
     </script>
   </body>

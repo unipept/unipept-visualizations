@@ -3,8 +3,8 @@ import * as ColorPalette from "./lib/colorPalette";
 import { Sunburst } from "./lib/sunburst";
 import { ISunburstSettingsData, SunburstSettings } from "./lib/sunburstSettings";
 
-const sunburst: (data: BasicNode, options?: ISunburstSettingsData) => HTMLDivElement | null
-  = (data: BasicNode, options?: ISunburstSettingsData): HTMLDivElement | null =>
-  new Sunburst(data, new SunburstSettings(options)).node();
+const sunburst: (data: BasicNode, options?: ISunburstSettingsData) => Sunburst
+  = (data: BasicNode, options?: ISunburstSettingsData): Sunburst =>
+  new Sunburst(data, new SunburstSettings(options));
 
 export { ColorPalette, sunburst, Sunburst };

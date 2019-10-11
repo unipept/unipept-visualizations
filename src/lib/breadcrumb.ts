@@ -1,0 +1,94 @@
+/**
+ * A basic breadcrumb trail
+ */
+import * as d3 from "d3";
+
+import { domClass } from "./dom";
+import { Node } from "./node";
+
+
+const createCrumb: (genClassName: (name: string) => string,
+                    text?: (node: d3.HierarchyNode<Node>) => string)
+  => (node: d3.HierarchyNode<Node>) => string
+  = (genClassName: (name: string) => string,
+     text?: (node: d3.HierarchyNode<Node>) => string): (node: d3.HierarchyNode<Node>) => string => {
+    const bcNameClass: string = genClassName("breadcrumb-name");
+    const bcDataClass: string = genClassName("breadcrumb-data");
+
+    return (node: d3.HierarchyNode<Node>): string =>
+      `<p class="${bcNameClass}">${node.data.name}`
+        + `<p class="${bcDataClass}">${text ? text(node) : ""}</p>`
+        + "</p>";
+  };
+
+export class Breadcrumb {
+  // Constants
+  public static readonly DEFAULT_ID: string = "breadcrumb";
+  public static readonly DEFAULT_COLOUR: string = "#000";
+  public static readonly CRUMB_CLASS: string = "crumb";
+
+  public readonly parent: d3.Selection<HTMLDivElement, undefined, HTMLElement, undefined>;
+
+  // Callbacks
+  public readonly crumb: (node: d3.HierarchyNode<Node>) => string;
+  public readonly genClassName: (name: string) => string;
+  public readonly colour?: (node: d3.HierarchyNode<Node>) => string;
+  public readonly onClick?: (node: d3.HierarchyNode<Node>) => void;
+  public readonly title?: (data: Node) => string;
+
+  public constructor(attach: string, classPrefix?: string,
+                     colour?: (node: d3.HierarchyNode<Node>) => string,
+                     onClick?: (node: d3.HierarchyNode<Node>) => void,
+                     title?: (data: Node) => string,
+                     text?: (node: d3.HierarchyNode<Node>) => string) {
+    const attachTo: d3.Selection<HTMLElement, undefined, HTMLElement, undefined>
+      = d3.select(attach);
+
+    this.colour = colour;
+    this.onClick = onClick;
+    this.title = title;
+    this.genClassName = domClass(classPrefix);
+    this.crumb = createCrumb(this.genClassName, text);
+    this.parent = attachTo.append("div")
+      .classed(this.genClassName("breadcrumbs"), true);
+
+    this.parent.append("ul")
+      .classed(this.genClassName("breadcrumbs-list"));
+  }
+
+  public update(data: d3.HierarchyNode<Node>): void {
+    const crumbClass: string = this.genClassName(Breadcrumb.CRUMB_CLASS);
+
+    const crumbData: Array<d3.HierarchyNode<Node>>
+      = data.ancestors()
+      .reverse();
+
+    this.parent.select("ul")
+      .selectAll(`.${crumbClass}`)
+      .remove();
+
+    if (crumbData.length > 1) {
+      const bc: d3.Selection<d3.BaseType, d3.HierarchyNode<Node>, d3.BaseType, undefined>
+        = this.parent.select("ul")
+        .selectAll(`.${crumbClass}`)
+        .data(crumbData);
+
+      bc.enter()
+        .append("li")
+        .classed(crumbClass, true)
+        .attr("title", (d: d3.HierarchyNode<Node>): string =>
+              this.title ? this.title(d.data) : "")
+        .html((d: d3.HierarchyNode<Node>): string => this.crumb(d))
+        .style("background-color", (d: d3.HierarchyNode<Node>): string =>
+               this.colour ? this.colour(d) : Breadcrumb.DEFAULT_COLOUR)
+        .on("click", (d: d3.HierarchyNode<Node>): void => {
+          if (this.onClick) {
+            return this.onClick(d);
+          }
+        });
+
+      bc.exit()
+        .remove();
+    }
+  }
+}

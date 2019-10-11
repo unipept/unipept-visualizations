@@ -10,12 +10,13 @@ import { Node } from "./node";
 import { Settings } from "./settings";
 
 export interface ISunburstSettingsData extends Settings {
-  radius: number;
-  levels: number;
-  duration: number;
+  parent: string; // A CSS selector for where to place this sunburst.
 
-  enableBreadcrumbs: boolean;
-  breadcrumbWidth: number;
+  radius: number; // Radius of the visualisation.
+  levels: number; // The number of levels to display.
+  duration: number; // The animation duration
+
+  enableBreadcrumbs: boolean; // Set to 'true' to display breadcrumbs.
 
   colors(): d3.ScaleOrdinal<string, string>;
 
@@ -33,20 +34,19 @@ export interface ISunburstSettingsData extends Settings {
 
 export class SunburstSettings extends Settings {
   /// Constants
-  public static DEFAULT_RADIUS: number = 300;
-  public static DEFAULT_LEVELS: number = 4;
-  public static DEFAULT_DURATION: number = 1000;
-  public static DEFAULT_BREADCRUMB_WIDTH: number = 200;
+  public static readonly DEFAULT_RADIUS: number = 300;
+  public static readonly DEFAULT_LEVELS: number = 4;
+  public static readonly DEFAULT_DURATION: number = 1000;
 
   /// Public data members
   public readonly className: string = "unipept-sunburst";
 
+  public readonly parent: string = "unipept-sunburst";
   public readonly radius: number = SunburstSettings.DEFAULT_RADIUS;
   public readonly levels: number = SunburstSettings.DEFAULT_LEVELS;
   public readonly duration: number = SunburstSettings.DEFAULT_DURATION;
 
   public readonly enableBreadcrumbs: boolean = true;
-  public readonly breadcrumbWidth: number = SunburstSettings.DEFAULT_BREADCRUMB_WIDTH;
 
   public readonly colors: () => d3.ScaleOrdinal<string, string> = ColorPalette.sunburstColors;
   public readonly countAccessor: (data: Node) => number
