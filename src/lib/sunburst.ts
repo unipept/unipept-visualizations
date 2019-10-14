@@ -12,6 +12,7 @@ import { Node } from "./node";
 import { Optional } from "./optional";
 import { SunburstNode } from "./sunburstNode";
 import { SunburstSettings } from "./sunburstSettings";
+import { Tooltip, TooltipEvent } from "./tooltip";
 import { generateId } from "./utils";
 
 const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<Node>) => string)
@@ -72,12 +73,13 @@ const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode
     return color;
   };
 
+const tooltipTextFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode<Node>) => string
+  = (settings: SunburstSettings): (node: d3.HierarchyNode<Node>) => string =>
+  (node: d3.HierarchyNode<Node>): string => settings.getTooltip(node.data);
 
 export class Sunburst {
   // Constants:
   public static readonly DARKEN: number = 0.05;
-  public static readonly TOOLTIP_TOP_PADDING: number = -5;
-  public static readonly TOOLTIP_LEFT_PADDING: number = 15;
   public static readonly MIN_FONT_SIZE: number = 6;
   public static readonly MAX_FONT_SIZE: number = 12;
   public static readonly NODE_SIZE_THRESHOLD: number = 8;
@@ -86,24 +88,16 @@ export class Sunburst {
   public static readonly CHILD_INNER_RADIUS: number = 20;
   public static readonly LABEL_OFFSET: number = 4;
 
-  public static readonly tooltipMode: {IN: string; MOVE: string; OUT: string} = {
-    IN: "in",
-    MOVE: "move",
-    OUT: "out",
-  };
-
-
   public readonly settings: SunburstSettings;
   public readonly id: string;
-
-  public readonly tooltipNode: d3.Selection<HTMLDivElement, undefined, null, undefined>;
 
   public readonly pathNodes:
     d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
   public readonly textNodes:
     d3.Selection<d3.BaseType, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, undefined>;
 
-  public readonly breadcrumb?: Breadcrumb;
+  public readonly breadcrumb: Optional<Breadcrumb>;
+  public readonly tooltip: Optional<Tooltip>;
 
   public readonly angularScale: d3.ScaleLinear<number, number>;
   public readonly radialScale: d3.ScaleLinear<number, number>;
@@ -118,23 +112,27 @@ export class Sunburst {
       = d3.select(this.settings.parent);
     const svgNode: d3.Selection<SVGSVGElement, undefined, null, undefined>
       = Sunburst.createSVG(this.settings.width, this.settings.height);
-    this.tooltipNode = this.createTooltip();
     this.color = colorFromSettings(this.settings);
 
-    if (this.settings.enableBreadcrumbs) {
-      this.breadcrumb = new Breadcrumb(this.settings.parent, this.settings.className,
-                                       this.color,
-                                       (d: d3.HierarchyNode<Node>): void => this.onClick(d),
-                                       this.settings.getTitleText,
-                                       crumbText(this.settings.countAccessor));
-    }
-
-    topNode.append((): HTMLDivElement =>
-                   Optional.of(this.tooltipNode.node())
-                   .orElse(document.createElement("div")));
     topNode.append((): SVGSVGElement =>
                    Optional.of(svgNode.node())
                    .orElse(document.createElement("svg") as unknown as SVGSVGElement));
+
+    this.breadcrumb
+      = Optional.of(this.settings.enableBreadcrumbs
+                    ? (new Breadcrumb(this.settings.parent, this.settings.className,
+                                      this.color,
+                                      (d: d3.HierarchyNode<Node>): void => this.onClick(d),
+                                      this.settings.getTitleText,
+                                      crumbText(this.settings.countAccessor)))
+                    : undefined);
+
+    this.tooltip
+      = Optional.of(this.settings.enableTooltips
+                    ? (new Tooltip(this.settings.parent, this.settings.className,
+                                   tooltipTextFromSettings(this.settings)))
+                    : undefined);
+
 
     const nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>>
       = Sunburst.initData(SunburstNode.createNodes(data));
@@ -168,19 +166,6 @@ export class Sunburst {
                      Math.max(0, y(d.y0)))
         .outerRadius((d: d3.HierarchyRectangularNode<SunburstNode>) =>
                      Math.max(0, y(d.y1)));
-  }
-
-  private createTooltip(): d3.Selection<HTMLDivElement, undefined, null, undefined> {
-    return d3.create("div")
-      .attr("id", `${this.id}-tooltip`)
-      .attr("class", "tip")
-      .style("position", "absolute")
-      .style("z-index", "10")
-      .style("visibility", "hidden")
-      .style("background-color", "white")
-      .style("padding", "2px")
-      .style("border", "1px solid #dddddd")
-      .style("border-radius", "3px;");
   }
 
   private static createSVG(width: number, height: number)
@@ -232,11 +217,11 @@ export class Sunburst {
         this.onClick(d);
       })
       .on("mouseover", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip(d, Sunburst.tooltipMode.IN))
+          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.IN)))
       .on("mousemove", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip(d, Sunburst.tooltipMode.MOVE))
+          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.MOVE)))
       .on("mouseout", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip(d, Sunburst.tooltipMode.OUT));
+          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.OUT)));
   }
 
   private drawTextLabels(maxLevel: number,
@@ -320,38 +305,8 @@ export class Sunburst {
     return `rotate(${direction}) translate(${radius}) rotate(${direction > 90 ? -180 : 0})`;
   }
 
-  private tooltip(d: d3.HierarchyNode<SunburstNode>, mode: string): void {
-    if (!this.settings.enableTooltips) {
-      return;
-    }
-
-    switch (mode) {
-      case Sunburst.tooltipMode.IN:
-        this.tooltipNode
-          .html(this.settings.getTooltip(d.data))
-          .style("top", `${d3.event.pageY + Sunburst.TOOLTIP_TOP_PADDING}px`)
-          .style("left", `${d3.event.pageX + Sunburst.TOOLTIP_LEFT_PADDING}px`)
-          .style("visibility", "visible");
-        break;
-
-      case Sunburst.tooltipMode.MOVE:
-        this.tooltipNode
-          .style("top", `${d3.event.pageY + Sunburst.TOOLTIP_TOP_PADDING}px`)
-          .style("left", `${d3.event.pageX + Sunburst.TOOLTIP_LEFT_PADDING}px`);
-        break;
-
-      case Sunburst.tooltipMode.OUT:
-        this.tooltipNode.style("visibility", "hidden");
-        break;
-
-      default:
-    }
-  }
-
   private onClick(datum: d3.HierarchyNode<SunburstNode>): void {
-    if (this.breadcrumb) {
-      this.breadcrumb.update(datum);
-    }
+    this.breadcrumb.ifPresent((b: Breadcrumb) => b.update(datum));
 
     if (this.settings.rerootCallback) {
       this.settings.rerootCallback(datum.data);

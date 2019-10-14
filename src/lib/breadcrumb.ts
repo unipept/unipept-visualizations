@@ -23,7 +23,6 @@ const createCrumb: (genClassName: (name: string) => string,
 
 export class Breadcrumb {
   // Constants
-  public static readonly DEFAULT_ID: string = "breadcrumb";
   public static readonly DEFAULT_COLOUR: string = "#000";
   public static readonly CRUMB_CLASS: string = "crumb";
 
@@ -53,7 +52,7 @@ export class Breadcrumb {
       .classed(this.genClassName("breadcrumbs"), true);
 
     this.parent.append("ul")
-      .classed(this.genClassName("breadcrumbs-list"));
+      .classed(this.genClassName("breadcrumbs-list"), true);
   }
 
   public update(data: d3.HierarchyNode<Node>): void {
