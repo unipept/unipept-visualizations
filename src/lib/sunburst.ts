@@ -212,9 +212,9 @@ export class Sunburst {
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
       .attr("fill-opacity", (datum: d3.HierarchyRectangularNode<SunburstNode>): number =>
-            Styles.nodeOpacity(datum, levels,
-                               Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
-                                                   visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})))
+            Styles.node.opacity(datum, levels,
+                                Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
+                                                    visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})))
       .on("click", (d: d3.HierarchyRectangularNode<SunburstNode>) => {
         this.onClick(d);
       })
@@ -236,26 +236,26 @@ export class Sunburst {
       .append("text")
       .style("fill", (d: d3.HierarchyNode<SunburstNode>) => getReadableColorFor(this.color(d)))
       .style("fill-opacity", function(d: d3.HierarchyRectangularNode<SunburstNode>): number {
-        return Styles.labelOpacity(d, angularScale, radialScale, this.getComputedTextLength(),
-                                   Styles.constraints({maxDepth,
-                                                       labelOffset: Sunburst.LABEL_OFFSET,
-                                                       nodeSizeThreshold: Sunburst.NODE_SIZE_THRESHOLD}));
+        return Styles.label.opacity(d, angularScale, radialScale, this.getComputedTextLength(),
+                                    Styles.constraints({maxDepth,
+                                                        labelOffset: Sunburst.LABEL_OFFSET,
+                                                        areaThreshold: Sunburst.NODE_SIZE_THRESHOLD}));
       })
       .style("font-family", "Helvetica, 'Super Sans', sans-serif")
       .style("pointer-events", "none")
       .attr("dy", ".2em")
       .attr("dx", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            Styles.labelOffset(this.angularScale, d,
-                               Styles.constraints({labelOffset: Sunburst.LABEL_OFFSET})))
+            Styles.label.offset(this.angularScale, d,
+                                Styles.constraints({labelOffset: Sunburst.LABEL_OFFSET})))
       .attr("transform", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            Styles.labelTransform(this.angularScale, this.radialScale, d))
+            Styles.label.transform(this.angularScale, this.radialScale, d))
       .attr("text-anchor", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            Styles.labelAnchor(this.angularScale, d))
+            Styles.label.anchor(this.angularScale, d))
       .text((d: d3.HierarchyNode<SunburstNode>) => label(d.data))
       .style("font-size", (d: d3.HierarchyRectangularNode<SunburstNode>): string =>
-             Styles.labelFontSize(d, this.angularScale, this.radialScale,
-                                  Styles.constraints({minFontSize: Sunburst.MIN_FONT_SIZE,
-                                                      maxFontSize: Sunburst.MAX_FONT_SIZE})));
+             Styles.label.fontSize(d, this.angularScale, this.radialScale,
+                                   Styles.constraints({minFontSize: Sunburst.MIN_FONT_SIZE,
+                                                       maxFontSize: Sunburst.MAX_FONT_SIZE})));
   }
 
   private onClick(datum: d3.HierarchyNode<SunburstNode>): void {
@@ -311,34 +311,34 @@ export class Sunburst {
       .attr("class", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             d.depth >= maxDepth ? "arc toHide" : "arc")
       .attr("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            Styles.nodeOpacity(d, maxDepth,
-                               Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
-                                                   visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})));
+            Styles.node.opacity(d, maxDepth,
+                                Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
+                                                    visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})));
 
     texts.transition()
       .duration(this.settings.duration)
       .style("visibility", (child: d3.HierarchyRectangularNode<SunburstNode>): string =>
              Styles.displayableFromAncestor(parentNode, child, maxDepth) ? "visible" : "hidden")
       .attrTween("text-anchor", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-                 (): string => Styles.labelAnchor(this.angularScale, d))
+                 (): string => Styles.label.anchor(this.angularScale, d))
       .attrTween("dx", (child: d3.HierarchyRectangularNode<SunburstNode>) =>
                  (): string =>
-                 Styles.labelOffset(this.angularScale, child,
-                                    Styles.constraints({labelOffset: Sunburst.LABEL_OFFSET})))
+                 Styles.label.offset(this.angularScale, child,
+                                     Styles.constraints({labelOffset: Sunburst.LABEL_OFFSET})))
       .attrTween("transform", (child: d3.HierarchyRectangularNode<SunburstNode>) =>
-                 (): string => Styles.labelTransform(angularScale, radialScale, child))
+                 (): string => Styles.label.transform(angularScale, radialScale, child))
       .on("end", function(child: d3.HierarchyRectangularNode<SunburstNode>): void {
         d3.select(this)
           .style("fill-opacity",
-                 Styles.labelOpacity(child, angularScale, radialScale,
-                                     this.getComputedTextLength(),
-                                     Styles.constraints({maxDepth,
-                                                         labelOffset: Sunburst.LABEL_OFFSET,
-                                                         nodeSizeThreshold: Sunburst.NODE_SIZE_THRESHOLD})))
+                 Styles.label.opacity(child, angularScale, radialScale,
+                                      this.getComputedTextLength(),
+                                      Styles.constraints({maxDepth,
+                                                          labelOffset: Sunburst.LABEL_OFFSET,
+                                                          areaThreshold: Sunburst.NODE_SIZE_THRESHOLD})))
           .style("font-size",
-                 Styles.labelFontSize(child, angularScale, radialScale,
-                                      Styles.constraints({minFontSize: Sunburst.MIN_FONT_SIZE,
-                                                          maxFontSize: Sunburst.MAX_FONT_SIZE})));
+                 Styles.label.fontSize(child, angularScale, radialScale,
+                                       Styles.constraints({minFontSize: Sunburst.MIN_FONT_SIZE,
+                                                           maxFontSize: Sunburst.MAX_FONT_SIZE})));
       });
   }
 }
