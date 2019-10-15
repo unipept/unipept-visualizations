@@ -18,13 +18,15 @@ const displayableFromAncestor: (ancestor: d3.HierarchyNode<Node>,
    .orElse(Infinity) < maxGeneration);
 
 
-/// Labels
+/// Styling constraints
 interface IStyleConstraints {
   maxDepth: number;
   labelOffset: number;
   nodeSizeThreshold: number;
   minFontSize: number;
   maxFontSize: number;
+  fadedOpacity: number;
+  visibleOpacity: number;
 }
 
 const constraints: (userConstraints: object) => IStyleConstraints
@@ -33,12 +35,16 @@ const constraints: (userConstraints: object) => IStyleConstraints
                                          labelOffset: 0,
                                          nodeSizeThreshold: 0,
                                          minFontSize: 0,
-                                         maxFontSize: 0};
+                                         maxFontSize: 0,
+                                         fadedOpacity: 0,
+                                         visibleOpacity: 1};
     Object.assign(defaults, userConstraints);
 
     return defaults;
   };
 
+
+/// Labels
 const labelTransform: (angularScale: d3.ScaleLinear<number, number>,
                        radialScale: d3.ScaleLinear<number, number>,
                        d: d3.HierarchyRectangularNode<Node>) => string
@@ -107,6 +113,14 @@ const labelFontSize: (d: d3.HierarchyRectangularNode<Node>,
 
 
 /// Nodes
+const nodeOpacity: (d: d3.HierarchyRectangularNode<Node>,
+                    threshold: number, constraints: IStyleConstraints) => number
+  = (d: d3.HierarchyRectangularNode<Node>,
+     threshold: number, constraints: IStyleConstraints): number =>
+    d.depth >= threshold
+      ? constraints.fadedOpacity
+      : constraints.visibleOpacity;
+
 
 export { IStyleConstraints,
          constraints,
@@ -115,4 +129,5 @@ export { IStyleConstraints,
          labelFontSize,
          labelOffset,
          labelOpacity,
-         labelTransform };
+         labelTransform,
+         nodeOpacity};

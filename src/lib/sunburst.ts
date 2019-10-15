@@ -212,7 +212,9 @@ export class Sunburst {
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
       .attr("fill-opacity", (datum: d3.HierarchyRectangularNode<SunburstNode>): number =>
-            Sunburst.nodeOpacity(datum, levels))
+            Styles.nodeOpacity(datum, levels,
+                               Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
+                                                   visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})))
       .on("click", (d: d3.HierarchyRectangularNode<SunburstNode>) => {
         this.onClick(d);
       })
@@ -254,13 +256,6 @@ export class Sunburst {
              Styles.labelFontSize(d, this.angularScale, this.radialScale,
                                   Styles.constraints({minFontSize: Sunburst.MIN_FONT_SIZE,
                                                       maxFontSize: Sunburst.MAX_FONT_SIZE})));
-  }
-
-  private static nodeOpacity(d: d3.HierarchyRectangularNode<SunburstNode>,
-                             threshold: number): number {
-    return d.depth >= threshold
-      ? Sunburst.FADED_NODE_OPACITY
-      : Sunburst.VISIBLE_NODE_OPACITY;
   }
 
   private onClick(datum: d3.HierarchyNode<SunburstNode>): void {
@@ -316,7 +311,9 @@ export class Sunburst {
       .attr("class", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
             d.depth >= maxDepth ? "arc toHide" : "arc")
       .attr("fill-opacity", (d: d3.HierarchyRectangularNode<SunburstNode>) =>
-            Sunburst.nodeOpacity(d, maxDepth));
+            Styles.nodeOpacity(d, maxDepth,
+                               Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
+                                                   visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})));
 
     texts.transition()
       .duration(this.settings.duration)
