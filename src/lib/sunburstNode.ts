@@ -1,9 +1,9 @@
-/**
- * //TODO: docs
- */
 import { BasicNode, emptyBasicNode } from "./basicNode";
 import { Node } from "./node";
 
+/**
+ * A [[Node]] specialised for the sunburst visualisation
+ */
 export class SunburstNode extends Node {
   public readonly size?: number;
   public readonly children?: SunburstNode[];

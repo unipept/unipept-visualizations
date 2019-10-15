@@ -48,51 +48,36 @@ export class SunburstSettings extends Settings {
 
   public readonly enableBreadcrumbs: boolean = true;
 
-  public readonly colors: () => d3.ScaleOrdinal<string, string> = ColorPalette.sunburstColors;
+  public readonly colors: () => d3.ScaleOrdinal<string, string>
+    = ColorPalette.sunburstColors;
+
   public readonly countAccessor: (data: Node) => number
-    = SunburstSettings.defaultCountAccessor;
+    = (data: Node): number => data.data.count
+
   public readonly rerootCallback?: (data: Node) => void = undefined;
 
-  public readonly getLevel: (data: Node) => number = SunburstSettings.defaultLevel;
-  public readonly getLabel: (data: Node) => string = SunburstSettings.defaultLabel;
+  public readonly getLevel: (data: Node) => number
+    = (data: Node): number => data.getDepth()
 
-  public readonly getTooltip: (data: Node) => string = this.defaultTooltip;
-  public readonly getTooltipTitle: (data: Node) => string = SunburstSettings.defaultTooltipTitle;
-  public readonly getTooltipText: (data: Node) => string = this.defaultTooltipText;
-  public readonly getTitleText: (data: Node) => string = SunburstSettings.defaultTitleText;
+  public readonly getLabel: (data: Node) => string
+    = (data: Node): string => data.name === "empty" ? "" : data.name
 
-  /// Private (default) methods
-  public static defaultCountAccessor(data: Node): number {
-    return data.data.count;
-  }
+  public readonly getTooltipTitle: (data: Node) => string
+    = (data: Node): string => data.name
 
-  public defaultTooltip(data: Node): string {
-    return `<h3 class='tip-title'>${SunburstSettings.defaultTooltipTitle(data)}</h3>` +
-      `<p>${this.defaultTooltipText(data)}</p>`;
-  }
+  public readonly getTooltipText: (data: Node) => string
+    = (data: Node): string => `${Data.count(data, this.countAccessor)} hits`
 
-  public static defaultTooltipTitle(data: Node): string {
-    return data.name;
-  }
+  public readonly getTooltip: (data: Node) => string
+    = (data: Node): string =>
+    `<h3 class='tip-title'>${this.getTooltipTitle(data)}</h3>`
+    + `<p>${this.getTooltipText(data)}</p>`
 
-  public defaultTooltipText(data: Node): string {
-    return `${Data.count(data, this.countAccessor)} hits`;
-  }
-
-  public static defaultLevel(data: Node): number {
-    return data.getDepth();
-  }
-
-  public static defaultLabel(data: Node): string {
-    return data.name === "empty" ? "" : data.name;
-  }
-
-  public static defaultTitleText(data: Node): string {
-    return SunburstSettings.defaultLabel(data);
-  }
+  public readonly getTitleText: (data: Node) => string
+    = (data: Node): string => this.getLabel(data)
 
 
-  // Ctor and factories
+  // Ctor and factory
   public constructor(settings?: ISunburstSettingsData) {
     super(settings && settings.height,
           settings && settings.width,

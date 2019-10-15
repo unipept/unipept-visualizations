@@ -12,14 +12,14 @@ test("default settings", () => {
   expect(settings.enableTooltips)
     .toEqual(true);
 
+  expect(settings.parent)
+    .toEqual("unipept-sunburst");
+
   expect(settings.className)
     .toEqual("unipept-sunburst");
 
   expect(settings.enableBreadcrumbs)
     .toEqual(true);
-
-  expect(settings.breadcrumbWidth)
-    .toEqual(200);
 
   expect(settings.countAccessor(new Node()))
     .toEqual(0);
@@ -40,14 +40,14 @@ test("initialise custom but defaults", () => {
   expect(settings.enableTooltips)
     .toEqual(true);
 
+  expect(settings.parent)
+    .toEqual("unipept-sunburst");
+
   expect(settings.className)
     .toEqual("unipept-sunburst");
 
   expect(settings.enableBreadcrumbs)
     .toEqual(true);
-
-  expect(settings.breadcrumbWidth)
-    .toEqual(200);
 
   expect(settings.countAccessor(new Node()))
     .toEqual(0);
@@ -81,14 +81,14 @@ test("initialise custom", () => {
   expect(settings.enableTooltips)
     .toEqual(false);
 
+  expect(settings.parent)
+    .toEqual("unipept-sunburst");
+
   expect(settings.className)
     .toEqual("unipept-sunburst");
 
   expect(settings.enableBreadcrumbs)
     .toEqual(false);
-
-  expect(settings.breadcrumbWidth)
-    .toEqual(200);
 
   expect(settings.countAccessor(node))
     .toEqual(6);

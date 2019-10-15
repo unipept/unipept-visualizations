@@ -27,7 +27,7 @@ const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<
         return `${node.data.name} is ${Math.round(percentage)}% of ${node.parent.data.name}`;
       }
 
-      return "No parent!";
+      return "";
     };
 
 const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode<Node>) => string
@@ -79,7 +79,7 @@ const tooltipTextFromSettings: (settings: SunburstSettings) => (node: d3.Hierarc
 
 export class Sunburst {
   // Constants:
-  public static readonly DARKEN: number = 0.05;
+  public static readonly DARKEN: number = 0.2;
   public static readonly MIN_FONT_SIZE: number = 6;
   public static readonly MAX_FONT_SIZE: number = 12;
   public static readonly NODE_SIZE_THRESHOLD: number = 7;

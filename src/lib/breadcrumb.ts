@@ -6,7 +6,9 @@ import * as d3 from "d3";
 import { domClass } from "./dom";
 import { Node } from "./node";
 
-
+/**
+ * Given some settings, bake a function that generates HTML for a breadcrumb.
+ */
 const createCrumb: (genClassName: (name: string) => string,
                     text?: (node: d3.HierarchyNode<Node>) => string)
   => (node: d3.HierarchyNode<Node>) => string
@@ -21,20 +23,34 @@ const createCrumb: (genClassName: (name: string) => string,
         + "</p>";
   };
 
+/**
+ * Interface for creating unstyled breadcrumb trails from visualised data.
+ */
 export class Breadcrumb {
   // Constants
   public static readonly DEFAULT_COLOUR: string = "#000";
   public static readonly CRUMB_CLASS: string = "crumb";
 
+  // The <div> element in which the breadcrumb trail is rendered.
   public readonly parent: d3.Selection<HTMLDivElement, undefined, HTMLElement, undefined>;
 
-  // Callbacks
+  // Utility functions
   public readonly crumb: (node: d3.HierarchyNode<Node>) => string;
   public readonly genClassName: (name: string) => string;
   public readonly colour?: (node: d3.HierarchyNode<Node>) => string;
   public readonly onClick?: (node: d3.HierarchyNode<Node>) => void;
   public readonly title?: (data: Node) => string;
 
+  /**
+   * Constructor
+   * @param attach A CSS selector for the HTML node within which breadcrumbs will
+   *               be rendered.
+   * @param classPrefix An optional prefix for all breadcrumb element class attributes
+   * @param colour An optional function to colour a breadcrumb.
+   * @param onClick An optional callback for the click event.
+   * @param title An optional function to set the breadcrumb HTML title attribute.
+   * @param text An optional function to set the descriptive text within a breadcrumb.
+   */
   public constructor(attach: string, classPrefix?: string,
                      colour?: (node: d3.HierarchyNode<Node>) => string,
                      onClick?: (node: d3.HierarchyNode<Node>) => void,
@@ -55,6 +71,10 @@ export class Breadcrumb {
       .classed(this.genClassName("breadcrumbs-list"), true);
   }
 
+  /**
+   * Update the rendered breadcrumbs with `data` as as the node deepest
+   * in the hierarchy.
+   */
   public update(data: d3.HierarchyNode<Node>): void {
     const crumbClass: string = this.genClassName(Breadcrumb.CRUMB_CLASS);
 
@@ -66,28 +86,26 @@ export class Breadcrumb {
       .selectAll(`.${crumbClass}`)
       .remove();
 
-    if (crumbData.length > 1) {
-      const bc: d3.Selection<d3.BaseType, d3.HierarchyNode<Node>, d3.BaseType, undefined>
-        = this.parent.select("ul")
-        .selectAll(`.${crumbClass}`)
-        .data(crumbData);
+    const bc: d3.Selection<d3.BaseType, d3.HierarchyNode<Node>, d3.BaseType, undefined>
+      = this.parent.select("ul")
+      .selectAll(`.${crumbClass}`)
+      .data(crumbData);
 
-      bc.enter()
-        .append("li")
-        .classed(crumbClass, true)
-        .attr("title", (d: d3.HierarchyNode<Node>): string =>
-              this.title ? this.title(d.data) : "")
-        .html((d: d3.HierarchyNode<Node>): string => this.crumb(d))
-        .style("background-color", (d: d3.HierarchyNode<Node>): string =>
-               this.colour ? this.colour(d) : Breadcrumb.DEFAULT_COLOUR)
-        .on("click", (d: d3.HierarchyNode<Node>): void => {
-          if (this.onClick) {
-            return this.onClick(d);
-          }
-        });
+    bc.enter()
+      .append("li")
+      .classed(crumbClass, true)
+      .attr("title", (d: d3.HierarchyNode<Node>): string =>
+            this.title ? this.title(d.data) : "")
+      .html((d: d3.HierarchyNode<Node>): string => this.crumb(d))
+      .style("background-color", (d: d3.HierarchyNode<Node>): string =>
+             this.colour ? this.colour(d) : Breadcrumb.DEFAULT_COLOUR)
+      .on("click", (d: d3.HierarchyNode<Node>): void => {
+        if (this.onClick) {
+          return this.onClick(d);
+        }
+      });
 
-      bc.exit()
-        .remove();
-    }
+    bc.exit()
+      .remove();
   }
 }

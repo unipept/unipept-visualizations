@@ -45,6 +45,7 @@ const getReadableColorFor: (color: string, cutoff?: number) => string
  * Note: Naively computing an average results in incorrect visual perception
  *       of the resulting average color.
  * Formula: sum(squared components)/# of components
+ * TODO: Make a weighted average version.
  */
 const averageColor: (colours: OptionalColor[]) => OptionalColor
   = (colours: OptionalColor[]): OptionalColor => {
