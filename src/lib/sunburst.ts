@@ -10,11 +10,14 @@ import * as Data from "./data";
 import { Node } from "./node";
 import { Optional } from "./optional";
 import * as Styles from "./styles";
-import { SunburstNode } from "./sunburstNode";
-import { SunburstSettings } from "./sunburstSettings";
+import { SunburstNode } from "./sunburst/node";
+import { SunburstSettings } from "./sunburst/settings";
 import { Tooltip, TooltipEvent } from "./tooltip";
 import { generateId } from "./utils";
 
+/**
+ * Generate a function for labeling breadcrumbs.
+ */
 const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<Node>) => string)
   = (accessor: (data: Node) => number): ((node: d3.HierarchyNode<Node>) => string) =>
     (node: d3.HierarchyNode<Node>): string => {
@@ -30,6 +33,10 @@ const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<
       return "";
     };
 
+/**
+ * Generate a function for colouring nodes and breadcrumbs
+ *  based on the supplied settings.
+ */
 const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode<Node>) => string
   = (settings: SunburstSettings): (node: d3.HierarchyNode<Node>) => string => {
     const nodeSize: (data: Node) => number
