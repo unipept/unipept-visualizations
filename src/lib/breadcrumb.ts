@@ -80,6 +80,8 @@ export class Breadcrumb {
    */
   public update(data: d3.HierarchyNode<Node>): void {
     const crumbClass: string = this.genClassName(Breadcrumb.CRUMB_CLASS);
+    const capClass: (name: string) => string
+      = (name: string): string => `${crumbClass}-${name}`;
 
     const crumbData: Array<d3.HierarchyNode<Node>>
       = data.ancestors()
@@ -94,7 +96,8 @@ export class Breadcrumb {
       .selectAll(`.${crumbClass}`)
       .data(crumbData);
 
-    bc.enter()
+    const allCrumbs: d3.Selection<HTMLLIElement, d3.HierarchyNode<Node>, d3.BaseType, undefined> =
+      bc.enter()
       .append("li")
       .classed(crumbClass, true)
       .attr("title", (d: d3.HierarchyNode<Node>): string =>
@@ -109,6 +112,13 @@ export class Breadcrumb {
           this.onClick(d);
         }
       });
+
+    allCrumbs.filter((_d: d3.HierarchyNode<Node>, i: number) => i === 0)
+      .classed(`${capClass("first")}`, true);
+
+    allCrumbs.filter((_d: d3.HierarchyNode<Node>, i: number) =>
+                     i === (allCrumbs.size() - 1))
+      .classed(`${capClass("last")}`, true);
 
     bc.exit()
       .remove();

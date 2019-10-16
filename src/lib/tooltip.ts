@@ -7,24 +7,45 @@ import { domClass } from "./dom";
 import { Node } from "./node";
 
 
+/**
+ * Generate a function that writes tooltip text
+ * If a function that does so is `supplied` just return that,
+ * otherwise generate placeholder text.
+ */
 const createTooltip: (supplied?: (node: d3.HierarchyNode<Node>) => string) => ((node: d3.HierarchyNode<Node>) => string)
   = (supplied?: (node: d3.HierarchyNode<Node>) => string): ((node: d3.HierarchyNode<Node>) => string) =>
   (supplied !== undefined
    ? supplied
    : (node: d3.HierarchyNode<Node>): string => `{placeholder: ${node.data.name}}`);
 
+/**
+ * A generic tooltip that follows the mouse cursor.
+ * This tooltip can be styled by user generated CSS.
+ */
 export class Tooltip {
   // Constants
   public static readonly TOP_PADDING: number = -5;
   public static readonly LEFT_PADDING: number = 15;
 
-
+  /**
+   * The HTML node within which this tooltip will render.
+   */
   public readonly parent: d3.Selection<HTMLDivElement, undefined, HTMLElement, undefined>;
 
-  // Functions
+  /**
+   * Generate a predictable class name for tooltip HTML nodes.
+   */
   public readonly genClassName: (name: string) => string;
+
+  /**
+   * Write tooltip text.
+   */
   public readonly tooltip: (node: d3.HierarchyNode<Node>) => string;
 
+  /**
+   * @param attach The parent node to all tooltip generated nodes.
+   * @param tooltip An optional function to generate tooltip text.
+   */
   public constructor(attach: string, classPrefix?: string,
                      tooltip?: (node: d3.HierarchyNode<Node>) => string) {
     const attachTo: d3.Selection<HTMLElement, undefined, HTMLElement, undefined>
@@ -44,6 +65,10 @@ export class Tooltip {
       .style("border-radius", "3px;");
   }
 
+  /**
+   * Update the tooltip DOM based on mouse events.
+   * This method is generally used internally.
+   */
   public update(node: d3.HierarchyNode<Node>, event: MouseEvent): void {
     switch (event.type) {
       case "mouseover":
@@ -68,8 +93,12 @@ export class Tooltip {
     }
   }
 
-  public add(element: SVGPathElement | HTMLElement,
-             node: d3.HierarchyNode<Node>): void {
+  /**
+   * Mark a given `element` as displaying a tooltip with data provided
+   * by `node`.
+   */
+  public mark(element: SVGPathElement | HTMLElement,
+              node: d3.HierarchyNode<Node>): void {
     element.addEventListener("mouseover", (event: Event) => {
       this.update(node, event as MouseEvent);
     });
