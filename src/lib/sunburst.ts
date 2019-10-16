@@ -12,7 +12,7 @@ import { Optional } from "./optional";
 import * as Styles from "./styles";
 import { SunburstNode } from "./sunburst/node";
 import { SunburstSettings } from "./sunburst/settings";
-import { Tooltip, TooltipEvent } from "./tooltip";
+import { Tooltip } from "./tooltip";
 import { generateId } from "./utils";
 
 /**
@@ -21,13 +21,12 @@ import { generateId } from "./utils";
 const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<Node>) => string)
   = (accessor: (data: Node) => number): ((node: d3.HierarchyNode<Node>) => string) =>
     (node: d3.HierarchyNode<Node>): string => {
-      if (node.parent) {
+      if (node.parent !== null) {
         const percentage: number
-          = Data.countRatio(node.data, node.parent.data, accessor)
-          .map((r: number): number => r * 100)
-          .orElse(NaN);
+          = Math.round(Data.countRatio(node.data,
+                                       node.parent.data, accessor) * 100);
 
-        return `${node.data.name} is ${Math.round(percentage)}% of ${node.parent.data.name}`;
+        return `${node.data.name} is ${percentage}% of ${node.parent.data.name}`;
       }
 
       return "";
@@ -39,6 +38,7 @@ const crumbText: (accessor: (data: Node) => number) => ((node: d3.HierarchyNode<
  */
 const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode<Node>) => string
   = (settings: SunburstSettings): (node: d3.HierarchyNode<Node>) => string => {
+    const DARKEN: number = 0.2;
     const nodeSize: (data: Node) => number
       = (data: Node): number => Data.count(data, settings.countAccessor);
 
@@ -50,10 +50,10 @@ const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode
         return "white";
       }
 
-      if (node.children) {
+      if (node.children !== undefined) {
         const children: Array<d3.HierarchyNode<SunburstNode>> = node.children;
-        children.sort((a: d3.HierarchyNode<SunburstNode>,
-                       b: d3.HierarchyNode<SunburstNode>): number =>
+        children.sort((a: d3.HierarchyNode<Node>,
+                       b: d3.HierarchyNode<Node>): number =>
                       nodeSize(b.data) - nodeSize(a.data));
         const childColors: Array<Optional<d3.RGBColor>> =
           children
@@ -63,7 +63,7 @@ const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode
 
         if (children.length === 1) { // Single child
           return childColors[0].map((c: d3.RGBColor) =>
-                                    c.darker(Sunburst.DARKEN)
+                                    c.darker(DARKEN)
                                     .toString())
             .orElse("black");
         }
@@ -80,13 +80,15 @@ const colorFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode
     return color;
   };
 
+/**
+ * Generate a function for displaying tooltip text based on the provided settings.
+ */
 const tooltipTextFromSettings: (settings: SunburstSettings) => (node: d3.HierarchyNode<Node>) => string
   = (settings: SunburstSettings): (node: d3.HierarchyNode<Node>) => string =>
   (node: d3.HierarchyNode<Node>): string => settings.getTooltip(node.data);
 
 export class Sunburst {
   // Constants:
-  public static readonly DARKEN: number = 0.2;
   public static readonly MIN_FONT_SIZE: number = 6;
   public static readonly MAX_FONT_SIZE: number = 12;
   public static readonly NODE_SIZE_THRESHOLD: number = 7;
@@ -112,7 +114,7 @@ export class Sunburst {
   public readonly color: (data: d3.HierarchyNode<Node>) => string;
 
   public constructor(data: BasicNode, options?: SunburstSettings) {
-    this.settings = options || SunburstSettings.default();
+    this.settings = options !== undefined ? options : SunburstSettings.default();
     this.id = generateId();
 
     const topNode: d3.Selection<HTMLElement, undefined, HTMLElement, undefined>
@@ -126,19 +128,19 @@ export class Sunburst {
                    .orElse(document.createElement("svg") as unknown as SVGSVGElement));
 
     this.breadcrumb
-      = Optional.of(this.settings.enableBreadcrumbs
-                    ? (new Breadcrumb(this.settings.parent, this.settings.className,
-                                      this.color,
-                                      (d: d3.HierarchyNode<Node>): void => this.onClick(d),
-                                      this.settings.getTitleText,
-                                      crumbText(this.settings.countAccessor)))
-                    : undefined);
+      = this.settings.enableBreadcrumbs
+      ? Optional.of(new Breadcrumb(this.settings.parent, this.settings.className,
+                                   this.color,
+                                   (d: d3.HierarchyNode<Node>): void => {
+                                     this.onClick(d); },
+                                   this.settings.getTitleText,
+                                   crumbText(this.settings.countAccessor)))
+      : Optional.empty();
 
-    this.tooltip
-      = Optional.of(this.settings.enableTooltips
-                    ? (new Tooltip(this.settings.parent, this.settings.className,
-                                   tooltipTextFromSettings(this.settings)))
-                    : undefined);
+    this.tooltip = this.settings.enableTooltips
+      ? Optional.of(new Tooltip(this.settings.parent, this.settings.className,
+                                tooltipTextFromSettings(this.settings)))
+      : Optional.empty();
 
 
     const nodeData: Array<d3.HierarchyRectangularNode<SunburstNode>>
@@ -196,7 +198,7 @@ export class Sunburst {
 
   private static initData(data: SunburstNode): Array<d3.HierarchyRectangularNode<SunburstNode>> {
     const rootNode: d3.HierarchyNode<SunburstNode> = d3.hierarchy(data);
-    rootNode.sum((n: SunburstNode): number => (n.size ? n.size : 0));
+    rootNode.sum((n: SunburstNode): number => (n.size !== undefined ? n.size : 0));
 
     const partition: d3.PartitionLayout<SunburstNode> = d3.partition();
 
@@ -211,6 +213,10 @@ export class Sunburst {
   }
 
   private drawPaths(levels: number): void {
+    const tooltip: Optional<Tooltip> = this.tooltip;
+    const opacity: Styles.IStyleConstraints
+      = Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
+                            visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY});
     this.pathNodes
       .enter()
       .append("path")
@@ -219,18 +225,15 @@ export class Sunburst {
       .style("fill", (datum: d3.HierarchyRectangularNode<SunburstNode>): string =>
              this.color(datum))
       .attr("fill-opacity", (datum: d3.HierarchyRectangularNode<SunburstNode>): number =>
-            Styles.node.opacity(datum, levels,
-                                Styles.constraints({fadedOpacity: Sunburst.FADED_NODE_OPACITY,
-                                                    visibleOpacity: Sunburst.VISIBLE_NODE_OPACITY})))
+            Styles.node.opacity(datum, levels, opacity))
       .on("click", (d: d3.HierarchyRectangularNode<SunburstNode>) => {
         this.onClick(d);
       })
-      .on("mouseover", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.IN)))
-      .on("mousemove", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.MOVE)))
-      .on("mouseout", (d: d3.HierarchyNode<SunburstNode>) =>
-          this.tooltip.ifPresent((tt: Tooltip) => tt.update(d, TooltipEvent.OUT)));
+      .each(function(node: d3.HierarchyNode<Node>): void {
+        tooltip.ifPresent((tt: Tooltip) => {
+          tt.add(this, node);
+        });
+      });
   }
 
   private drawTextLabels(maxDepth: number,
@@ -266,9 +269,10 @@ export class Sunburst {
   }
 
   private onClick(datum: d3.HierarchyNode<SunburstNode>): void {
-    this.breadcrumb.ifPresent((b: Breadcrumb) => b.update(datum));
+    this.breadcrumb.ifPresent((b: Breadcrumb) => {
+      b.update(datum); });
 
-    if (this.settings.rerootCallback) {
+    if (this.settings.rerootCallback !== undefined) {
       this.settings.rerootCallback(datum.data);
     }
 

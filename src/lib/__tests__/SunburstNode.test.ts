@@ -1,6 +1,4 @@
-// TODO: import d3 from "d3";
-// import { BasicNode } from "../basicNode";
-import { SunburstNode } from "../sunburstNode";
+import { SunburstNode } from "../sunburst/node";
 
 test("Test SunburstNode default initialisation", () => {
   const data = SunburstNode.new();

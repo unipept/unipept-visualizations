@@ -9,21 +9,21 @@ import { Optional } from "./optional";
  * Computes the sum of numbers in an array
  */
 const sum: (data: number[]) => number
-  = (data: number[]): number => (data ? data.reduce((a: number, b: number) => a + b, 0) : 0);
+  = (data: number[]): number => data.reduce((a: number, b: number) => a + b, 0);
 
 /**
  * Computes the arithmetic mean of numbers in an array
  */
 const arithmeticMean: (data: number[]) => Optional<number>
   = (data: number[]): Optional<number> =>
-  Optional.of(data.length ? (sum(data) / data.length) : undefined);
+  data.length > 0 ? Optional.of(sum(data) / data.length) : Optional.empty();
 
 /**
  * Transposes an input 2D Array
  */
 const transpose: <T>(matrix: T[][]) => T[][]
   = <T>(matrix: T[][]): T[][] => {
-    if (matrix.length) {
+    if (matrix.length > 0) {
       return matrix[0].map((_: T, i: number) => matrix.map((row: T[]) => row[i]));
     }
 

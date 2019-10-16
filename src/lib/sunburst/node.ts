@@ -1,12 +1,11 @@
-import { BasicNode, emptyBasicNode } from "./basicNode";
-import { Node } from "./node";
+import { BasicNode, emptyBasicNode } from "../basicNode";
+import { Node } from "../node";
 
 /**
  * A [[Node]] specialised for the sunburst visualisation
  */
 export class SunburstNode extends Node {
   public readonly size?: number;
-  public readonly children?: SunburstNode[];
 
   private constructor(node: BasicNode = emptyBasicNode()) {
     super(node);
@@ -17,6 +16,6 @@ export class SunburstNode extends Node {
   }
 
   public static createNodes<N extends BasicNode>(nodes: N): SunburstNode {
-    return Node.createNode(nodes, SunburstNode.new);
+    return Node.createNode(nodes, (node: BasicNode) => new SunburstNode(node));
   }
 }

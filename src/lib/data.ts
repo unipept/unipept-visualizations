@@ -12,7 +12,7 @@ import { Optional } from "./optional";
  */
 const count: (datum: Node, counter: (d: Node) => number) => number
   = (datum: Node, counter: (d: Node) => number): number => {
-    if (datum.children) {
+    if (datum.children !== undefined) {
       return datum.children.map((v: Node): number => count(v, counter))
         .reduce(((a: number, b: number): number => a + b), 0);
     }
@@ -24,19 +24,19 @@ const count: (datum: Node, counter: (d: Node) => number) => number
  * Compute a ratio of sizes between two nodes
  *  as count(numerator) / count(denominator).
  */
-const countRatio: (numerator: Node, denominator: Node, counter: (d: Node) => number) => Optional<number>
-  = (numerator: Node, denominator: Node, counter: (d: Node) => number): Optional<number> =>
-  Optional.of((numerator === undefined || denominator === undefined)
-              ? undefined
-              : (count(numerator, counter) / count(denominator, counter)));
+const countRatio: (numerator: Node, denominator: Node, counter: (d: Node) => number) => number
+  = (numerator: Node, denominator: Node, counter: (d: Node) => number): number =>
+  count(numerator, counter) / count(denominator, counter);
 
 /**
- * Find the largest radial size with a hierarchy
+ * Find the largest radial size within a hierarchy
  * @param datum The top of the hierarchy to search.
  */
 const maxRadius: (datum: HierarchyRectangularNode<Node>) => number
   = (datum: HierarchyRectangularNode<Node>): number =>
-  datum.children ? Math.max(...datum.children.map(maxRadius)) : datum.y0 + (datum.y1 - datum.y0);
+  datum.children !== undefined
+  ? Math.max(...datum.children.map(maxRadius))
+  : datum.y0 + (datum.y1 - datum.y0);
 
 /**
  * Compute the outer limit of the radial domain based on the levels
@@ -56,14 +56,16 @@ const ancestorOf: (check: HierarchyNode<Node>,
   = (check: HierarchyNode<Node>,
      child: HierarchyNode<Node>): Optional<number> => {
     if (check.depth === child.depth) {
-      if (check === child) {
+      if (check === child) { // tslint:disable-line
         return Optional.of(0);
       }
 
       return Optional.empty();
     }
 
-    if ((child.depth > check.depth) && check.children && child.parent) {
+    if ((child.depth > check.depth)
+        && check.children !== undefined
+        && child.parent !== null) {
       return ancestorOf(check, child.parent)
         .map((d: number) => d + 1);
     }

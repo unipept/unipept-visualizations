@@ -13,8 +13,8 @@ export abstract class Settings {
   public readonly abstract className: string; // The visualization class: for styling
 
   public constructor(height?: number, width?: number, enableTooltips?: boolean) {
-    this.height = height || Settings.DEFAULT_SIZE;
-    this.width = width || Settings.DEFAULT_SIZE;
+    this.height = height !== undefined ? height : Settings.DEFAULT_SIZE;
+    this.width = width !== undefined ? width : Settings.DEFAULT_SIZE;
     this.enableTooltips = enableTooltips === undefined ? true : enableTooltips;
   }
 }

@@ -4,10 +4,10 @@
 
 import d3 from "d3";
 
-import { ColorPalette } from "./color";
-import * as Data from "./data";
-import { Node } from "./node";
-import { Settings } from "./settings";
+import { ColorPalette } from "../color";
+import * as Data from "../data";
+import { Node } from "../node";
+import { Settings } from "../settings";
 
 export interface ISunburstSettingsData extends Settings {
   parent: string; // A CSS selector for where to place this sunburst.
@@ -79,9 +79,9 @@ export class SunburstSettings extends Settings {
 
   // Ctor and factory
   public constructor(settings?: ISunburstSettingsData) {
-    super(settings && settings.height,
-          settings && settings.width,
-          settings && settings.enableTooltips);
+    super(settings !== undefined ? settings.height : undefined,
+          settings !== undefined ? settings.width : undefined,
+          settings !== undefined ? settings.enableTooltips : undefined);
 
     Object.assign(this, settings);
   }

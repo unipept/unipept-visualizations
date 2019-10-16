@@ -1,5 +1,5 @@
 import { Node } from "../node";
-import { ISunburstSettingsData, SunburstSettings } from "../sunburstSettings";
+import { ISunburstSettingsData, SunburstSettings } from "../sunburst/settings";
 
 test("default settings", () => {
   const settings: SunburstSettings = SunburstSettings.default();

@@ -16,10 +16,13 @@ const createCrumb: (genClassName: (name: string) => string,
      text?: (node: d3.HierarchyNode<Node>) => string): (node: d3.HierarchyNode<Node>) => string => {
     const bcNameClass: string = genClassName("breadcrumb-name");
     const bcDataClass: string = genClassName("breadcrumb-data");
+    const tip: (node: d3.HierarchyNode<Node>) => string
+      = (node: d3.HierarchyNode<Node>): string =>
+      text !== undefined ? text(node) : "";
 
     return (node: d3.HierarchyNode<Node>): string =>
       `<p class="${bcNameClass}">${node.data.name}`
-        + `<p class="${bcDataClass}">${text ? text(node) : ""}</p>`
+        + `<p class="${bcDataClass}">${tip(node)}</p>`
         + "</p>";
   };
 
@@ -95,13 +98,15 @@ export class Breadcrumb {
       .append("li")
       .classed(crumbClass, true)
       .attr("title", (d: d3.HierarchyNode<Node>): string =>
-            this.title ? this.title(d.data) : "")
+            this.title !== undefined ? this.title(d.data) : "")
       .html((d: d3.HierarchyNode<Node>): string => this.crumb(d))
       .style("background-color", (d: d3.HierarchyNode<Node>): string =>
-             this.colour ? this.colour(d) : Breadcrumb.DEFAULT_COLOUR)
+             this.colour !== undefined
+             ? this.colour(d)
+             : Breadcrumb.DEFAULT_COLOUR)
       .on("click", (d: d3.HierarchyNode<Node>): void => {
-        if (this.onClick) {
-          return this.onClick(d);
+        if (this.onClick !== undefined) {
+          this.onClick(d);
         }
       });
 
