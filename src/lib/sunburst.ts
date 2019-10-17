@@ -216,7 +216,31 @@ export class Sunburst {
       .descendants();
   }
 
+  /**
+   * Mouse click handler
+   */
+  private onClick(datum: HN,
+                  nodes: Selection<BaseType, HRN,
+                  SVGGElement, undefined>,
+                  angularScale: ScaleLinear<number, number>,
+                  radialScale: ScaleLinear<number, number>): void {
+    this.breadcrumb.ifPresent((b: Breadcrumb) => {
+      b.update(datum);
+    });
+
+    if (this.reroot !== undefined) {
+      this.reroot(datum.data);
+    }
+
+    this.animate(datum as HRN,
+                 nodes, angularScale, radialScale);
+  }
+
   /// All drawing and animation functions below this point.
+
+  /**
+   * Scaffolding for initially drawing paths and labels.
+   */
   private draw(pathNodes: Selection<BaseType, HRN, SVGGElement, undefined>,
                textNodes: Selection<BaseType, HRN, SVGGElement, undefined>,
                levels: number,
@@ -224,9 +248,12 @@ export class Sunburst {
                angularScale: ScaleLinear<number, number>,
                radialScale: ScaleLinear<number, number>): void {
     this.drawPaths(pathNodes, levels, angularScale, radialScale);
-    this.drawTextLabels(textNodes, levels, label, angularScale, radialScale);
+    this.drawLabels(textNodes, levels, label, angularScale, radialScale);
   }
 
+  /**
+   * Draw SVG paths based on data and set up event handlers.
+   */
   private drawPaths(pathNodes: Selection<BaseType, HRN, SVGGElement, undefined>,
                     levels: number,
                     angularScale: ScaleLinear<number, number>,
@@ -253,11 +280,14 @@ export class Sunburst {
       });
   }
 
-  private drawTextLabels(textNodes: Selection<BaseType, HRN, SVGGElement, undefined>,
-                         maxDepth: number,
-                         label: (data: Node) => string,
-                         angularScale: ScaleLinear<number, number>,
-                         radialScale: ScaleLinear<number, number>): void {
+  /**
+   * Arrange labels over paths that can contain them.
+   */
+  private drawLabels(textNodes: Selection<BaseType, HRN, SVGGElement, undefined>,
+                     maxDepth: number,
+                     label: (data: Node) => string,
+                     angularScale: ScaleLinear<number, number>,
+                     radialScale: ScaleLinear<number, number>): void {
     const style: Styles.IStyleConstraints
       = Styles.constraints({maxDepth,
                             labelOffset: Sunburst.LABEL_OFFSET,
@@ -285,23 +315,10 @@ export class Sunburst {
              Styles.label.fontSize(d, angularScale, radialScale, style));
   }
 
-  private onClick(datum: HN,
-                  nodes: Selection<BaseType, HRN,
-                  SVGGElement, undefined>,
-                  angularScale: ScaleLinear<number, number>,
-                  radialScale: ScaleLinear<number, number>): void {
-    this.breadcrumb.ifPresent((b: Breadcrumb) => {
-      b.update(datum);
-    });
-
-    if (this.reroot !== undefined) {
-      this.reroot(datum.data);
-    }
-
-    this.animate(datum as HRN,
-                 nodes, angularScale, radialScale);
-  }
-
+  /**
+   * Animate SVG paths and text labels
+   * This function is scaffolding for these animations.
+   */
   private animate(parentNode: HRN,
                   nodes: Selection<BaseType, HRN, SVGGElement, undefined>,
                   angularScale: ScaleLinear<number, number>,
@@ -318,6 +335,9 @@ export class Sunburst {
     this.animateLabels(parentNode, labels, angularScale, radialScale);
   }
 
+  /**
+   * Work for animating paths occurs here.
+   */
   private animatePaths(parentNode: HRN,
                        paths: Selection<SVGPathElement, HRN, EnterElement, unknown>,
                        angularScale: ScaleLinear<number, number>,
@@ -356,6 +376,9 @@ export class Sunburst {
       .attr("fill-opacity", (d: HRN) => Styles.node.opacity(d, maxDepth, style));
   }
 
+  /**
+   * Work for animating data labels occurs here.
+   */
   private animateLabels(parentNode: HRN,
                         texts: Selection<SVGTextElement, HRN, EnterElement, unknown>,
                         angularScale: ScaleLinear<number, number>,
