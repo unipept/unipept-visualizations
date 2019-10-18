@@ -10,21 +10,66 @@
     <!-- Visualiations -->
     <script src="../dist/bundle.js"></script>
 
+    <style>
+      section.container {
+          display: grid;
+          grid-template-areas: "a a";
+          align-items: center;
+          justify-items: center;
+      }
 
+      ul.unipept-sunburst-breadcrumbs-list {
+          padding: 10px 16px;
+          list-style: none;
+          background-color: #eee;
+      }
+
+      li.unipept-sunburst-crumb {
+          display: inline;
+          font-size: 18px;
+          padding: 4px;
+      }
+
+      ul li+li::before {
+          padding: 4px;
+          color: inherit;
+          content: ">\00a0";
+          position: relative;
+          right: 4px;
+      }
+
+      li.unipept-sunburst-crumb-first {
+          border-top-left-radius: 15px;
+          border-bottom-left-radius: 15px;
+      }
+
+      li.unipept-sunburst-crumb-last {
+          border-top-right-radius: 15px;
+          border-bottom-right-radius: 15px;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="d3Sunburst"></div>
+    <section class="container">
+      <div id="d3Sunburst-1"></div>
+      <div id="d3Sunburst-2"></div>
+    </section>
 
     <script>
       d3.json("data/flare.json").then(function(data) {
-        sunburst(data, {parent: "#d3Sunburst",
+        sunburst(data, {parent: "#d3Sunburst-1",
                         width: 900,
                         height: 600,
                         colors: ColorPalette.sunburstColorsAlt,
                         countAccessor: function (d) { return d.size; },
                         enableTooltips: true,
                         enableBreadcrumbs: true
+                       });
+
+        sunburst(data, {parent: "#d3Sunburst-2",
+                        width: 200,
+                        height: 200,
                        });
       });
     </script>

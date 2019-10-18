@@ -3,6 +3,7 @@
  */
 import * as d3 from "d3";
 
+import { getReadableColorFor } from "./color";
 import { domClass } from "./dom";
 import { Node } from "./node";
 
@@ -10,20 +11,25 @@ import { Node } from "./node";
  * Given some settings, bake a function that generates HTML for a breadcrumb.
  */
 const createCrumb: (genClassName: (name: string) => string,
-                    text?: (node: d3.HierarchyNode<Node>) => string)
+                    text?: (node: d3.HierarchyNode<Node>) => string,
+                    color?: (node: d3.HierarchyNode<Node>) => string)
   => (node: d3.HierarchyNode<Node>) => string
   = (genClassName: (name: string) => string,
-     text?: (node: d3.HierarchyNode<Node>) => string): (node: d3.HierarchyNode<Node>) => string => {
+     text?: (node: d3.HierarchyNode<Node>) => string,
+     color?: (node: d3.HierarchyNode<Node>) => string): (node: d3.HierarchyNode<Node>) => string => {
     const bcNameClass: string = genClassName("breadcrumb-name");
-    const bcDataClass: string = genClassName("breadcrumb-data");
-    const tip: (node: d3.HierarchyNode<Node>) => string
+    const description: (node: d3.HierarchyNode<Node>) => string
       = (node: d3.HierarchyNode<Node>): string =>
       text !== undefined ? text(node) : "";
+    const clr: (node: d3.HierarchyNode<Node>) => string
+      = (node: d3.HierarchyNode<Node>): string => {
+        const c = color !== undefined ? color(node) : "black";
+        console.log(`background color: ${c}`);
+        return c;
+      }
 
     return (node: d3.HierarchyNode<Node>): string =>
-      `<p class="${bcNameClass}">${node.data.name}`
-        + `<p class="${bcDataClass}">${tip(node)}</p>`
-        + "</p>";
+      `<span class="${bcNameClass}" title="${description(node)}" style="color: ${getReadableColorFor(clr(node))}">${node.data.name}</span>`;
   };
 
 /**
@@ -66,7 +72,7 @@ export class Breadcrumb {
     this.onClick = onClick;
     this.title = title;
     this.genClassName = domClass(classPrefix);
-    this.crumb = createCrumb(this.genClassName, text);
+    this.crumb = createCrumb(this.genClassName, text, colour);
     this.parent = attachTo.append("div")
       .classed(this.genClassName("breadcrumbs"), true);
 

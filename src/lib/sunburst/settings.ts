@@ -34,7 +34,6 @@ export interface ISunburstSettingsData extends Settings {
 
 export class SunburstSettings extends Settings {
   /// Constants
-  public static readonly DEFAULT_RADIUS: number = 300;
   public static readonly DEFAULT_LEVELS: number = 4;
   public static readonly DEFAULT_DURATION: number = 1000;
 
@@ -42,7 +41,7 @@ export class SunburstSettings extends Settings {
   public readonly className: string = "unipept-sunburst";
 
   public readonly parent: string = "unipept-sunburst";
-  public readonly radius: number = SunburstSettings.DEFAULT_RADIUS;
+  public readonly radius: number = Math.min(this.width, this.height) / 2;
   public readonly levels: number = SunburstSettings.DEFAULT_LEVELS;
   public readonly duration: number = SunburstSettings.DEFAULT_DURATION;
 
