@@ -19,7 +19,11 @@
     "unipept",
     "d3",
     "visualisations",
-    "visualisation"
+    "visualisation",
+    "heatmap",
+    "sunburst",
+    "treemap",
+    "treeview"
   ],
   "author": "Bart Mesuere",
   "contributors": [
@@ -28,6 +32,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.5.5",
     "@types/d3": "^5.7.2",
     "@types/jest": "^24.0.18",

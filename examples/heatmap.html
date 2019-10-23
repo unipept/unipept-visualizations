@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Heatmap example</title>
+
+        <!-- D3 v5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+        <!-- Visualizations -->
+        <script src="../dist/bundle.js"></script>
+    </head>
+    <body>
+        <div id="heatmap"></div>
+        <button id="cluster">Cluster!</button>
+
+        <script>
+
+            d3.csv('data/random_data.csv')
+                .then(function(data) {
+
+                    let grid = [];
+                    let rows = [];
+                    let cols = [];
+
+                    // First process the header row and create the columns that correspond with the given column headers
+                    for (let key in data[0]) {
+                        if (key !== 'Family' && data[0].hasOwnProperty(key)) {
+                            cols.push({
+                                name: key
+                            })
+                        }
+                    }
+
+                    // Then process all rows (including the row-objects) and fill in the grid
+                    let maxValue = 0;
+                    for (let row of data) {
+                        let familyName = row.Family;
+
+                        if (!familyName) {
+                            throw "Unknown family name!";
+                        }
+
+                        rows.push({
+                            name: familyName
+                        });
+
+                        let rowValues = [];
+
+                        for (let col of cols) {
+                            let val = parseFloat(row[col.name]);
+                            rowValues.push({
+                                value: val
+                            });
+
+                            if (val > maxValue) {
+                                maxValue = val;
+                            }
+                        }
+
+                        grid.push(rowValues);
+                    }
+
+                    // Normalize all rows
+                    for (let i = 0; i < grid.length; i++) {
+                        grid[i] = grid[i].map(x => {
+                            return {
+                                value: x.value / maxValue
+                            };
+                        })
+                    }
+
+                    let heatmapElement = document.getElementById("heatmap");
+
+                    if (heatmapElement) {
+                        let heatmap = new Heatmap.Heatmap(heatmapElement, {
+                            rows: rows,
+                            columns: cols,
+                            values: grid
+                        });
+
+                        document.getElementById("cluster").addEventListener("click", () => {
+                            heatmap.cluster();
+                        });
+                    }
+                });
+        </script>
+    </body>
+</html>

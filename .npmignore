@@ -121,12 +121,8 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-dist/*
-*.iml
-*.lock
-.DS_Store
+dist/examples/*
+dist/src/*
+dist/test/*
 
 .idea/*.*
-
-# backup files
-*~
