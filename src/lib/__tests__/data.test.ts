@@ -82,3 +82,41 @@ test("My grandchild is not my ancestor", () => {
     fail("Grandchild was unexpectedly undefined");
   }
 });
+
+test("Construct an unindexed Series", () => {
+  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3, 4]);
+
+  expect(s.data)
+    .toEqual({0: 0, 1: 1, 2: 2, 3: 3, 4: 4});
+});
+
+test("Construct an indexed Series", () => {
+  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3, 4],
+                                                 ["a", "b", "c", "d", "e"]);
+
+  expect(s.data)
+    .toEqual({a: 0, b: 1, c: 2, d: 3, e: 4});
+
+  console.log(s.format());
+});
+
+test("Construct an unindexed DataFrame", () => {
+  const df: Data.DataFrame<number>
+    = new Data.DataFrame([new Data.Series([0, 1, 2]),
+                          new Data.Series([3, 4, 5]),
+                          new Data.Series([6, 7, 8])]);
+
+  console.log(df.rows());
+  console.log(df.format());
+});
+
+test("Construct an indexed DataFrame", () => {
+  const df: Data.DataFrame<number>
+    = new Data.DataFrame([new Data.Series([0, 1, 2]),
+                          new Data.Series([3, 4, 5]),
+                          new Data.Series([6, 7, 8])],
+                         ["one", "two", "three"]);
+
+  console.log(df.rows());
+  console.log(df.format());
+});

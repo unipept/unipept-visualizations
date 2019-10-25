@@ -73,4 +73,104 @@ const ancestorOf: (check: HierarchyNode<Node>,
     return Optional.empty();
   };
 
-export { ancestorOf, count, countRatio, outerRadialDomain };
+/**
+ * 1 dimensional array with axis labels
+ */
+class Series<T> {
+  public readonly data: {[k: string]: T} = {};
+  public readonly index: string[];
+
+  public constructor(data: T[], index?: string[]) {
+    let realIndex: string[];
+
+    if (index === undefined) {
+      realIndex = new Array(data.length);
+      for (let i: number = 0; i < data.length; i += 1) {
+        realIndex[i] = `${i}`;
+      }
+    } else {
+      realIndex = index;
+    }
+
+    for (let i: number = 0; i < data.length; i += 1) {
+      this.data[realIndex[i]] = data[i];
+    }
+
+    this.index = realIndex;
+  }
+
+  public format(): string {
+    const width: number
+      = Math.max(...this.index.map((i: string): number => i.length));
+
+    return this.index
+      .map((i: string): string =>
+           `${i.padEnd(width, " ")}\t${JSON.stringify(this.data[i])}`)
+      .join("\n");
+  }
+}
+
+class DataFrame<T> {
+  public readonly data: {[k: string]: Series<T>} = {};
+  public readonly index: string[];
+
+  public constructor(data: Array<Series<T>>, index?: string[]) {
+    let realIndex: string[];
+
+    if (index === undefined) {
+      realIndex = new Array(data.length);
+      for (let i: number = 0; i < data.length; i += 1) {
+        realIndex[i] = `${i}`;
+      }
+    } else {
+      realIndex = index;
+    }
+
+    for (let i: number = 0; i < data.length; i += 1) {
+      this.data[realIndex[i]] = data[i];
+    }
+
+    this.index = realIndex;
+  }
+
+  public columns(): string[] {
+    return this.index;
+  }
+
+  public rows(): string[] {
+    const distinct: (value: string, index: number, self: string[]) => boolean
+      = (value: string, index: number, self: string[]): boolean =>
+      self.indexOf(value) === index;
+    const allColumns: string[] = this.index.flatMap((i: string): string[] =>
+                                                    this.data[i].index);
+
+    return allColumns.filter(distinct);
+  }
+
+  public format(): string {
+    const rowNames: string[] = this.rows();
+    const colWidth: number[] = this.index.map((name: string): number =>
+                                              name.length);
+    const rowWidth: number
+      = Math.max(...rowNames.map((i: string): number => i.length + 1));
+
+    const rowName: (name: string) => string
+      = (name: string): string => `${name.padEnd(rowWidth, " ")} `;
+
+    const header: string
+      = `${"".padEnd(rowWidth, " ")} ${this.index.join(" ")}`;
+
+    const table: string = rowNames
+      .map((row: string): string =>
+           rowName(row) + this.index
+           .map((col: string, i: number): string =>
+                JSON.stringify(this.data[col].data[row])
+                .padStart(colWidth[i], " "))
+           .join(" "))
+      .join("\n");
+
+    return `${header}\n${table}`;
+  }
+}
+
+export { ancestorOf, count, countRatio, DataFrame, Series, outerRadialDomain };
