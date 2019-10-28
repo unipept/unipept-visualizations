@@ -1,3 +1,6 @@
+import { BasicNode, emptyBasicNode } from "../basicNode";
+import { Node } from "../node";
+
 /**
  * A HeatmapElement denotes the name of a row / column, an optional ID and can comprise any combination of extra
  * information.
@@ -17,6 +20,29 @@ export interface HeatmapValue {
     value: number,
     rowId?: string,
     columnId?: string
+}
+
+type Position = { rowName: string;
+                  rowIdx: number;
+                  colName: string;
+                  colIdx: number; };
+
+export class HeatmapNode extends Node {
+  public readonly value: number;
+  public readonly position: Position;
+
+  private constructor(node: BasicNode = emptyBasicNode()) {
+    super(node);
+  }
+
+  public static new(node: BasicNode = emptyBasicNode()): HeatmapNode {
+    return new HeatmapNode(node);
+  }
+
+  public static createNodes<N extends BasicNode>(nodes: N): HeatmapNode {
+    return Node.createNode(nodes, (node: BasicNode) => new HeatmapNode(node));
+  }
+}
 }
 
 /**
