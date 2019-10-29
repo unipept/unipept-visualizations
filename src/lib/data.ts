@@ -73,6 +73,29 @@ const ancestorOf: (check: HierarchyNode<Node>,
     return Optional.empty();
   };
 
+
+interface CSVRow {
+  [propName: string]: string;
+}
+
+interface CSV extends Array<CSVRow> {
+  readonly columns: string[];
+}
+
+const fromCSV = (data: CSV): DataFrame<number> => {
+  const seriesIndexName: string = data.columns[0];
+  const seriesIndex: string[] = data.map((row: CSVRow): string => row[seriesIndexName]);
+
+  return new DataFrame<number>(
+    data.columns.slice(1)
+      .map((col: string): Series<number> =>
+           new Series(data.map((row: CSVRow): number =>
+                               Number(row[col])),
+                      seriesIndex),
+          ),
+    data.columns.slice(1));
+};
+
 /**
  * 1 dimensional array with axis labels
  */
@@ -99,6 +122,14 @@ class Series<T> {
     this.index = realIndex;
   }
 
+  public asArray(): T[] {
+    return this.index.map((i: string): T => this.data[i]);
+  }
+
+  public at(i: string): T {
+    return this.data[i];
+  }
+
   public format(): string {
     const width: number
       = Math.max(...this.index.map((i: string): number => i.length));
@@ -107,6 +138,14 @@ class Series<T> {
       .map((i: string): string =>
            `${i.padEnd(width, " ")}\t${JSON.stringify(this.data[i])}`)
       .join("\n");
+  }
+
+  public iat(i: number): T {
+    return this.data[this.index[i]];
+  }
+
+  public map<U>(f: (value: T) => U): Series<U> {
+    return new Series(this.index.map((n: string) => f(this.data[n])), this.index);
   }
 }
 
@@ -133,44 +172,69 @@ class DataFrame<T> {
     this.index = realIndex;
   }
 
+  public at(row: string, column: string): T {
+    return this.data[column].at(row);
+  }
+
+  public column(label: string): Series<T> {
+    return this.data[label];
+  }
+
   public columns(): string[] {
     return this.index;
+  }
+
+  public iat(row: number, column: number): T {
+    return this.data[this.index[column]].iat(row);
   }
 
   public rows(): string[] {
     const distinct: (value: string, index: number, self: string[]) => boolean
       = (value: string, index: number, self: string[]): boolean =>
       self.indexOf(value) === index;
-    const allColumns: string[] = this.index.flatMap((i: string): string[] =>
-                                                    this.data[i].index);
+
+    const allColumns: string[] =
+      this.index.reduce((acc: string[], i: string) =>
+                        acc.concat(this.data[i].index),
+                        []);
 
     return allColumns.filter(distinct);
   }
 
   public format(): string {
+    const toFormat: DataFrame<string> = this.map(JSON.stringify);
     const rowNames: string[] = this.rows();
-    const colWidth: number[] = this.index.map((name: string): number =>
-                                              name.length);
+    const colWidth: number[] = this.index
+      .map((col: string): number =>
+           Math.max(...[col.length]
+                    .concat(toFormat.data[col].asArray()
+                            .map((v: string) => v.length))));
     const rowWidth: number
       = Math.max(...rowNames.map((i: string): number => i.length + 1));
 
     const rowName: (name: string) => string
       = (name: string): string => `${name.padEnd(rowWidth, " ")} `;
 
+    const colHeadings: string[] =
+      this.index.map((col: string, i: number) => col.padStart(colWidth[i], " "));
     const header: string
-      = `${"".padEnd(rowWidth, " ")} ${this.index.join(" ")}`;
+      = `${"".padEnd(rowWidth, " ")} ${colHeadings.join(" ")}`;
 
     const table: string = rowNames
       .map((row: string): string =>
            rowName(row) + this.index
            .map((col: string, i: number): string =>
-                JSON.stringify(this.data[col].data[row])
-                .padStart(colWidth[i], " "))
+                toFormat.data[col].data[row].padStart(colWidth[i], " "))
            .join(" "))
       .join("\n");
 
     return `${header}\n${table}`;
   }
+
+  public map<U>(f: (value: T) => U): DataFrame<U> {
+    return new DataFrame(this.index.map((col: string): Series<U> => this.data[col].map(f)),
+                         this.index);
+  }
 }
 
-export { ancestorOf, count, countRatio, DataFrame, Series, outerRadialDomain };
+export { ancestorOf, count, countRatio, fromCSV, DataFrame, Series, outerRadialDomain };

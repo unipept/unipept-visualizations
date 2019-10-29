@@ -6,11 +6,17 @@ import { Node } from "../node";
 import { Optional } from "../optional";
 
 let data: d3.HierarchyNode<Node>;
+let dataframe: Data.DataFrame<string>;
 
 beforeAll(() => {
   data = d3.hierarchy(JSON.parse(readFileSync(`${__dirname}/../../../examples/data/flare.json`,
                                               "utf8")));
   data.sum((n: Node): number => (n.size ? n.size : 0));
+
+  dataframe = new Data.DataFrame([new Data.Series(["a", "d", "g", "j"]),
+                                  new Data.Series(["b", "e", "h", "k"]),
+                                  new Data.Series(["c", "f", "i", "l"])],
+                                 ["A", "B", "C"]);
 });
 
 
@@ -96,8 +102,27 @@ test("Construct an indexed Series", () => {
 
   expect(s.data)
     .toEqual({a: 0, b: 1, c: 2, d: 3, e: 4});
+});
 
-  console.log(s.format());
+test("Convert Series to array", () => {
+  expect(new Data.Series([0, 1, 2, 3]).asArray())
+    .toEqual([0, 1, 2, 3]);
+});
+
+test("Access Series by label", () => {
+  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3]);
+  expect(s.at("0")).toBe(0);
+  expect(s.at("1")).toBe(1);
+  expect(s.at("2")).toBe(2);
+  expect(s.at("3")).toBe(3);
+});
+
+test("Access Series by index", () => {
+  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3]);
+  expect(s.iat(0)).toBe(0);
+  expect(s.iat(1)).toBe(1);
+  expect(s.iat(2)).toBe(2);
+  expect(s.iat(3)).toBe(3);
 });
 
 test("Construct an unindexed DataFrame", () => {
@@ -106,8 +131,8 @@ test("Construct an unindexed DataFrame", () => {
                           new Data.Series([3, 4, 5]),
                           new Data.Series([6, 7, 8])]);
 
-  console.log(df.rows());
-  console.log(df.format());
+  expect(df.rows())
+    .toEqual(["0", "1", "2"]);
 });
 
 test("Construct an indexed DataFrame", () => {
@@ -117,6 +142,18 @@ test("Construct an indexed DataFrame", () => {
                           new Data.Series([6, 7, 8])],
                          ["one", "two", "three"]);
 
-  console.log(df.rows());
-  console.log(df.format());
+  expect(df.rows()).toEqual(["0", "1", "2"]);
+  expect(df.columns()).toEqual(["one", "two", "three"]);
+});
+
+test("Access a dataframe by label", () => {
+  expect(dataframe.at("0", "A")).toEqual("a");
+  expect(dataframe.at("3", "A")).toEqual("j");
+  expect(dataframe.at("3", "C")).toEqual("l");
+});
+
+test("Access a dataframe by index", () => {
+  expect(dataframe.iat(0, 0)).toEqual("a");
+  expect(dataframe.iat(3, 0)).toEqual("j");
+  expect(dataframe.iat(3, 2)).toEqual("l");
 });
