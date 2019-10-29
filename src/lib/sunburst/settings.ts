@@ -9,29 +9,6 @@ import * as Data from "../data";
 import { Node } from "../node";
 import { Settings } from "../settings";
 
-export interface ISunburstSettingsData extends Settings {
-  parent: string; // A CSS selector for where to place this sunburst.
-
-  radius: number; // Radius of the visualisation.
-  levels: number; // The number of levels to display.
-  duration: number; // The animation duration
-
-  enableBreadcrumbs: boolean; // Set to 'true' to display breadcrumbs.
-
-  colors(): d3.ScaleOrdinal<string, string>;
-
-  getLevel(data: Node): number;
-  getLabel(data: Node): string;
-
-  countAccessor(data: Node): number;
-  rerootCallback(data: Node): void;
-
-  getTooltip(data: Node): string;
-  getTooltipTitle(data: Node): string;
-  getTooltipText(data: Node): string;
-  getTitleText(this: SunburstSettings, data: Node): string;
-}
-
 export class SunburstSettings extends Settings {
   /// Constants
   public static readonly DEFAULT_LEVELS: number = 4;
@@ -41,7 +18,6 @@ export class SunburstSettings extends Settings {
   public readonly className: string = "unipept-sunburst";
 
   public readonly parent: string = "unipept-sunburst";
-  public readonly radius: number = Math.min(this.width, this.height) / 2;
   public readonly levels: number = SunburstSettings.DEFAULT_LEVELS;
   public readonly duration: number = SunburstSettings.DEFAULT_DURATION;
 
@@ -77,15 +53,12 @@ export class SunburstSettings extends Settings {
 
 
   // Ctor and factory
-  public constructor(settings?: ISunburstSettingsData) {
-    super(settings !== undefined ? settings.height : undefined,
-          settings !== undefined ? settings.width : undefined,
-          settings !== undefined ? settings.enableTooltips : undefined);
-
+  public constructor(settings?: object) {
+    super();
     Object.assign(this, settings);
   }
 
-  public static default(): SunburstSettings {
-    return new SunburstSettings({ width: 600, height: 600 } as ISunburstSettingsData);
+  public static defaultSettings(): SunburstSettings {
+    return new SunburstSettings({ width: 600, height: 600 });
   }
 }
