@@ -115,19 +115,18 @@ export class Sunburst {
    * @param data The raw data to visualise.
    * @param options User supplied options. See [[SunburstSettings]] for details.
    */
-  public constructor(data: BasicNode, options?: SunburstSettings) {
-    const settings: SunburstSettings
-      = options !== undefined ? options : SunburstSettings.default();
-    this.LEVELS = settings.levels;
-    this.DURATION = settings.duration;
-    this.RADIUS = settings.radius;
-    this.reroot = settings.rerootCallback;
+  public constructor(data: BasicNode,
+                     options: SunburstSettings = SunburstSettings.defaultSettings()) {
+    this.LEVELS = options.levels;
+    this.DURATION = options.duration;
+    this.RADIUS = Math.min(options.width, options.height) / 2;
+    this.reroot = options.rerootCallback;
 
     const svgNode: Selection<SVGSVGElement, undefined, null, undefined>
-      = Sunburst.createSVG(settings.width, settings.height);
-    this.color = colorFromSettings(settings);
+      = Sunburst.createSVG(options.width, options.height);
+    this.color = colorFromSettings(options);
 
-    select(settings.parent)
+    select(options.parent)
       .append((): SVGSVGElement =>
               Optional.of(svgNode.node())
               .orElse(document.createElement("svg") as unknown as SVGSVGElement));
@@ -135,13 +134,13 @@ export class Sunburst {
     const nodeData: HRN[]
       = Sunburst.initData(SunburstNode.createNodes(data));
     const svgGroup: Selection<SVGGElement, undefined, null, undefined>
-      = Sunburst.createDrawing(svgNode, settings.radius);
+      = Sunburst.createDrawing(svgNode, this.RADIUS);
 
     const angularScale: ScaleLinear<number, number> = scaleLinear()
       .range([0, Math.PI * 2]); // Use full circle
     const radialScale: ScaleLinear<number, number> = scaleLinear()
-      .domain([0, Data.outerRadialDomain(nodeData[0], settings.levels)])
-      .range([0, settings.radius]);
+      .domain([0, Data.outerRadialDomain(nodeData[0], options.levels)])
+      .range([0, this.RADIUS]);
 
     const pathNodes: Selection<BaseType, HRN, SVGGElement, undefined>
       = svgGroup.selectAll("path")
@@ -151,15 +150,15 @@ export class Sunburst {
       .data(nodeData);
 
 
-    this.breadcrumb = settings.enableBreadcrumbs
-      ? Optional.of(new Breadcrumb(settings.parent, settings.className,
+    this.breadcrumb = options.enableBreadcrumbs
+      ? Optional.of(new Breadcrumb(options.parent, options.className,
                                    this.color,
                                    (d: HN): void => {
                                      this.onClick(d, pathNodes,
                                                   angularScale, radialScale);
                                    },
-                                   settings.getTitleText,
-                                   crumbText(settings.countAccessor)))
+                                   options.getTitleText,
+                                   crumbText(options.countAccessor)))
       : Optional.empty();
 
     // Display the root breadcrumb
@@ -167,12 +166,12 @@ export class Sunburst {
       b.update(nodeData[0]);
     });
 
-    this.tooltip = settings.enableTooltips
-      ? Optional.of(new Tooltip(settings.parent, settings.className,
-                                tooltipTextFromSettings(settings)))
+    this.tooltip = options.enableTooltips
+      ? Optional.of(new Tooltip(options.parent, options.className,
+                                tooltipTextFromSettings(options)))
       : Optional.empty();
 
-    this.draw(pathNodes, textNodes, settings.levels, settings.getLabel,
+    this.draw(pathNodes, textNodes, options.levels, options.getLabel,
               angularScale, radialScale);
   }
 
