@@ -22,17 +22,12 @@ export interface HeatmapValue {
     columnId?: string
 }
 
-type Position = { rowName: string;
-                  rowIdx: number;
-                  colName: string;
-                  colIdx: number; };
-
 export class HeatmapNode extends Node {
-  public readonly value: number;
-  public readonly position: Position;
+  public readonly value: number = 0;
 
   private constructor(node: BasicNode = emptyBasicNode()) {
     super(node);
+    Object.assign(this, node);
   }
 
   public static new(node: BasicNode = emptyBasicNode()): HeatmapNode {
@@ -43,7 +38,7 @@ export class HeatmapNode extends Node {
     return Node.createNode(nodes, (node: BasicNode) => new HeatmapNode(node));
   }
 }
-}
+
 
 /**
  * HeatmapData represents the full container of all data needed for a Heatmap to visualise.

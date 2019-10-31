@@ -3,11 +3,15 @@
  */
 
 import d3 from "d3";
+import * as R from "ramda";
 
 import { ColorPalette } from "../color";
 import * as Data from "../data";
 import { Node } from "../node";
 import { Settings } from "../settings";
+
+import { SunburstNode } from "./node";
+
 
 export class SunburstSettings extends Settings {
   /// Constants
@@ -26,8 +30,10 @@ export class SunburstSettings extends Settings {
   public readonly colors: () => d3.ScaleOrdinal<string, string>
     = ColorPalette.sunburstColors;
 
-  public readonly countAccessor: (data: Node) => number
-    = (data: Node): number => data.data.count
+  public readonly dataAccessor: R.Lens =
+    R.lens((data: SunburstNode): number =>
+           data.size !== undefined ? data.size : 0,
+           R.assoc("size"));
 
   public readonly rerootCallback?: (data: Node) => void = undefined;
 
@@ -37,16 +43,8 @@ export class SunburstSettings extends Settings {
   public readonly getLabel: (data: Node) => string
     = (data: Node): string => data.name === "empty" ? "" : data.name
 
-  public readonly getTooltipTitle: (data: Node) => string
-    = (data: Node): string => data.name
-
   public readonly getTooltipText: (data: Node) => string
-    = (data: Node): string => `${Data.count(data, this.countAccessor)} hits`
-
-  public readonly getTooltip: (data: Node) => string
-    = (data: Node): string =>
-    `<h3 class='tip-title'>${this.getTooltipTitle(data)}</h3>`
-    + `<p>${this.getTooltipText(data)}</p>`
+    = (data: Node): string => `${Data.count(data, this.dataAccessor)} hits`
 
   public readonly getTitleText: (data: Node) => string
     = (data: Node): string => this.getLabel(data)

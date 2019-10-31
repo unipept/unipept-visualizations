@@ -7,6 +7,7 @@ import { arc, ArrayLike, BaseType, create, EnterElement,
          HSLColor, interpolate, partition, PartitionLayout,
          rgb, RGBColor, scaleLinear, ScaleLinear, ScaleOrdinal,
          select, Selection, ValueFn } from "d3";
+import * as R from "ramda";
 
 import { BasicNode } from "./basicNode";
 import { Breadcrumb } from "./breadcrumb";
@@ -26,8 +27,8 @@ type HN = HierarchyNode<Node>;
 /**
  * Generate a function for labeling breadcrumbs.
  */
-const crumbText: (accessor: (d: Node) => number) => ((node: HN) => string)
-  = (accessor: (d: Node) => number): ((node: HN) => string) =>
+const crumbText: (accessor: R.Lens) => ((node: HN) => string)
+  = (accessor: R.Lens): ((node: HN) => string) =>
   (node: HN): string => {
     if (node.parent !== null) {
       const percentage: number
@@ -48,7 +49,7 @@ const colorFromSettings: (settings: SunburstSettings) => (node: HN) => string
   = (settings: SunburstSettings): (node: HN) => string => {
     const DARKEN_FACTOR: number = 0.2;
     const nodeSize: (data: Node) => number
-      = (data: Node): number => Data.count(data, settings.countAccessor);
+      = (data: Node): number => Data.count(data, settings.dataAccessor);
 
     const palette: ScaleOrdinal<string, string> = settings.colors();
 
@@ -80,13 +81,6 @@ const colorFromSettings: (settings: SunburstSettings) => (node: HN) => string
 
     return color;
   };
-
-/**
- * Generate a function for displaying tooltip text based on the provided settings.
- */
-const tooltipTextFromSettings: (settings: SunburstSettings) => (node: HN) => string
-  = (settings: SunburstSettings): (node: HN) => string =>
-  (node: HN): string => settings.getTooltip(node.data);
 
 /**
  * A sunburst visualisation responsible for drawing and animating
@@ -132,7 +126,7 @@ export class Sunburst {
               .orElse(document.createElement("svg") as unknown as SVGSVGElement));
 
     const nodeData: HRN[]
-      = Sunburst.initData(SunburstNode.createNodes(data));
+      = Sunburst.initData(SunburstNode.createNodes(data), options.dataAccessor);
     const svgGroup: Selection<SVGGElement, undefined, null, undefined>
       = Sunburst.createDrawing(svgNode, this.RADIUS);
 
@@ -158,7 +152,7 @@ export class Sunburst {
                                                   angularScale, radialScale);
                                    },
                                    options.getTitleText,
-                                   crumbText(options.countAccessor)))
+                                   crumbText(options.dataAccessor)))
       : Optional.empty();
 
     // Display the root breadcrumb
@@ -167,8 +161,7 @@ export class Sunburst {
     });
 
     this.tooltip = options.enableTooltips
-      ? Optional.of(new Tooltip(options.parent, options.className,
-                                tooltipTextFromSettings(options)))
+      ? Optional.of(new Tooltip(options.parent, options.className, options.getTooltip))
       : Optional.empty();
 
     this.draw(pathNodes, textNodes, options.levels, options.getLabel,
@@ -205,9 +198,9 @@ export class Sunburst {
       .attr("transform", `translate(${radius}, ${radius})`);
   }
 
-  private static initData(data: SunburstNode): HRN[] {
+  private static initData(data: SunburstNode, accessor: R.Lens): HRN[] {
     const rootNode: HierarchyNode<SunburstNode> = hierarchy(data);
-    rootNode.sum((d: SunburstNode) => d.size !== undefined ? d.size : 0);
+    rootNode.sum((node: SunburstNode): number => R.view(accessor, node));
 
     const dataPartition: PartitionLayout<Node> = partition();
 
@@ -274,7 +267,7 @@ export class Sunburst {
       })
       .each(function(node: HN): void {
         tooltip.ifPresent((tt: Tooltip) => {
-          tt.mark(this, node);
+          tt.mark(this, node.data);
         });
       });
   }
