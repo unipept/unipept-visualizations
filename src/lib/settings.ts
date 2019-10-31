@@ -1,6 +1,8 @@
 /**
  * Settings for the visualisations
  */
+import * as R from "ramda";
+
 import { Node } from "./node";
 
 export abstract class Settings {
@@ -17,9 +19,11 @@ export abstract class Settings {
 
   public readonly enableTooltips: boolean;    // Display tooltips on-mouse-over
 
+  public readonly dataAccessor: R.Lens;
+
   public readonly getTooltip: (data: Node) => string
     = (data: Node): string =>
-    `<p class="tip-title">${this.getTooltipTitle(data)}</p>`
+    `<h3 class="tip-title">${this.getTooltipTitle(data)}</h3>`
     + `<p class="tip-text">${this.getTooltipText(data)}</p>`
 
   public readonly getTooltipTitle: (data: Node) => string
@@ -29,10 +33,11 @@ export abstract class Settings {
     = (data: Node): string => data.name
 
   public constructor(parent?: string, height?: number, width?: number,
-                     enableTooltips?: boolean) {
+                     enableTooltips?: boolean, dataAccessor?: R.Lens) {
     this.parent = parent !== undefined ? parent : "";
     this.height = height !== undefined ? height : Settings.DEFAULT_SIZE;
     this.width = width !== undefined ? width : Settings.DEFAULT_SIZE;
     this.enableTooltips = enableTooltips === undefined ? true : enableTooltips;
+    this.dataAccessor = dataAccessor === undefined ? R.lensPath(["data", "count"]) : dataAccessor;
   }
 }

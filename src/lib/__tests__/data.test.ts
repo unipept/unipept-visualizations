@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import * as Data from "../data";
 import { Node } from "../node";
 import { Optional } from "../optional";
+import { Series } from "../series";
 
 let data: d3.HierarchyNode<Node>;
 let dataframe: Data.DataFrame<string>;
@@ -13,9 +14,9 @@ beforeAll(() => {
                                               "utf8")));
   data.sum((n: Node): number => (n.size ? n.size : 0));
 
-  dataframe = new Data.DataFrame([new Data.Series(["a", "d", "g", "j"]),
-                                  new Data.Series(["b", "e", "h", "k"]),
-                                  new Data.Series(["c", "f", "i", "l"])],
+  dataframe = new Data.DataFrame([new Series(["a", "d", "g", "j"]),
+                                  new Series(["b", "e", "h", "k"]),
+                                  new Series(["c", "f", "i", "l"])],
                                  ["A", "B", "C"]);
 });
 
@@ -90,27 +91,27 @@ test("My grandchild is not my ancestor", () => {
 });
 
 test("Construct an unindexed Series", () => {
-  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3, 4]);
+  const s: Series<number> = new Series([0, 1, 2, 3, 4]);
 
   expect(s.data)
     .toEqual({0: 0, 1: 1, 2: 2, 3: 3, 4: 4});
 });
 
 test("Construct an indexed Series", () => {
-  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3, 4],
-                                                 ["a", "b", "c", "d", "e"]);
+  const s: Series<number> = new Series([0, 1, 2, 3, 4],
+                                       ["a", "b", "c", "d", "e"]);
 
   expect(s.data)
     .toEqual({a: 0, b: 1, c: 2, d: 3, e: 4});
 });
 
 test("Convert Series to array", () => {
-  expect(new Data.Series([0, 1, 2, 3]).asArray())
+  expect(new Series([0, 1, 2, 3]).asArray())
     .toEqual([0, 1, 2, 3]);
 });
 
 test("Access Series by label", () => {
-  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3]);
+  const s: Series<number> = new Series([0, 1, 2, 3]);
   expect(s.at("0")).toBe(0);
   expect(s.at("1")).toBe(1);
   expect(s.at("2")).toBe(2);
@@ -118,7 +119,7 @@ test("Access Series by label", () => {
 });
 
 test("Access Series by index", () => {
-  const s: Data.Series<number> = new Data.Series([0, 1, 2, 3]);
+  const s: Series<number> = new Series([0, 1, 2, 3]);
   expect(s.iat(0)).toBe(0);
   expect(s.iat(1)).toBe(1);
   expect(s.iat(2)).toBe(2);
@@ -127,9 +128,9 @@ test("Access Series by index", () => {
 
 test("Construct an unindexed DataFrame", () => {
   const df: Data.DataFrame<number>
-    = new Data.DataFrame([new Data.Series([0, 1, 2]),
-                          new Data.Series([3, 4, 5]),
-                          new Data.Series([6, 7, 8])]);
+    = new Data.DataFrame([new Series([0, 1, 2]),
+                          new Series([3, 4, 5]),
+                          new Series([6, 7, 8])]);
 
   expect(df.rows())
     .toEqual(["0", "1", "2"]);
@@ -137,9 +138,9 @@ test("Construct an unindexed DataFrame", () => {
 
 test("Construct an indexed DataFrame", () => {
   const df: Data.DataFrame<number>
-    = new Data.DataFrame([new Data.Series([0, 1, 2]),
-                          new Data.Series([3, 4, 5]),
-                          new Data.Series([6, 7, 8])],
+    = new Data.DataFrame([new Series([0, 1, 2]),
+                          new Series([3, 4, 5]),
+                          new Series([6, 7, 8])],
                          ["one", "two", "three"]);
 
   expect(df.rows()).toEqual(["0", "1", "2"]);
@@ -147,9 +148,12 @@ test("Construct an indexed DataFrame", () => {
 });
 
 test("Access a dataframe by label", () => {
-  expect(dataframe.at("0", "A")).toEqual("a");
-  expect(dataframe.at("3", "A")).toEqual("j");
-  expect(dataframe.at("3", "C")).toEqual("l");
+  expect(dataframe.at("0", "A"))
+    .toEqual("a");
+  expect(dataframe.at("3", "A"))
+    .toEqual("j");
+  expect(dataframe.at("3", "C"))
+    .toEqual("l");
 });
 
 test("Access a dataframe by index", () => {

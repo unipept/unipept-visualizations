@@ -1,7 +1,12 @@
+import * as R from "ramda";
+
 import { Settings } from "../settings";
-import {HeatmapElement, HeatmapValue} from "./input";
+import { Node } from "../node";
+
 
 export class HeatmapSettings extends Settings {
+  public static readonly DEFAULT_DURATION: number = 2000;
+
     /***** VALUES *****/
     // Amount of pixels that are allowed to be occupied by the labels of the rows.
     textWidth: number = 100;
@@ -24,26 +29,24 @@ export class HeatmapSettings extends Settings {
 
     className = 'heatmap';
 
-    // Total speed of the reordering animations used in this visualization, should be given in milliseconds (ms).
-    animationSpeed: number = 2000;
+  // Total speed of the reordering animations used in this visualization, should be given in milliseconds (ms).
+  duration: number = HeatmapSettings.DEFAULT_DURATION;
 
-    /***** FUNCTIONS *****/
+  /***** FUNCTIONS *****/
 
-    // Returns the html to use as tooltip for a cell. Is called with a HeatmapValue that represents the current cell
-    // and the row and column objects associated with the highlighted cell as parameters. By default, the
-    // result of getTooltipTitle is used in a header and getTooltipText is used in a paragraph tag.
-    getTooltip: (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (cell: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => {
-        return `
-            <b class='tip-title' style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;">${this.getTooltipTitle(cell, row, column)}</b>
-            <br>
-            <a style="font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;">${this.getTooltipText(cell)}</a>
-        `
-    };
+  dataAccessor: R.Lens = R.lensProp("value");
 
-    getTooltipTitle: (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) => string = (x: HeatmapValue, row: HeatmapElement, column: HeatmapElement) =>
-        `${column.name ? column.name : ''}${column.name ? ' and ' : ''}${row.name ? row.name : ''}`;
+  // Text that's displayed inside a tooltip.
+  // This is equal to the current cell's value by default.
+  getTooltipText: (data: Node) => string
+    = (data: Node) => `score: ${(R.view(this.dataAccessor, data) as number * 100).toFixed(2)}%`;
 
-    // Text that's displayed inside a tooltip. This is equal to the current cell's value by default.
-    getTooltipText: (x: HeatmapValue) => string = (x: HeatmapValue) =>
-    `score: ${(x.value * 100).toFixed(2)}%`;
+  public constructor(settings?: object) {
+    super();
+    Object.assign(this, settings);
+  }
+
+  public static defaultSettings(): HeatmapSettings {
+    return new HeatmapSettings();
+  }
 }
