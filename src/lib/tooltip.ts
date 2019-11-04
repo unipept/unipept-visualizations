@@ -97,7 +97,7 @@ export class Tooltip {
    * Mark a given `element` as displaying a tooltip with data provided
    * by `node`.
    */
-  public mark(element: SVGPathElement | HTMLElement, data: Node): void {
+  public mark(element: SVGElement | HTMLElement, data: Node): void {
     element.addEventListener("mouseover", (event: Event) => {
       this.update(data, event as MouseEvent);
     });
