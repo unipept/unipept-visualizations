@@ -45,11 +45,11 @@ const crumbText: (accessor: R.Lens) => ((node: HN) => string)
  * Generate a function for colouring nodes and breadcrumbs
  *  based on the supplied settings.
  */
-const colorFromSettings: (settings: SunburstSettings) => (node: HN) => string
-  = (settings: SunburstSettings): (node: HN) => string => {
+const colorFromSettings: (settings: SunburstSettings, lens: R.Lens) => (node: HN) => string
+  = (settings: SunburstSettings, lens: R.Lens): (node: HN) => string => {
     const DARKEN_FACTOR: number = 0.2;
     const nodeSize: (data: Node) => number
-      = (data: Node): number => Data.count(data, settings.dataAccessor);
+      = (data: Node): number => Data.count(data, lens);
 
     const palette: ScaleOrdinal<string, string> = settings.colors();
 
@@ -116,9 +116,11 @@ export class Sunburst {
     this.RADIUS = Math.min(options.width, options.height) / 2;
     this.reroot = options.rerootCallback;
 
+    const dataAccessor: R.Lens = R.lens(options.dataAccessor, options.dataModifier);
+
     const svgNode: Selection<SVGSVGElement, undefined, null, undefined>
       = Sunburst.createSVG(options.width, options.height);
-    this.color = colorFromSettings(options);
+    this.color = colorFromSettings(options, dataAccessor);
 
     select(options.parent)
       .append((): SVGSVGElement =>
@@ -126,7 +128,7 @@ export class Sunburst {
               .orElse(document.createElement("svg") as unknown as SVGSVGElement));
 
     const nodeData: HRN[]
-      = Sunburst.initData(SunburstNode.createNodes(data), options.dataAccessor);
+      = Sunburst.initData(SunburstNode.createNodes(data), dataAccessor);
     const svgGroup: Selection<SVGGElement, undefined, null, undefined>
       = Sunburst.createDrawing(svgNode, this.RADIUS);
 
@@ -152,7 +154,7 @@ export class Sunburst {
                                                   angularScale, radialScale);
                                    },
                                    options.getTitleText,
-                                   crumbText(options.dataAccessor)))
+                                   crumbText(dataAccessor)))
       : Optional.empty();
 
     // Display the root breadcrumb

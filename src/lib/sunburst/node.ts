@@ -7,7 +7,7 @@ import { Node } from "../node";
 export class SunburstNode extends Node {
   public readonly size?: number;
 
-  private constructor(node: BasicNode = emptyBasicNode()) {
+  public constructor(node: BasicNode = emptyBasicNode()) {
     super(node);
   }
 
