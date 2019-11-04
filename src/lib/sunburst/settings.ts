@@ -32,11 +32,11 @@ export class SunburstSettings extends Settings {
     = ColorPalette.sunburstColors;
 
   public readonly dataAccessor: (data: SunburstNode) => number =
-    (data: SunburstNode): number => data.size !== undefined ? data.size : 0;
+    (data: SunburstNode): number => data.size !== undefined ? data.size : 0
 
   public readonly dataModifier: (value: number, data: SunburstNode) => SunburstNode =
     (value: number, data: SunburstNode): SunburstNode =>
-    new SunburstNode({...data, size: value} as unknown as BasicNode);
+    new SunburstNode({...data, size: value} as unknown as BasicNode)
 
   public readonly rerootCallback?: (data: Node) => void = undefined;
 

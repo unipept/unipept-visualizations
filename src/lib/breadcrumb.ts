@@ -23,10 +23,10 @@ const createCrumb: (genClassName: (name: string) => string,
       text !== undefined ? text(node) : "";
     const clr: (node: d3.HierarchyNode<Node>) => string
       = (node: d3.HierarchyNode<Node>): string => {
-        const c = color !== undefined ? color(node) : "black";
-        console.log(`background color: ${c}`);
+        const c: string = color !== undefined ? color(node) : "black";
+
         return c;
-      }
+      };
 
     return (node: d3.HierarchyNode<Node>): string =>
       `<span class="${bcNameClass}" title="${description(node)}" style="color: ${getReadableColorFor(clr(node))}">${node.data.name}</span>`;

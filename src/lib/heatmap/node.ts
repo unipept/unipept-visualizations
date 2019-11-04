@@ -25,7 +25,7 @@ export interface HeatmapValue {
 export class HeatmapNode extends Node {
   public readonly value: number = 0;
 
-  private constructor(node: BasicNode = emptyBasicNode()) {
+  public constructor(node: BasicNode = emptyBasicNode()) {
     super(node);
     Object.assign(this, node);
   }
