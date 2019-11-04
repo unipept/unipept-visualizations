@@ -29,7 +29,7 @@ export class Heatmap {
 
   // private tooltip: d3.Selection<HTMLDivElement, {}, HTMLElement, any> | null = null;
 
-  public readonly tooltip: Optional<Tooltip>;
+  //public readonly tooltip: Optional<Tooltip>;
 
   constructor(data: DataFrame<BasicNode>,
               options: HeatmapSettings = HeatmapSettings.defaultSettings()) {
@@ -39,7 +39,7 @@ export class Heatmap {
       .map((v: BasicNode) => HeatmapNode.createNodes(v))
       .normalise(value);
 
-    this.tooltip = options.enableTooltips
+    const tooltip: Optional<Tooltip> = options.enableTooltips
       ? Optional.of(new Tooltip(options.parent, options.className, options.getTooltip))
       : Optional.empty();
 
@@ -66,8 +66,10 @@ export class Heatmap {
         .attr("y", (_d, i: number) => i * squareWidth)
         .attr("width", (_d) => squareWidth)
         .attr("height", (_d) => squareWidth)
-        .attr("fill", (d: HeatmapNode) => colourInterpolator(R.view(value, d)));
-      // console.log(hm.column(col).asArray());
+        .attr("fill", (d: HeatmapNode) => colourInterpolator(R.view(value, d)))
+        .each(function(d: HeatmapNode): void {
+          tooltip.ifPresent((tt: Tooltip) => tt.mark(this, d));
+        });
     }
               
   
