@@ -59,7 +59,6 @@ export class Heatmap {
   public draw(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
               tooltip: Optional<Tooltip>,
               options: HeatmapSettings): void {
-
     this.drawGrid(svg, tooltip, options);
     this.drawLabels(svg, options);
   }
@@ -108,22 +107,28 @@ export class Heatmap {
       .data(this.hm.rows())
       .enter()
       .append("text")
-      .text((d: string): string => d)
+      .text(R.identity)
       .attr("dominant-baseline", "hanging")
       .attr("x", textStart[0])
-      .attr("y", (_: string, i: number): number => cell[0] * i + centre[0]);
+      .attr("y", (_: string, i: number): number => cell[0] * i + centre[0])
+      .attr("class", (d: string): string => `row-label-${d}`)
+      .append("title")
+      .text(R.identity);
 
     // Columns
     svg.selectAll("svg")
       .data(this.hm.columns())
       .enter()
       .append("text")
-      .text((d: string): string => d)
+      .text(R.identity)
       .attr("text-anchor", "start")
       .attr("x", (_: string, i: number): number => cell[1] * i + centre[1])
       .attr("y", textStart[1])
       .attr("transform", (_: string, i: number): string =>
-            `rotate(90, ${cell[1] * i + centre[1]}, ${textStart[1]})`);
+            `rotate(90, ${cell[1] * i + centre[1]}, ${textStart[1]})`)
+      .attr("class", (d: string): string => `column-label-${d}`)
+      .append("title")
+      .text(R.identity);
   }
 
   private static createSVG(width: number, height: number)
