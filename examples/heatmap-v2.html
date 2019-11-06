@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Heatmap v2 example</title>
+
+        <!-- D3 v5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.12.0/d3.min.js"></script>
+
+        <!-- Visualizations -->
+        <script src="/unipept.bundle.js"></script>
+    </head>
+    <body>
+        <div id="heatmap"></div>
+        <button id="cluster">Cluster!</button>
+
+        <script>
+            d3.csv('data/random_data_small.csv')
+                .then(function(data) {
+                  heatmap(data, {parent: "#heatmap"});
+                });
+        </script>
+    </body>
+</html>
