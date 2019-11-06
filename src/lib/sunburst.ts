@@ -110,7 +110,7 @@ export class Sunburst {
    * @param options User supplied options. See [[SunburstSettings]] for details.
    */
   public constructor(data: BasicNode,
-                     options: SunburstSettings = SunburstSettings.defaultSettings()) {
+                     options: SunburstSettings = SunburstSettings.defaults()) {
     this.LEVELS = options.levels;
     this.DURATION = options.duration;
     this.RADIUS = Math.min(options.width, options.height) / 2;

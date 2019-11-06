@@ -4,8 +4,13 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: path.join(__dirname, '/src/index.ts'),
+  entry: {
+    unipept: path.join(__dirname, '/src/index.ts'),
+  },
   devtool: 'inline-source-map',
+  devServer : {
+    contentBase: path.resolve(__dirname, 'examples'),
+  },
   plugins: [
     new CleanWebpackPlugin()
   ],
@@ -25,7 +30,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js']
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd'
   },

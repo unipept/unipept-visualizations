@@ -18,14 +18,14 @@ export class HeatmapSettings extends Settings {
   public readonly textHeight: number = 100;
 
   // The maximum dimension of one square.
-  public readonly maximumSquareWidth: number = 50;
+  public readonly maxCellSize: number = 50;
 
   // Space between the squares in the grid (0 for no padding)
-  public readonly squarePadding: number = 2;
+  public readonly padding: number = 2;
 
   // Space between the visualization grid itself and rendering the labels (in pixels). This space is applied to both
   // the rows and columns labels.
-  public readonly visualizationTextPadding: number = 5;
+  public readonly textPadding: number = 5;
 
   // Size of text used in the visualization (for row and column labels)
   public readonly fontSize: number = 12;
@@ -38,6 +38,20 @@ export class HeatmapSettings extends Settings {
   public readonly duration: number = HeatmapSettings.DEFAULT_DURATION;
 
   /***** FUNCTIONS *****/
+
+  /**
+   * Final adjustment to the shape of heatmap cells.
+   * This defaults to making cells square on the shortest side.
+   * @param request The requested shape [width, height] that may
+   *                be modified by this function
+   * @return A tuple of [width, height] for heatmap cells.
+   */
+  public readonly cellShape?: (request: [number, number]) => [number, number]
+    = (request: [number, number]): [number, number] => {
+      const size: number = Math.min(...request);
+
+      return [size, size];
+    }
 
   public readonly dataAccessor: (data: Node) => number
     = (data: Node): number => (data as HeatmapNode).value
@@ -60,7 +74,7 @@ export class HeatmapSettings extends Settings {
     Object.assign(this, settings);
   }
 
-  public static defaultSettings(): HeatmapSettings {
+  public static defaults(): HeatmapSettings {
     return new HeatmapSettings();
   }
 }

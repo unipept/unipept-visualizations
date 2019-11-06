@@ -202,6 +202,14 @@ class DataFrame<T> {
 
     return this.map((node: T): T => R.over(lens, (val: number): number => val / max, node));
   }
+
+  /**
+   * Return a tuple representing the dimensionality (rows, cols)
+   * of the [[Dataframe]].
+   */
+  public shape(): [number, number] {
+    return [this.rows().length, this.columns().length];
+  }
 }
 
 export { ancestorOf, count, countRatio, CSV, fromCSV, DataFrame, outerRadialDomain };
