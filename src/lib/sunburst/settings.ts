@@ -58,7 +58,7 @@ export class SunburstSettings extends Settings {
     Object.assign(this, settings);
   }
 
-  public static defaultSettings(): SunburstSettings {
+  public static defaults(): SunburstSettings {
     return new SunburstSettings({ width: 600, height: 600 });
   }
 }

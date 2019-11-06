@@ -1,13 +1,14 @@
 import * as d3 from "d3";
-import * as R from 'ramda';
+import * as R from "ramda";
 
-import { DataFrame } from "./data";
 import { BasicNode } from "./basicNode";
+import { DataFrame } from "./data";
+import { HeatmapNode } from "./heatmap/node";
+import { HeatmapSettings } from "./heatmap/settings";
 import { Optional } from "./optional";
 import { Tooltip } from "./tooltip";
 
-import { HeatmapSettings } from "./heatmap/settings";
-import { HeatmapNode } from "./heatmap/node";
+
 // import UPGMAClusterer from "../cluster/UPGMAClusterer";
 // import EuclidianDistanceMetric from "../metric/euclidianDistanceMetric";
 // import ClusterElement from "../cluster/clusterElement";
@@ -25,26 +26,24 @@ export class Heatmap {
     // private rows: HeatmapElement[];
     // private columnMap: Map<string, HeatmapElement>;
     // private columns: HeatmapElement[];
-    // private values: HeatmapValue[][];
+  // private values: HeatmapValue[][];
+  public readonly value: R.Lens;
+  public readonly hm: DataFrame<HeatmapNode>;
+  public readonly cellShape: [number, number];
 
-  // private tooltip: d3.Selection<HTMLDivElement, {}, HTMLElement, any> | null = null;
+  public constructor(data: DataFrame<BasicNode>,
+                     options: HeatmapSettings = HeatmapSettings.defaults()) {
+    this.value = R.lens(options.dataAccessor, options.dataModifier);
 
-  //public readonly tooltip: Optional<Tooltip>;
-
-  constructor(data: DataFrame<BasicNode>,
-              options: HeatmapSettings = HeatmapSettings.defaultSettings()) {
-
-    const value: R.Lens = R.lens(options.dataAccessor, options.dataModifier);
-    const hm: DataFrame<HeatmapNode> = data
+    this.hm = data
       .map((v: BasicNode) => HeatmapNode.createNodes(v))
-      .normalise(value);
+      .normalise(this.value);
+
+    this.cellShape = Heatmap.cellShape(options, this.hm.shape());
 
     const tooltip: Optional<Tooltip> = options.enableTooltips
       ? Optional.of(new Tooltip(options.parent, options.className, options.getTooltip))
       : Optional.empty();
-
-    console.log(hm.format());
-    console.log(hm.max(value));
 
     const svgNode: d3.Selection<SVGSVGElement, undefined, null, undefined>
       = Heatmap.createSVG(options.width, options.height);
@@ -54,55 +53,77 @@ export class Heatmap {
               Optional.of(svgNode.node())
               .orElse(document.createElement("svg") as unknown as SVGSVGElement));
 
-    const squareWidth: number = 50;
-    const colourInterpolator = d3.interpolateLab(d3.lab(options.colorScale[0]),
-                                                 d3.lab(options.colorScale[1]));
-    for (const [col, coli] of hm.columns().map((c: string, i: number) => [c, i])) {
-      svgNode.selectAll("svg")
-        .data(hm.column(col as string).asArray())
+    this.draw(svgNode, tooltip, options);
+  }
+
+  public draw(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
+              tooltip: Optional<Tooltip>,
+              options: HeatmapSettings): void {
+
+    this.drawGrid(svg, tooltip, options);
+    this.drawLabels(svg, options);
+  }
+
+  public drawGrid(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
+                  tooltip: Optional<Tooltip>,
+                  options: HeatmapSettings): void {
+    const colourInterpolator: (t: number) => string
+      = d3.interpolateLab(d3.lab(options.colorScale[0]), d3.lab(options.colorScale[1]));
+    for (const [col, coli] of this.hm.columns()
+         .map((c: string, i: number) => [c, i])) {
+      svg.selectAll("svg")
+        .data(this.hm.column(col as string)
+              .asArray())
         .enter()
         .append("rect")
-        .attr("x", () => (coli as number) * squareWidth)
-        .attr("y", (_d, i: number) => i * squareWidth)
-        .attr("width", (_d) => squareWidth)
-        .attr("height", (_d) => squareWidth)
-        .attr("fill", (d: HeatmapNode) => colourInterpolator(R.view(value, d)))
+        .attr("x", () => (coli as number) * this.cellShape[0]
+              + (coli as number) * options.padding)
+        .attr("y", (_: HeatmapNode, i: number) => i * this.cellShape[1] + i * options.padding)
+        .attr("width", (_: HeatmapNode) => this.cellShape[0])
+        .attr("height", (_: HeatmapNode) => this.cellShape[1])
+        .attr("fill", (d: HeatmapNode) => colourInterpolator(R.view(this.value, d)))
         .each(function(d: HeatmapNode): void {
           tooltip.ifPresent((tt: Tooltip) => tt.mark(this, d));
         });
     }
-              
-  
-        // this.element = elementIdentifier;
-        // this.element.id = "U_HEATMAP_" + Math.floor(Math.random() * 2**16);
+  }
 
-        // this.rowMap = this.preprocessFeatures(data.rows);
-        // this.rows = Array.from(this.rowMap.values());
-        // this.columnMap = this.preprocessFeatures(data.columns);
-        // this.columns = Array.from(this.columnMap.values());
-        // this.values = this.preprocessValues(data.values);
+  public drawLabels(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
+                    options: HeatmapSettings): void {
+    const hmShape: [number, number] = this.hm.shape();
+    const textStart: [number, number]
+      = [this.cellShape[0] * hmShape[1]
+         + options.padding * (hmShape[1] - 1) + options.textPadding,
+         this.cellShape[1] * hmShape[0]
+         + options.padding * (hmShape[0] - 1) + options.textPadding];
+    const centre: [number, number]
+      = [Math.max((this.cellShape[1] - options.fontSize) / 2, 0),
+         Math.max((this.cellShape[0] - options.fontSize) / 2, 0)];
+    const cell: [number, number]
+      = [this.cellShape[1] + options.padding,
+         this.cellShape[0] + options.padding];
 
-        // if (this.settings.enableTooltips) {
-        //     this.tooltip = this.initTooltip();
-        // }
+    // Rows
+    svg.selectAll("svg")
+      .data(this.hm.rows())
+      .enter()
+      .append("text")
+      .text((d: string): string => d)
+      .attr("dominant-baseline", "hanging")
+      .attr("x", textStart[0])
+      .attr("y", (_: string, i: number): number => cell[0] * i + centre[0]);
 
-        // this.initCSS();
-    // this.redraw();
-        //     for (let row = 0; row < this.rows.length; row++) {
-    //         vis.selectAll("svg")
-    //             .data(this.values[row])
-    //             .enter()
-    //             .append("rect")
-    //             .attr("x", (d, i) => i * squareWidth + i * this.settings.squarePadding)
-    //             .attr("y", (d, i) => row * squareWidth + row * this.settings.squarePadding)
-    //             .attr("width", d => squareWidth)
-    //             .attr("height", d => squareWidth)
-    //             .attr("fill", d => interpolator(d.value))
-    //             .attr("class", (d, i) => `row-${this.rows[row].id} column-${this.columns[i].id}`)
-    //             .on("mouseover", (d, i) => this.tooltipIn(d, i))
-    //             .on("mousemove", (d, i) => this.tooltipMove(d, i))
-    //             .on("mouseout", (d, i) => this.tooltipOut(d, i));
-
+    // Columns
+    svg.selectAll("svg")
+      .data(this.hm.columns())
+      .enter()
+      .append("text")
+      .text((d: string): string => d)
+      .attr("text-anchor", "start")
+      .attr("x", (_: string, i: number): number => cell[1] * i + centre[1])
+      .attr("y", textStart[1])
+      .attr("transform", (_: string, i: number): string =>
+            `rotate(90, ${cell[1] * i + centre[1]}, ${textStart[1]})`);
   }
 
   private static createSVG(width: number, height: number)
@@ -116,6 +137,24 @@ export class Heatmap {
       .attr("overflow", "hidden")
       .attr("role", "img")
       .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+  }
+
+  // [width, height]
+  public static cellShape(options: HeatmapSettings,
+                          hm: [number, number]): [number, number] {
+    const width: number = options.width - options.textWidth
+      - (hm[1] * options.padding);
+    const height: number = options.height - options.textHeight
+      - (hm[0] * options.padding);
+    const shape: [number, number]
+      = [Math.max(options.maxCellSize, Math.floor(width / hm[1])),
+         Math.min(options.maxCellSize, Math.floor(height / hm[0]))];
+
+    if (options.cellShape === undefined) {
+      return shape;
+    }
+
+    return options.cellShape(shape);
   }
 
     /**
