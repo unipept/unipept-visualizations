@@ -8,15 +8,18 @@ import { Series } from "../series";
 
 let data: d3.HierarchyNode<Node>;
 let dataframe: Data.DataFrame<string>;
+let dfSeries: Array<Series<string>>;
 
 beforeAll(() => {
   data = d3.hierarchy(JSON.parse(readFileSync(`${__dirname}/../../../examples/data/flare.json`,
                                               "utf8")));
   data.sum((n: Node): number => (n.size ? n.size : 0));
 
-  dataframe = new Data.DataFrame([new Series(["a", "d", "g", "j"]),
-                                  new Series(["b", "e", "h", "k"]),
-                                  new Series(["c", "f", "i", "l"])],
+  dfSeries = [new Series(["a", "d", "g", "j"]),
+              new Series(["b", "e", "h", "k"]),
+              new Series(["c", "f", "i", "l"])];
+
+  dataframe = new Data.DataFrame(dfSeries,
                                  ["A", "B", "C"]);
 });
 
@@ -126,6 +129,42 @@ test("Access Series by index", () => {
   expect(s.iat(3)).toBe(3);
 });
 
+test("Reorder a Series with identical index", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+    .reorder(["a", "b", "c", "d"]);
+
+  expect(s.asArray())
+    .toEqual([0, 1, 2, 3]);
+});
+
+test("Reorder a Series with reversed index", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+    .reorder(["d", "c", "b", "a"]);
+
+  expect(s.asArray())
+    .toEqual([3, 2, 1, 0]);
+});
+
+test("Reorder a Series with larger index", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+    .reorder(["e", "a", "g", "b", "c", "d", "f"]);
+
+  expect(s.asArray())
+    .toEqual([0, 1, 2, 3]);
+});
+
+test("Reorder a Series with partially overlapping index", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+    .reorder(["c", "f", "a", "g"]);
+
+  expect(s.asArray())
+    .toEqual([2, 0]);
+});
+
 test("Construct an unindexed DataFrame", () => {
   const df: Data.DataFrame<number>
     = new Data.DataFrame([new Series([0, 1, 2]),
@@ -157,7 +196,53 @@ test("Access a dataframe by label", () => {
 });
 
 test("Access a dataframe by index", () => {
-  expect(dataframe.iat(0, 0)).toEqual("a");
-  expect(dataframe.iat(3, 0)).toEqual("j");
-  expect(dataframe.iat(3, 2)).toEqual("l");
+  expect(dataframe.iat(0, 0))
+    .toEqual("a");
+  expect(dataframe.iat(3, 0))
+    .toEqual("j");
+  expect(dataframe.iat(3, 2))
+    .toEqual("l");
 });
+
+test("Reorder columns of a DataFrame with identical index", () => {
+  const df: Data.DataFrame<string> = dataframe.reorderColumns(["A", "B", "C"]);
+
+  expect(df)
+    .toEqual(dataframe);
+});
+
+test("Reorder columns of a DataFrame with reversed index", () => {
+  const df: Data.DataFrame<string> = dataframe.reorderColumns(["C", "B", "A"]);
+
+  expect(df)
+    .toEqual(new Data.DataFrame(dfSeries.reverse(), ["C", "B", "A"]));
+});
+
+test("Reorder rows of a DataFrame with identical index", () => {
+  const df: Data.DataFrame<string> = dataframe.reorderRows(["0", "1", "2", "3"]);
+
+  expect(df)
+    .toEqual(dataframe);
+});
+
+test("Reorder rows of a DataFrame with reversed index", () => {
+  const df: Data.DataFrame<string> = dataframe
+    .reorderRows(["3", "2", "1", "0"]);
+
+  expect(df.column("A")
+         .asArray())
+    .toEqual(dataframe.column("A")
+             .asArray()
+             .reverse());
+  expect(df.column("B")
+         .asArray())
+    .toEqual(dataframe.column("B")
+             .asArray()
+             .reverse());
+  expect(df.column("C")
+         .asArray())
+    .toEqual(dataframe.column("C")
+             .asArray()
+             .reverse());
+});
+

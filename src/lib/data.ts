@@ -203,6 +203,20 @@ class DataFrame<T> {
     return this.map((node: T): T => R.over(lens, (val: number): number => val / max, node));
   }
 
+  public reorderColumns(newIndex: string[]): DataFrame<T> {
+    const constrainedIndex: string[]
+      = newIndex.filter((i: string): boolean => this.index.indexOf(i) > -1);
+
+    return new DataFrame(constrainedIndex.map((col: string): Series<T> => this.data[col]),
+                         constrainedIndex);
+  }
+
+  public reorderRows(newIndex: string[]): DataFrame<T> {
+    return new DataFrame(this.index.map((col: string): Series<T> =>
+                                        this.data[col].reorder(newIndex)),
+                         this.index);
+  }
+
   /**
    * Return a tuple representing the dimensionality (rows, cols)
    * of the [[Dataframe]].
