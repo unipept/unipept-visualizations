@@ -55,6 +55,14 @@ class Series<T> {
   public max(lens: R.Lens): number {
     return Math.max(...this.index.map((i: string): number => R.view(lens, this.data[i])));
   }
+
+  public reorder(newIndex: string[]): Series<T> {
+    const constrainedIndex: string[]
+      = newIndex.filter((i: string): boolean => this.index.indexOf(i) > -1);
+
+    return new Series(constrainedIndex.map((i: string): T => this.data[i]),
+                      constrainedIndex);
+  }
 }
 
 export { Series };

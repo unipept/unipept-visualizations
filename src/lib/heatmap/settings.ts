@@ -32,7 +32,7 @@ export class HeatmapSettings extends Settings {
 
   public readonly className: string = "heatmap";
 
-  public readonly colorScale: string[] = ["#EEEEEE", "#1565C0"];
+  public readonly colorScale: [string, string] = ["#EEEEEE", "#1565C0"];
 
   // Total speed of the reordering animations used in this visualization, should be given in milliseconds (ms).
   public readonly duration: number = HeatmapSettings.DEFAULT_DURATION;
