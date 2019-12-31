@@ -51,7 +51,7 @@ export class SunburstSettings extends Settings {
     = ColorPalette.sunburstColors;
 
   public readonly countAccessor: (data: Node) => number
-    = (data: Node): number => data.data.count
+    = (data: Node): number => data.data as number
 
   public readonly rerootCallback?: (data: Node) => void = undefined;
 

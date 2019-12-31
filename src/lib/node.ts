@@ -2,13 +2,8 @@ import { max as d3Max } from "d3-array";
 
 import { BasicNode, emptyBasicNode } from "./basicNode";
 
-export interface INodeData {
-  count: number;
-}
-
 export class Node implements BasicNode {
-
-  public data: INodeData = { count: 0 };
+  public data: number | number[] = 0;
   public name: string = "";
   public children?: Node[];
   public _children?: Node[];

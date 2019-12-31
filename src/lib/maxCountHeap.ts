@@ -87,6 +87,10 @@ export class MaxCountHeap<E extends Node> {
   }
 
   static comp<E extends Node>(a: E, b: E): number {
-    return b.data.count - a.data.count;
+    if ((typeof a.data === "number") && (typeof b.data === "number")) {
+      return (b.data as number) - (a.data as number);
+    }
+
+    return 0;
   }
 }

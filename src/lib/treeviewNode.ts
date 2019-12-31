@@ -32,11 +32,11 @@ export class TreeviewNode extends Node {
       throw new Error("Count accessor was not defined");
     }
     if (TreeviewNode.countAccessor(this)) {
-      this.data.count = TreeviewNode.countAccessor(this);
+      this.data = TreeviewNode.countAccessor(this);
     } else if (this.children) {
-      this.data.count = this.children.reduce((sum, c) => sum + (c.data.count as number), 0);
+      this.data = this.children.reduce((sum: number, c: TreeviewNode) => sum + (c.data as number), 0);
     } else {
-      this.data.count = 0;
+      this.data = 0;
     }
   }
 
