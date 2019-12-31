@@ -37,7 +37,7 @@ export abstract class Settings {
     this.height = height !== undefined ? height : Settings.DEFAULT_SIZE;
     this.width = width !== undefined ? width : Settings.DEFAULT_SIZE;
     this.enableTooltips = enableTooltips === undefined ? true : enableTooltips;
-    this.dataAccessor = (data: Node): number => data.data.count;
+    this.dataAccessor = (data: Node): number => data.data as number;
     this.dataModifier = (value: number, nodeData: Node): Node => new Node({
       ...nodeData, data: ({count: value}),
     });

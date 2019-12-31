@@ -30,6 +30,9 @@ const transpose: <T>(matrix: T[][]) => T[][]
     return matrix;
   };
 
+const copy: <T>(matrix: T[][]) => T[][]
+  = <T>(matrix: T[][]): T[][] => matrix.map((inner: T[]) => inner.slice());
+
 const rad2deg: (rad: number) => number
   = (rad: number): number => rad * (180 / Math.PI);
 
@@ -43,4 +46,4 @@ const interval: (value: number, min: number, max: number) => number
 const arcLength: (radius: number, angle: number) => number
   = (radius: number, angle: number): number => radius * angle;
 
-export { arcLength, arithmeticMean, deg2rad, interval, rad2deg, sum, transpose };
+export { arcLength, arithmeticMean, copy, deg2rad, interval, rad2deg, sum, transpose };

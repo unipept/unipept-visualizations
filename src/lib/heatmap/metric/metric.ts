@@ -1,11 +1,9 @@
-import ClusterElement from "../cluster/clusterElement";
-
-export default interface Metric {
+export interface Metric {
     /**
-     * Returns a correlation or distance matrix based upon this metric. Note that the returned matrix is lower
-     * triangular.
+     * Returns a correlation or distance matrix based upon a metric.
+     *  Note that the returned matrix is lower triangular.
      *
-     * @param matrix The input matrix for which some correlation of distance matrix should be calculated.
+     * @param matrix The input for which some correlation of distance matrix is calculated.
      * @return The distance between both values.
      */
     getDistance(matrix: number[][]): number[][];

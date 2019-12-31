@@ -1,25 +1,31 @@
-import ClusterElement from "./clusterElement";
-import TreeNode from "./treeNode";
+import { Node } from "../../node";
 
-export default class Cluster {
-    public elements: ClusterElement[];
-    public index: number;
-    public treeNode: TreeNode;
+export class Cluster {
+  public readonly treeNode: Node;
+  public readonly height: number;
 
-    constructor(elements: ClusterElement[], index: number, treeNode: TreeNode) {
-        this.elements = elements;
-        this.index = index;
-        this.treeNode = treeNode;
+  public constructor(treeNode: Node, height: number) {
+    this.treeNode = treeNode;
+    this.height = height;
+  }
+
+  public size(): number {
+    if (this.treeNode.children) {
+      return this.treeNode.children.length;
     }
 
-    /**
-     * Merge 2 clusters with each other and create the associated nodes of the dendrogram.
-     *
-     * @param other The other cluster with whom this one needs to be merged.
-     * @param height The height of the dendrogram at which the clustering occurs.
-     */
-    public merge(other: Cluster, height: number) {
-        this.elements.push(...other.elements);
-        this.treeNode = new TreeNode(this.treeNode, other.treeNode, this.elements.slice(), height);
-    }
+    return 0;
+  }
+
+  /**
+   * Merge 2 clusters with each other and create the associated nodes of the dendrogram.
+   *
+   * @param other The other cluster with whom this one needs to be merged.
+   * @param height The height of the dendrogram at which the clustering occurs.
+   */
+  public merge(other: Cluster, height: number): Cluster {
+    return new Cluster(new Node({children: [this.treeNode, other.treeNode],
+                                 data: (this.treeNode.data as number[]).slice()}),
+                       height);
+  }
 }

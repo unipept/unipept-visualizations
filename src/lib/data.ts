@@ -13,14 +13,14 @@ import { Series } from "./series";
 /**
  * Sum the "size" of this node and all of its children
  */
-const count: (datum: Node, counter: R.Lens) => number
-  = (datum: Node, counter: R.Lens): number => {
+const count: (datum: Node, counter: (d: Node) => number) => number
+  = (datum: Node, counter: (d: Node) => number): number => {
     if (datum.children !== undefined) {
       return datum.children.map((v: Node): number => count(v, counter))
         .reduce(((a: number, b: number): number => a + b), 0);
     }
 
-    return R.view(counter, datum);
+    return counter(datum);
   };
 
 /**
