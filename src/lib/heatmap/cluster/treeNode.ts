@@ -1,7 +1,7 @@
 import {HeatmapElement, HeatmapValue} from "../heatmap/input";
-import ClusterElement from "./clusterElement";
+import { ClusterElement } from "./clusterElement";
 
-export default class TreeNode {
+export class TreeNode {
     private _leftChild: TreeNode | null;
     private _rightChild: TreeNode | null;
     public readonly values: ClusterElement[];
@@ -36,71 +36,5 @@ export default class TreeNode {
 
     set rightChild(value: TreeNode | null) {
         this._rightChild = value;
-    }
-
-    /**
-     * Convert this tree and all of it's children to the Newic-format.
-     *
-     * @param: idExtractor Function that extract's the name from a given node's id.
-     */
-    public toNewick(nameExtractor: (id: string) => string): string {
-        let output: string = "";
-
-        if (!this.leftChild && !this.rightChild) {
-            return nameExtractor(this.values[0].id) + ":" + this.height;
-        }
-
-        output += '(';
-
-        if (this.leftChild) {
-            output += this.leftChild.toNewick(nameExtractor) + ',';
-        }
-
-        if (this.rightChild) {
-            output += this.rightChild.toNewick(nameExtractor);
-        }
-
-        output += ')' + this.id + ':' + this.height;
-
-        return output;
-    }
-
-    /**
-     * Convert this tree and all of it's children to the dot GraphViz-format.
-     */
-    public toGraphViz(nameExtractor: (id: string) => string): string {
-        let root: TreeNode | undefined = this;
-
-        let output = 'digraph dendrogram {\n';
-        let labels = '';
-        let edges = '';
-
-        let toCheck: TreeNode[] = [root];
-        while (toCheck.length > 0) {
-            root = toCheck.shift();
-
-            if (!root) {
-                break;
-            }
-
-            if (!root.leftChild && !root.rightChild) {
-                labels += `    ${root.id} [label="${nameExtractor(root.values[0].id)}"];\n`;
-            } else {
-                labels += `    ${root.id} [label="${root.id}"];\n`;
-            }
-
-
-            if (root.leftChild) {
-                edges += `    ${root.id} -> ${root.leftChild.id};\n`;
-                toCheck.push(root.leftChild);
-            }
-
-            if (root.rightChild) {
-                edges += `    ${root.id} -> ${root.rightChild.id};\n`;
-                toCheck.push(root.rightChild);
-            }
-        }
-        output += labels + edges + '}';
-        return output;
     }
 }

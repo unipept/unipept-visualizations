@@ -1,9 +1,12 @@
-export default class ClusterElement {
-    public readonly values: number[];
-    public readonly id: string;
+import { INodeData } from "../../node";
 
-    constructor(values: number[], id: string) {
-        this.values = values;
-        this.id = id;
-    }
+export class ClusterElement implements INodeData {
+  public readonly count: number = 0;
+  public readonly values: number[];
+  public readonly id: string;
+
+  public constructor(values: number[], id: string) {
+    this.values = values;
+    this.id = id;
+  }
 }

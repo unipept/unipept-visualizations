@@ -1,7 +1,9 @@
-import Clusterer from "./clusterer";
-import TreeNode from "./treeNode";
+import { Node } from "../../node";
+
+import { Clusterer } from "./clusterer";
+//import { TreeNode } from "./treeNode";
 import Metric from "../metric/metric";
-import ClusterElement from "./clusterElement";
+// import ClusterElement from "./clusterElement";
 import Cluster from "./cluster";
 
 export default class UPGMAClusterer implements Clusterer {
@@ -15,33 +17,35 @@ export default class UPGMAClusterer implements Clusterer {
     }
 
     /**
-     * This function returns the root of a dendrogram, based upon the given dataset. The clustering is performed on
-     * a distance matrix, which is calculated using the metric, defined in the constructor of this class.
+     * This function returns the root of a dendrogram, based upon the given dataset.
+     * The clustering is performed on a distance matrix, which is calculated using the
+     * metric, defined in the constructor of this class.
      *
-     * @param data A matrix containing data elements that should be clustered. The elements are either clustered on row
-     *        or column similarity.
+     * @param data A matrix containing data elements that should be clustered.
+     *            The elements are either clustered on row or column similarity.
      */
-    cluster(data: ClusterElement[]): TreeNode {
-        if (data.length < 1) {
-            return new TreeNode(null, null, [], 0);
-        }
+    cluster(data: number[]): Node {
+      if (data.length === 0) {
+        return new Node({});
+      }
 
-        // All clusters that exist in a current step.
-        let clusters: Map<number, Cluster> = new Map();
+      // All clusters that exist in a current step.
+      let clusters: Map<number, Cluster> = new Map();
+      for (let i = 0; i < data.length; i++) {
+        clusters.set(i, new Cluster([data[i]], i,
+                                    new Node({data: new ClusterElement([data[i]], 0)})));
+      }
+      
 
-        // Now we need to compute a distance matrix. A distance matrix needs a matrix with raw values to be calculated.
-        // We thus need to convert the input into a value matrix, before proceeding.
-        let valueMatrix: number[][] = [];
-        for (let i = 0; i < data.length; i++) {
-            let row: number[] = data[i].values;
-            clusters.set(i, new Cluster([data[i]], i, new TreeNode(null, null, [data[i]], 0)));
-            valueMatrix.push(row);
-        }
+      // Now we need to compute a distance matrix.
+      // A distance matrix needs a matrix with raw values to be calculated.
+      // We thus need to convert the input into a value matrix, before proceeding.
+      const valueMatrix: number[][] = data.map((e: ClusterElement) => e.values);
 
-        // Compute the distance matrix!
-        let distanceMatrix: number[][] = this.metric.getDistance(valueMatrix);
+      // Compute the distance matrix!
+      let distanceMatrix: number[][] = this.metric.getDistance(valueMatrix);
 
-        // Start the UPGMA iterations. Loop until only 1 cluster remains.
+      // Start the UPGMA iterations. Loop until only 1 cluster remains.
         let done: number = 0;
         while (done != distanceMatrix.length - 1) {
             // Look for the smallest value in the distance matrix.

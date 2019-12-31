@@ -6,10 +6,10 @@ import { Node } from "../node";
  * information.
  */
 export interface HeatmapElement {
-    id?: string,
-    name: string,
-    idx?: number,
-    extras?: any
+  id?: string;
+  name: string;
+  idx?: number;
+  extras?: any;
 }
 
 /**
@@ -17,9 +17,9 @@ export interface HeatmapElement {
  * will be filled in by the Heatmap itself (based upon the current row/column this value is situated in).
  */
 export interface HeatmapValue {
-    value: number,
-    rowId?: string,
-    columnId?: string
+  value: number;
+  rowId?: string;
+  columnId?: string;
 }
 
 export class HeatmapNode extends Node {

@@ -1,7 +1,5 @@
-import TreeNode from "./treeNode";
-import Metric from "../metric/metric";
-import ClusterElement from "./clusterElement";
+import { Node } from "../../node";
 
-export default interface Clusterer {
-    cluster(data: ClusterElement[]): TreeNode;
+export interface Clusterer {
+    cluster(data: number[]): Node;
 }

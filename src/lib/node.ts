@@ -1,4 +1,4 @@
-import { max as d3Max } from "d3-array";
+import { max as d3Max } from "d3";
 
 import { BasicNode, emptyBasicNode } from "./basicNode";
 
