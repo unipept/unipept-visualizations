@@ -1,5 +1,6 @@
 /**
  * Defines utility functions for manipulating the input data
+ * Also defines a rudimentary "Data Frame"
  */
 
 import { HierarchyNode, HierarchyRectangularNode } from "d3";
@@ -106,6 +107,13 @@ const fromCSV: (data: CSV) => DataFrame<BasicNode>
       data.columns.slice(1));
   };
 
+const fromArray: <T>(data: T[][]) => DataFrame<T>
+  = <T>(data: T[][]): DataFrame<T> =>
+    new DataFrame<T>(data.map((row: T[]): Series<T> => new Series<T>(row)));
+
+/**
+ * This dataframe is indexed by row
+ */
 class DataFrame<T> {
   public readonly data: { [k: string]: Series<T> } = {};
   public readonly index: string[];
@@ -159,13 +167,14 @@ class DataFrame<T> {
   }
 
   public format(): string {
-    const toFormat: DataFrame<string> = this.map(JSON.stringify);
+    const toFormat: DataFrame<string> = this.map((v: T): string => JSON.stringify(v));
     const rowNames: string[] = this.rows();
     const colWidth: number[] = this.index
       .map((col: string): number =>
         Math.max(...[col.length]
-          .concat(toFormat.data[col].asArray()
-            .map((v: string) => v.length))));
+                 .concat(toFormat.data[col].asArray()
+                         .concat(["undefined"])
+                         .map((v: string) => v.length))));
     const rowWidth: number
       = Math.max(...rowNames.map((i: string): number => i.length + 1));
 
@@ -181,7 +190,7 @@ class DataFrame<T> {
       .map((row: string): string =>
         rowName(row) + this.index
           .map((col: string, i: number): string =>
-            toFormat.data[col].data[row].padStart(colWidth[i], " "))
+               (toFormat.data[col].data[row] || "undefined").padStart(colWidth[i], " "))
           .join(" "))
       .join("\n");
 
@@ -226,4 +235,4 @@ class DataFrame<T> {
   }
 }
 
-export { ancestorOf, count, countRatio, CSV, fromCSV, DataFrame, outerRadialDomain };
+export { ancestorOf, count, countRatio, CSV, fromArray, fromCSV, DataFrame, outerRadialDomain };
