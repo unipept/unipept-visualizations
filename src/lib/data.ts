@@ -203,15 +203,25 @@ class DataFrame<T> {
   /**
    * Get the index of the first occurrence of the maximum value for each column
    */
-  public idxmax(lens: R.Lens): Array<[string, string, T]> {
-    return R.map((col: string) => R.prepend(col, this.data[col].idxmax(lens)) as [string, string, T], this.index);
+  public idxmax(lens: R.Lens): [string, string, T] {
+    const valueLens = R.compose(R.lensIndex(2), lens) as R.Lens;
+    const reducer = R.maxBy(R.view(valueLens) as (a: [string, string, T]) => R.Ord);
+    const data: Array<[string, string, T]> =
+      R.map((col: string) => R.prepend(col, this.data[col].idxmax(lens)) as [string, string, T],
+            this.index);
+    return R.reduce(reducer , data[0], data) as [string, string, T];
   }
 
   /**
    * Get the index of the first occurrence of the minimum value for each column
    */
-  public idxmin(lens: R.Lens): Array<[string, string, T]> {
-    return R.map((col: string) => R.prepend(col, this.data[col].idxmin(lens)) as [string, string, T], this.index);
+  public idxmin(lens: R.Lens): [string, string, T] {
+    const valueLens = R.compose(R.lensIndex(2), lens) as R.Lens;
+    const reducer = R.minBy(R.view(valueLens) as (a: [string, string, T]) => R.Ord);
+    const data: Array<[string, string, T]> =
+      R.map((col: string) => R.prepend(col, this.data[col].idxmin(lens)) as [string, string, T],
+            this.index);
+    return R.reduce(reducer, data[0], data) as [string, string, T];
   }
 
   public normalise(lens: R.Lens): DataFrame<T> {

@@ -344,19 +344,19 @@ test("Find the minimum value in a DataFrame<object>", () => {
 });
 
 test("Find the label of the minimum value in a DataFrame<string>", () => {
-  expect(dataframe.idxmin(immediate)).toStrictEqual([["A", "0", "a"], ["B", "0", "b"], ["C", "0", "c"]]);
+  expect(dataframe.idxmin(immediate)).toStrictEqual(["A", "0", "a"]);
 });
 
 test("Find the label of the maximum value in a DataFrame<string>", () => {
-  expect(dataframe.idxmax(immediate)).toStrictEqual([["A", "3", "j"], ["B", "3", "k"], ["C", "3", "l"]]);
+  expect(dataframe.idxmax(immediate)).toStrictEqual(["C", "3", "l"]);
 });
 
 test("Find the label of the minimum value in a DataFrame<object>", () => {
-  expect(dataframeObj.idxmin(val)).toStrictEqual([["A", "0", ctor("a")], ["B", "0", ctor("b")], ["C", "0", ctor("c")]]);
+  expect(dataframeObj.idxmin(val)).toStrictEqual(["A", "0", ctor("a")]);
 });
 
 test("Find the label of the maximum value in a DataFrame<string>", () => {
-  expect(dataframeObj.idxmax(val)).toStrictEqual([["A", "3", ctor("j")], ["B", "3", ctor("k")], ["C", "3", ctor("l")]]);
+  expect(dataframeObj.idxmax(val)).toStrictEqual(["C", "3", ctor("l")]);
 });
 
 test("Reorder columns of a DataFrame with identical index", () => {
