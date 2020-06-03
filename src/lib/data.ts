@@ -119,21 +119,9 @@ class DataFrame<T> {
   public readonly index: string[];
 
   public constructor(data: Array<Series<T>>, index?: string[]) {
-    let realIndex: string[];
+    const realIndex: string[] = index ? index : data.map((_, i) => `${i}`);
 
-    if (index === undefined) {
-      realIndex = new Array(data.length);
-      for (let i: number = 0; i < data.length; i += 1) {
-        realIndex[i] = `${i}`;
-      }
-    } else {
-      realIndex = index;
-    }
-
-    for (let i: number = 0; i < data.length; i += 1) {
-      this.data[realIndex[i]] = data[i];
-    }
-
+    this.data = R.fromPairs(R.zip(realIndex, data));
     this.index = realIndex;
   }
 
