@@ -52,8 +52,38 @@ class Series<T> {
     return new Series(this.index.map((n: string) => f(this.data[n])), this.index);
   }
 
-  public max(lens: R.Lens): number {
-    return Math.max(...this.index.map((i: string): number => R.view(lens, this.data[i])));
+  public max(lens: R.Lens): R.Ord {
+    return R.reduce(R.max,
+                    R.view(lens, R.values(this.data)[0]),
+                    R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
+  }
+
+  public min(lens: R.Lens): R.Ord {
+    return R.reduce(R.min,
+                    R.view(lens, R.values(this.data)[0]),
+                    R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
+  }
+
+  /**
+   * Return the row label of the first occurence of the maximum value.
+   * @param lens A lens focused on an orderable value within T.
+   */
+  public idxmax(lens: R.Lens): [string, T] {
+    const reducer: (a: [string, T], b: [string, T]) => [string, T]
+      = R.maxBy((el: [string, T]) => R.view(lens, el[1]));
+    const data = R.toPairs(this.data);
+    return R.reduce(reducer, data[0], data);
+  }
+
+  /**
+   * Return the row label of the first occurence of the minimum value.
+   * @param lens A lens focused on an orderable value within T.
+   */
+  public idxmin(lens: R.Lens): [string, T] {
+    const reducer: (a: [string, T], b: [string, T]) => [string, T]
+      = R.minBy((el: [string, T]) => R.view(lens, el[1]));
+    const data = R.toPairs(this.data);
+    return R.reduce(reducer, data[0], data);
   }
 
   public reorder(newIndex: string[]): Series<T> {

@@ -202,14 +202,38 @@ class DataFrame<T> {
                          this.index);
   }
 
-  public max(lens: R.Lens): number {
-    return Math.max(...this.index.map((col: string): number => this.data[col].max(lens)));
+  public max(lens: R.Lens): R.Ord {
+    const maxSeries = R.map((col: string): R.Ord => this.data[col].max(lens), this.index);
+    return R.reduce(R.max, maxSeries[0], maxSeries);
+  }
+
+  public min(lens: R.Lens): R.Ord {
+    const minSeries = R.map((col: string): R.Ord => this.data[col].min(lens), this.index);
+    return R.reduce(R.min, minSeries[0], minSeries);
+  }
+
+  /**
+   * Get the index of the first occurrence of the maximum value for each column
+   */
+  public idxmax(lens: R.Lens): Array<[string, string, T]> {
+    return R.map((col: string) => R.prepend(col, this.data[col].idxmax(lens)) as [string, string, T], this.index);
+  }
+
+  /**
+   * Get the index of the first occurrence of the minimum value for each column
+   */
+  public idxmin(lens: R.Lens): Array<[string, string, T]> {
+    return R.map((col: string) => R.prepend(col, this.data[col].idxmin(lens)) as [string, string, T], this.index);
   }
 
   public normalise(lens: R.Lens): DataFrame<T> {
-    const max: number = this.max(lens);
+    const max: R.Ord = this.max(lens);
 
-    return this.map((node: T): T => R.over(lens, (val: number): number => val / max, node));
+    if (typeof max === "number") {
+      return this.map((node: T): T => R.over(lens, (val: number): number => val / max, node));
+    } else {
+      return this;
+    }
   }
 
   public reorderColumns(newIndex: string[]): DataFrame<T> {

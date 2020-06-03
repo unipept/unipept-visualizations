@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { readFileSync } from "fs";
+import * as R from "ramda";
 
 import * as Data from "../data";
 import { Node } from "../node";
@@ -7,13 +8,22 @@ import { Optional } from "../optional";
 import { Series } from "../series";
 
 let data: d3.HierarchyNode<Node>;
+let immediate: R.Lens;
+let ctor: (value: R.Ord) => {value: R.Ord};
+let val: R.Lens;
 let dataframe: Data.DataFrame<string>;
 let dfSeries: Array<Series<string>>;
+let dataframeObj: Data.DataFrame<{value: R.Ord}>;
 
 beforeAll(() => {
   data = d3.hierarchy(JSON.parse(readFileSync(`${__dirname}/../../../examples/data/flare.json`,
                                               "utf8")));
   data.sum((n: Node): number => (n.size ? n.size : 0));
+
+  immediate = R.lens(R.identity, R.defaultTo);
+
+  ctor = (value: R.Ord) => { return {value}; };
+  val = R.lensProp("value");
 
   dfSeries = [new Series(["a", "d", "g", "j"]),
               new Series(["b", "e", "h", "k"]),
@@ -21,6 +31,12 @@ beforeAll(() => {
 
   dataframe = new Data.DataFrame(dfSeries,
                                  ["A", "B", "C"]);
+
+  const dfObjSeries = [new Series([ctor("a"), ctor("d"), ctor("g"), ctor("j")]),
+                       new Series([ctor("b"), ctor("e"), ctor("h"), ctor("k")]),
+                       new Series([ctor("c"), ctor("f"), ctor("i"), ctor("l")])];
+
+  dataframeObj = new Data.DataFrame(dfObjSeries, ["A", "B", "C"]);
 });
 
 
@@ -129,6 +145,107 @@ test("Access Series by index", () => {
   expect(s.iat(3)).toBe(3);
 });
 
+test("Find minimum value in a Series<number>", () => {
+  expect((new Series([])).min(immediate)).toBeUndefined();
+
+  expect((new Series([5, 2, -108, 4, 28])).min(immediate)).toBe(-108);
+
+  expect((new Series([5, 2, 0, 4, 28])).min(immediate)).toBe(0);
+});
+
+test("Find maximum value in a Series<number>", () => {
+  expect((new Series([])).max(immediate)).toBeUndefined();
+
+  expect((new Series([5, 2, -108, 4, 28])).max(immediate)).toBe(28);
+
+  expect((new Series([5, 2, 0, 4, 28])).max(immediate)).toBe(28);
+});
+
+test("Find minimum value in a Series<object>", () => {
+  expect((new Series([])).min(val)).toBeUndefined();
+
+  expect((new Series([ctor(5), ctor(2), ctor(-108), ctor(4), ctor(28)])).min(val)).toBe(-108);
+
+  expect((new Series([ctor(5), ctor(2), ctor(0), ctor(4), ctor(28)])).min(val)).toBe(0);
+});
+
+test("Find maximum value in a Series<object>", () => {
+  expect((new Series([])).max(val)).toBeUndefined();
+
+  expect((new Series([ctor(5), ctor(2), ctor(-108), ctor(4), ctor(28)])).max(val)).toBe(28);
+
+  expect((new Series([ctor(5), ctor(2), ctor(0), ctor(4), ctor(28)])).max(val)).toBe(28);
+});
+
+test("Find label of the minimum value in a Series<number>", () => {
+  const s: Series<number> = new Series([34, 23, 18, 68, 41],
+                                       ["a", "b", "c", "d", "e"]);
+  const s1: Series<number> = new Series([34, 23, 18, -68, 41],
+                                        ["a", "b", "c", "d", "e"]);
+  const s2: Series<number> = new Series([0, 23, 18, 68, 41],
+                                        ["a", "b", "c", "d", "e"]);
+  
+  expect(s.idxmin(immediate)).toStrictEqual(["c", 18]);
+  expect(s1.idxmin(immediate)).toStrictEqual(["d", -68]);
+  expect(s2.idxmin(immediate)).toStrictEqual(["a", 0]);
+
+  expect((new Series([])).idxmin(immediate)).toBeUndefined();
+});
+
+test("Find label of the maximum value in a Series<number>", () => {
+  const s: Series<number> = new Series([34, 23, 18, 68, 41],
+                                       ["a", "b", "c", "d", "e"]);
+  const s1: Series<number> = new Series([34, 23, 18, -68, 41],
+                                        ["a", "b", "c", "d", "e"]);
+  const s2: Series<number> = new Series([0, -23, -18, -68, -41],
+                                        ["a", "b", "c", "d", "e"]);
+
+  expect(s.idxmax(immediate)).toStrictEqual(["d", 68]);
+  expect(s1.idxmax(immediate)).toStrictEqual(["e", 41]);
+  expect(s2.idxmax(immediate)).toStrictEqual(["a", 0]);
+
+  expect((new Series([])).idxmax(immediate)).toBeUndefined();
+});
+
+test("Find label of the minimum value in a Series<object>", () => {
+  const ctor = (value: number) => { return {value}; };
+  const val: R.Lens = R.lensProp("value");
+
+  const s: Series<{value: number}> =
+    new Series([ctor(34), ctor(23), ctor(18), ctor(68), ctor(41)],
+               ["a", "b", "c", "d", "e"]);
+  const s1: Series<{value: number}> =
+    new Series([ctor(34), ctor(23), ctor(18), ctor(-68), ctor(41)],
+               ["a", "b", "c", "d", "e"]);
+  const s2: Series<{value: number}> =
+    new Series([ctor(0), ctor(23), ctor(18), ctor(68), ctor(41)],
+               ["a", "b", "c", "d", "e"]);
+  
+  expect(s.idxmin(val)).toStrictEqual(["c", ctor(18)]);
+  expect(s1.idxmin(val)).toStrictEqual(["d", ctor(-68)]);
+  expect(s2.idxmin(val)).toStrictEqual(["a", ctor(0)]);
+
+  expect((new Series([])).idxmin(val)).toBeUndefined();
+});
+
+test("Find label of the maximum value in a Series<object>", () => {
+  const s: Series<{value: R.Ord}> =
+    new Series([ctor(34), ctor(23), ctor(18), ctor(68), ctor(41)],
+               ["a", "b", "c", "d", "e"]);
+  const s1: Series<{value: R.Ord}> =
+    new Series([ctor(34), ctor(23), ctor(18), ctor(-68), ctor(41)],
+               ["a", "b", "c", "d", "e"]);
+  const s2: Series<{value: R.Ord}> =
+    new Series([ctor(0), ctor(-23), ctor(-18), ctor(-68), ctor(-41)],
+               ["a", "b", "c", "d", "e"]);
+  
+  expect(s.idxmax(val)).toStrictEqual(["d", ctor(68)]);
+  expect(s1.idxmax(val)).toStrictEqual(["e", ctor(41)]);
+  expect(s2.idxmax(val)).toStrictEqual(["a", ctor(0)]);
+
+  expect((new Series([])).idxmax(val)).toBeUndefined();
+});
+
 test("Reorder a Series with identical index", () => {
   const s: Series<number> =
     new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
@@ -202,6 +319,44 @@ test("Access a dataframe by index", () => {
     .toEqual("j");
   expect(dataframe.iat(3, 2))
     .toEqual("l");
+});
+
+test("Find the minimum value in a DataFrame<string>", () => {
+  expect(dataframe.min(immediate)).toBe("a");
+
+  const empty = new Data.DataFrame([new Series([])]);
+  expect(empty.min(immediate)).toBeUndefined();
+});
+
+test("Find the maximum value in a DataFrame<string>", () => {
+  expect(dataframe.max(immediate)).toBe("l");
+
+  const empty = new Data.DataFrame([new Series([])]);
+  expect(empty.max(immediate)).toBeUndefined();
+});
+
+test("Find the minimum value in a DataFrame<object>", () => {
+  expect(dataframeObj.min(val)).toBe("a");
+});
+
+test("Find the minimum value in a DataFrame<object>", () => {
+  expect(dataframeObj.max(val)).toBe("l");
+});
+
+test("Find the label of the minimum value in a DataFrame<string>", () => {
+  expect(dataframe.idxmin(immediate)).toStrictEqual([["A", "0", "a"], ["B", "0", "b"], ["C", "0", "c"]]);
+});
+
+test("Find the label of the maximum value in a DataFrame<string>", () => {
+  expect(dataframe.idxmax(immediate)).toStrictEqual([["A", "3", "j"], ["B", "3", "k"], ["C", "3", "l"]]);
+});
+
+test("Find the label of the minimum value in a DataFrame<object>", () => {
+  expect(dataframeObj.idxmin(val)).toStrictEqual([["A", "0", ctor("a")], ["B", "0", ctor("b")], ["C", "0", ctor("c")]]);
+});
+
+test("Find the label of the maximum value in a DataFrame<string>", () => {
+  expect(dataframeObj.idxmax(val)).toStrictEqual([["A", "3", ctor("j")], ["B", "3", ctor("k")], ["C", "3", ctor("l")]]);
 });
 
 test("Reorder columns of a DataFrame with identical index", () => {
