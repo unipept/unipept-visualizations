@@ -282,6 +282,51 @@ test("Reorder a Series with partially overlapping index", () => {
     .toEqual([2, 0]);
 });
 
+test("Drop an element from a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const dropped = s.drop("b");
+
+  expect(dropped.asArray())
+    .toEqual([0, 2, 3]);
+  expect(s.asArray())
+    .toEqual([0, 1, 2, 3]);
+});
+
+test("Drop a list of elements from a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+      .drop(["b", "c"]);
+
+  expect(s.asArray())
+    .toEqual([0, 3]);
+
+  const  t: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"])
+      .drop(["a", "b"]);
+
+  expect(t.asArray())
+    .toEqual([2, 3]);
+});
+
+test("Drop an element from an empty series", () => {
+  const  s: Series<number> =
+    new Series([])
+      .drop(["b", "c"]);
+
+  expect(s.asArray())
+    .toEqual([]);
+});
+
+test("Drop a non-existent element from a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const dropped = s.drop("A");
+
+  expect(dropped.asArray())
+    .toEqual([0, 1, 2, 3]);
+});
+
 test("Construct an unindexed DataFrame", () => {
   const df: Data.DataFrame<number>
     = new Data.DataFrame([new Series([0, 1, 2]),

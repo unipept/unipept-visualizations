@@ -12,14 +12,14 @@ class Series<T> {
 
     if (index === undefined) {
       realIndex = new Array(data.length);
-      for (let i: number = 0; i < data.length; i += 1) {
+      for (let i = 0; i < data.length; i += 1) {
         realIndex[i] = `${i}`;
       }
     } else {
       realIndex = index;
     }
 
-    for (let i: number = 0; i < data.length; i += 1) {
+    for (let i = 0; i < data.length; i += 1) {
       this.data[realIndex[i]] = data[i];
     }
 
@@ -84,6 +84,23 @@ class Series<T> {
       = R.minBy((el: [string, T]) => R.view(lens, el[1]));
     const data = R.toPairs(this.data);
     return R.reduce(reducer, data[0], data);
+  }
+
+  /**
+   * Return a copy of this Series with the given labels dropped
+   * @param labels The labels to drop from this series
+   * @return A new Series with `labels` dropped
+   */
+  public drop(labels: string | string[]): Series<T> {
+    const newIndex = this.index.filter((idx: string) => {
+      if (typeof labels === "string") {
+        return idx !== labels;
+      }
+
+      return !labels.includes(idx);
+    });
+
+    return new Series(newIndex.map((idx: string): T => this.data[idx]), newIndex);
   }
 
   public reorder(newIndex: string[]): Series<T> {
