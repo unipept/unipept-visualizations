@@ -50,6 +50,20 @@ const combine = (s: Series<number>, sWeight: number,
   return new Series(data, labels);
 };
 
+/**
+ * Join `left` and `right` sub-trees
+ *
+ * Create a new tree with `left` and `right` as children
+ * remove `left` and `right` from the list and add the
+ * joined tree to the list.
+ *
+ * @param left The label used for the left sub-tree
+ * @param right The label used for the right sub-tree
+ * @param height The height of the combined tree
+ * @param dendrogram Dendrogram to update
+ *
+ * @return A new dendrogram representation with joined `left` and `right` sub-trees.
+ */
 const updateTree = (left: string, right: string,
                     height: number, dendrogram: Node[]): [Node[], number, number] => {
   const joinTrees: [Node, Node] = [
@@ -69,7 +83,13 @@ const updateTree = (left: string, right: string,
 };
 
 /**
- * Recursive computation of UPGMA.
+ * Recursive implementation of Paired Group Method with Arithmetic Mean (PGMA)
+ * WPGMA or UPGMA can be selected by changing the `weight` function parameter.
+ *
+ * @param weight A function to compute a weight based on the number of leaf nodes
+ *               in a sub-tree
+ * @param input A distance matrix
+ * @param dendrogram Leaf nodes for the dendrogram to be constructed
  */
 const cluster = (weight: (n: number) => number,
                  input: DataFrame<number>,
@@ -114,6 +134,9 @@ const cluster = (weight: (n: number) => number,
 
 /**
  * UPGMA clustering
+ *
+ * @param dm A distance matrix
+ * @return a dendrogram representing the clustering result
  */
 const UPGMAcluster: Cluster = (dm: DataFrame<number>): Node => {
   const leaves = R.map((name: string) => new Node({ name }),
