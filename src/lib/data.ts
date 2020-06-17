@@ -130,7 +130,13 @@ class DataFrame<T> {
   }
 
   public column(label: string): Series<T> {
-    return this.data[label];
+    if (this.index.includes(label)) {
+      return this.data[label];
+    }
+
+    const size = Math.max(0, ...this.index.map((label: string) => this.data[label].shape()));
+
+    return new Series(new Array(size), this.rows());
   }
 
   public columns(): string[] {
@@ -139,6 +145,10 @@ class DataFrame<T> {
 
   public iat(row: number, column: number): T {
     return this.data[this.index[column]].iat(row);
+  }
+
+  public row(label: string): Series<T> {
+    return new Series(this.index.map((i: string) => this.data[i].at(label)), this.columns());
   }
 
   public rows(): string[] {
@@ -202,6 +212,8 @@ class DataFrame<T> {
 
   /**
    * Get the index of the first occurrence of the maximum value for each column
+   * @param lens A lens focused on the value to maximise within each element
+   * @return [column label, row label, value]
    */
   public idxmax(lens: R.Lens): [string, string, T] {
     const valueLens = R.compose(R.lensIndex(2), lens) as R.Lens;
@@ -214,6 +226,8 @@ class DataFrame<T> {
 
   /**
    * Get the index of the first occurrence of the minimum value for each column
+   * @param lens A lens focused on the value to minimise within each element
+   * @return [column label, row label, value]
    */
   public idxmin(lens: R.Lens): [string, string, T] {
     const valueLens = R.compose(R.lensIndex(2), lens) as R.Lens;

@@ -8,6 +8,7 @@ import { Optional } from "../optional";
 import { Series } from "../series";
 
 let data: d3.HierarchyNode<Node>;
+let tree: Node;
 let immediate: R.Lens;
 let ctor: (value: R.Ord) => {value: R.Ord};
 let val: R.Lens;
@@ -19,6 +20,10 @@ beforeAll(() => {
   data = d3.hierarchy(JSON.parse(readFileSync(`${__dirname}/../../../examples/data/flare.json`,
                                               "utf8")));
   data.sum((n: Node): number => (n.size ? n.size : 0));
+
+  tree = new Node({name: "A", children: [ new Node({ name: "B" }),
+                                          new Node({ name: "C", children: [ new Node({ name: "D" }),
+                                                                            new Node({ name: "E" })] })] });
 
   immediate = R.lens(R.identity, R.defaultTo);
 
@@ -37,6 +42,11 @@ beforeAll(() => {
                        new Series([ctor("c"), ctor("f"), ctor("i"), ctor("l")])];
 
   dataframeObj = new Data.DataFrame(dfObjSeries, ["A", "B", "C"]);
+});
+
+test("Preorder tree traversal", () => {
+  expect(tree.preorder().map((n: Node): string => n.name).join(''))
+    .toBe("ABCDE");
 });
 
 
@@ -124,9 +134,88 @@ test("Construct an indexed Series", () => {
     .toEqual({a: 0, b: 1, c: 2, d: 3, e: 4});
 });
 
+test("Construct a Series with too many labels", () => {
+  const s: Series<number> = new Series([0, 1],
+                                       ["a", "b", "c", "d", "e"]);
+
+  expect(s.data)
+    .toEqual({a: 0, b: 1});
+  expect(s.index).toStrictEqual(["a", "b"]);
+});
+
 test("Convert Series to array", () => {
   expect(new Series([0, 1, 2, 3]).asArray())
     .toEqual([0, 1, 2, 3]);
+});
+
+test("Construct a series with undefined elements", () => {
+  expect(new Series([undefined]).asArray())
+    .toStrictEqual([undefined]);
+});
+
+test("Construct a series with NaN elements", () => {
+  expect(new Series([NaN]).asArray())
+    .toStrictEqual([NaN]);
+});
+
+test("Concatenate 2 series", () => {
+  const s = new Series([0, 1], ["a", "b"]);
+  const t = new Series([2, 3], ["c", "d"]);
+
+  const result = Series.concat([s, t]);
+  expect(result.asArray()).toStrictEqual([0, 1, 2, 3]);
+  expect(result.labels()).toStrictEqual(["a", "b", "c", "d"]);
+});
+
+test("Concatenate no series", () => {
+  const result = Series.concat([]);
+
+  expect(result.asArray()).toStrictEqual([]);
+  expect(result.labels()).toStrictEqual([]);
+});
+
+test("Concatenate 1 series", () => {
+  const s = new Series([0, 1], ["a", "b"]);
+
+  const result = Series.concat([s]);
+  expect(result.asArray()).toStrictEqual([0, 1]);
+  expect(result.labels()).toStrictEqual(["a", "b"]);
+});
+
+test("Concatenate 1 empty series", () => {
+  const s = new Series([]);
+
+  const result = Series.concat([s]);
+  expect(result.asArray()).toStrictEqual([]);
+  expect(result.labels()).toStrictEqual([]);
+});
+
+test("Concatenate series with overlapping labels", () => {
+  const s = new Series([1, 2, 3]);
+  const t = new Series([undefined, undefined, undefined]);
+
+  const result = Series.concat([s, t]);
+  expect(result.asArray()).toStrictEqual([1, 2, 3]);
+  expect(result.index).toStrictEqual(["0", "1", "2"]);
+});
+
+test("Append a series", () => {
+  const s = new Series([0, 1], ["a", "b"]);
+  const result = s.append(new Series([2, 3], ["c", "d"]));
+
+  expect(result.asArray()).toStrictEqual([0, 1, 2, 3]);
+  expect(result.labels()).toStrictEqual(["a", "b", "c", "d"]);
+
+  expect(s.asArray()).toStrictEqual([0, 1]);
+  expect(s.labels()).toStrictEqual(["a", "b"]);
+});
+
+test("Append empty series", () => {
+  const s = new Series([]);
+
+  const result = s.append(new Series([]));
+  expect(result.asArray()).toStrictEqual([]);
+  expect(result.labels()).toStrictEqual([]);
 });
 
 test("Access Series by label", () => {
@@ -327,6 +416,133 @@ test("Drop a non-existent element from a series", () => {
     .toEqual([0, 1, 2, 3]);
 });
 
+test("Drop a non-existent and an existing element from a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const dropped = s.drop(["A", "a"]);
+
+  expect(dropped.asArray())
+    .toEqual([1, 2, 3]);
+});
+
+test("Drop a non-contiguous region from a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const dropped = s.drop(["a", "d"]);
+
+  expect(dropped.asArray())
+    .toEqual([1, 2]);
+});
+
+test("Modify a series", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const modified = s.modify("b", () => 17);
+  expect(modified.asArray())
+    .toEqual([0, 17, 2, 3]);
+  expect(modified.labels())
+    .toStrictEqual(["a", "b", "c", "d"]);
+});
+
+test("Modify a series at a label that doesn't exist", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+
+  const modified = s.modify("noexist", () => 17);
+  expect(modified.asArray())
+    .toEqual([0, 1, 2, 3]);
+  expect(modified.labels())
+    .toStrictEqual(["a", "b", "c", "d"]);
+});
+
+test("Modify a series labels", () => {
+  const  s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+  const modified = s.modify("b", (x) => x, "B");
+  expect(modified.asArray())
+    .toEqual([0, 1, 2, 3]);
+  expect(modified.labels())
+    .toStrictEqual(["a", "B", "c", "d"]);
+});
+
+test("Split a series in the middle", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+
+  const [fst, snd] = s.split("b");
+
+  expect(fst.asArray()).toStrictEqual([0]);
+  expect(fst.labels()).toStrictEqual(["a"]);
+
+  expect(snd.asArray()).toStrictEqual([2, 3]);
+  expect(snd.labels()).toStrictEqual(["c", "d"]);
+});
+
+test("Split a series at the beginning", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+
+  const [fst, snd] = s.split("a");
+
+  expect(fst.asArray()).toStrictEqual([]);
+  expect(fst.labels()).toStrictEqual([]);
+
+  expect(snd.asArray()).toStrictEqual([1, 2, 3]);
+  expect(snd.labels()).toStrictEqual(["b", "c", "d"]);
+});
+
+test("Split a series at the end", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3], ["a", "b", "c", "d"]);
+
+  const [fst, snd] = s.split("d");
+
+  expect(fst.asArray()).toStrictEqual([0, 1, 2]);
+  expect(fst.labels()).toStrictEqual(["a", "b", "c"]);
+
+  expect(snd.asArray()).toStrictEqual([]);
+  expect(snd.labels()).toStrictEqual([]);
+});
+
+test("Split an singleton series", () => {
+  const s: Series<number> =
+    new Series([55], ["A"]);
+
+  const [fst, snd] = s.split("A");
+
+  expect(fst.asArray()).toStrictEqual([]);
+  expect(fst.labels()).toStrictEqual([]);
+
+  expect(snd.asArray()).toStrictEqual([]);
+  expect(snd.labels()).toStrictEqual([]);
+});
+
+test("Split a series on a nonexisting label", () => {
+  const s: Series<number> =
+    new Series([0, 1, 2, 3, 4], ["a", "b", "c", "d", "e"]);
+
+  const [fst, snd] = s.split("FAKE");
+
+  expect(fst.asArray()).toStrictEqual([]);
+  expect(fst.labels()).toStrictEqual([]);
+
+  expect(snd.asArray()).toStrictEqual([]);
+  expect(snd.labels()).toStrictEqual([]);
+});
+
+test("Split an empty series", () => {
+  const s: Series<number> =
+    new Series([], []);
+
+  const [fst, snd] = s.split("0");
+
+  expect(fst.asArray()).toStrictEqual([]);
+  expect(fst.labels()).toStrictEqual([]);
+
+  expect(snd.asArray()).toStrictEqual([]);
+  expect(snd.labels()).toStrictEqual([]);
+});
+
 test("Construct an unindexed DataFrame", () => {
   const df: Data.DataFrame<number>
     = new Data.DataFrame([new Series([0, 1, 2]),
@@ -400,8 +616,31 @@ test("Find the label of the minimum value in a DataFrame<object>", () => {
   expect(dataframeObj.idxmin(val)).toStrictEqual(["A", "0", ctor("a")]);
 });
 
-test("Find the label of the maximum value in a DataFrame<string>", () => {
+test("Find the label of the maximum value in a DataFrame<object>", () => {
   expect(dataframeObj.idxmax(val)).toStrictEqual(["C", "3", ctor("l")]);
+});
+
+test("Get a row from a DataFrame<string>", () => {
+  expect(dataframe.row("0").asArray()).toStrictEqual(["a", "b", "c"]);
+  expect(dataframe.row("1").asArray()).toStrictEqual(["d", "e", "f"]);
+  expect(dataframe.row("2").asArray()).toStrictEqual(["g", "h", "i"]);
+  expect(dataframe.row("3").asArray()).toStrictEqual(["j", "k", "l"]);
+});
+
+test("Get row that doesn't exist from a DataFrame<string>", () => {
+  expect(dataframe.row("noexist").asArray()).toStrictEqual([undefined, undefined, undefined]);
+  expect(dataframe.row("noexist").labels()).toStrictEqual(["A", "B", "C"]);
+});
+
+test("Get a column from a DataFrame<string>", () => {
+  expect(dataframe.column("A").asArray()).toStrictEqual(["a", "d", "g", "j"]);
+  expect(dataframe.column("B").asArray()).toStrictEqual(["b", "e", "h", "k"]);
+  expect(dataframe.column("C").asArray()).toStrictEqual(["c", "f", "i", "l"]);
+});
+
+test("Get column that doesn't exist from a DataFrame<string>", () => {
+  expect(dataframe.column("noexist").asArray()).toStrictEqual([undefined, undefined, undefined, undefined]);
+  expect(dataframe.column("noexist").labels()).toStrictEqual(["0", "1", "2", "3"]);
 });
 
 test("Reorder columns of a DataFrame with identical index", () => {

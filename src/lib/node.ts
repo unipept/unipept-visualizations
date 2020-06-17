@@ -1,14 +1,12 @@
-import { max as d3Max } from "d3";
+import { max } from "d3";
+import { flatten } from "ramda";
 
 import { BasicNode, emptyBasicNode } from "./basicNode";
 
 export class Node implements BasicNode {
-  public data: number | number[] = 0;
-  public name: string = "";
-  public children?: Node[];
-  public _children?: Node[];
-  public _height?: number;
-  public _depth?: number;
+  public readonly data: number | number[] = 0;
+  public readonly name: string = "";
+  public readonly children: Node[] = [];
   public parent?: Node;
 
   public constructor(node: object = emptyBasicNode()) {
@@ -24,47 +22,41 @@ export class Node implements BasicNode {
       this.children.forEach((c: Node) => {
         c.setRecursiveProperty(property, value);
       });
-    } else if (this._children) {
-      this._children.forEach(c => {
-        c.setRecursiveProperty(property, value);
-      });
     }
   }
 
   // Returns true if a node is a leaf
-  isLeaf(): boolean {
-    if (!this.children && !this._children) {
+  public isLeaf(): boolean {
+    if (this.children.length === 0) {
       return true;
     }
-    if (this.children && this.children.length === 0) {
-      return true;
-    }
-    if (this._children && this._children.length === 0) {
-      return true;
-    }
+
     return false;
   }
 
-  getHeight(): number {
-    if (this._height === undefined) {
-      if (this.isLeaf()) {
-        this._height = 0;
-      } else {
-        this._height = d3Max(this.children as Node[], (c: Node) => c.getHeight()) as number + 1;
-      }
+  // Returns the height of the tree below this node
+  public height(): number {
+    if (this.isLeaf()) {
+      return 0;
     }
-    return this._height;
+
+    return max(this.children, (c: Node) => c.height()) as number + 1;
   }
 
-  getDepth(): number {
-    if (this._depth === undefined) {
-      if (this.parent === undefined) {
-        this._depth = 0;
-      } else {
-        this._depth = this.parent.getDepth() + 1;
-      }
+  // Returns the depth of the tree above this node
+  public depth(): number {
+    if (this.parent === undefined) {
+      return 0;
     }
-    return this._depth;
+
+    return this.parent.depth() + 1;
+  }
+
+  /**
+   * @return A preorder traversal of the tree with `this` as the root
+   */
+  public preorder(): readonly Node[] {
+    return flatten([this, this.children.map((c: Node) => c.preorder())]);
   }
 
   public static new(node: BasicNode = emptyBasicNode()): Node {

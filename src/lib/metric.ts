@@ -10,8 +10,8 @@ type DMEntry = Array<[number, number, number]>;
  * Computes a "distance" between 2 vectors of equal dimmensions.
  * Precondition: x.length === y.length
  *
- * @param xs A row from the input matrix (see `distanceMatrix`)
- * @param ys S/A `xs`.
+ * @param xs A row from the input matrix (@see `distanceMatrix`)
+ * @param ys @see `xs`.
  */
 type Metric = (xs: number[], ys: number[]) => number;
 

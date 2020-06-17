@@ -7,27 +7,30 @@ class Series<T> {
   public readonly data: {[k: string]: T} = {};
   public readonly index: string[];
 
-  public constructor(data: T[], index?: string[]) {
-    let realIndex: string[];
+  public static empty<U>(): Series<U> {
+    return new Series<U>([]);
+  }
 
-    if (index === undefined) {
-      realIndex = new Array(data.length);
-      for (let i = 0; i < data.length; i += 1) {
-        realIndex[i] = `${i}`;
-      }
-    } else {
-      realIndex = index;
-    }
+  public static concat<U>(xs: Array<Series<U>>): Series<U> {
+    const data = R.reduce(R.mergeWith(R.defaultTo), {}, R.map(R.prop("data"), xs));
+    return new Series<U>(R.values(data), R.keys(data));
+  }
 
-    for (let i = 0; i < data.length; i += 1) {
-      this.data[realIndex[i]] = data[i];
-    }
+  public constructor(data: readonly T[], index?: readonly string[]) {
+    const realIndex: readonly string[] =
+      R.defaultTo(R.map(R.toString, R.range(0, data.length)))(index);
 
-    this.index = realIndex;
+    this.data = R.zipObj(realIndex, data);
+    this.index = R.slice(0, data.length, realIndex);
   }
 
   public asArray(): T[] {
     return this.index.map((i: string): T => this.data[i]);
+  }
+
+  public append(x: Series<T>): Series<T> {
+    return new Series(this.asArray().concat(x.asArray()),
+                      this.index.concat(x.index));
   }
 
   public at(i: string): T {
@@ -101,6 +104,49 @@ class Series<T> {
     });
 
     return new Series(newIndex.map((idx: string): T => this.data[idx]), newIndex);
+  }
+
+  /**
+   * Returns the ordered list of (axis) labels for this series  
+   */
+  public labels(): string[] {
+    return this.index.slice();
+  }
+
+  /**
+   * Modify a value and/or a label
+   * @param label The label in this Series to modify
+   * @param value A function that modifies the value at this label. The result of the function
+   *              will be the new value at this label.
+   * @param newlabel The replacement label
+   * @returns a new Series with the specified modifications
+   */
+  public modify(label: string, value: (v: T) => T, newlabel?: string): Series<T> {
+    const labels = this.labels().map((l: string) => newlabel && (l === label) ? newlabel : l);
+    return new Series(this.index.map((idx: string) => {
+      if (idx === label) {
+        return value(this.data[idx]);
+      }
+
+      return this.data[idx];
+    }), labels);
+  }
+
+  public split(label: string): [Series<T>, Series<T>] {
+    const idx = this.index.indexOf(label);
+    if (idx === -1) {
+      return [new Series<T>([]), new Series<T>([])];
+    }
+    
+    const fst = this.index.slice(0, idx);
+    const snd = this.index.slice(idx + 1, this.index.length);
+
+    return [new Series(fst.map((l: string) => this.data[l]), fst),
+            new Series(snd.map((l: string) => this.data[l]), snd)];
+  }
+
+  public shape(): number {
+    return this.index.length;
   }
 
   public reorder(newIndex: string[]): Series<T> {
