@@ -50,7 +50,31 @@ const combine = (s: Series<number>, sWeight: number,
   return new Series(data, labels);
 };
 
-const upgma = (input: DataFrame<number>, dendrogram: Node[]): Node => {
+const updateTree = (left: string, right: string,
+                    height: number, dendrogram: Node[]): [Node[], number, number] => {
+  const joinTrees: [Node, Node] = [
+    R.find(R.propEq("name", left), dendrogram) as Node,
+    R.find(R.propEq("name", right), dendrogram) as Node
+  ];
+
+  const tree = new Node({ name: joinLabels(left, right),
+                          data: height,
+                          children: joinTrees });
+
+  return [
+    R.append(tree, R.without(joinTrees, dendrogram) as Node[]),
+    countLeaves(joinTrees[0]),
+    countLeaves(joinTrees[1])
+  ];
+};
+
+/**
+ * Recursive computation of UPGMA.
+ */
+const cluster = (weight: (n: number) => number,
+                 input: DataFrame<number>,
+                 dendrogram: Node[]): Node => {
+
   if (dendrogram.length === 1) {
     return dendrogram[0];
   }
@@ -58,57 +82,46 @@ const upgma = (input: DataFrame<number>, dendrogram: Node[]): Node => {
   const [column, row, height] = input.idxmin(R.lens(R.identity, R.defaultTo));
   const icolumn = input.columns().indexOf(column);
 
-  const joinTrees: [Node, Node] =
-    [ R.find(R.propEq("name", row), dendrogram) as Node,
-      R.find(R.propEq("name", column), dendrogram) as Node ];
+  const [newDendrogram, colLeaves, rowLeaves] = updateTree(column, row, height, dendrogram);
 
-  const rowLeaves = countLeaves(joinTrees[0]);
-  const colLeaves = countLeaves(joinTrees[1]);
+  const rowWeight = weight(rowLeaves);
+  const colWeight = weight(colLeaves);
 
   const combinedRow =
-    combine(input.row(column), colLeaves,
-            input.row(row), rowLeaves)
+    combine(input.row(column), colWeight,
+            input.row(row), rowWeight)
       .drop(row)
       .modify(column, R.identity, joinLabels(column, row));
 
   const combinedColumn =
     combine(Series.concat([input.row(row).split(column)[1],
-                           input.column(row).drop(column)]), rowLeaves,
-            input.column(column), colLeaves)
+                           input.column(row).drop(column)]), rowWeight,
+            input.column(column), colWeight)
       .drop(row);
 
-  const next = new DataFrame(
-    R.insert(icolumn, combinedColumn, input.columns()
-      .filter((col: string) => col !== row && col !== column)
-      .map((col: string) => {
-        return input.column(col)
-          .drop(row)
-          .modify(column, () => combinedRow.at(col), joinLabels(column, row));
-      })),
-    combinedRow.labels());
+  const columns = input.columns()
+    .filter((col: string) => col !== row && col !== column)
+    .map((col: string) => {
+      return input.column(col)
+        .drop(row)
+        .modify(column, () => combinedRow.at(col), joinLabels(column, row));
+    });
 
-  // Now modify the dendrogram
-  const left = R.find(R.propEq("name", column), dendrogram) as Node;
-  const right = R.find(R.propEq("name", row), dendrogram) as Node;
-  const tree = new Node({ name: joinLabels(column, row),
-                          data: height,
-                          children: [left, right] });
+  const next = new DataFrame(R.insert(icolumn, combinedColumn, columns), combinedRow.labels());
 
-  const dd = R.append(tree, R.without(joinTrees, dendrogram) as Node[]);
-
-  return upgma(next, dd);
+  return cluster(weight, next, newDendrogram);
 }
 
 /**
  * UPGMA clustering
  */
 const UPGMAcluster: Cluster = (dm: DataFrame<number>): Node => {
-  //
-
   const leaves = R.map((name: string) => new Node({ name }),
                        R.uniq(R.concat(dm.columns(), dm.rows())));
 
-  return upgma(dm, leaves);
+  const unweighted = (n: number): number => n;
+
+  return cluster(unweighted, dm, leaves);
 };
 
 export { Cluster, UPGMAcluster };
