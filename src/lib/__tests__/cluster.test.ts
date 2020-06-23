@@ -378,3 +378,62 @@ test("Example 4", () => {
     expect(r).toBeCloseTo(e);
   });
 });
+
+/**
+ * R code for verification and result:
+ * dm <- matrix(c(0,1,1, 1,0,1, 1,1,0), nrow=3 , ncol=3)
+ * rownames(dm) <- c('A', 'B', 'C')
+ * colnames(dm) <- c('A', 'B', 'C')
+ * d <- as.dist(dm)
+ * hc = hclust(d, method="average")
+ * hc$merge
+ * =>
+ *      [,1] [,2]
+ * [1,]   -1   -2
+ * [2,]   -3    1
+ *
+ * hc$height
+ * =>
+ * [1]  1 1
+ *
+ * str(as.dendrogram(hc))
+ * =>
+ * --[dendrogram w/ 2 branches and 3 members at h = 1]
+ *   |--leaf "C" 
+ *   `--[dendrogram w/ 2 branches and 2 members at h = 1]
+ *      |--leaf "A" 
+ *      `--leaf "B"
+ */
+
+const expected5 = () => {
+  const leafA = new Node({name: "A"});
+  const leafB = new Node({name: "B"});
+  const AB = new Node({name: "A,B", data: 1, children: [leafA, leafB]});
+
+  const leafC = new Node({name: "C"});
+  const tree = new Node({name: "A,B,C", data: 1, children: [AB, leafC]});
+
+  return tree;
+};
+
+
+test("Example 5", () => {
+  const A = new Series([1, 1], ["B", "C"]);
+  const B = new Series([1], ["C"]);
+  const dm: DataFrame<number> = new DataFrame([A, B], ["A", "B"]);
+
+  const result = UPGMAcluster(dm).preorder();
+  const expected = expected5().preorder();
+
+  const resultHeights = result.map((n: Node): number => n.data as number);
+  const expHeights = expected.map((n: Node): number => n.data as number);
+  R.zip(resultHeights, expHeights).forEach(([r, e]: [number, number]) => {
+    expect(r).toBeCloseTo(e);
+  });
+
+  const resultNames = result.map((n: Node): string => n.name);
+  const expNames = expected.map((n: Node): string => n.name);
+  R.zip(resultNames, expNames).forEach(([r, e]: [string, string]) => {
+    expect(r).toBe(e);
+  });
+});
