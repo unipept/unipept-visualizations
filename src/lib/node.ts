@@ -59,6 +59,30 @@ export class Node implements BasicNode {
     return flatten([this, this.children.map((c: Node) => c.preorder())]);
   }
 
+  /**
+   * Reorder tree: Sort and reorder a dendrogram by the smallest value
+   *
+   * This function sorts a dendrogram object based on
+   * the smallest distance in its subtrees, recursively.
+   * The cluster with the smallest distance is placed on the left
+   * side of branch. When a leaf merged with a cluster, the leaf is
+   * placed on the right side.
+   */
+  public dendsort(): Node {
+    if (this.isLeaf()) {
+      return new Node(this);
+    }
+
+    const left: Node = this.children[0].dendsort();
+    const right: Node = this.children[1].dendsort();
+
+    if ((left.data as number) <= (right.data as number)) {
+      return new Node({ ...this, children: [left, right] });
+    } else {
+      return new Node({ ...this, children: [right, left] });
+    }
+  }
+
   public static new(node: BasicNode = emptyBasicNode()): Node {
     return new Node(node);
   }
