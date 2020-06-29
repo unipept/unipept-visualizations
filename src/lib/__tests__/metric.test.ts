@@ -5,14 +5,15 @@ import { centeredPearsonCorrelation,
          distanceMatrix,
          euclideanDistance } from "../metric";
 
-const small2DDataSet: number[][] =
-  [
-    [1, 1],
-    [1, 1.2],
-    [2.5, 0.75],
-    [3, 2],
-    [3, 2.5],
-  ];
+const exampleDataset: DataFrame<number> =
+  new DataFrame(
+    [new Series([1, 1]),
+     new Series([1, 1.2]),
+     new Series([2.5, 0.75]),
+     new Series([3, 2]),
+     new Series([3, 2.5])
+    ]
+  );
 
 /**
  * The `small2DDataset` was run through the following R code to generate
@@ -60,7 +61,7 @@ const expectedCenteredPearson = () =>
 
 test("Compute euclidean distance matrix", () => {
   const e = expectedEuclidean();
-  const d = distanceMatrix(small2DDataSet, euclideanDistance);
+  const d = distanceMatrix(exampleDataset, euclideanDistance);
 
   d.columns().forEach((clabel: string) => {
     d.rows().forEach((rlabel: string) => {
@@ -77,7 +78,7 @@ test("Compute euclidean distance matrix", () => {
 
 test("Compute pearson distance matrix", () => {
   const e = expectedCenteredPearson();
-  const d = distanceMatrix(small2DDataSet, centeredPearsonCorrelation);
+  const d = distanceMatrix(exampleDataset, centeredPearsonCorrelation);
 
   d.columns().forEach((clabel: string) => {
     d.rows().forEach((rlabel: string) => {

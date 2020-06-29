@@ -1,8 +1,8 @@
 import { Node } from "../node";
-import { ISunburstSettingsData, SunburstSettings } from "../sunburst/settings";
+import { SunburstSettings } from "../sunburst/settings";
 
 test("default settings", () => {
-  const settings: SunburstSettings = SunburstSettings.default();
+  const settings: SunburstSettings = SunburstSettings.defaults();
   expect(settings.height)
     .toEqual(600);
 
@@ -30,7 +30,7 @@ test("default settings", () => {
 
 test("initialise custom but defaults", () => {
   const settings: SunburstSettings =
-    new SunburstSettings({} as ISunburstSettingsData);
+    new SunburstSettings();
   expect(settings.height)
     .toEqual(800);
 
@@ -57,8 +57,7 @@ test("initialise custom but defaults", () => {
 });
 
 test("initialise custom", () => {
-  const node: Node = new Node();
-  node.data = { count: 5 };
+  const node: Node = new Node({ data: 5 });
 
   const settings: SunburstSettings =
     new SunburstSettings(
@@ -68,9 +67,9 @@ test("initialise custom", () => {
         enableTooltips: false,
         enableBreadcrumbs: false,
         countAccessor(data: Node): number {
-          return data.data.count + 1;
+          return data.data as number + 1;
         },
-      } as ISunburstSettingsData);
+      });
 
   expect(settings.height)
     .toEqual(600);
