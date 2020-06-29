@@ -1,15 +1,11 @@
 /* Javascript Math library is very limited
  * This file defines useful functions beyond those in Math.*
  */
+import { sum } from "ramda";
 
 import { Optional } from "./optional";
 
 
-/**
- * Computes the sum of numbers in an array
- */
-const sum: (data: number[]) => number
-  = (data: number[]): number => data.reduce((a: number, b: number) => a + b, 0);
 
 /**
  * Computes the arithmetic mean of numbers in an array
@@ -30,6 +26,34 @@ const transpose: <T>(matrix: T[][]) => T[][]
     return matrix;
   };
 
+/**
+ * Compute all the combinations of 'r' values from an array
+ * Returns an array containing nCr tuples of length r
+ */
+const combinations: <T>(data: T[], r: number) => T[][]
+  = <T>(data: T[], r: number): T[][] => {
+    if ((data.length === r) || (data.length === 1)) {
+      return [data];
+    }
+
+    if (r === 1) {
+      return data.map((v: T): T[] => [v]);
+    }
+
+    return combinations(data.slice(1), r - 1)
+      .map((C: T[]): T[] => [data[0]].concat(C))
+      .concat(combinations(data.slice(1), r));
+  };
+
+const range: (start: number, end: number) => Generator<number, void, void> =
+  function*(start: number, end: number): Generator<number, void, void> {
+    yield start;
+    if (start === end) {
+      return;
+    }
+    yield* range(start + 1, end);
+  };
+
 const copy: <T>(matrix: T[][]) => T[][]
   = <T>(matrix: T[][]): T[][] => matrix.map((inner: T[]) => inner.slice());
 
@@ -39,11 +63,8 @@ const rad2deg: (rad: number) => number
 const deg2rad: (deg: number) => number
   = (deg: number): number => (deg * Math.PI) / 180;
 
-const interval: (value: number, min: number, max: number) => number
-  = (value: number, min: number, max: number): number =>
-  Math.max(Math.min(value, max), min);
-
 const arcLength: (radius: number, angle: number) => number
   = (radius: number, angle: number): number => radius * angle;
 
-export { arcLength, arithmeticMean, copy, deg2rad, interval, rad2deg, sum, transpose };
+export { arcLength, arithmeticMean, combinations, copy, deg2rad,
+         rad2deg, range, transpose };

@@ -1,10 +1,9 @@
 import * as R from "ramda";
 
-import { BasicNode } from "../basicNode";
 import { Node } from "../node";
 import { Settings } from "../settings";
-
-import { HeatmapNode } from "./node";
+import { Cluster, UPGMAcluster } from "../cluster";
+import { euclideanDistance, Metric } from "../metric";
 
 
 export class HeatmapSettings extends Settings {
@@ -54,11 +53,10 @@ export class HeatmapSettings extends Settings {
     }
 
   public readonly dataAccessor: (data: Node) => number
-    = (data: Node): number => (data as HeatmapNode).value
+    = (data: Node): number => data.data as number;
 
-  public readonly dataModifier: (value: number, data: Node) => HeatmapNode =
-    (value: number, data: Node): HeatmapNode =>
-    new HeatmapNode({...(data as HeatmapNode), value} as unknown as BasicNode)
+  public readonly dataModifier: (data: number, node: Node) => Node =
+    (data: number, node: Node): Node => new Node({ ...node, data });
 
   // Text that's displayed inside a tooltip.
   // This is equal to the current cell's value by default.
@@ -68,6 +66,12 @@ export class HeatmapSettings extends Settings {
 
       return `score: ${(R.view(lens, data) as number * 100).toFixed(2)}%`;
     }
+
+  /// A metric function that computes inter-row or inter-column "distances"
+  public metric: Metric = euclideanDistance;
+
+  /// A dendrogram sorting function
+  public cluster: Cluster = UPGMAcluster;
 
   public constructor(settings?: object) {
     super();

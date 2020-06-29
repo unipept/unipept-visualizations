@@ -2,9 +2,10 @@
  * Generic styling
  */
 import * as d3 from "d3";
+import { clamp } from "ramda";
 
 import * as Data from "./data";
-import { arcLength, interval, rad2deg } from "./math";
+import { arcLength, rad2deg } from "./math";
 import { Node } from "./node";
 
 /**
@@ -134,7 +135,7 @@ namespace label {
       const radius: number = Math.max(2, radialScale(d.y0));
       const angularSpace: number = arcLength(radius, angle);
       const size: number
-        = Math.round(interval(angularSpace, constraint.minFontSize, constraint.maxFontSize));
+        = Math.round(clamp(constraint.minFontSize, constraint.maxFontSize, angularSpace));
 
       return `${size}px`;
     };
