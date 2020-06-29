@@ -1,45 +1,32 @@
 import * as d3 from "d3";
 import * as R from "ramda";
 
-import { BasicNode } from "./basicNode";
+import { Node } from "./node";
 import { DataFrame } from "./data";
-import { HeatmapNode } from "./heatmap/node";
 import { HeatmapSettings } from "./heatmap/settings";
 import { Optional } from "./optional";
 import { Tooltip } from "./tooltip";
+import { distanceMatrix, Metric } from "./metric";
+import { Cluster } from "./cluster";
 
-
-// import UPGMAClusterer from "../cluster/UPGMAClusterer";
-// import EuclidianDistanceMetric from "../metric/euclidianDistanceMetric";
-// import ClusterElement from "../cluster/clusterElement";
-// import TreeNode from "../cluster/treeNode";
-// import {HeatmapData, HeatmapElement, HeatmapValue} from "./input";
-// import Reorderer from "../reorder/reorderer";
-// import MoloReorderer from "../reorder/moloReorderer";
 
 export class Heatmap {
-    // private element: HTMLElement;
-
-    // // We need to be both able to fast index the array of elements and find an element by id. That's why both a Map
-    // // and an array are kept in memory for the rows and columns.
-    // private rowMap: Map<string, HeatmapElement>;
-    // private rows: HeatmapElement[];
-    // private columnMap: Map<string, HeatmapElement>;
-    // private columns: HeatmapElement[];
-  // private values: HeatmapValue[][];
   public readonly value: R.Lens;
-  public readonly hm: DataFrame<HeatmapNode>;
+  public readonly hm: DataFrame<Node>;
   public readonly cellShape: [number, number];
+  public readonly metricFn: Metric;
+  public readonly clusterFn: Cluster;
 
-  public constructor(data: DataFrame<BasicNode>,
+  public constructor(data: DataFrame<Node>,
                      options: HeatmapSettings = HeatmapSettings.defaults()) {
     this.value = R.lens(options.dataAccessor, options.dataModifier);
 
-    this.hm = data
-      .map((v: BasicNode) => HeatmapNode.createNodes(v))
-      .normalise(this.value);
+    this.hm = data.normalise(this.value);
 
     this.cellShape = Heatmap.cellShape(options, this.hm.shape());
+
+    this.metricFn = options.metric;
+    this.clusterFn = options.cluster;
 
     const tooltip: Optional<Tooltip> = options.enableTooltips
       ? Optional.of(new Tooltip(options.parent, options.className, options.getTooltip))
@@ -77,11 +64,11 @@ export class Heatmap {
         .append("rect")
         .attr("x", () => (coli as number) * this.cellShape[0]
               + (coli as number) * options.padding)
-        .attr("y", (_: HeatmapNode, i: number) => i * this.cellShape[1] + i * options.padding)
-        .attr("width", (_: HeatmapNode) => this.cellShape[0])
-        .attr("height", (_: HeatmapNode) => this.cellShape[1])
-        .attr("fill", (d: HeatmapNode) => colourInterpolator(R.view(this.value, d)))
-        .each(function(d: HeatmapNode): void {
+        .attr("y", (_: Node, i: number) => i * this.cellShape[1] + i * options.padding)
+        .attr("width", () => this.cellShape[0])
+        .attr("height", () => this.cellShape[1])
+        .attr("fill", (d: Node) => colourInterpolator(R.view(this.value, d)))
+        .each(function (d: Node): void {
           tooltip.ifPresent((tt: Tooltip) => tt.mark(this, d));
         });
     }
@@ -160,6 +147,32 @@ export class Heatmap {
     }
 
     return options.cellShape(shape);
+  }
+
+  public cluster(what: "all" | "columns" | "rows" | "none"): void {
+    if (what === "none") {
+      return;
+    }
+
+    const raw = this.hm.map((n: Node): number => n.data as number);
+
+    if (what == "columns") {
+      const cluster: Node = this.clusterFn(distanceMatrix(raw, this.metricFn));
+      const relabel = cluster
+        .dendsort()
+        .preorder()
+        .filter((n: Node) => n.isLeaf())
+        .map((n: Node) => n.name);
+      console.log(raw.columns());
+      console.log(relabel);
+    }
+
+    // Compute distances over rows
+    if (what == "rows") {
+      const cluster: Node
+        = this.clusterFn(distanceMatrix(raw.transpose(), this.metricFn));
+      cluster.dendsort();
+    }
   }
 
     /**
