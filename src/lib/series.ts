@@ -4,7 +4,7 @@ import * as R from "ramda";
  * 1 dimensional array with axis labels
  */
 class Series<T> {
-  public readonly data: {[k: string]: T} = {};
+  public readonly data: { [k: string]: T } = {};
   public readonly index: string[];
 
   public static empty<U>(): Series<U> {
@@ -12,13 +12,18 @@ class Series<T> {
   }
 
   public static concat<U>(xs: Array<Series<U>>): Series<U> {
-    const data = R.reduce(R.mergeWith(R.defaultTo), {}, R.map(R.prop("data"), xs));
+    const data = R.reduce(
+      R.mergeWith(R.defaultTo),
+      {},
+      R.map(R.prop("data"), xs),
+    );
     return new Series<U>(R.values(data), R.keys(data));
   }
 
   public constructor(data: readonly T[], index?: readonly string[]) {
-    const realIndex: readonly string[] =
-      R.defaultTo(R.map(R.toString, R.range(0, data.length)))(index);
+    const realIndex: readonly string[] = R.defaultTo(
+      R.map(R.toString, R.range(0, data.length)),
+    )(index);
 
     this.data = R.zipObj(realIndex, data);
     this.index = R.slice(0, data.length, realIndex);
@@ -29,8 +34,9 @@ class Series<T> {
   }
 
   public append(x: Series<T>): Series<T> {
-    return new Series(this.asArray().concat(x.asArray()),
-                      this.index.concat(x.index));
+    return new Series(
+      this.asArray().concat(x.asArray()),
+      this.index.concat(x.index));
   }
 
   public at(i: string): T {
@@ -38,12 +44,14 @@ class Series<T> {
   }
 
   public format(): string {
-    const width: number
-      = Math.max(...this.index.map((i: string): number => i.length));
+    const width: number = Math.max(
+      ...this.index.map((i: string): number => i.length),
+    );
 
     return this.index
-      .map((i: string): string =>
-           `${i.padEnd(width, " ")}\t${JSON.stringify(this.data[i])}`)
+      .map(
+        (i: string): string =>
+        `${i.padEnd(width, " ")}\t${JSON.stringify(this.data[i])}`)
       .join("\n");
   }
 
@@ -52,19 +60,24 @@ class Series<T> {
   }
 
   public map<U>(f: (value: T) => U): Series<U> {
-    return new Series(this.index.map((n: string) => f(this.data[n])), this.index);
+    return new Series(
+      this.index.map((n: string) => f(this.data[n])),
+      this.index,
+    );
   }
 
   public max(lens: R.Lens): R.Ord {
-    return R.reduce(R.max,
-                    R.view(lens, R.values(this.data)[0]),
-                    R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
+    return R.reduce(
+      R.max,
+      R.view(lens, R.values(this.data)[0]),
+      R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
   }
 
   public min(lens: R.Lens): R.Ord {
-    return R.reduce(R.min,
-                    R.view(lens, R.values(this.data)[0]),
-                    R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
+    return R.reduce(
+      R.min,
+      R.view(lens, R.values(this.data)[0]),
+      R.map((i: string): R.Ord => R.view(lens, this.data[i]), this.index));
   }
 
   /**
@@ -72,8 +85,10 @@ class Series<T> {
    * @param lens A lens focused on an orderable value within T.
    */
   public idxmax(lens: R.Lens): [string, T] {
-    const reducer: (a: [string, T], b: [string, T]) => [string, T]
-      = R.maxBy((el: [string, T]) => R.view(lens, el[1]));
+    const reducer: (
+      a: [string, T],
+      b: [string, T],
+    ) => [string, T] = R.maxBy((el: [string, T]) => R.view(lens, el[1]));
     const data = R.toPairs(this.data);
     return R.reduce(reducer, data[0], data);
   }
@@ -83,8 +98,10 @@ class Series<T> {
    * @param lens A lens focused on an orderable value within T.
    */
   public idxmin(lens: R.Lens): [string, T] {
-    const reducer: (a: [string, T], b: [string, T]) => [string, T]
-      = R.minBy((el: [string, T]) => R.view(lens, el[1]));
+    const reducer: (
+      a: [string, T],
+      b: [string, T],
+    ) => [string, T] = R.minBy((el: [string, T]) => R.view(lens, el[1]));
     const data = R.toPairs(this.data);
     return R.reduce(reducer, data[0], data);
   }
@@ -103,11 +120,14 @@ class Series<T> {
       return !labels.includes(idx);
     });
 
-    return new Series(newIndex.map((idx: string): T => this.data[idx]), newIndex);
+    return new Series(
+      newIndex.map((idx: string): T => this.data[idx]),
+      newIndex,
+    );
   }
 
   /**
-   * Returns the ordered list of (axis) labels for this series  
+   * Returns the ordered list of (axis) labels for this series
    */
   public labels(): string[] {
     return this.index.slice();
@@ -121,15 +141,24 @@ class Series<T> {
    * @param newlabel The replacement label
    * @returns a new Series with the specified modifications
    */
-  public modify(label: string, value: (v: T) => T, newlabel?: string): Series<T> {
-    const labels = this.labels().map((l: string) => newlabel && (l === label) ? newlabel : l);
-    return new Series(this.index.map((idx: string) => {
-      if (idx === label) {
-        return value(this.data[idx]);
-      }
+  public modify(
+    label: string,
+    value: (v: T) => T,
+    newlabel?: string,
+  ): Series<T> {
+    const labels = this.labels().map((l: string) =>
+      newlabel && l === label ? newlabel : l,
+    );
+    return new Series(
+      this.index.map((idx: string) => {
+        if (idx === label) {
+          return value(this.data[idx]);
+        }
 
-      return this.data[idx];
-    }), labels);
+        return this.data[idx];
+      }),
+      labels,
+    );
   }
 
   public split(label: string): [Series<T>, Series<T>] {
@@ -137,12 +166,15 @@ class Series<T> {
     if (idx === -1) {
       return [new Series<T>([]), new Series<T>([])];
     }
-    
+
     const fst = this.index.slice(0, idx);
     const snd = this.index.slice(idx + 1, this.index.length);
 
-    return [new Series(fst.map((l: string) => this.data[l]), fst),
-            new Series(snd.map((l: string) => this.data[l]), snd)];
+    return [
+      new Series(
+        fst.map((l: string) => this.data[l]),
+        fst,
+      new Series(snd.map((l: string) => this.data[l]), snd)];
   }
 
   public shape(): number {
@@ -150,11 +182,13 @@ class Series<T> {
   }
 
   public reorder(newIndex: string[]): Series<T> {
-    const constrainedIndex: string[]
-      = newIndex.filter((i: string): boolean => this.index.indexOf(i) > -1);
+    const constrainedIndex: string[] = newIndex.filter(
+      (i: string): boolean => this.index.indexOf(i) > -1,
+    );
 
-    return new Series(constrainedIndex.map((i: string): T => this.data[i]),
-                      constrainedIndex);
+    return new Series(
+      constrainedIndex.map((i: string): T => this.data[i]),
+      constrainedIndex);
   }
 }
 

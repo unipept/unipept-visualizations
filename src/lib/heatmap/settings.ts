@@ -5,7 +5,6 @@ import { Settings } from "../settings";
 import { Cluster, UPGMAcluster } from "../cluster";
 import { euclideanDistance, Metric } from "../metric";
 
-
 export class HeatmapSettings extends Settings {
   public static readonly DEFAULT_DURATION: number = 2000;
 
@@ -45,27 +44,29 @@ export class HeatmapSettings extends Settings {
    *                be modified by this function
    * @return A tuple of [width, height] for heatmap cells.
    */
-  public readonly cellShape?: (request: [number, number]) => [number, number]
-    = (request: [number, number]): [number, number] => {
-      const size: number = Math.min(...request);
+  public readonly cellShape?: (
+    request: [number, number],
+  ) => [number, number] = (request: [number, number]): [number, number] => {
+    const size: number = Math.min(...request);
 
-      return [size, size];
-    }
+    return [size, size];
+  };
 
-  public readonly dataAccessor: (data: Node) => number
-    = (data: Node): number => data.data as number;
+  public readonly dataAccessor: (data: Node) => number = (data: Node): number =>
+    data.data as number;
 
-  public readonly dataModifier: (data: number, node: Node) => Node =
-    (data: number, node: Node): Node => new Node({ ...node, data });
+  public readonly dataModifier: (data: number, node: Node) => Node = (
+    data: number,
+    node: Node,
+  ): Node => new Node({ ...node, data });
 
   // Text that's displayed inside a tooltip.
   // This is equal to the current cell's value by default.
-  public readonly getTooltipText: (data: Node) => string
-    = (data: Node) => {
-      const lens: R.Lens = R.lens(this.dataAccessor, this.dataModifier);
+  public readonly getTooltipText: (data: Node) => string = (data: Node) => {
+    const lens: R.Lens = R.lens(this.dataAccessor, this.dataModifier);
 
-      return `score: ${(R.view(lens, data) as number * 100).toFixed(2)}%`;
-    }
+    return `score: ${((R.view(lens, data) as number) * 100).toFixed(2)}%`;
+  };
 
   /// A metric function that computes inter-row or inter-column "distances"
   public metric: Metric = euclideanDistance;

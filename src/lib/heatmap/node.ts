@@ -39,12 +39,11 @@ export class HeatmapNode extends Node {
   }
 }
 
-
 /**
  * HeatmapData represents the full container of all data needed for a Heatmap to visualise.
  */
 export interface HeatmapData {
-    rows: HeatmapElement[],
-    columns: HeatmapElement[],
-    values: HeatmapValue[][] | number[][]
+  rows: HeatmapElement[];
+  columns: HeatmapElement[];
+  values: HeatmapValue[][] | number[][];
 }
