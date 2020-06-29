@@ -34,7 +34,8 @@ const distanceMatrix: (data: DataFrame<number>, metric: Metric) => DataFrame<num
       };
 
     const cols = R.toPairs(R.groupBy(R.head, d));
-    const colNames = R.map(R.head, cols);
+    const colNames: string[]
+      = R.map<[string, Array<[string, string, number]>], string>(R.head, cols);
     const series = R.map(([_, vals]) =>
       R.apply(makeSeries, R.reverse(R.tail(R.transpose(vals)))), cols);
 
