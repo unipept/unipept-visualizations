@@ -685,3 +685,45 @@ test("Reorder rows of a DataFrame with reversed index", () => {
              .reverse());
 });
 
+test("Transpose example DataFrame<string>", () => {
+  const t: Data.DataFrame<string> = dataframe.transpose();
+
+  expect(t.columns()).toStrictEqual(["0", "1", "2", "3"]);
+  expect(t.rows()).toStrictEqual(["A", "B", "C"]);
+
+  expect(t.column("0").asArray()).toStrictEqual(['a', 'b', 'c']);
+  expect(t.column("1").asArray()).toStrictEqual(['d', 'e', 'f']);
+  expect(t.column("2").asArray()).toStrictEqual(['g', 'h', 'i']);
+  expect(t.column("3").asArray()).toStrictEqual(['j', 'k', 'l']);
+});
+
+test("Transpose example DataFrame<Object>", () => {
+  const t: Data.DataFrame<{value: R.Ord}> = dataframeObj.transpose();
+
+  expect(t.columns()).toStrictEqual(["0", "1", "2", "3"]);
+  expect(t.rows()).toStrictEqual(["A", "B", "C"]);
+
+  expect(t.column("0").asArray()).toStrictEqual([ctor('a'), ctor('b'), ctor('c')]);
+  expect(t.column("1").asArray()).toStrictEqual([ctor('d'), ctor('e'), ctor('f')]);
+  expect(t.column("2").asArray()).toStrictEqual([ctor('g'), ctor('h'), ctor('i')]);
+  expect(t.column("3").asArray()).toStrictEqual([ctor('j'), ctor('k'), ctor('l')]);
+});
+
+
+test("Transpose example DataFrame<number | undefined>", () => {
+  const df = new Data.DataFrame(
+    [new Series([1, 2, 3, 4], ["1", "2", "3", "4"]),
+     new Series([2, 3, 4], ["2", "3", "4"]),
+     new Series([3, 4], ["3", "4"]),
+     new Series([4], ["4"])],
+    ["0", "1", "2", "3"]);
+  const t: Data.DataFrame<number> = df.transpose();
+
+  expect(t.columns()).toStrictEqual(["1", "2", "3", "4"]);
+  expect(t.rows()).toStrictEqual(["0", "1", "2", "3"]);
+
+  expect(t.column("1").asArray()).toStrictEqual([1, undefined, undefined, undefined]);
+  expect(t.column("2").asArray()).toStrictEqual([2, 2, undefined, undefined]);
+  expect(t.column("3").asArray()).toStrictEqual([3, 3, 3, undefined]);
+  expect(t.column("4").asArray()).toStrictEqual([4, 4, 4, 4]);
+});

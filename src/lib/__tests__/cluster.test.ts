@@ -57,16 +57,16 @@ const expected1 = () => {
 
 
 test("Example 1", () => {
-  const small2DDataSet: number[][] =
-  [
-    [1, 1],
-    [1, 1.2],
-    [2.5, 0.75],
-    [3, 2],
-    [3, 2.5],
-  ];
+  const exampleDataset: DataFrame<number>
+    = new DataFrame<number>(
+      [new Series([1, 1]),
+       new Series([1, 1.2]),
+       new Series([2.5, 0.75]),
+       new Series([3, 2]),
+       new Series([3, 2.5])]
+    );
 
-  const dm: DataFrame<number> = distanceMatrix(small2DDataSet, euclideanDistance);
+  const dm: DataFrame<number> = distanceMatrix(exampleDataset, euclideanDistance);
   const result = UPGMAcluster(dm).preorder();
   const expected = expected1().preorder();
 
@@ -437,3 +437,5 @@ test("Example 5", () => {
     expect(r).toBe(e);
   });
 });
+
+export { expected1, expected2, expected3, expected4, expected5 };

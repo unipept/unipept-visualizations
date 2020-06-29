@@ -6,7 +6,6 @@
 import { HierarchyNode, HierarchyRectangularNode } from "d3";
 import * as R from "ramda";
 
-import { BasicNode } from "./basicNode";
 import { Node } from "./node";
 import { Optional } from "./optional";
 import { Series } from "./series";
@@ -77,39 +76,6 @@ const ancestorOf: (check: HierarchyNode<Node>,
     return Optional.empty();
   };
 
-
-interface CSVRow {
-  [propName: string]: string;
-}
-
-interface CSV extends Array<CSVRow> {
-  readonly columns: string[];
-}
-
-const fromCSV: (data: CSV) => DataFrame<BasicNode>
-  = (data: CSV): DataFrame<BasicNode> => {
-    const seriesIndexName: string = data.columns[0];
-    const seriesIndex: string[] = data.map((row: CSVRow): string => row[seriesIndexName]);
-
-    return new DataFrame<BasicNode>(
-      data.columns.slice(1)
-        .map((col: string): Series<BasicNode> =>
-             new Series(data.map((row: CSVRow, i: number): BasicNode => {
-            const value: object | number = JSON.parse(row[col]);
-            if (typeof value === "number") {
-              return { name: `${col} and ${seriesIndex[i]}`, value } as unknown as BasicNode;
-            }
-
-            return value as BasicNode;
-          }),
-                        seriesIndex),
-        ),
-      data.columns.slice(1));
-  };
-
-const fromArray: <T>(data: T[][]) => DataFrame<T>
-  = <T>(data: T[][]): DataFrame<T> =>
-    new DataFrame<T>(data.map((row: T[]): Series<T> => new Series<T>(row)));
 
 /**
  * This dataframe is indexed by row
@@ -257,9 +223,10 @@ class DataFrame<T> {
   }
 
   public reorderRows(newIndex: string[]): DataFrame<T> {
-    return new DataFrame(this.index.map((col: string): Series<T> =>
-                                        this.data[col].reorder(newIndex)),
-                         this.index);
+    return new DataFrame(
+      this.index.map((col: string): Series<T> => this.data[col].reorder(newIndex)),
+      this.index
+    );
   }
 
   /**
@@ -269,6 +236,49 @@ class DataFrame<T> {
   public shape(): [number, number] {
     return [this.rows().length, this.columns().length];
   }
+
+  public transpose(): DataFrame<T> {
+    const columns: string[] = this.rows();
+    return new DataFrame<T>(
+      columns.map((label: string): Series<T> => this.row(label))
+      , columns
+    );
+  }
 }
+
+interface CSVRow {
+  [propName: string]: string;
+}
+
+interface CSV extends Array<CSVRow> {
+  readonly columns: string[];
+}
+
+const fromCSV: (data: CSV) => DataFrame<Node>
+  = (data: CSV): DataFrame<Node> => {
+    const seriesIndexName: string = data.columns[0];
+    const seriesIndex: string[] = data.map((row: CSVRow): string => row[seriesIndexName]);
+
+    return new DataFrame<Node>(
+      data.columns.slice(1)
+        .map(
+          (col: string): Series<Node> =>
+            new Series(
+              data.map((row: CSVRow, i: number): Node => {
+                const data: object | number = JSON.parse(row[col]);
+                if (typeof data === "number") {
+                  return new Node({ name: `${col} and ${seriesIndex[i]}`, data });
+                }
+
+                return new Node(data);
+              }),
+              seriesIndex),
+        ),
+      data.columns.slice(1));
+  };
+
+const fromArray: <T>(data: T[][]) => DataFrame<T>
+  = <T>(data: T[][]): DataFrame<T> =>
+    new DataFrame<T>(data.map((row: T[]): Series<T> => new Series<T>(row)));
 
 export { ancestorOf, count, countRatio, CSV, fromArray, fromCSV, DataFrame, outerRadialDomain };

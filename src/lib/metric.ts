@@ -1,10 +1,8 @@
 import * as R from "ramda";
 
 import { DataFrame } from "./data";
-import { combinations, range } from "./math";
+import { combinations } from "./math";
 import { Series } from "./series";
-
-type DMEntry = Array<[number, number, number]>;
 
 /**
  * Computes a "distance" between 2 vectors of equal dimmensions.
@@ -18,31 +16,29 @@ type Metric = (xs: number[], ys: number[]) => number;
 /**
  * Returns a correlation or distance matrix based upon a metric.
  *  Note that the returned matrix is lower triangular.
+ *  Distances are computed column wise on the input matrix.
  *
  * @param matrix The input for which some correlation of distance matrix is calculated.
  * @return The distance between both values.
  */
-const distanceMatrix: (data: readonly number[][], metric: Metric) => DataFrame<number>
-  = (data: readonly number[][], metric: Metric): DataFrame<number> => {
-    const rows: number[] = [...range(0, data.length - 1)];
-    const idxs: number[][] = combinations(rows, 2);
+const distanceMatrix: (data: DataFrame<number>, metric: Metric) => DataFrame<number>
+  = (data: DataFrame<number>, metric: Metric): DataFrame<number> => {
+    const idxs: string[][] = combinations(data.columns(), 2);
 
-    const d: DMEntry = idxs.map(([i, j]: number[]): [number, number, number] =>
-      [i, j, metric(data[i], data[j])]);
+    const d = idxs.map(([i, j]: string[]): [string, string, number] =>
+      [i, j, metric(data.column(i).asArray(), data.column(j).asArray())]);
 
-    const res: {[index: string]: DMEntry}
-      = R.groupBy(([i]: [number, number, number]): string => `${i}`)(d);
+    const makeSeries =
+      (data: Array<number | string>, index: Array<number | string>): Series<number> => {
+        return new Series<number>(data as number[], index as string[]);
+      };
 
-    const extract = (g: DMEntry): Series<number> => {
-      const raw: number[][] = R.tail(R.transpose(g));
+    const cols = R.toPairs(R.groupBy(R.head, d));
+    const colNames = R.map(R.head, cols);
+    const series = R.map(([_, vals]) =>
+      R.apply(makeSeries, R.reverse(R.tail(R.transpose(vals)))), cols);
 
-      return new Series(raw[1], raw[0].map((i: number): string => `${i}`));
-    };
-
-    const sr: {[index: string]: Series<number>} =
-      R.map<{[index: string]: DMEntry}, {[index: string]: Series<number>}>(extract, res);
-
-    return new DataFrame(R.values(sr));
+    return new DataFrame<number>(series, colNames);
   };
 
 /**
@@ -53,8 +49,8 @@ const distanceMatrix: (data: readonly number[][], metric: Metric) => DataFrame<n
  * corr(x, y) = \frac{\sum_i{x_i y_i} - \frac{1}{n}\sum_i{x_i}\sum_i{y_i}}{\sqrt{\left(\sum_i{x_i^2} - \bar{x}^2\right)\left(\sum_i{y_i^2} - \bar{y}^2\right)}}
  */
 const centeredPearsonCorrelation: Metric = (xs: number[], ys: number[]): number => {
-  const xSumSqCentered = R.sum(R.map((x) => (x - R.mean(xs)) ** 2, xs));
-  const ySumSqCentered = R.sum(R.map((y) => (y - R.mean(ys)) ** 2, ys));
+  const xSumSqCentered = R.sum(R.map((x: number) => (x - R.mean(xs)) ** 2, xs));
+  const ySumSqCentered = R.sum(R.map((y: number) => (y - R.mean(ys)) ** 2, ys));
 
   const prod = R.map(([x,y]) => x * y, R.zip(xs, ys)) as number[];
   const numerator = R.sum(prod) - (R.sum(xs) * R.sum(ys)) / xs.length;
