@@ -21,40 +21,26 @@ type Metric = (xs: number[], ys: number[]) => number;
  * @param matrix The input for which some correlation of distance matrix is calculated.
  * @return The distance between both values.
  */
-const distanceMatrix: (
-  data: DataFrame<number>,
-  metric: Metric,
-) => DataFrame<number> = (
-  data: DataFrame<number>,
-  metric: Metric,
-): DataFrame<number> => {
-  const idxs: string[][] = combinations(data.columns(), 2);
+const distanceMatrix: (data: DataFrame<number>, metric: Metric) => DataFrame<number>
+  = (data: DataFrame<number>, metric: Metric): DataFrame<number> => {
+    const idxs: string[][] = combinations(data.columns(), 2);
 
-  const d = idxs.map(([i, j]: string[]): [string, string, number] => [
-    i,
-    j,
-    metric(data.column(i).asArray(), data.column(j).asArray()),
-  ]);
+    const d = idxs.map(([i, j]: string[]): [string, string, number] =>
+      [i, j, metric(data.column(i).asArray(), data.column(j).asArray())]);
 
-  const makeSeries = (
-    data: Array<number | string>,
-    index: Array<number | string>,
-  ): Series<number> => {
-    return new Series<number>(data as number[], index as string[]);
+    const makeSeries =
+      (data: Array<number | string>, index: Array<number | string>): Series<number> => {
+        return new Series<number>(data as number[], index as string[]);
+      };
+
+    const cols = R.toPairs(R.groupBy(R.head, d));
+    const colNames: string[]
+      = R.map<[string, Array<[string, string, number]>], string>(R.head, cols);
+    const series = R.map(([_, vals]) =>
+      R.apply(makeSeries, R.reverse(R.tail(R.transpose(vals)))), cols);
+
+    return new DataFrame<number>(series, colNames);
   };
-
-  const cols = R.toPairs(R.groupBy(R.head, d));
-  const colNames: string[] = R.map<
-    [string, Array<[string, string, number]>],
-    string
-  >(R.head, cols);
-  const series = R.map(
-    ([_, vals]) => R.apply(makeSeries, R.reverse(R.tail(R.transpose(vals)))),
-    cols,
-  );
-
-  return new DataFrame<number>(series, colNames);
-};
 
 /**
  * Equation for centered pearson correlation from
@@ -63,19 +49,16 @@ const distanceMatrix: (
  * 1 - corr(x,y), where
  * corr(x, y) = \frac{\sum_i{x_i y_i} - \frac{1}{n}\sum_i{x_i}\sum_i{y_i}}{\sqrt{\left(\sum_i{x_i^2} - \bar{x}^2\right)\left(\sum_i{y_i^2} - \bar{y}^2\right)}}
  */
-const centeredPearsonCorrelation: Metric = (
-  xs: number[],
-  ys: number[],
-): number => {
+const centeredPearsonCorrelation: Metric = (xs: number[], ys: number[]): number => {
   const xSumSqCentered = R.sum(R.map((x: number) => (x - R.mean(xs)) ** 2, xs));
   const ySumSqCentered = R.sum(R.map((y: number) => (y - R.mean(ys)) ** 2, ys));
 
-  const prod = R.map(([x, y]) => x * y, R.zip(xs, ys)) as number[];
+  const prod = R.map(([x,y]) => x * y, R.zip(xs, ys)) as number[];
   const numerator = R.sum(prod) - (R.sum(xs) * R.sum(ys)) / xs.length;
   const denominator = Math.sqrt(xSumSqCentered * ySumSqCentered);
 
-  if (numerator !== denominator) {
-    return 1 - numerator / denominator;
+  if ( numerator !== denominator) {
+    return 1 - (numerator / denominator);
   } else {
     return 0;
   }
@@ -86,13 +69,7 @@ const centeredPearsonCorrelation: Metric = (
  * Defined by \sqrt{\sum_i \left( x_i - y_i \right)^2}
  */
 const euclideanDistance: Metric = (xs: number[], ys: number[]): number =>
-  Math.sqrt(
-    R.sum(R.zip(xs, ys).map(([x, y]: [number, number]) => (x - y) ** 2)),
-  );
+  Math.sqrt(R.sum(R.zip(xs, ys)
+    .map(([x, y]: [number, number]) => (x - y) ** 2)))
 
-export {
-  centeredPearsonCorrelation,
-  distanceMatrix,
-  euclideanDistance,
-  Metric,
-};
+export { centeredPearsonCorrelation, distanceMatrix, euclideanDistance, Metric };

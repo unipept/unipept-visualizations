@@ -1,6 +1,6 @@
 import { Node } from "./node";
 
-/**
+/** 
  * A priority queue that works with Nodes.
  * Based on https://github.com/gkz/es-collections
  */
@@ -72,10 +72,8 @@ export class MaxCountHeap<E extends Node> {
 
     while (2 * i + 1 < size) {
       let targetIndex = 2 * i + 1;
-      if (
-        targetIndex < size - 1 &&
-        MaxCountHeap.comp(data[targetIndex + 1], data[targetIndex]) < 0
-      ) {
+      if (targetIndex < size - 1
+        && MaxCountHeap.comp(data[targetIndex + 1], data[targetIndex]) < 0) {
         targetIndex++;
       }
       if (MaxCountHeap.comp(value, data[targetIndex]) <= 0) {
@@ -89,7 +87,7 @@ export class MaxCountHeap<E extends Node> {
   }
 
   static comp<E extends Node>(a: E, b: E): number {
-    if (typeof a.data === "number" && typeof b.data === "number") {
+    if ((typeof a.data === "number") && (typeof b.data === "number")) {
       return (b.data as number) - (a.data as number);
     }
 

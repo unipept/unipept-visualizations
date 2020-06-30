@@ -40,7 +40,7 @@ export class Node implements BasicNode {
       return 0;
     }
 
-    return (max(this.children, (c: Node) => c.height()) as number) + 1;
+    return max(this.children, (c: Node) => c.height()) as number + 1;
   }
 
   // Returns the depth of the tree above this node
@@ -87,13 +87,10 @@ export class Node implements BasicNode {
     return new Node(node);
   }
 
-  public static createNode<E extends Node>(
-    node: BasicNode,
-    nodeConstructor: (arg: BasicNode) => E,
-  ): E {
+  public static createNode<E extends Node>(node: BasicNode, nodeConstructor: (arg: BasicNode) => E): E {
     if (node.children) {
-      node.children = node.children.map((n: BasicNode) =>
-        Node.createNode(n, nodeConstructor),
+      node.children = node.children.map(
+        (n: BasicNode) => Node.createNode(n, nodeConstructor),
       );
     }
 

@@ -3,15 +3,14 @@
  */
 
 interface BasicNode {
-  name: string; // Value for plotted label.
+  name: string;           // Value for plotted label.
   children?: BasicNode[]; // Child nodes in the hierarchy.
 }
 
 /**
  * Default initialise a `BasicNode`.
  */
-const emptyBasicNode: () => BasicNode = (): BasicNode => {
-  return { name: "" };
-};
+const emptyBasicNode: () => BasicNode
+  = (): BasicNode => { return {name: ""}; };
 
 export { BasicNode, emptyBasicNode };

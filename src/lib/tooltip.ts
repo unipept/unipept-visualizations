@@ -6,19 +6,17 @@ import * as d3 from "d3";
 import { domClass } from "./dom";
 import { Node } from "./node";
 
+
 /**
  * Generate a function that writes tooltip text
  * If a function that does so is `supplied` just return that,
  * otherwise generate placeholder text.
  */
-const createTooltip: (
-  supplied?: (data: Node) => string,
-) => (data: Node) => string = (
-  supplied?: (data: Node) => string,
-): ((data: Node) => string) =>
-  supplied !== undefined
-    ? supplied
-    : (data: Node): string => `{placeholder: ${data.name}}`;
+const createTooltip: (supplied?: (data: Node) => string) => ((data: Node) => string)
+  = (supplied?: (data: Node) => string): ((data: Node) => string) =>
+  (supplied !== undefined
+   ? supplied
+   : (data: Node): string => `{placeholder: ${data.name}}`);
 
 /**
  * A generic tooltip that follows the mouse cursor.
@@ -32,12 +30,7 @@ export class Tooltip {
   /**
    * The HTML node within which this tooltip will render.
    */
-  public readonly parent: d3.Selection<
-    HTMLDivElement,
-    undefined,
-    HTMLElement,
-    undefined
-  >;
+  public readonly parent: d3.Selection<HTMLDivElement, undefined, HTMLElement, undefined>;
 
   /**
    * Generate a predictable class name for tooltip HTML nodes.
@@ -53,23 +46,15 @@ export class Tooltip {
    * @param attach The parent node to all tooltip generated nodes.
    * @param tooltip An optional function to generate tooltip text.
    */
-  public constructor(
-    attach: string,
-    classPrefix?: string,
-    tooltip?: (data: Node) => string,
-  ) {
-    const attachTo: d3.Selection<
-      HTMLElement,
-      undefined,
-      HTMLElement,
-      undefined
-    > = d3.select(attach);
+  public constructor(attach: string, classPrefix?: string,
+                     tooltip?: (data: Node) => string) {
+    const attachTo: d3.Selection<HTMLElement, undefined, HTMLElement, undefined>
+      = d3.select(attach);
 
     this.genClassName = domClass(classPrefix);
     this.tooltip = createTooltip(tooltip);
 
-    this.parent = attachTo
-      .append("div")
+    this.parent = attachTo.append("div")
       .classed(this.genClassName("tip"), true)
       .style("position", "absolute")
       .style("z-index", "10")
@@ -125,4 +110,5 @@ export class Tooltip {
       this.update(data, event as MouseEvent);
     });
   }
+
 }
