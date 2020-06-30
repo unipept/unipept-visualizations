@@ -45,14 +45,6 @@ const combinations: <T>(data: T[], r: number) => T[][]
       .concat(combinations(data.slice(1), r));
   };
 
-const range: (start: number, end: number) => Generator<number, void, void> =
-  function*(start: number, end: number): Generator<number, void, void> {
-    yield start;
-    if (start === end) {
-      return;
-    }
-    yield* range(start + 1, end);
-  };
 
 const copy: <T>(matrix: T[][]) => T[][]
   = <T>(matrix: T[][]): T[][] => matrix.map((inner: T[]) => inner.slice());
@@ -67,4 +59,4 @@ const arcLength: (radius: number, angle: number) => number
   = (radius: number, angle: number): number => radius * angle;
 
 export { arcLength, arithmeticMean, combinations, copy, deg2rad,
-         rad2deg, range, transpose };
+         rad2deg, transpose };

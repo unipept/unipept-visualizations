@@ -3,7 +3,7 @@
  * Also defines a rudimentary "Data Frame"
  */
 
-import { HierarchyNode, HierarchyRectangularNode } from "d3";
+import { HierarchyNode, HierarchyRectangularNode, DSVRowArray, DSVRowString } from "d3";
 import * as R from "ramda";
 
 import { Node } from "./node";
@@ -254,18 +254,22 @@ interface CSV extends Array<CSVRow> {
   readonly columns: string[];
 }
 
-const fromCSV: (data: CSV) => DataFrame<Node>
-  = (data: CSV): DataFrame<Node> => {
+const fromCSV: (data: DSVRowArray<string>) => DataFrame<Node>
+  = (data: DSVRowArray<string>): DataFrame<Node> => {
     const seriesIndexName: string = data.columns[0];
-    const seriesIndex: string[] = data.map((row: CSVRow): string => row[seriesIndexName]);
+    const seriesIndex: string[] =
+      data.map((row: DSVRowString<string>, i: number): string =>
+        (row[seriesIndexName] === undefined ? `${i}` : row[seriesIndexName] as string)
+      );
 
     return new DataFrame<Node>(
       data.columns.slice(1)
         .map(
           (col: string): Series<Node> =>
             new Series(
-              data.map((row: CSVRow, i: number): Node => {
-                const data: object | number = JSON.parse(row[col]);
+              data.map((row: DSVRowString<string>, i: number): Node => {
+                const coldata = (row[col] === undefined ? 'null' : row[col] as string);
+                const data: object | number = JSON.parse(coldata);
                 if (typeof data === "number") {
                   return new Node({ name: `${col} and ${seriesIndex[i]}`, data });
                 }
@@ -276,6 +280,7 @@ const fromCSV: (data: CSV) => DataFrame<Node>
         ),
       data.columns.slice(1));
   };
+
 
 const fromArray: <T>(data: T[][]) => DataFrame<T>
   = <T>(data: T[][]): DataFrame<T> =>

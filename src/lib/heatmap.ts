@@ -149,6 +149,15 @@ export class Heatmap {
     return options.cellShape(shape);
   }
 
+  public reorderLabels(data: DataFrame<number>): string[] {
+    const cluster: Node = this.clusterFn(distanceMatrix(data, this.metricFn));
+    return cluster
+      .dendsort()
+      .preorder()
+      .filter((n: Node) => n.isLeaf())
+      .map((n: Node) => n.name);
+  }
+
   public cluster(what: "all" | "columns" | "rows" | "none"): void {
     if (what === "none") {
       return;
@@ -156,22 +165,16 @@ export class Heatmap {
 
     const raw = this.hm.map((n: Node): number => n.data as number);
 
-    if (what == "columns") {
-      const cluster: Node = this.clusterFn(distanceMatrix(raw, this.metricFn));
-      const relabel = cluster
-        .dendsort()
-        .preorder()
-        .filter((n: Node) => n.isLeaf())
-        .map((n: Node) => n.name);
+    if (what == "columns" || what == "all") {
+      const relabel = this.reorderLabels(raw);
       console.log(raw.columns());
       console.log(relabel);
     }
 
-    // Compute distances over rows
-    if (what == "rows") {
-      const cluster: Node
-        = this.clusterFn(distanceMatrix(raw.transpose(), this.metricFn));
-      cluster.dendsort();
+    if (what == "rows" || what == "all") {
+      const relabel = this.reorderLabels(raw.transpose());
+      console.log(raw.rows());
+      console.log(relabel);
     }
   }
 

@@ -1,6 +1,8 @@
+import { csvParse } from "d3";
+
 import { BasicNode } from "./lib/basicNode";
 import * as ColorPalette from "./lib/colorPalette";
-import { CSV, fromCSV } from "./lib/data";
+import { fromCSV } from "./lib/data";
 import { Heatmap } from "./lib/heatmap";
 import { HeatmapSettings } from "./lib/heatmap/settings";
 import { Sunburst } from "./lib/sunburst";
@@ -10,8 +12,8 @@ const sunburst: (data: BasicNode, options?: SunburstSettings) => Sunburst
   = (data: BasicNode, options?: SunburstSettings): Sunburst =>
   new Sunburst(data, new SunburstSettings(options));
 
-const heatmap: (data: CSV, options?: HeatmapSettings) => Heatmap
-  = (data: CSV, options?: HeatmapSettings): Heatmap =>
-  new Heatmap(fromCSV(data), new HeatmapSettings(options));
+const heatmap: (data: string, options?: HeatmapSettings) => Heatmap
+  = (data: string, options?: HeatmapSettings): Heatmap =>
+  new Heatmap(fromCSV(csvParse(data)), new HeatmapSettings(options));
 
 export { ColorPalette, heatmap, sunburst, Sunburst };
