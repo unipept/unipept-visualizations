@@ -1,3 +1,7 @@
+/**
+ * Interactive heatmap visualisation
+ */
+
 import * as d3 from "d3";
 import * as R from "ramda";
 
@@ -9,6 +13,15 @@ import { Tooltip } from "./tooltip";
 import { distanceMatrix, Metric } from "./metric";
 import { Cluster } from "./cluster";
 
+/**
+ * A heatmap visualisation displaying a coloured heatmap
+ * from CSV data. CSV may contain numbers or JSON with
+ * a "data" member that is a number (and can be mapped
+ * to the Node class).
+ *
+ * This visualisation relies heavily on the DataFrame
+ * class to abstract operations on the data.
+ */
 export class Heatmap {
   private hm: DataFrame<Node>;
 
@@ -21,6 +34,15 @@ export class Heatmap {
   public readonly metricFn: Metric;
   public readonly clusterFn: Cluster;
 
+  /**
+   * This visualisation is minimally interactive. Only tooltips and "clustering"
+   * functionality are interactive.
+   *
+   * @param data A dataframe containing data to visualise. Elements of the
+   *             heatmap are coloured based on the numerical value in
+   *             Node.data and labeled based on Node.name.
+   * @param options User supplied options. See [[HeatmapSettings]] for details.
+   */
   public constructor(data: DataFrame<Node>,
                      options: HeatmapSettings = HeatmapSettings.defaults()) {
     this.value = R.lens(options.dataAccessor, options.dataModifier);
@@ -52,6 +74,10 @@ export class Heatmap {
     this.draw(svgNode, tooltip, options);
   }
 
+  /**
+   * Top-level control of SVG drawing
+   * This should only be called once.
+   */
   public draw(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
               tooltip: Optional<Tooltip>,
               options: HeatmapSettings): void {
@@ -59,6 +85,9 @@ export class Heatmap {
     this.drawLabels(svg, options);
   }
 
+  /**
+   * Draw a grid of rectangles based on the provided data
+   */
   public drawGrid(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
                   tooltip: Optional<Tooltip>,
                   options: HeatmapSettings): void {
@@ -84,6 +113,9 @@ export class Heatmap {
     }
   }
 
+  /**
+   * Draw column and row labels in the SVG
+   */
   public drawLabels(svg: d3.Selection<SVGSVGElement, undefined, null, undefined>,
                     options: HeatmapSettings): void {
     const hmShape: [number, number] = this.hm.shape();
@@ -128,6 +160,9 @@ export class Heatmap {
       .text(R.identity);
   }
 
+  /**
+   * Create an SVG node to place inside the parent HTML node.
+   */
   private static createSVG(width: number, height: number)
   : d3.Selection<SVGSVGElement, undefined, null, undefined> {
     return d3.create("svg")
@@ -141,7 +176,14 @@ export class Heatmap {
       .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
   }
 
-  // [width, height]
+  /**
+   * Compute the shape of a heatmap element based on the SVG shape
+   * and the number of rows and columns
+   *
+   * @param options User supplied options. See [[HeatmapSettings]] for details.
+   * @param hm The number of [rows, columns] in the data
+   * @return The `[width, height]` of the heatmap elements to display.
+   */
   public static cellShape(options: HeatmapSettings,
                           hm: [number, number]): [number, number] {
     const width: number = options.width - options.textWidth
@@ -159,7 +201,15 @@ export class Heatmap {
     return options.cellShape(shape);
   }
 
-  public animateRows(labels: string[], delay: number): void {
+  /**
+   * Animate re-ordering of rows
+   *
+   * @param labels The labels in the required (final) ordering.
+   *               These labels should exactly match those already
+   *               displayed.
+   * @param delay A delay before performing the animation.
+   */
+  public animateRows(labels: string[], delay: number = 0): void {
     const centre = Math.max((this.cellShape[1] - this.fontSize) / 2, 0);
     const cell = this.cellShape[1] + this.padding;
 
@@ -178,7 +228,15 @@ export class Heatmap {
     });
   }
 
-  public animateCols(labels: string[]): void {
+  /**
+   * Animate re-ordering of columns
+   *
+   * @param labels The labels in the required (final) ordering.
+   *               These labels should exactly match those already
+   *               displayed.
+   * @param delay A delay before performing the animation.
+   */
+  public animateCols(labels: string[], delay = 0): void {
     const hmShape = this.hm.shape();
     const textStart =
       this.cellShape[1] * hmShape[0] + this.padding * (hmShape[0] - 1) + this.textPadding;
@@ -188,11 +246,13 @@ export class Heatmap {
     labels.forEach((label: string, i: number) => {
       d3.selectAll(`.col-${label}`)
         .transition()
+        .delay(delay)
         .duration(this.animateDuration / 2)
         .attr("x", () => i * this.cellShape[0] + i * this.padding);
 
       d3.selectAll(`.col-label-${label}`)
         .transition()
+        .delay(delay)
         .duration(this.animateDuration / 2)
         .attr("x", (): number => cell * i + centre)
         .attr("transform", (): string =>
@@ -200,6 +260,12 @@ export class Heatmap {
     });
   }
 
+  /**
+   * Cluster and sort by rows in a dataframe and return the new row ordering.
+   *
+   * @param data The dataframe to use for clustering
+   * @return The re-ordered row labels
+   */
   public reorderLabels(data: DataFrame<number>): string[] {
     const cluster: Node = this.clusterFn(distanceMatrix(data, this.metricFn));
     return cluster
@@ -209,6 +275,12 @@ export class Heatmap {
       .map((n: Node) => n.name);
   }
 
+  /**
+   * Top level method for controlling the clustering functionality
+   * Cluster data in the heatmap then animate the transition.
+   *
+   * @param what What to cluster. "all" means both columns and rows.
+   */
   public cluster(what: "all" | "columns" | "rows" | "none"): void {
     if (what === "none") {
       return;
