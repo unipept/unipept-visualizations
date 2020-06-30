@@ -12,11 +12,11 @@
         <button id="cluster">Cluster!</button>
 
         <script>
-          fetch('data/random_data_small.csv')
+          fetch('data/random_data.csv')
             .then((response) => response.text())
             .then((csv) => {
               const thisHeatmap = heatmap(csv, {
-                parent: '#heatmap'
+                parent: '#heatmap',
               });
 
               const button = document.querySelector('button#cluster');

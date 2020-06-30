@@ -159,24 +159,29 @@ export class Heatmap {
     return options.cellShape(shape);
   }
 
-  public animateRows(labels: string[]): void {
+  public animateRows(labels: string[], delay: number): void {
     const centre = Math.max((this.cellShape[1] - this.fontSize) / 2, 0);
     const cell = this.cellShape[1] + this.padding;
 
     labels.forEach((label: string, i: number) => {
       d3.selectAll(`.row-${label}`)
         .transition()
+        .delay(delay)
         .duration(this.animateDuration / 2)
         .attr("y", () => i * this.cellShape[1] + i * this.padding);
 
       d3.selectAll(`.row-label-${label}`)
         .transition()
+        .delay(delay)
         .duration(this.animateDuration / 2)
         .attr("y", (): number => cell * i + centre);
     });
   }
 
   public animateCols(labels: string[]): void {
+    const hmShape = this.hm.shape();
+    const textStart =
+      this.cellShape[1] * hmShape[0] + this.padding * (hmShape[0] - 1) + this.textPadding;
     const centre = Math.max((this.cellShape[0] - this.fontSize) / 2, 0);
     const cell = this.cellShape[0] + this.padding;
 
@@ -184,12 +189,14 @@ export class Heatmap {
       d3.selectAll(`.col-${label}`)
         .transition()
         .duration(this.animateDuration / 2)
-        .attr("y", () => i * this.cellShape[0] + i * this.padding);
+        .attr("x", () => i * this.cellShape[0] + i * this.padding);
 
-      d3.selectAll(`.row-label-${label}`)
+      d3.selectAll(`.col-label-${label}`)
         .transition()
         .duration(this.animateDuration / 2)
-        .attr("y", (): number => cell * i + centre);
+        .attr("x", (): number => cell * i + centre)
+        .attr("transform", (): string =>
+          `rotate(90, ${cell * i + centre}, ${textStart})`);
     });
   }
 
@@ -208,17 +215,19 @@ export class Heatmap {
     }
 
     const raw = this.hm.map((n: Node): number => n.data as number);
+    const delay = what === "all" ? this.animateDuration / 2 : 0;
 
     if (what == "columns" || what == "all") {
       const relabel = this.reorderLabels(raw);
       this.hm = this.hm.reorderColumns(relabel);
       this.animateCols(relabel);
+      console.log(relabel);
     }
 
     if (what == "rows" || what == "all") {
       const relabel = this.reorderLabels(raw.transpose());
       this.hm = this.hm.reorderRows(relabel);
-      this.animateRows(relabel);
+      this.animateRows(relabel, delay);
     }
   }
 }
