@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "module": "es6",
+    "target": "es6",
+    "jsx": "react",
+    "allowJs": false,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "types": ["d3", "node"]
+  }
+}

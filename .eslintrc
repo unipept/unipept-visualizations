@@ -23,7 +23,7 @@
         "quotes": ["error", "double"],
         "new-cap": "off",
         "no-invalid-this": "off",
-        "no-console": "off",
+        "no-console": "off"
     },
     "env": {
         "browser": true
