@@ -5,5 +5,4 @@ export default class DataNode {
         public children: DataNode[] = [],
         public data: any = {}
     ) {}
-
 }

@@ -12,7 +12,19 @@
 
         <script>
             d3.json("data/taxonomy.json").then(data => {
-                const sunburst = new UnipeptVisualizations.Sunburst(document.getElementById("d3Sunburst"), data);
+                const sunburst = new UnipeptVisualizations.Sunburst(
+                    document.getElementById("d3Sunburst"),
+                    data,
+                    {
+                        getTooltipText: (d) => {
+                            let numberFormat = d3.format(",d");
+                            return numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") +
+                                " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
+                        },
+                        width: 600,
+                        height: 600
+                    }
+                );
             });
         </script>
     </body>
