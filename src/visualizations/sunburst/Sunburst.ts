@@ -23,9 +23,9 @@ export default class Sunburst {
     private xScale: d3.ScaleLinear<number, number, never>;
     private yScale: d3.ScaleLinear<number, number, never>;
 
-    private path: any;
-    private text: any;
-    private arc: any;
+    private path!: d3.Selection<SVGPathElement, HRN<DataNode>, SVGGElement, unknown>;
+    private text!: d3.Selection<any, HRN<DataNode>, SVGGElement, unknown>;
+    private arc!: d3.Arc<any, HRN<DataNode>>;
 
     constructor(
         private element: HTMLElement,
