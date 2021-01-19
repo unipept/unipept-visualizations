@@ -43,6 +43,8 @@ export default class Sunburst {
             this.tooltip = TooltipUtilities.initTooltip(this.element.id);
         }
 
+        this.currentMaxLevel = this.settings.levels;
+
         this.xScale = d3.scaleLinear().range([0, 2 * Math.PI]); // use full circle
         this.yScale = d3.scaleLinear().domain([0, 1]).range([0, this.settings.radius]);
 

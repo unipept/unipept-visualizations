@@ -1,4 +1,4 @@
-export default class ColorPalettes {
+export default class ColorPalette {
     public static readonly DEFAULT_COLORS = [
         "#f9f0ab",
         "#e8e596",

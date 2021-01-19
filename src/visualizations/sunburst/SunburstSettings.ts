@@ -1,11 +1,16 @@
 import Settings from "./../../Settings";
 import DataNode from "./../../DataNode";
-import ColorPalettes from "./../../color/ColorPalettes";
+import ColorPalette from "./../../color/ColorPalette";
 
 export default class SunburstSettings extends Settings {
-    // Radius of the center sunburst node
+    /**
+     * Radius size of the sunburst visualization (in pixels).
+     */
     radius: number = 300;
 
+    /**
+     * Amount of pixels that are reserved for the breadcrumbs (to the right of the sunburst visualization itself).
+     */
     breadcrumbWidth: number = 200;
 
     /**
@@ -13,27 +18,48 @@ export default class SunburstSettings extends Settings {
      */
     className: string = 'sunburst';
 
+    /**
+     * Should the colors that are used to mark nodes be based upon the label-names? (I.e. if this is enabled, all nodes
+     * with the same label, will receive the same color).
+     */
     useFixedColors: boolean = false;
 
-    colorPalette: string[] = ColorPalettes.DEFAULT_COLORS;
+    /**
+     * Default color palette that should be used for the node colors. Use one of the predefined palettes from the
+     * ColorPalette-class if you don't feel inspired.
+     */
+    colorPalette: string[] = ColorPalette.DEFAULT_COLORS;
 
-    // Color palette that should be used when the "use fixed colors" option is enabled
-    fixedColorPalette: string[] = ColorPalettes.FIXED_COLORS;
+    /**
+     * Color palette that should be used if the useFixedColors option is enabled.
+     */
+    fixedColorPalette: string[] = ColorPalette.FIXED_COLORS;
 
+    /**
+     * Should breadcrumbs be shown to the right of the sunburst visualization?
+     */
     enableBreadcrumbs: boolean = true;
+
+    /**
+     * With how many levels can the user interact in the sunburst visualization?
+     */
+    levels: number = 4;
 
     /**
      * Returns the value of the given data node that should be used to count the occurrences of this node.
      *
-     * @param node
+     * @param node The node for which the count value should be returned.
      */
     countAccessor: (node: DataNode) => number = (node: DataNode) => node.data.self_count;
 
+    /**
+     * Callback that's called whenever the user clicks on a node in the visualization.
+     */
     rerootCallback: (node: DataNode) => void = () => {};
 
-    levels: number = 4;
-
-    // How lang should the animation take (in milliseconds)
+    /**
+     * How long should the sunburst visualization animation take (in milliseconds)?
+     */
     animationDuration: number = 1000;
 
     /**
