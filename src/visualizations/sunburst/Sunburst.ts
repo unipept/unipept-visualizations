@@ -8,10 +8,11 @@ import StringUtils from "./../../utilities/StringUtils";
 import NodeUtils from "./../../utilities/NodeUtils";
 import ColorUtils from "./../../color/ColorUtils";
 
-export default class Sunburst {
-    private settings: SunburstSettings;
+type HRN<T> = d3.HierarchyRectangularNode<T>;
 
-    private data: d3.HierarchyRectangularNode<DataNode>[];
+export default class Sunburst {
+    private readonly settings: SunburstSettings;
+    private readonly data: HRN<DataNode>[];
 
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private breadCrumbs!: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
@@ -21,8 +22,6 @@ export default class Sunburst {
 
     private xScale: d3.ScaleLinear<number, number, never>;
     private yScale: d3.ScaleLinear<number, number, never>;
-
-    private visGElement: any;
 
     private path: any;
     private text: any;
@@ -55,7 +54,11 @@ export default class Sunburst {
         const partition = d3.partition<DataNode>();
         this.data = partition(rootNode).descendants();
 
-        this.arc = this.createArc(this.xScale, this.yScale)
+        this.arc = d3.arc<HRN<DataNode>>()
+            .startAngle((d: HRN<DataNode>) => Math.max(0, Math.min(Math.PI * 2, this.xScale(d.x0))))
+            .endAngle((d: HRN<DataNode>) => Math.max(0, Math.min(Math.PI * 2, this.xScale(d.x1))))
+            .innerRadius((d: HRN<DataNode>) => Math.max(0, d.y0 ? this.yScale(d.y0) : d.y0))
+            .outerRadius((d: HRN<DataNode>) => Math.max(0, this.yScale(d.y1) + 1));
 
         this.initCss();
 
@@ -64,11 +67,6 @@ export default class Sunburst {
 
         // Fake click on the center node
         setTimeout(() => this.reset(), 1000);
-    }
-
-    public getCount(node: d3.HierarchyRectangularNode<DataNode>): number {
-        const valueOfChildren = node.children ? node.children.reduce((acc, x) => acc + this.getCount(x), 0) : 0;
-        return valueOfChildren + node.data.data.valid_taxon ? node.data.data.self_count : 0;
     }
 
     public reset() {
@@ -80,7 +78,7 @@ export default class Sunburst {
         return Object.assign(output, options);
     }
 
-    private maxY(d: d3.HierarchyRectangularNode<DataNode>): number {
+    private maxY(d: HRN<DataNode>): number {
         return d.children ? Math.max(...d.children!.map((i) => this.maxY(i))) : d.y1;
     }
 
@@ -93,8 +91,6 @@ export default class Sunburst {
             .attr("id", this.element.id + "-breadcrumbs")
             .attr("class", "sunburst-breadcrumbs")
             .append("ul");
-
-        this.currentMaxLevel = 4;
 
         const visElement = d3.select("#" + this.element.id)
             .append("svg")
@@ -110,41 +106,42 @@ export default class Sunburst {
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
-        this.visGElement = visElement.append("g")
+        const visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
 
-        this.path = this.visGElement.selectAll("path").data(this.data);
-        this.path = this.path.enter().append("path")
+        this.path = visGElement.selectAll("path")
+            .data(this.data)
+            .enter()
+            .append("path")
             .attr("class", "arc")
-            .attr("id", (d: d3.HierarchyRectangularNode<DataNode>, i: number) => "path-" + i) // id based on index
+            .attr("id", (d: HRN<DataNode>, i: number) => "path-" + i) // id based on index
             .attr("d", this.arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
-            .style("fill", (d: d3.HierarchyRectangularNode<DataNode>) => this.color(d.data)) // call function for colour
-            .on("click", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => {
+            .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
+            .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
                 if (d.depth < this.currentMaxLevel) {
                     this.click(d);
                 }
             })
-            .on("mouseover", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => this.tooltipIn(event, d))
-            .on("mousemove", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => this.tooltipMove(event, d as d3.HierarchyRectangularNode<DataNode>))
-            .on("mouseout", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => this.tooltipOut(event, d as d3.HierarchyRectangularNode<DataNode>));
+            .on("mouseover", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipIn(event, d))
+            .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d as HRN<DataNode>))
+            .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d as HRN<DataNode>));
 
         // put labels on the nodes
-        this.text = this.visGElement.selectAll("text").data(this.data);
+        this.text = visGElement.selectAll("text").data(this.data);
 
         // hack for the getComputedTextLength
         let that = this;
 
         this.text = this.text.enter().append("text")
-            .style("fill", (d: d3.HierarchyRectangularNode<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
-            .text((d: d3.HierarchyRectangularNode<DataNode>) => this.settings.getLabel(d.data))
-            .style("font-size", function (d: d3.HierarchyRectangularNode<DataNode>) {
-                //@ts-ignore
+            .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
+            .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
             });
     }
@@ -160,7 +157,11 @@ export default class Sunburst {
             return "white";
         }
         if (this.settings.useFixedColors) {
-            return this.settings.fixedColorPalette[Math.abs(StringUtils.stringHash(d.name + " " + d.data.rank)) % this.settings.fixedColorPalette.length];
+            return this.settings.fixedColorPalette[
+                Math.abs(
+                    StringUtils.stringHash(d.name + " " + d.data.rank)
+                ) % this.settings.fixedColorPalette.length
+            ];
         } else {
             if (d.children.length > 0) {
                 const colours: string[] = d.children.map(c => this.color(c));
@@ -236,30 +237,21 @@ export default class Sunburst {
         document.head.appendChild(styleElement);
     }
 
-    private createArc(
-        x: d3.ScaleLinear<number, number>,
-        y: d3.ScaleLinear<number, number>
-    ): d3.ValueFn<SVGPathElement, d3.HierarchyRectangularNode<DataNode>, string | null> {
-        return d3.arc<d3.HierarchyRectangularNode<DataNode>>()
-            .startAngle((d: d3.HierarchyRectangularNode<DataNode>) => Math.max(0, Math.min(Math.PI * 2, x(d.x0))))
-            .endAngle((d: d3.HierarchyRectangularNode<DataNode>) => Math.max(0, Math.min(Math.PI * 2, x(d.x1))))
-            .innerRadius((d: d3.HierarchyRectangularNode<DataNode>) => Math.max(0, d.y0 ? this.yScale(d.y0) : d.y0))
-            .outerRadius((d: d3.HierarchyRectangularNode<DataNode>) => Math.max(0, y(d.y1) + 1));
-    }
-
     /**
      * Interpolate the scales! Defines new scales based on the clicked item.
      *
      * @param d The clicked item
      * @return new scales
      */
-    private arcTween(d: d3.HierarchyRectangularNode<DataNode>, that: any): any {
+    private arcTween(d: HRN<DataNode>, that: any): any {
         let my = Math.min(this.maxY(d), d.y0 + that.settings.levels * (d.y1 - d.y0)),
             xd = d3.interpolate(that.xScale.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(that.yScale.domain(), [d.y0, my]),
             yr = d3.interpolate(that.yScale.range(), [d.y0 ? 20 : 0, that.settings.radius]);
 
-        return (d: d3.HierarchyRectangularNode<DataNode>) => {
+        return (d: HRN<DataNode>) => {
+            // Return a function that takes in a timing (between 0 and 1) and returns the current arc that corresponds
+            // with this timing.
             return (t: number) => {
                 that.xScale.domain(xd(t));
                 that.yScale.domain(yd(t)).range(yr(t));
@@ -269,7 +261,7 @@ export default class Sunburst {
     }
 
 
-    private tooltipIn(event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) {
+    private tooltipIn(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             if (d.depth < this.currentMaxLevel && d.data.name !== "empty") {
                 this.tooltip.html(this.settings.getTooltip(d.data))
@@ -280,7 +272,7 @@ export default class Sunburst {
         }
     }
 
-    private tooltipMove(event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) {
+    private tooltipMove(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
                 .style("top", (event.pageY + 10) + "px")
@@ -288,7 +280,7 @@ export default class Sunburst {
         }
     }
 
-    private tooltipOut(event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) {
+    private tooltipOut(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");
         }
@@ -299,7 +291,7 @@ export default class Sunburst {
      *
      * @param d The data object of the clicked arc
      */
-    private click(d: d3.HierarchyRectangularNode<DataNode>) {
+    private click(d: HRN<DataNode>) {
         if (d.data.name === "empty") {
             return;
         }
@@ -317,79 +309,83 @@ export default class Sunburst {
         this.path.transition()
             .duration(this.settings.animationDuration)
             .attrTween("d", this.arcTween(d, this))
-            .attr("class", (d: d3.HierarchyRectangularNode<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
-            .attr("fill-opacity", (d: d3.HierarchyRectangularNode<DataNode>) => d.depth >= this.currentMaxLevel ? 0.2 : 1);
+            .attr("class", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
+            .attr("fill-opacity", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? 0.2 : 1);
 
         const that = this;
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
         this.text
-            .style("visibility", function (e: d3.HierarchyRectangularNode<DataNode>) {
-                // @ts-ignore
+            .style("visibility", function (this: SVGTextContentElement, e: HRN<DataNode>) {
                 return NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? null : d3.select(this).style("visibility");
             })
             .transition().duration(this.settings.animationDuration)
-            .attrTween("text-anchor", (d: d3.HierarchyRectangularNode<DataNode>) => {
+            .attrTween("text-anchor", (d: HRN<DataNode>) => {
                 return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
             })
-            .attrTween("dx", (d: d3.HierarchyRectangularNode<DataNode>) => {
+            .attrTween("dx", (d: HRN<DataNode>) => {
                 return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
             })
-            .attrTween("transform", (d: d3.HierarchyRectangularNode<DataNode>) => {
+            .attrTween("transform", (d: HRN<DataNode>) => {
                 return (t: number) => {
                     let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
                     return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
                 }
             })
-            .style("fill-opacity", (e: d3.HierarchyRectangularNode<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 1e-6)
-            .on("end", function (e: d3.HierarchyRectangularNode<DataNode>) {
-                // @ts-ignore
-                d3.select(this).style("visibility", NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? null : "hidden");
+            .style("fill-opacity", (e: HRN<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 1e-6)
+            .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                d3.select(this).style(
+                    "visibility",
+                    NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? "visible" : "hidden"
+                );
             });
     }
 
-    public setBreadcrumbs(d: d3.HierarchyRectangularNode<DataNode>) {
-        // breadcrumbs
-        let crumbs: d3.HierarchyRectangularNode<DataNode>[] = [];
-        let temp: (d3.HierarchyRectangularNode<DataNode> | null) = d;
+    public setBreadcrumbs(d: HRN<DataNode>) {
+        // First find out which nodes we encounter on the path from the root node to the clicked node.
+        let crumbs: HRN<DataNode>[] = [];
+        let temp: (HRN<DataNode> | null) = d;
+
         while (temp) {
             crumbs.push(temp);
             temp = temp.parent;
         }
         crumbs.reverse().shift();
-        const breadArc = d3.arc()
+
+        // Small arc that's drawn for each of the breadcrumbs
+        const breadArc: any = d3.arc()
             .innerRadius(0)
             .outerRadius(15)
             .startAngle(0)
-            // @ts-ignore
-            .endAngle((d: d3.HierarchyRectangularNode<DataNode>) => {
+            .endAngle((d: any) => {
                 return 2 * Math.PI * d.data.data.count / d.parent!.data.data.count
             });
+
         this.breadCrumbs.selectAll(".crumb")
             .data(crumbs)
             .enter()
             .append("li")
-            .on("click", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => {
+            .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
                 this.click(d.parent!);
             })
             .attr("class", "crumb")
             .style("opacity", "0")
-            .attr("title", (d: d3.HierarchyRectangularNode<DataNode>) => this.settings.getTitleText(d.data))
-            .html((d: d3.HierarchyRectangularNode<DataNode>) => `
+            .attr("title", (d: HRN<DataNode>) => this.settings.getTitleText(d.data))
+            .html((d: HRN<DataNode>) => `
 <p class='name'>${d.data.name}</p>
 <p class='percentage'>${Math.round(100 * d.data.data.count / d.parent?.data.data.count)}% of ${d.parent?.data.name}</p>`)
             .insert("svg", ":first-child").attr("width", 30)
             .attr("height", 30)
             .append("path")
-            //@ts-ignore
             .attr("d", breadArc)
             .attr("transform", "translate(15, 15)")
-            .attr("fill", (d: d3.HierarchyRectangularNode<DataNode>) => this.color(d.data));
+            .attr("fill", (d: HRN<DataNode>) => this.color(d.data));
 
         this.breadCrumbs.selectAll(".crumb")
             .transition()
             .duration(this.settings.animationDuration)
             .style("opacity", "1");
+
         this.breadCrumbs.selectAll(".crumb")
             .data(crumbs)
             .exit().transition()

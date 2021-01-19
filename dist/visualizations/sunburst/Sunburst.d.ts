@@ -1,22 +1,21 @@
 import * as d3 from "d3";
 import SunburstSettings from "./SunburstSettings";
 import DataNode from "./../../DataNode";
+declare type HRN<T> = d3.HierarchyRectangularNode<T>;
 export default class Sunburst {
     private element;
-    private settings;
-    private data;
+    private readonly settings;
+    private readonly data;
     private tooltip;
     private breadCrumbs;
     private colorCounter;
     private currentMaxLevel;
     private xScale;
     private yScale;
-    private visGElement;
     private path;
     private text;
     private arc;
     constructor(element: HTMLElement, data: DataNode, options?: SunburstSettings);
-    getCount(node: d3.HierarchyRectangularNode<DataNode>): number;
     reset(): void;
     private fillOptions;
     private maxY;
@@ -35,7 +34,6 @@ export default class Sunburst {
      */
     private getColor;
     private initCss;
-    private createArc;
     /**
      * Interpolate the scales! Defines new scales based on the clicked item.
      *
@@ -52,5 +50,6 @@ export default class Sunburst {
      * @param d The data object of the clicked arc
      */
     private click;
-    setBreadcrumbs(d: d3.HierarchyRectangularNode<DataNode>): void;
+    setBreadcrumbs(d: HRN<DataNode>): void;
 }
+export {};
