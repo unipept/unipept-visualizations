@@ -142,10 +142,9 @@ export default class Sunburst {
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
-            .text(this.settings.getLabel)
-            // @ts-ignore
+            .text((d: d3.HierarchyRectangularNode<DataNode>) => this.settings.getLabel(d.data))
             .style("font-size", function (d: d3.HierarchyRectangularNode<DataNode>) {
-                // @ts-ignores
+                //@ts-ignore
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
             });
     }
@@ -331,14 +330,16 @@ export default class Sunburst {
             })
             .transition().duration(this.settings.animationDuration)
             .attrTween("text-anchor", (d: d3.HierarchyRectangularNode<DataNode>) => {
-                return this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
+                return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
             })
             .attrTween("dx", (d: d3.HierarchyRectangularNode<DataNode>) => {
-                return this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
+                return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
             })
             .attrTween("transform", (d: d3.HierarchyRectangularNode<DataNode>) => {
-                let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
-                return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
+                return (t: number) => {
+                    let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
+                    return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
+                }
             })
             .style("fill-opacity", (e: d3.HierarchyRectangularNode<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 1e-6)
             .on("end", function (e: d3.HierarchyRectangularNode<DataNode>) {
@@ -349,7 +350,7 @@ export default class Sunburst {
 
     public setBreadcrumbs(d: d3.HierarchyRectangularNode<DataNode>) {
         // breadcrumbs
-        let crumbs = [];
+        let crumbs: d3.HierarchyRectangularNode<DataNode>[] = [];
         let temp: (d3.HierarchyRectangularNode<DataNode> | null) = d;
         while (temp) {
             crumbs.push(temp);
@@ -360,17 +361,16 @@ export default class Sunburst {
             .innerRadius(0)
             .outerRadius(15)
             .startAngle(0)
-            .endAngle(d => {
-                console.log(d);
-                return 1;
+            // @ts-ignore
+            .endAngle((d: d3.HierarchyRectangularNode<DataNode>) => {
+                return 2 * Math.PI * d.data.data.count / d.parent!.data.data.count
             });
-            // .endAngle(d => 2 * Math.PI * d.data.data.count / d.parent.data.count);
-        const bc = this.breadCrumbs.selectAll(".crumb")
-            .data(crumbs);
-        bc.enter()
+        this.breadCrumbs.selectAll(".crumb")
+            .data(crumbs)
+            .enter()
             .append("li")
-            .on("click", d => {
-                this.click(d.parent);
+            .on("click", (event: MouseEvent, d: d3.HierarchyRectangularNode<DataNode>) => {
+                this.click(d.parent!);
             })
             .attr("class", "crumb")
             .style("opacity", "0")
@@ -378,13 +378,21 @@ export default class Sunburst {
             .html((d: d3.HierarchyRectangularNode<DataNode>) => `
 <p class='name'>${d.data.name}</p>
 <p class='percentage'>${Math.round(100 * d.data.data.count / d.parent?.data.data.count)}% of ${d.parent?.data.name}</p>`)
-            .insert("svg", ":first-child").attr("width", 30).attr("height", 30)
+            .insert("svg", ":first-child").attr("width", 30)
+            .attr("height", 30)
+            .append("path")
             //@ts-ignore
-            .append("path").attr("d", breadArc).attr("transform", "translate(15, 15)").attr("fill", (d: d3.HierarchyRectangularNode<DataNode>) => this.color(d.data));
-        bc.transition()
+            .attr("d", breadArc)
+            .attr("transform", "translate(15, 15)")
+            .attr("fill", (d: d3.HierarchyRectangularNode<DataNode>) => this.color(d.data));
+
+        this.breadCrumbs.selectAll(".crumb")
+            .transition()
             .duration(this.settings.animationDuration)
             .style("opacity", "1");
-        bc.exit().transition()
+        this.breadCrumbs.selectAll(".crumb")
+            .data(crumbs)
+            .exit().transition()
             .duration(this.settings.animationDuration)
             .style("opacity", "0")
             .remove();
