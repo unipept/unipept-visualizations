@@ -15,6 +15,7 @@ export default class Sunburst {
     private path;
     private text;
     private arc;
+    private visGElement;
     constructor(element: HTMLElement, data: DataNode, options?: SunburstSettings);
     reset(): void;
     private fillOptions;

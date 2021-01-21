@@ -11,7 +11,7 @@
         <div id="d3Sunburst"></div>
 
         <script>
-            d3.json("data/taxonomy.json").then(data => {
+            d3.json("data/large.json").then(data => {
                 const sunburst = new UnipeptVisualizations.Sunburst(
                     document.getElementById("d3Sunburst"),
                     data,
@@ -22,9 +22,12 @@
                                 " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
                         },
                         width: 600,
-                        height: 600
+                        height: 600,
+                        fixedColors: true
                     }
                 );
+
+                const end = new Date().getTime();
             });
         </script>
     </body>

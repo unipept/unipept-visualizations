@@ -27,6 +27,8 @@ export default class Sunburst {
     private text!: d3.Selection<any, HRN<DataNode>, SVGGElement, unknown>;
     private arc!: d3.Arc<any, HRN<DataNode>>;
 
+    private visGElement: any;
+
     constructor(
         private element: HTMLElement,
         data: DataNode,
@@ -108,11 +110,11 @@ export default class Sunburst {
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
-        const visGElement = visElement.append("g")
+        this.visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
 
-        this.path = visGElement.selectAll("path")
+        this.path = this.visGElement.selectAll("path")
             .data(this.data)
             .enter()
             .append("path")
@@ -131,21 +133,30 @@ export default class Sunburst {
             .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d as HRN<DataNode>));
 
         // put labels on the nodes
-        this.text = visGElement.selectAll("text").data(this.data);
-
-        // hack for the getComputedTextLength
-        let that = this;
-
-        this.text = this.text.enter().append("text")
-            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
-            .style("fill-opacity", 0)
-            .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
-            .style("pointer-events", "none") // don't invoke mouse events
-            .attr("dy", ".2em")
-            .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
-            .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
-                return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / this.getComputedTextLength() * 10) + 1, 12)) + "px";
-            });
+        // this.text = visGElement.selectAll("text").data(this.data);
+        //
+        // // hack for the getComputedTextLength
+        // let that = this;
+        //
+        // const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
+        // let ctx: OffscreenCanvasRenderingContext2D;
+        // if (offscreenCanvasSupported) {
+        //     const offscreenCanvas = new OffscreenCanvas(1, 1);
+        //     ctx = offscreenCanvas.getContext("2d")!;
+        //     ctx.font = ctx!.font = `16px 'Helvetica Neue', Helvetica, Arial, sans-serif`
+        // }
+        //
+        // this.text = this.text.enter().append("text")
+        //     .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+        //     .style("fill-opacity", 0)
+        //     .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
+        //     .style("pointer-events", "none") // don't invoke mouse events
+        //     .attr("dy", ".2em")
+        //     .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
+        //     .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
+        //         const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
+        //         return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
+        //     });
     }
 
     /**
@@ -314,7 +325,36 @@ export default class Sunburst {
             .attr("class", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
             .attr("fill-opacity", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? 0.2 : 1);
 
+        const filteredData = this.data.filter((e: HRN<DataNode>) => {
+            return NodeUtils.isParentOf(d, e, this.currentMaxLevel);
+        });
+
+        // hack for the getComputedTextLength
         const that = this;
+
+        const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
+        let ctx: OffscreenCanvasRenderingContext2D;
+        if (offscreenCanvasSupported) {
+            const offscreenCanvas = new OffscreenCanvas(1, 1);
+            ctx = offscreenCanvas.getContext("2d")!;
+            ctx.font = ctx!.font = `16px 'Helvetica Neue', Helvetica, Arial, sans-serif`
+        }
+
+        // Remove old text nodes
+        this.visGElement.selectAll("text").data([]).exit().remove();
+
+        // Add new text nodes
+        this.text = this.visGElement.selectAll("text").data(filteredData).enter().append("text")
+            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+            .style("fill-opacity", 0)
+            .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
+            .style("pointer-events", "none") // don't invoke mouse events
+            .attr("dy", ".2em")
+            .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
+            .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
+                const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
+                return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
+            });
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
         this.text
@@ -334,11 +374,24 @@ export default class Sunburst {
                     return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
                 }
             })
-            .style("fill-opacity", (e: HRN<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 1e-6)
+            .style("fill-opacity", (e: HRN<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 0)
             .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
-                d3.select(this).style(
+                const circumference = 2 * Math.max(0, that.yScale(e.y1) + 1) * Math.PI;
+                // Difference in radians between the start and end of the angle.
+                const difference = Math.max(
+                    0,
+                    Math.min(Math.PI * 2, that.xScale(e.x1)) -
+                    Math.max(0, Math.min(Math.PI * 2, that.xScale(e.x0)))
+                );
+
+                // Since an angle of 360 degrees corresponds to 2 * Pi radians, we can convert this angle difference to
+                // pixels if we compute (difference / (2 * Pi)) * circumference_in_pixels
+                const availableSpace = circumference * (difference / (2 * Math.PI));
+                const node = d3.select(this);
+
+                node.style(
                     "visibility",
-                    NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? "visible" : "hidden"
+                    availableSpace > Number.parseInt(node.style("font-size").replace("px", "")) ? "visible" : "hidden"
                 );
             });
     }
