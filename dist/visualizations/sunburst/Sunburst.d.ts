@@ -1,6 +1,8 @@
 import * as d3 from "d3";
 import SunburstSettings from "./SunburstSettings";
 import DataNode from "./../../DataNode";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 declare type HRN<T> = d3.HierarchyRectangularNode<T>;
 export default class Sunburst {
     private element;
@@ -16,11 +18,12 @@ export default class Sunburst {
     private text;
     private arc;
     private visGElement;
+    private arcData;
+    private textData;
     constructor(element: HTMLElement, data: DataNode, options?: SunburstSettings);
     reset(): void;
     private fillOptions;
     private maxY;
-    private redraw;
     /**
      * Calculates the color of an arc based on the color of his children.
      *
@@ -46,11 +49,21 @@ export default class Sunburst {
     private tooltipMove;
     private tooltipOut;
     /**
+     * Compute the amount of vertical space that's available for text (i.e. the maximum text height) for a specific node
+     * in the sunburst visualization.
+     *
+     * @param d The node in the sunburst visualization for which the vertical space should be computed.
+     * @return The available vertical space in pixels.
+     */
+    private computeAvailableSpace;
+    /**
      * Defines what happens after a node is clicked.
      *
      * @param d The data object of the clicked arc
      */
     private click;
+    private renderArcs;
+    private renderText;
     setBreadcrumbs(d: HRN<DataNode>): void;
 }
 export {};

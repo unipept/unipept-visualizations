@@ -8,6 +8,9 @@ import StringUtils from "./../../utilities/StringUtils";
 import NodeUtils from "./../../utilities/NodeUtils";
 import ColorUtils from "./../../color/ColorUtils";
 
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 
 export default class Sunburst {
@@ -15,7 +18,7 @@ export default class Sunburst {
     private readonly data: HRN<DataNode>[];
 
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
-    private breadCrumbs!: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
+    private breadCrumbs: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
 
     private colorCounter: number = -1;
     private currentMaxLevel: number = 4;
@@ -27,7 +30,10 @@ export default class Sunburst {
     private text!: d3.Selection<any, HRN<DataNode>, SVGGElement, unknown>;
     private arc!: d3.Arc<any, HRN<DataNode>>;
 
-    private visGElement: any;
+    private visGElement: d3.Selection<SVGGElement, unknown, HTMLElement, unknown>;
+
+    private arcData: HRN<DataNode>[] = [];
+    private textData: HRN<DataNode>[] = [];
 
     constructor(
         private element: HTMLElement,
@@ -66,30 +72,8 @@ export default class Sunburst {
 
         this.initCss();
 
-        // Draw sunburst
-        this.redraw();
-
-        // Fake click on the center node
-        setTimeout(() => this.reset(), 1000);
-    }
-
-    public reset() {
-        this.click(this.data[0]);
-    }
-
-    private fillOptions(options: any = undefined): SunburstSettings {
-        const output = new SunburstSettings();
-        return Object.assign(output, options);
-    }
-
-    private maxY(d: HRN<DataNode>): number {
-        return d.children ? Math.max(...d.children!.map((i) => this.maxY(i))) : d.y1;
-    }
-
-    private redraw() {
-        // Clear everything
+        // Prepare element and create SVG container
         this.element.innerHTML = "";
-
         this.breadCrumbs = d3.select("#" + this.element.id)
             .append("div")
             .attr("id", this.element.id + "-breadcrumbs")
@@ -114,49 +98,21 @@ export default class Sunburst {
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
 
-        this.path = this.visGElement.selectAll("path")
-            .data(this.data)
-            .enter()
-            .append("path")
-            .attr("class", "arc")
-            .attr("id", (d: HRN<DataNode>, i: number) => "path-" + i) // id based on index
-            .attr("d", this.arc) // path data
-            .attr("fill-rule", "evenodd") // fill rule
-            .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
-            .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
-                if (d.depth < this.currentMaxLevel) {
-                    this.click(d);
-                }
-            })
-            .on("mouseover", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipIn(event, d))
-            .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d as HRN<DataNode>))
-            .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d as HRN<DataNode>));
+        // Fake click on the center node
+        this.reset();
+    }
 
-        // put labels on the nodes
-        // this.text = visGElement.selectAll("text").data(this.data);
-        //
-        // // hack for the getComputedTextLength
-        // let that = this;
-        //
-        // const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
-        // let ctx: OffscreenCanvasRenderingContext2D;
-        // if (offscreenCanvasSupported) {
-        //     const offscreenCanvas = new OffscreenCanvas(1, 1);
-        //     ctx = offscreenCanvas.getContext("2d")!;
-        //     ctx.font = ctx!.font = `16px 'Helvetica Neue', Helvetica, Arial, sans-serif`
-        // }
-        //
-        // this.text = this.text.enter().append("text")
-        //     .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
-        //     .style("fill-opacity", 0)
-        //     .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
-        //     .style("pointer-events", "none") // don't invoke mouse events
-        //     .attr("dy", ".2em")
-        //     .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
-        //     .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
-        //         const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
-        //         return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
-        //     });
+    public reset() {
+        this.click(this.data[0]);
+    }
+
+    private fillOptions(options: any = undefined): SunburstSettings {
+        const output = new SunburstSettings();
+        return Object.assign(output, options);
+    }
+
+    private maxY(d: HRN<DataNode>): number {
+        return d.children ? Math.max(...d.children!.map((i) => this.maxY(i))) : d.y1;
     }
 
     /**
@@ -300,6 +256,27 @@ export default class Sunburst {
     }
 
     /**
+     * Compute the amount of vertical space that's available for text (i.e. the maximum text height) for a specific node
+     * in the sunburst visualization.
+     *
+     * @param d The node in the sunburst visualization for which the vertical space should be computed.
+     * @return The available vertical space in pixels.
+     */
+    private computeAvailableSpace(d: HRN<DataNode>): number {
+        const circumference = 2 * Math.max(0, this.yScale(d.y1) + 1) * Math.PI;
+        // Difference in radians between the start and end of the angle.
+        const difference = Math.max(
+            0,
+            Math.min(Math.PI * 2, this.xScale(d.x1)) -
+            Math.max(0, Math.min(Math.PI * 2, this.xScale(d.x0)))
+        );
+
+        // Since an angle of 360 degrees corresponds to 2 * Pi radians, we can convert this angle difference to
+        // pixels if we compute (difference / (2 * Pi)) * circumference_in_pixels
+        return circumference * (difference / (2 * Math.PI));
+    }
+
+    /**
      * Defines what happens after a node is clicked.
      *
      * @param d The data object of the clicked arc
@@ -319,15 +296,69 @@ export default class Sunburst {
 
         // perform animation
         this.currentMaxLevel = d.depth + this.settings.levels;
-        this.path.transition()
-            .duration(this.settings.animationDuration)
-            .attrTween("d", this.arcTween(d, this))
-            .attr("class", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
-            .attr("fill-opacity", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? 0.2 : 1);
 
+        this.renderArcs(d);
+        this.renderText(d);
+    }
+
+    private async renderArcs(parentNode: HRN<DataNode>) {
+        // The previously rendered nodes should be kept until the animation is over. We should also compute which items
+        // need to be added to the selection.
         const filteredData = this.data.filter((e: HRN<DataNode>) => {
-            return NodeUtils.isParentOf(d, e, this.currentMaxLevel);
+            return NodeUtils.isParentOf(parentNode, e, this.currentMaxLevel + 2);
         });
+
+        if (parentNode.parent) {
+            filteredData.push(parentNode.parent);
+        }
+
+        const newData = filteredData.filter((x: HRN<DataNode>) => !this.arcData.includes(x));
+        const data = this.arcData.concat(...newData);
+
+        this.visGElement.selectAll("path").data([]).exit().remove();
+
+        this.path = this.visGElement.selectAll("path")
+            .data(data)
+            .enter()
+            .insert("path")
+            .attr("class", "arc")
+            .attr("id", (d: HRN<DataNode>, i: number) => "path-" + i) // id based on index
+            .attr("d", this.arc) // path data
+            .attr("fill-rule", "evenodd") // fill rule
+            .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
+            .attr("fill-opacity", d => d.depth >= this.currentMaxLevel ? 0.2 : 1)
+            .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
+                if (d.depth < this.currentMaxLevel) {
+                    this.click(d);
+                }
+            })
+            .on("mouseover", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipIn(event, d))
+            .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d as HRN<DataNode>))
+            .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d as HRN<DataNode>));
+
+        // Wait for the animations to be completed...
+        await new Promise<void>((resolve) => {
+            this.path.transition()
+                .duration(this.settings.animationDuration)
+                .attrTween("d", this.arcTween(parentNode, this))
+                .attr("class", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
+                .on("end", () => resolve());
+        });
+
+        this.arcData = filteredData;
+    }
+
+    private async renderText(parentNode: HRN<DataNode>) {
+        const filteredData = this.data.filter((e: HRN<DataNode>) => {
+            return NodeUtils.isParentOf(parentNode, e, this.currentMaxLevel);
+        });
+
+        const newData = filteredData.filter((x: HRN<DataNode>) => !this.textData.includes(x));
+        const data = this.textData.concat(...newData);
+
+        if (parentNode.parent) {
+            data.splice(data.indexOf(parentNode.parent), 1);
+        }
 
         // hack for the getComputedTextLength
         const that = this;
@@ -344,7 +375,7 @@ export default class Sunburst {
         this.visGElement.selectAll("text").data([]).exit().remove();
 
         // Add new text nodes
-        this.text = this.visGElement.selectAll("text").data(filteredData).enter().append("text")
+        this.text = this.visGElement.selectAll("text").data(data).enter().append("text")
             .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
@@ -357,43 +388,48 @@ export default class Sunburst {
             });
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
-        this.text
-            .style("visibility", function (this: SVGTextContentElement, e: HRN<DataNode>) {
-                return NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? null : d3.select(this).style("visibility");
-            })
-            .transition().duration(this.settings.animationDuration)
-            .attrTween("text-anchor", (d: HRN<DataNode>) => {
-                return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
-            })
-            .attrTween("dx", (d: HRN<DataNode>) => {
-                return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
-            })
-            .attrTween("transform", (d: HRN<DataNode>) => {
-                return (t: number) => {
-                    let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
-                    return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
-                }
-            })
-            .style("fill-opacity", (e: HRN<DataNode>) => NodeUtils.isParentOf(d, e, that.currentMaxLevel) ? 1 : 0)
-            .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
-                const circumference = 2 * Math.max(0, that.yScale(e.y1) + 1) * Math.PI;
-                // Difference in radians between the start and end of the angle.
-                const difference = Math.max(
-                    0,
-                    Math.min(Math.PI * 2, that.xScale(e.x1)) -
-                    Math.max(0, Math.min(Math.PI * 2, that.xScale(e.x0)))
-                );
+        await new Promise<void>((resolve) => {
+            this.text
+                .transition().duration(this.settings.animationDuration)
+                .attrTween("text-anchor", (d: HRN<DataNode>) => {
+                    return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
+                })
+                .attrTween("dx", (d: HRN<DataNode>) => {
+                    return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
+                })
+                .attrTween("transform", (d: HRN<DataNode>) => {
+                    return (t: number) => {
+                        let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
+                        return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
+                    }
+                })
+                .styleTween("fill-opacity", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                    const selectedFontSize = Number.parseInt(d3.select(this).style("font-size").replace("px", ""))
 
-                // Since an angle of 360 degrees corresponds to 2 * Pi radians, we can convert this angle difference to
-                // pixels if we compute (difference / (2 * Pi)) * circumference_in_pixels
-                const availableSpace = circumference * (difference / (2 * Math.PI));
-                const node = d3.select(this);
+                    return (t: number) => {
+                        const availableSpace = that.computeAvailableSpace(e);
 
-                node.style(
-                    "visibility",
-                    availableSpace > Number.parseInt(node.style("font-size").replace("px", "")) ? "visible" : "hidden"
-                );
-            });
+                        if (availableSpace > selectedFontSize) {
+                            return t.toString();
+                        } else {
+                            return "0";
+                        }
+                    }
+                })
+                .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                    const availableSpace = that.computeAvailableSpace(e);
+                    const node = d3.select(this);
+
+                    node.style(
+                        "visibility",
+                        availableSpace > Number.parseInt(node.style("font-size").replace("px", "")) && NodeUtils.isParentOf(parentNode, e, that.currentMaxLevel)  ? "visible" : "hidden"
+                    );
+
+                    resolve();
+                });
+        });
+
+        this.textData = filteredData;
     }
 
     public setBreadcrumbs(d: HRN<DataNode>) {
