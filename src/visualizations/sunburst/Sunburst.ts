@@ -35,6 +35,8 @@ export default class Sunburst {
     private arcData: HRN<DataNode>[] = [];
     private textData: HRN<DataNode>[] = [];
 
+    private previousRoot: HRN<DataNode> | null = null;
+
     constructor(
         private element: HTMLElement,
         data: DataNode,
@@ -282,9 +284,11 @@ export default class Sunburst {
      * @param d The data object of the clicked arc
      */
     private click(d: HRN<DataNode>) {
-        if (d.data.name === "empty") {
+        if (d.data.name === "empty" || (this.previousRoot && this.previousRoot.data.id === d.data.id)) {
             return;
         }
+
+        this.previousRoot = d;
 
         if (this.settings.enableBreadcrumbs) {
             this.setBreadcrumbs(d);

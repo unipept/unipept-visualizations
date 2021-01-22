@@ -20,6 +20,7 @@ export default class Sunburst {
     private visGElement;
     private arcData;
     private textData;
+    private previousRoot;
     constructor(element: HTMLElement, data: DataNode, options?: SunburstSettings);
     reset(): void;
     private fillOptions;
