@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+import { rgb } from "d3";
 
 export default class ColorUtils {
     /*
@@ -7,7 +7,7 @@ export default class ColorUtils {
     public static getReadableColorFor(color: string) {
         let textColor = "#000";
         try {
-            textColor = ColorUtils.brightness(d3.rgb(color)) < 125 ? "#eee" : "#000";
+            textColor = ColorUtils.brightness(rgb(color)) < 125 ? "#eee" : "#000";
         } catch (err) { /* go on */ }
         return textColor;
     }
