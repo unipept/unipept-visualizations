@@ -1,9 +1,7 @@
-import * as d3 from "d3";
 import SunburstSettings from "./SunburstSettings";
 import DataNode from "./../../DataNode";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-declare type HRN<T> = d3.HierarchyRectangularNode<T>;
 export default class Sunburst {
     private element;
     private readonly settings;
@@ -65,6 +63,5 @@ export default class Sunburst {
     private click;
     private renderArcs;
     private renderText;
-    setBreadcrumbs(d: HRN<DataNode>): void;
+    private setBreadcrumbs;
 }
-export {};
