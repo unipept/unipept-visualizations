@@ -10,6 +10,10 @@ export default class Treemap {
     private readonly settings: TreemapSettings;
     private readonly data: HRN<DataNode>[];
 
+    // This is required to find out how a clicked node is related to it's parents (since part of the parent-child
+    // relation is lost when rerooting the tree).
+    private readonly childParentRelations: Map<DataNode, DataNode | undefined> = new Map<DataNode, DataNode>();
+
     private currentRoot: HRN<DataNode>;
 
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
@@ -17,6 +21,9 @@ export default class Treemap {
     private treemap: d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
     private colorScale: d3.ScaleLinear<number, number, never>;
+
+    private partition: d3.TreemapLayout<DataNode>;
+    private nodeId: number = 0;
 
     constructor(
         private element: HTMLElement,
@@ -41,10 +48,14 @@ export default class Treemap {
             this.settings.levels = rootNode.height;
         }
 
-        const partition = d3.treemap<DataNode>();
-        partition.size([this.settings.width + 1, this.settings.height + 1])
+        this.partition = d3.treemap<DataNode>();
+        this.partition.size([this.settings.width + 1, this.settings.height + 1])
             .paddingTop(this.settings.labelHeight);
-        this.data = partition(rootNode).descendants();
+        this.data = this.partition(rootNode).descendants();
+
+        for (const item of this.data) {
+            this.childParentRelations.set(item.data, item.parent?.data);
+        }
 
         this.currentRoot = this.data[0];
 
@@ -129,11 +140,14 @@ export default class Treemap {
 
         this.setBreadcrumbs();
 
-        const nodes = this.treemap.selectAll(".node")
-            .data(this.data);
+        const rootNode = d3.hierarchy<DataNode>(data.data);
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
 
-        // let nodes = treemap.selectAll(".node")
-        //     .data(treemapLayout.nodes(data), d => d.id || (d.id = ++nodeId));
+        let nodes = this.treemap.selectAll<d3.BaseType, HRN<DataNode>>(".node")
+            .data(
+                this.partition(rootNode).descendants(),
+                (d: HRN<DataNode>) => d.data.id || (d.data.id = ++this.nodeId)
+            );
 
         const divNodes = nodes.enter()
             .append("div")
@@ -156,16 +170,18 @@ export default class Treemap {
             .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d))
             .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d));
 
-        divNodes.order()
+        //@ts-ignore
+        divNodes.merge(nodes)
+            .order()
             .transition()
             .call((transition) => {
                 transition.style("left", (d: HRN<DataNode>) => d.x0 + "px");
                 transition.style("top", (d: HRN<DataNode>) => d.y0 + "px");
                 transition.style("width", (d: HRN<DataNode>) => Math.max(0, (d.x1 - d.x0) - 1) + "px");
                 transition.style("height", (d: HRN<DataNode>) => Math.max(0, (d.y1 - d.y0) - 1) + "px");
-            })
+            });
 
-        divNodes.exit().remove();
+        nodes.exit().remove();
 
         if (triggerCallback) {
             this.settings.rerootCallback(this.currentRoot.data)
@@ -181,13 +197,15 @@ export default class Treemap {
     // }
 
     private setBreadcrumbs() {
-        let crumbs: HRN<DataNode>[] = [];
-        let temp: HRN<DataNode> | null = this.currentRoot;
+        let crumbs: DataNode[] = [];
+        let temp: DataNode | undefined = this.currentRoot.data;
         while (temp) {
             crumbs.push(temp);
-            temp = temp.parent;
+            temp = this.childParentRelations.get(temp);
         }
         crumbs.reverse();
+
+        console.log(crumbs);
 
         this.breadCrumbs.html("");
         this.breadCrumbs.selectAll(".crumb")
@@ -195,10 +213,10 @@ export default class Treemap {
             .enter()
             .append("span")
             .attr("class", "crumb")
-            .attr("title", (d: HRN<DataNode>) => this.settings.getBreadcrumbTooltip(d.data))
-            .html(d => `<span class='link'>${d.data.name}</span>`)
-            .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
-                this.render(d);
+            .attr("title", (d: DataNode) => this.settings.getBreadcrumbTooltip(d))
+            .html((d: DataNode) => `<span class='link'>${d.name}</span>`)
+            .on("click", (event: MouseEvent, d: DataNode) => {
+                this.render(this.data.filter((item: HRN<DataNode>) => item.data.id === d.id)[0]);
             });
     }
 

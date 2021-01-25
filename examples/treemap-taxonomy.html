@@ -15,14 +15,10 @@
     <div id="d3Treemap"></div>
 
     <script>
-        d3.json("data/large.json").then(data => {
+        d3.json("data/taxonomy.json").then(data => {
             const treemap = new UnipeptVisualizations.Treemap(
                 document.getElementById("d3Treemap"),
-                data,
-                {
-                    width: 1600,
-                    height: 600
-                }
+                data
             );
         });
     </script>
