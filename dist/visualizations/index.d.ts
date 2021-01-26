@@ -1,2 +1,2 @@
-export * from "./sunburst";
-export * from "./treemap";
+export * from "./sunburst/index";
+export * from "./treemap/index";

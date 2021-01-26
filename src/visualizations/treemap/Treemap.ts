@@ -3,7 +3,6 @@ import TreemapSettings from "./TreemapSettings";
 import DataNode from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import ColorUtils from "./../../color/ColorUtils";
-import NodeUtils from "../../utilities/NodeUtils";
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 
@@ -14,8 +13,6 @@ export default class Treemap {
     // This is required to find out how a clicked node is related to it's parents (since part of the parent-child
     // relation is lost when rerooting the tree).
     private readonly childParentRelations: Map<DataNode, DataNode | undefined> = new Map<DataNode, DataNode>();
-    private readonly nodeHeight: Map<DataNode, number> = new Map<DataNode, number>();
-    private readonly nodeDepth: Map<DataNode, number> = new Map<DataNode, number>();
 
     private currentRoot: HRN<DataNode>;
 
@@ -23,7 +20,7 @@ export default class Treemap {
     private breadCrumbs: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private treemap: d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
-    private colorScale: d3.ScaleLinear<number, number, never>;
+    private colorScale: d3.ScaleLinear<number, number>;
 
     private partition: d3.TreemapLayout<DataNode>;
     private nodeId: number = 0;
@@ -85,6 +82,18 @@ export default class Treemap {
             .style("height", this.settings.height + "px");
 
         this.render(this.currentRoot);
+    }
+
+    public resize(newWidth: number, newHeight: number) {
+        this.settings.width = newWidth;
+        this.settings.height = newHeight;
+        this.partition.size([newWidth + 1, newHeight + 1]);
+
+        this.breadCrumbs.style("width", this.settings.width + "px");
+        this.treemap.style("width", this.settings.width + "px");
+        this.treemap.style("height", this.settings.height + "px");
+
+        this.render(this.currentRoot, false);
     }
 
     private fillOptions(options: any = undefined): TreemapSettings {
