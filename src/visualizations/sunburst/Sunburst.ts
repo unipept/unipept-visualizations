@@ -23,8 +23,8 @@ export default class Sunburst {
     private colorCounter: number = -1;
     private currentMaxLevel: number = 4;
 
-    private xScale: d3.ScaleLinear<number, number, never>;
-    private yScale: d3.ScaleLinear<number, number, never>;
+    private xScale: d3.ScaleLinear<number, number>;
+    private yScale: d3.ScaleLinear<number, number>;
 
     private path!: d3.Selection<SVGPathElement, HRN<DataNode>, SVGGElement, unknown>;
     private text!: d3.Selection<any, HRN<DataNode>, SVGGElement, unknown>;
@@ -231,7 +231,6 @@ export default class Sunburst {
         }
     }
 
-
     private tooltipIn(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             if (d.depth < this.currentMaxLevel && d.data.name !== "empty") {
@@ -436,7 +435,7 @@ export default class Sunburst {
         this.textData = filteredData;
     }
 
-    public setBreadcrumbs(d: HRN<DataNode>) {
+    private setBreadcrumbs(d: HRN<DataNode>) {
         // First find out which nodes we encounter on the path from the root node to the clicked node.
         let crumbs: HRN<DataNode>[] = [];
         let temp: (HRN<DataNode> | null) = d;
