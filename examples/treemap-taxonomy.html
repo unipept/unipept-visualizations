@@ -16,9 +16,17 @@
 
     <script>
         d3.json("data/taxonomy.json").then(data => {
+            const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
+
             const treemap = new UnipeptVisualizations.Treemap(
                 document.getElementById("d3Treemap"),
-                data
+                data,
+                {
+                    width: 900,
+                    height: 600,
+                    levels: ranks.length,
+                    getLevel: (d) => ranks.indexOf(d.data.data.rank)
+                }
             );
         });
     </script>

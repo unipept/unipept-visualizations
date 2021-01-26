@@ -5,6 +5,8 @@ export default class Treemap {
     private readonly settings;
     private readonly data;
     private readonly childParentRelations;
+    private readonly nodeHeight;
+    private readonly nodeDepth;
     private currentRoot;
     private tooltip;
     private breadCrumbs;

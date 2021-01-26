@@ -3,6 +3,7 @@ import TreemapSettings from "./TreemapSettings";
 import DataNode from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import ColorUtils from "./../../color/ColorUtils";
+import NodeUtils from "../../utilities/NodeUtils";
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 
@@ -13,6 +14,8 @@ export default class Treemap {
     // This is required to find out how a clicked node is related to it's parents (since part of the parent-child
     // relation is lost when rerooting the tree).
     private readonly childParentRelations: Map<DataNode, DataNode | undefined> = new Map<DataNode, DataNode>();
+    private readonly nodeHeight: Map<DataNode, number> = new Map<DataNode, number>();
+    private readonly nodeDepth: Map<DataNode, number> = new Map<DataNode, number>();
 
     private currentRoot: HRN<DataNode>;
 
@@ -43,15 +46,16 @@ export default class Treemap {
 
         const rootNode = d3.hierarchy<DataNode>(data);
         rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
-
-        if (!this.settings.levels) {
-            this.settings.levels = rootNode.height;
-        }
+        rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
 
         this.partition = d3.treemap<DataNode>();
         this.partition.size([this.settings.width + 1, this.settings.height + 1])
             .paddingTop(this.settings.labelHeight);
         this.data = this.partition(rootNode).descendants();
+
+        if (!this.settings.levels) {
+            this.settings.levels = this.data[0].height;
+        }
 
         for (const item of this.data) {
             this.childParentRelations.set(item.data, item.parent?.data);
@@ -143,6 +147,8 @@ export default class Treemap {
         const rootNode = d3.hierarchy<DataNode>(data.data);
         rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
 
+        rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
+
         let nodes = this.treemap.selectAll<d3.BaseType, HRN<DataNode>>(".node")
             .data(
                 this.partition(rootNode).descendants(),
@@ -152,8 +158,8 @@ export default class Treemap {
         const divNodes = nodes.enter()
             .append("div")
             .attr("class", "node")
-            .style("background", (d: HRN<DataNode>) => this.colorScale(d.depth))
-            .style("color", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.colorScale(d.depth).toString()))
+            .style("background", (d: HRN<DataNode>) => this.colorScale(this.settings.getLevel(d)))
+            .style("color", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.colorScale(this.settings.getLevel(d)).toString()))
             .style("left", "0px")
             .style("top", "0px")
             .style("width", "0px")
@@ -170,7 +176,7 @@ export default class Treemap {
             .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d))
             .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d));
 
-        //@ts-ignore
+        // @ts-ignore
         divNodes.merge(nodes)
             .order()
             .transition()
@@ -189,13 +195,6 @@ export default class Treemap {
 
     }
 
-    // private position(this: HTMLElement) {
-    //     this.style("left", d => d.x + "px")
-    //         .style("top", d => d.y + "px")
-    //         .style("width", d => Math.max(0, d.dx - 1) + "px")
-    //         .style("height", d => Math.max(0, d.dy - 1) + "px");
-    // }
-
     private setBreadcrumbs() {
         let crumbs: DataNode[] = [];
         let temp: DataNode | undefined = this.currentRoot.data;
@@ -204,8 +203,6 @@ export default class Treemap {
             temp = this.childParentRelations.get(temp);
         }
         crumbs.reverse();
-
-        console.log(crumbs);
 
         this.breadCrumbs.html("");
         this.breadCrumbs.selectAll(".crumb")

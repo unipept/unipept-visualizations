@@ -1,3 +1,5 @@
+import { HierarchyRectangularNode } from "d3";
+
 import Settings from "./../../Settings";
 import DataNode from "./../../DataNode";
 
@@ -80,4 +82,6 @@ export default class TreemapSettings extends Settings {
     getTooltipText: (x: DataNode) => string = (x: DataNode) => `${x.data.count} hits`;
 
     getLabel: (x: DataNode) => string = (x: DataNode) => x.name;
+
+    getLevel: (x: HierarchyRectangularNode<DataNode>) => number = (x: HierarchyRectangularNode<DataNode>) =>  x.depth;
 }
