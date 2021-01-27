@@ -1,0 +1,220 @@
+import * as d3 from "d3";
+
+import TreeviewSettings from "./TreeviewSettings";
+import TreeviewNode from "./TreeviewNode";
+import MaxCountHeap from "./heap/MaxCountHeap";
+import TreeviewPreprocessor from "./TreeviewPreprocessor";
+
+type HPN<T> = d3.HierarchyPointNode<T>;
+type HPL<T> = d3.HierarchyPointLink<T>;
+
+export default class Treeview {
+    private readonly settings: TreeviewSettings;
+    private readonly data: HPN<TreeviewNode>[];
+
+    private root: HPN<TreeviewNode>;
+    private nodeId: number = 0;
+
+    private widthScale: d3.ScaleLinear<number, number>;
+    private treeLayout: d3.TreeLayout<TreeviewNode>;
+
+    private visElement: d3.Selection<SVGGElement, HPN<TreeviewNode>, d3.BaseType, unknown>;
+
+    private zoomListener: d3.ZoomBehavior<any, any>;
+
+    private zoomScale: number = 1;
+
+    constructor(
+        private readonly element: HTMLElement,
+        data: TreeviewNode,
+        options: TreeviewSettings = new TreeviewSettings()
+    ) {
+        this.settings = this.fillOptions(options);
+
+        this.element.id = "U_TREEVIEW_" + Math.floor(Math.random() * 2**16);
+
+        const dataProcessor = new TreeviewPreprocessor();
+        data = dataProcessor.preprocessData(data);
+
+        const rootNode = d3.hierarchy<TreeviewNode>(data);
+        // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
+        // children.
+        rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.data.count);
+
+        this.widthScale = d3.scaleLinear()
+            .range([this.settings.minNodeSize, this.settings.maxNodeSize]);
+
+        this.treeLayout = d3.tree<TreeviewNode>()
+            .nodeSize([2, 10])
+            .separation((a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => {
+                const width = (this.computeNodeSize(a) + this.computeNodeSize(b));
+                const distance = width / 2 + 4;
+                return (a.parent === b.parent) ? distance : distance + 4;
+            });
+
+        this.data = this.treeLayout(rootNode).descendants();
+        this.root = this.data[0];
+
+        this.element.innerHTML = "";
+
+        const svg = d3.select("#" + this.element.id)
+            .append("svg")
+            .attr("version", "1.1")
+            .attr("xmlns", "http://www.w3.org/2000/svg")
+            .attr("viewBox", `0 0 ${this.settings.width} ${this.settings.height}`)
+            .attr("width", this.settings.width)
+            .attr("height", this.settings.height)
+            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+
+        this.zoomListener = d3.zoom()
+            .extent([[0, 0], [this.settings.width, this.settings.height]])
+            .scaleExtent([0.1, 3])
+            .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
+                this.zoomScale = event.transform.k;
+                this.visElement.attr("transform", `translate(${event.transform.x},${event.transform.y})scale(${event.transform.k})`)
+            })
+
+        // @ts-ignore
+        this.visElement = svg.call(this.zoomListener)
+            .append("g");
+
+        this.render(this.root);
+    }
+
+    private fillOptions(options: any = undefined): TreeviewSettings {
+        const output = new TreeviewSettings();
+        return Object.assign(output, options);
+    }
+
+    private render(root: HPN<TreeviewNode>) {
+        this.widthScale.domain([0, root.data.data.count]);
+
+        this.root = root;
+
+        this.root.x = this.settings.height / 2;
+        this.root.y = 0;
+
+        this.root.data.setSelected(true);
+
+        this.root.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+            d.data.setColor(this.settings.colorProvider(d.data));
+        });
+
+        if (this.settings.enableExpandOnClick) {
+            this.root.data.collapseAll();
+            this.initialExpand(this.root);
+        } else {
+            this.root.data.expandAll();
+        }
+
+        this.update(root);
+        this.centerRoot(root);
+    }
+
+    private centerRoot(source: HPN<TreeviewNode>): void {
+        let [x, y] = [-source.y, -source.x];
+
+        x = x * this.zoomScale + this.settings.width / 4;
+        y = y * this.zoomScale + this.settings.height / 2;
+
+        this.visElement.transition()
+            .duration(this.settings.animationDuration)
+            .attr("transform", `translate(${x}, ${y})scale(${this.zoomScale})`);
+
+        this.zoomListener.scaleBy(this.visElement, this.zoomScale);
+        this.zoomListener.translateBy(this.visElement, x, y);
+    }
+
+    private initialExpand(root: HPN<TreeviewNode>): void {
+        if (!this.settings.enableAutoExpand) {
+            root.data.expand(this.settings.levelsToExpand);
+        } else {
+            root.data.expand(1);
+            let allowedCount = root.data.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
+            const pq = new MaxCountHeap<HPN<TreeviewNode>>(root.children, (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.data.count - a.data.data.count);
+            while (allowedCount > 0 && pq.size() > 0) {
+                const toExpand = pq.remove();
+                allowedCount -= toExpand.data.data.count;
+                toExpand.data.expand(1);
+                toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => pq.add(d));
+            }
+        }
+    }
+
+    private update(source: HPN<TreeviewNode>): void {
+        // Compute the new tree layout
+        const rootNode = d3.hierarchy<TreeviewNode>(this.root.data);
+        rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.data.count);
+
+        const layout = this.treeLayout(rootNode);
+        const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse();
+        const links: HPL<TreeviewNode>[] = layout.links();
+
+        // Normalize for fixed depth.
+        nodes.forEach(d => d.y = d.depth * this.settings.nodeDistance);
+
+        // Update the nodes...
+        const node = this.visElement.selectAll<d3.BaseType, HPN<TreeviewNode>>("g.node")
+            .data(nodes, (d: HPN<TreeviewNode>) => d.data.id || (d.data.id = ++this.nodeId));
+
+        let nodeEnter = node.enter()
+            .append("g")
+            .attr("class", "node")
+            .style("cursor", "pointer")
+            .attr("transform", d => `translate(${source.y || 0},${source.x || 0})`)
+            // .on("click", click)
+            // .on("mouseover", tooltipIn)
+            // .on("mouseout", tooltipOut)
+            // .on("contextmenu", rightClick);
+
+        nodeEnter.append("circle")
+            .attr("r", 1e-6)
+            .style("stroke-width", "1.5px")
+            .style("stroke", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
+            .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeFillColor(d.data));
+
+        if (this.settings.enableInnerArcs) {
+            // nodeEnter.append("path")
+            //     .attr("d", innerArc)
+            //     .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
+            //     .style("fill-opacity", 0);
+        }
+
+        if (this.settings.enableLabels) {
+            nodeEnter.append("text")
+                .attr("x", (d: HPN<TreeviewNode>) => d.children ? -10 : 10)
+                .attr("dy", ".35em")
+                .attr("text-anchor", (d: HPN<TreeviewNode>) => d.children ? "end" : "start")
+                .text((d: HPN<TreeviewNode>) => this.settings.getLabel(d.data))
+                .style("font", "10px sans-serif")
+                .style("fill-opacity", 1e-6);
+        }
+
+        // Transition nodes to their new position.
+        const nodeUpdate = nodeEnter.transition()
+            .duration(this.settings.animationDuration)
+            .attr("transform", (d: HPN<TreeviewNode>) => `translate(${d.y}, ${d.x})`);
+
+        nodeUpdate.select("circle")
+            .attr("r", (d: HPN<TreeviewNode>) => this.computeNodeSize(d))
+            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.data.isExpanded() ? 0 : 1)
+            .style("stroke", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
+            .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeFillColor(d.data));
+
+        if (this.settings.enableLabels) {
+            nodeUpdate.select("text")
+                .style("fill-opacity", 1);
+        }
+
+
+    }
+
+    private computeNodeSize(d: HPN<TreeviewNode>): number {
+        if (d.data.isSelected()) {
+            return this.widthScale(d.data.data.count) / 2;
+        } else {
+            return 2;
+        }
+    }
+
+}
