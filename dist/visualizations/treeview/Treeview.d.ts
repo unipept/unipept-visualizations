@@ -1,4 +1,4 @@
-import TreeviewSettings from ".//TreeviewSettings";
+import TreeviewSettings from "./TreeviewSettings";
 import TreeviewNode from "./TreeviewNode";
 export default class Treeview {
     private readonly element;

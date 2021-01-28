@@ -18,7 +18,7 @@ export default class Treeview {
     private widthScale: d3.ScaleLinear<number, number>;
     private treeLayout: d3.TreeLayout<TreeviewNode>;
 
-    private visElement: d3.Selection<SVGGElement, HPN<TreeviewNode>, d3.BaseType, unknown>;
+    private visElement: d3.Selection<SVGGElement, any, d3.BaseType, unknown>;
 
     private zoomListener: d3.ZoomBehavior<any, any>;
 
@@ -47,6 +47,9 @@ export default class Treeview {
         this.treeLayout = d3.tree<TreeviewNode>()
             .nodeSize([2, 10])
             .separation((a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => {
+                if (a.data.isCollapsed() || b.data.isCollapsed()) {
+                    return 0;
+                }
                 const width = (this.computeNodeSize(a) + this.computeNodeSize(b));
                 const distance = width / 2 + 4;
                 return (a.parent === b.parent) ? distance : distance + 4;
@@ -142,13 +145,12 @@ export default class Treeview {
     }
 
     private update(source: HPN<TreeviewNode>): void {
-        // Compute the new tree layout
-        const rootNode = d3.hierarchy<TreeviewNode>(this.root.data);
-        rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.data.count);
+        console.log(source);
 
-        const layout = this.treeLayout(rootNode);
-        const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse();
-        const links: HPL<TreeviewNode>[] = layout.links();
+        // Compute the new tree layout
+        const layout = this.treeLayout(source);
+        const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse().filter((d: HPN<TreeviewNode>) => !d.data.isCollapsed());
+        const links: HPL<TreeviewNode>[] = layout.links().filter((d: HPL<TreeviewNode>) => !d.target.data.isCollapsed() && !d.source.data.isCollapsed());
 
         // Normalize for fixed depth.
         nodes.forEach(d => d.y = d.depth * this.settings.nodeDistance);
@@ -197,7 +199,7 @@ export default class Treeview {
 
         nodeUpdate.select("circle")
             .attr("r", (d: HPN<TreeviewNode>) => this.computeNodeSize(d))
-            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.data.isExpanded() ? 0 : 1)
+            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.data.isCollapsed() ? 1 : 0)
             .style("stroke", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
             .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeFillColor(d.data));
 
@@ -206,7 +208,59 @@ export default class Treeview {
                 .style("fill-opacity", 1);
         }
 
+        const nodeExit = node.exit().transition()
+            .duration(this.settings.animationDuration)
+            .attr("transform", d => `translate(${source.y},${source.x})`)
+            .remove();
 
+        nodeExit.select("circle")
+            .attr("r", 1e-6);
+
+        nodeExit.select("path")
+            .style("fill-opacity", 1e-6);
+
+        nodeExit.select("text")
+            .style("fill-opacity", 1e-6);
+
+        // Update the links between the different nodes.
+        // @ts-ignore
+        let link = this.visElement.selectAll("path.link")
+            .data(links, (d: HPL<TreeviewNode>) => d.target.id);
+
+        const linkGenerator = d3.linkHorizontal<any, HPL<TreeviewNode>, HPN<TreeviewNode>>().x(d => d.y).y(d => d.x);
+
+        // Enter any new links at the parent's previous position.
+        // @ts-ignore
+        link = link.enter().insert("path", "g")
+            .attr("class", "link")
+            .style("fill", "none")
+            .style("stroke-opacity", "0.5")
+            .style("stroke-linecap", "round")
+            .style("stroke", (d: HPL<TreeviewNode>) => this.settings.linkStrokeColor(d))
+            .style("stroke-width", 1e-6)
+            // @ts-ignore
+            .attr("d", linkGenerator);
+
+        // Transition links to their new position
+        link.transition()
+            .duration(this.settings.animationDuration)
+            .attr("d", linkGenerator)
+            .style("stroke", this.settings.linkStrokeColor)
+            .style("stroke-width", (d: HPL<TreeviewNode>) => {
+                if (d.source.data.isSelected()) {
+                    return this.widthScale(d.target.data.data.count) + "px";
+                } else {
+                    return "4px";
+                }
+            });
+
+        // Transition exiting nodes to parent's new position.
+        link.exit().transition()
+            .duration(this.settings.animationDuration)
+            .style("stroke-width", 1e-6)
+            // @ts-ignore
+            .attr("d", linkGenerator)
+            .remove();
     }
 
     private computeNodeSize(d: HPN<TreeviewNode>): number {

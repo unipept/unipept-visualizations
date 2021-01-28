@@ -2,11 +2,15 @@ import DataNode from "./../../DataNode";
 
 export default class TreeviewNode extends DataNode {
     private selected: boolean = false;
-    private expandedChildren: Set<TreeviewNode> = new Set<TreeviewNode>();
+    private collapsed: boolean = false;
     private color: string = "";
 
-    public isExpanded(): boolean {
-        return this.expandedChildren.has(this);
+    public isCollapsed(): boolean {
+        return this.collapsed;
+    }
+
+    public setCollapsed(value: boolean): void {
+        this.collapsed = value;
     }
 
     public isSelected(): boolean {
@@ -30,11 +34,11 @@ export default class TreeviewNode extends DataNode {
     }
 
     /**
-     * Collapse this node and all of it's children recursively.
+     * Recursively collapse all children of this node.
      */
     public collapseAll(): void {
         for (const child of (this.children as TreeviewNode[])) {
-            this.expandedChildren.delete(child);
+            child.setCollapsed(true);
             child.collapseAll();
         }
     }
@@ -44,7 +48,7 @@ export default class TreeviewNode extends DataNode {
      */
     public collapse(): void {
         for (const child of (this.children as TreeviewNode[])) {
-            this.expandedChildren.delete(child);
+            child.setCollapsed(true);
         }
     }
 
@@ -64,7 +68,7 @@ export default class TreeviewNode extends DataNode {
         if (i > 0) {
             if (this.children.length > 0) {
                 for (const child of (this.children as TreeviewNode[])) {
-                    this.expandedChildren.add(child);
+                    child.setCollapsed(false);
                     child.expand(i - 1);
                 }
             }

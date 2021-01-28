@@ -1,9 +1,10 @@
 import DataNode from "./../../DataNode";
 export default class TreeviewNode extends DataNode {
     private selected;
-    private expandedChildren;
+    private collapsed;
     private color;
-    isExpanded(): boolean;
+    isCollapsed(): boolean;
+    setCollapsed(value: boolean): void;
     isSelected(): boolean;
     getColor(): string;
     /**
@@ -13,7 +14,7 @@ export default class TreeviewNode extends DataNode {
      */
     setSelected(value: boolean): void;
     /**
-     * Collapse this node and all of it's children recursively.
+     * Recursively collapse all children of this node.
      */
     collapseAll(): void;
     /**
