@@ -3,6 +3,8 @@ import { scaleOrdinal, schemeCategory10, HierarchyPointLink } from "d3";
 import Settings from "./../../Settings";
 import TreeviewNode from "./TreeviewNode";
 
+const defaultColorScale = scaleOrdinal(schemeCategory10);
+
 export default class TreeviewSettings extends Settings {
     minNodeSize: number = 2;
     maxNodeSize: number = 105;
@@ -33,7 +35,7 @@ export default class TreeviewSettings extends Settings {
     linkStrokeColor: (d: HierarchyPointLink<TreeviewNode>) => string =
         (d: HierarchyPointLink<TreeviewNode>) => d.source.data.isSelected() ? d.target.data.getColor() : "#aaa";
 
-    colorProvider: (d: TreeviewNode) => string = (d: TreeviewNode) => scaleOrdinal(schemeCategory10)(d.name);
+    colorProvider: (d: TreeviewNode) => string = (d: TreeviewNode) => defaultColorScale(d.name);
 
     getLabel: (d: TreeviewNode) => string = (d: TreeviewNode) => d.name;
 }

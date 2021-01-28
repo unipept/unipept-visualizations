@@ -145,8 +145,6 @@ export default class Treeview {
     }
 
     private update(source: HPN<TreeviewNode>): void {
-        console.log(source);
-
         // Compute the new tree layout
         const layout = this.treeLayout(source);
         const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse().filter((d: HPN<TreeviewNode>) => !d.data.isCollapsed());
