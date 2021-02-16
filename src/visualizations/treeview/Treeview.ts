@@ -4,6 +4,7 @@ import TreeviewSettings from "./TreeviewSettings";
 import TreeviewNode from "./TreeviewNode";
 import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
+import TooltipUtilities from "./../../utilities/TooltipUtilities";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;
@@ -20,7 +21,10 @@ export default class Treeview {
 
     private visElement: d3.Selection<SVGGElement, any, d3.BaseType, unknown>;
 
+    private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+
     private zoomListener: d3.ZoomBehavior<any, any>;
+    private tooltipTimer!: number;
 
     private zoomScale: number = 1;
 
@@ -34,6 +38,10 @@ export default class Treeview {
         this.settings = this.fillOptions(options);
 
         this.element.id = "U_TREEVIEW_" + Math.floor(Math.random() * 2**16);
+
+        if (this.settings.enableTooltips) {
+            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+        }
 
         const dataProcessor = new TreeviewPreprocessor();
         data = dataProcessor.preprocessData(data);
@@ -160,9 +168,9 @@ export default class Treeview {
             // reposition the node to it's final location.
             .attr("transform", `translate(${source.y || 0},${source.data.previousPosition.x || 0})`)
             .on("click", (event: MouseEvent, d: HPN<TreeviewNode>) => this.click(event, d))
-            // .on("mouseover", tooltipIn)
-            // .on("mouseout", tooltipOut)
-            // .on("contextmenu", rightClick)
+            .on("mouseover", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipIn(event, d))
+            .on("mouseout", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipOut(event, d))
+            .on("contextmenu", (event: MouseEvent, d: HPN<TreeviewNode>) => this.rightClick(event, d))
             // @ts-ignore
             .merge(node);
 
@@ -342,5 +350,28 @@ export default class Treeview {
 
         this.update(d);
         this.centerRoot(d);
+    }
+
+    private tooltipIn(event: MouseEvent, d: HPN<TreeviewNode>) {
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip.html(this.settings.getTooltip(d.data))
+                .style("top", (event.pageY + 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+
+            this.tooltipTimer = window.setTimeout(() => this.tooltip.style("visibility", "visible"), 1000);
+        }
+    }
+
+    private tooltipOut(event: MouseEvent, d: HPN<TreeviewNode>) {
+        if (this.settings.enableTooltips && this.tooltip) {
+            clearTimeout(this.tooltipTimer);
+            this.tooltip.style("visibility", "hidden");
+        }
+    }
+
+    private rightClick(event: MouseEvent, d: HPN<TreeviewNode>) {
+        if (this.settings.enableRightClick) {
+            this.render(d);
+        }
     }
 }
