@@ -1,5 +1,9 @@
 import DataNode from "./../../DataNode";
 export default class TreeviewNode extends DataNode {
+    previousPosition: {
+        x: number;
+        y: number;
+    };
     private selected;
     private collapsed;
     private color;

@@ -1,6 +1,8 @@
 import DataNode from "./../../DataNode";
 
 export default class TreeviewNode extends DataNode {
+    public previousPosition: { x: number, y: number } = { x: 0, y: 0};
+
     private selected: boolean = false;
     private collapsed: boolean = false;
     private color: string = "";
@@ -48,6 +50,7 @@ export default class TreeviewNode extends DataNode {
      */
     public collapse(): void {
         for (const child of (this.children as TreeviewNode[])) {
+            console.log("Collapsing: " + child.name);
             child.setCollapsed(true);
         }
     }

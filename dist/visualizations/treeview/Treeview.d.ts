@@ -11,6 +11,7 @@ export default class Treeview {
     private visElement;
     private zoomListener;
     private zoomScale;
+    private svg;
     constructor(element: HTMLElement, data: TreeviewNode, options?: TreeviewSettings);
     private fillOptions;
     private render;
@@ -18,4 +19,5 @@ export default class Treeview {
     private initialExpand;
     private update;
     private computeNodeSize;
+    private click;
 }
