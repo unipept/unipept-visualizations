@@ -3,7 +3,7 @@ import DataNode from "./../../DataNode";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 export default class Sunburst {
-    private element;
+    private readonly element;
     private readonly settings;
     private readonly data;
     private tooltip;

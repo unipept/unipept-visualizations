@@ -38,7 +38,7 @@ export default class Sunburst {
     private previousRoot: HRN<DataNode> | null = null;
 
     constructor(
-        private element: HTMLElement,
+        private readonly element: HTMLElement,
         data: DataNode,
         options: SunburstSettings = new SunburstSettings()
     ) {
