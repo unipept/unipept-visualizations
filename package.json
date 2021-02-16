@@ -22,9 +22,9 @@
     "license": "MIT",
     "dependencies": {
         "@types/d3": "^6.2.0",
+        "core-js": "^3.8.1",
         "d3": "^6.2.0",
-        "regenerator-runtime": "^0.13.7",
-        "core-js": "^3.8.1"
+        "regenerator-runtime": "^0.13.7"
     },
     "devDependencies": {
         "@babel/core": "^7.12.9",

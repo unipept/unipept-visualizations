@@ -5,8 +5,6 @@ export default class Treemap {
     private readonly settings;
     private readonly data;
     private readonly childParentRelations;
-    private readonly nodeHeight;
-    private readonly nodeDepth;
     private currentRoot;
     private tooltip;
     private breadCrumbs;
@@ -15,6 +13,7 @@ export default class Treemap {
     private partition;
     private nodeId;
     constructor(element: HTMLElement, data: DataNode, options?: TreemapSettings);
+    resize(newWidth: number, newHeight: number): void;
     private fillOptions;
     private initCss;
     private render;
