@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Heatmap example</title>
+
+        <!-- D3 v5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+        <!-- Visualizations -->
+        <script src="../dist/bundle.js"></script>
+
+        <style>
+            body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="heatmap"></div>
+
+        <script>
+            d3.csv("data/clusters.csv").then(data => {
+                const items = [];
+                const columns = Object.keys(data[0]).filter(k => k !== "Family");
+                const rows = [];
+
+                for (const row of data) {
+                    const newRow = [];
+                    for (const [key, value] of Object.entries(row)) {
+                        if (key === "Family") {
+                            rows.push(value);
+                        } else {
+                            newRow.push(Number.parseFloat(value));
+                        }
+                    }
+                    items.push(newRow);
+                }
+
+                const heatmapElement = document.getElementById("heatmap");
+
+                if (heatmapElement) {
+                    let heatmap = new UnipeptVisualizations.Heatmap(heatmapElement, items, rows, columns, {
+                        width: window.innerWidth,
+                        height: window.innerHeight - 50,
+                        dendrogramEnabled: true
+                    });
+
+                    // heatmap.cluster();
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Heatmap example</title>
+
+        <!-- D3 v5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+        <!-- Visualizations -->
+        <script src="../dist/bundle.js"></script>
+
+        <style>
+            body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="heatmap"></div>
+
+        <div style="text-align: center;">
+            <button id="cluster">Cluster!</button>
+            <button id="resize">Resize!</button>
+        </div>
+
+        <script>
+            const amountOfRows = 50;
+            const amountOfColumns = 100;
+
+            function getRandomData(rows, columns) {
+                const output = [];
+
+                for (let i = 0; i < rows; i++) {
+                    const row = [];
+                    for (let j = 0; j < columns; j++) {
+                        row.push(Math.random());
+                    }
+                    output.push(row);
+                }
+
+                return output;
+            }
+
+            const randomData = getRandomData(amountOfRows, amountOfColumns);
+
+            const rows = [];
+            const cols = [];
+            const grid = [];
+
+            for (let i = 0; i < amountOfRows; i++) {
+                rows.push("Family " + i);
+            }
+
+            for (let i = 0; i < amountOfColumns; i++) {
+                cols.push("Sample " + i);
+            }
+
+            const heatmapElement = document.getElementById("heatmap");
+
+            if (heatmapElement) {
+                let heatmap = new UnipeptVisualizations.Heatmap(heatmapElement, randomData, rows, cols, {
+                    width: window.innerWidth,
+                    height: window.innerHeight - 50
+                });
+
+                document.getElementById("cluster")
+                    .addEventListener("click", () => {
+                        heatmap.cluster();
+                    });
+
+                document.getElementById("resize")
+                    .addEventListener("click", () => {
+                        heatmap.resize(1000, 1000);
+                    });
+            }
+        </script>
+    </body>
+</html>
