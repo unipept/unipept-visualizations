@@ -2,11 +2,14 @@ import ClusterElement from "./ClusterElement";
 export default class TreeNode {
     private _leftChild;
     private _rightChild;
+    private _parent;
     readonly values: ClusterElement[];
     readonly height: number;
     static currentID: number;
     readonly id: number;
-    constructor(leftChild: TreeNode | null, rightChild: TreeNode | null, values: ClusterElement[], height: number);
+    constructor(parent: TreeNode | null, leftChild: TreeNode | null, rightChild: TreeNode | null, values: ClusterElement[], height: number);
+    get parent(): TreeNode | null;
+    set parent(value: TreeNode | null);
     get leftChild(): TreeNode | null;
     set leftChild(value: TreeNode | null);
     get rightChild(): TreeNode | null;

@@ -3,6 +3,7 @@ import ClusterElement from "./ClusterElement";
 export default class TreeNode {
     private _leftChild: TreeNode | null;
     private _rightChild: TreeNode | null;
+    private _parent: TreeNode | null;
     public readonly values: ClusterElement[];
     public readonly height: number;
 
@@ -11,7 +12,8 @@ export default class TreeNode {
     // ID used for constructing graphs.
     public readonly id: number;
 
-    constructor(leftChild: TreeNode | null, rightChild: TreeNode | null, values: ClusterElement[], height: number) {
+    constructor(parent: TreeNode | null, leftChild: TreeNode | null, rightChild: TreeNode | null, values: ClusterElement[], height: number) {
+        this._parent = parent;
         this._leftChild = leftChild;
         this._rightChild = rightChild;
         this.values = values;
@@ -20,6 +22,13 @@ export default class TreeNode {
         TreeNode.currentID++;
     }
 
+    get parent(): TreeNode | null {
+        return this._parent;
+    }
+
+    set parent(value: TreeNode | null) {
+        this._parent = value;
+    }
 
     get leftChild(): TreeNode | null {
         return this._leftChild;

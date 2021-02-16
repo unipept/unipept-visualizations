@@ -58,10 +58,11 @@
                 if (heatmapElement) {
                     let heatmap = new UnipeptVisualizations.Heatmap(heatmapElement, items, rows, columns, {
                         width: window.innerWidth,
-                        height: window.innerHeight - 50
+                        height: window.innerHeight - 50,
+                        dendrogramEnabled: true
                     });
 
-                    heatmap.cluster();
+                    // heatmap.cluster();
                 }
             });
         </script>

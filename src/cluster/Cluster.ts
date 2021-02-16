@@ -20,6 +20,9 @@ export default class Cluster {
      */
     public merge(other: Cluster, height: number) {
         this.elements.push(...other.elements);
-        this.treeNode = new TreeNode(this.treeNode, other.treeNode, this.elements.slice(), height);
+        const newNode = new TreeNode(null, this.treeNode, other.treeNode, this.elements.slice(), height);
+        this.treeNode.parent = newNode;
+        other.treeNode.parent = newNode;
+        this.treeNode = newNode;
     }
 }

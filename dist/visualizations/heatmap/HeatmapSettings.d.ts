@@ -1,4 +1,4 @@
-import Settings from "../../Settings";
+import Settings from "./../../settings";
 import HeatmapFeature from "./HeatmapFeature";
 import HeatmapValue from "./HeatmapValue";
 export default class HeatmapSettings extends Settings {
@@ -76,6 +76,16 @@ export default class HeatmapSettings extends Settings {
      * the size of the color palette). Increasing this value will decrease the heatmap's performance.
      */
     colorBuckets: number;
+    /**
+     * Should a dendrogram be rendered for both axes?
+     */
+    dendrogramEnabled: boolean;
+    /**
+     * Amount of pixels that can be taken in by the dendrogram
+     */
+    dendrogramWidth: number;
+    dendrogramLineWidth: number;
+    dendrogramColor: string;
     /**
      * Returns the html to use as tooltip for a cell. Is called with a HeatmapValue that represents the current cell and
      * the row and column objects associated with the highlighted cell as parameters. The result of getTooltipTitle is
