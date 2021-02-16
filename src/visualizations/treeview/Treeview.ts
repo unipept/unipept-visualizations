@@ -128,7 +128,11 @@ export default class Treeview {
         x = x * this.zoomScale + this.settings.width / 4;
         y = y * this.zoomScale + this.settings.height / 2;
 
-        this.zoomListener.transform(this.svg, d3.zoomIdentity.translate(x, y).scale(this.zoomScale));
+        this.visElement
+            .transition()
+            .duration(this.settings.animationDuration)
+            .attr("transform", `translate(${x},${y})scale(${this.zoomScale})`)
+            .on("end", () => this.zoomListener.transform(this.svg, d3.zoomIdentity.translate(x, y).scale(this.zoomScale)));
     }
 
     private initialExpand(root: HPN<TreeviewNode>): void {
