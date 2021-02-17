@@ -6,7 +6,7 @@
     <!-- D3 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
 
-    <!-- Visualiations -->
+    <!-- Visualisations -->
     <script src="../dist/bundle.js"></script>
 
   </head>
@@ -25,11 +25,9 @@
                     width: 900,
                     height: 600,
                     levels: ranks.length,
-                    getLevel: (d) => ranks.indexOf(d.data.data.rank)
+                    getLevel: (d) => ranks.indexOf(d.data.extra.rank)
                 }
             );
-
-            treemap.resize(500, 900);
         });
     </script>
   </body>

@@ -1,65 +1,66 @@
 <html>
 
-  <head>
+<head>
     <title>Treemap example</title>
 
-    <!-- Jquery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
     <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
 
-    <!-- Visualiations -->
-    <script src="../dist/unipept-visualizations.es5.js"></script>
+    <!-- Visualisations -->
+    <script src="../dist/bundle.js"></script>
+
+
+</head>
+
+<body>
+    <div id="treemap1"></div>
+    <br>
+    <div id="treemap2"></div>
+    <br>
+    <div id="treemap3"></div>
 
     <script>
-      $(function() {
+        d3.json("data/taxonomy.json").then(data => {
+            const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
 
-          d3.json("data/taxonomy.json", function(error, data) {
-            if (error) return console.warn(error);
-
-            $("#treemap1").treemap(data, {
-              width: 900,
-              height: 400,
-              getTooltip: function(d) {
-                let numberFormat = d3.format(",d");
-                return "<b>" + d.name + "</b> (" + d.data.rank + ")<br/>" + numberFormat(!d.data.self_count ? "0" : d.data.self_count) + (d.data.self_count && d.data.self_count === 1 ? " sequence" : " sequences") +
-                  " specific to this level<br/>" + numberFormat(!d.data.count ? "0" : d.data.count) + (d.data.count && d.data.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
-              }
-            });
-          });
-
-          d3.json("data/family.json", function(error, data) {
-            if (error) return console.warn(error);
-
-            $("#treemap2").treemap(data, {
-              width: 900,
-              height: 400,
-              colorRoot: "red",
-              colorLeaf: "yellow",
-              enableTooltips: false
-            });
-          });
-
-          d3.json("data/flare.json", function(error, data) {
-            if (error) return console.warn(error);
-
-            $("#treemap3").treemap(data, {
-              width: 900,
-              height: 400,
-              countAccessor: function (d) { return d.size; },
-              enableTooltips: false
-            });
-          });
+            const treemap = new UnipeptVisualizations.Treemap(
+                document.getElementById("treemap1"),
+                data,
+                {
+                    width: 900,
+                    height: 400,
+                    levels: ranks.length,
+                    getLevel: (d) => ranks.indexOf(d.data.extra.rank)
+                }
+            );
         });
 
-    </script>
-  </head>
+        d3.json("data/family.json").then(data => {
+            const treemap = new UnipeptVisualizations.Treemap(
+                document.getElementById("treemap2"),
+                data,
+                {
+                    width: 900,
+                    height: 400,
+                    colorRoot: "red",
+                    colorLeaf: "yellow",
+                    enableTooltips: false
+                }
+            );
+        });
 
-  <body>
-    <div id="treemap1"></div>
-    <div id="treemap2"></div>
-    <div id="treemap3"></div>
-  </body>
+        d3.json("data/flare.json").then(data => {
+            const treemap = new UnipeptVisualizations.Treemap(
+                document.getElementById("treemap3"),
+                data,
+                {
+                    width: 900,
+                    height: 400,
+                    enableTooltips: false
+                }
+            );
+        });
+    </script>
+</body>
 
 </html>

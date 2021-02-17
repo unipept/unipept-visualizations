@@ -1,37 +1,32 @@
 <html>
 
-  <head>
+<head>
     <title>Treemap example</title>
 
-    <!-- Jquery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
     <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
 
-    <!-- Visualiations -->
-    <script src="../dist/unipept-visualizations.es5.js"></script>
+    <!-- Visualisations -->
+    <script src="../dist/bundle.js"></script>
+</head>
 
-    <script>
-      $(function() {
-
-        d3.json("data/flare.json", function(error, data) {
-          if (error) return console.warn(error);
-
-          $("#d3Treemap").treemap(data, {
-            width: 900,
-            height: 600,
-            countAccessor: function (d) { return d.size; },
-            enableTooltips: false
-          });
-        });
-      });
-
-    </script>
-  </head>
-
-  <body>
+<body>
     <div id="d3Treemap"></div>
-  </body>
+    <script>
+
+        d3.json("data/flare.json")
+            .then(data => {
+
+                const treemap = new UnipeptVisualizations.Treemap(
+                    document.getElementById("d3Treemap"),
+                    data,
+                    {
+                        width: 900,
+                        height: 600
+                    },
+                );
+            });
+    </script>
+</body>
 
 </html>
