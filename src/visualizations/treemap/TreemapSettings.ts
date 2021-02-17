@@ -70,7 +70,7 @@ export default class TreemapSettings extends Settings {
      * @param value Current node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipTitle: (value: DataNode,) => string = (value: DataNode) => value.name;
+    getTooltipTitle: (value: DataNode) => string = (value: DataNode) => value.name;
 
     /**
      * Returns text that's being used for the body of a tooltip. This tooltip provides information to the user about

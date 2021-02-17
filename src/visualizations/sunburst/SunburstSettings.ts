@@ -56,6 +56,12 @@ export default class SunburstSettings extends Settings {
      */
     animationDuration: number = 1000;
 
+    /**
+     * Returns the hash that's used to determine which color should be assigned to this datanode. The hash should be
+     * a number. Hash should be the same for all nodes to which the same color should be assigned.
+     *
+     * @param node The DataNode for which the current hash should be returned.
+     */
     fixedColorHash: (node: DataNode) => number = (node: DataNode) => StringUtils.stringHash(node.name);
 
     /**
@@ -110,13 +116,26 @@ export default class SunburstSettings extends Settings {
     /**
      * Returns text that's being used for the body of a tooltip. This tooltip provides information to the user about
      * the node that's currently hovered by the mouse cursor.
-     **
+     *
      * @param x Current value for the node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
     getTooltipText: (x: DataNode) => string = (x: DataNode) => `${x.count} hits`;
 
+    /**
+     * Returns the label that should be displayed for a specific node (the label corresponds to the text shown in the
+     * visualization on top of an arc).
+     *
+     * @param x Node for which the label should be rendered.
+     * @return The label text, exactly as it should be used by the visualization.
+     */
     getLabel: (x: DataNode) => string = (x: DataNode) => x.name === "empty" ? "" : x.name;
 
+    /**
+     * Returns the label or title text that's associated to a breadcrumb for a specific node.
+     *
+     * @param x Node for which the label / title text should be rendered.
+     * @return The title that should be associated with a breadcrumb for the given node.
+     */
     getTitleText: (x: DataNode) => string = this.getLabel;
 }

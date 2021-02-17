@@ -6,23 +6,69 @@ import TreeviewNode from "./TreeviewNode";
 const defaultColorScale = scaleOrdinal(schemeCategory10);
 
 export default class TreeviewSettings extends Settings {
+    /**
+     * Size (in pixels) that should be associated to nodes with the lowest possible count value.
+     */
     minNodeSize: number = 2;
+
+    /**
+     * Size (in pixels) that should be associated to nodes with the maximum possible count value.
+     */
     maxNodeSize: number = 105;
 
+    /**
+     * Should a subtree be expanded / collapse when it's root has been clicked?
+     */
     enableExpandOnClick: boolean = true;
+
+    /**
+     * Should a heuristic be used to expand the most important branches when loading the initial visualization.
+     * If a number is supplied, that number will be used as parameter for the heuristic, a higher value causes
+     * more expansion.
+     */
     enableAutoExpand: boolean = false;
+
+    /**
+     * Value that's used to tweak the auto-expand heuristic of the visualization. Increase to expand more.
+     */
     autoExpandValue: number = 0.8;
+
+    /**
+     * The number of levels to expand after clicking on a node and when loading the initial visualization.
+     */
     levelsToExpand: number = 2;
 
-    enableRightClick: boolean = false;
+    /**
+     * Should the tree reroot when right clicking a node?
+     */
+    enableRightClick: boolean = true;
 
+    /**
+     * Should inner arcs be shown?
+     */
     enableInnerArcs: boolean = true;
+
+    /**
+     * Should labels (containing the node's names) be shown, next to the nodes?
+     */
     enableLabels: boolean = true;
 
+    /**
+     * The horizontal distance (in pixels) between nodes.
+     */
     nodeDistance: number = 180;
 
-    animationDuration: number = 1000;
+    /**
+     * Time the animation should last (in milliseconds).
+     */
+    animationDuration: number = 500;
 
+    /**
+     * Function that returns a color to use as a fill color.
+     *
+     * @param d The TreeviewNode for which the node fill color should be returned.
+     * @return The color that should be used as a fill color for a node.
+     */
     nodeFillColor: (d: TreeviewNode) => string = (d: TreeviewNode) => {
         if (d.isSelected()) {
             return d.children.length > 0 ? d.getColor() || "#aaa" : "#fff";
@@ -31,14 +77,40 @@ export default class TreeviewSettings extends Settings {
         }
     }
 
+    /**
+     * Function that returns a color to use as a stroke color for a node.
+     *
+     * @param d The TreeviewNode for which the stroke color should be returned.
+     * @return The color that should be used as a stroke color for a node.
+     */
     nodeStrokeColor: (d: TreeviewNode) => string =
         (d: TreeviewNode) => d.isSelected() ? (d.getColor() || "#aaa") : "#aaa";
 
-    linkStrokeColor: (d: HierarchyPointLink<TreeviewNode>) => string =
-        (d: HierarchyPointLink<TreeviewNode>) => d.source.data.isSelected() ? d.target.data.getColor() : "#aaa";
+    /**
+     * Function that returns a color to use as a stroke for a link (a connection between two nodes).
+     *
+     * @param l The link for which the stroke color should be determined. A link contains both a source and target node.
+     * @return The color that should be used as a stroke color for the given link.
+     */
+    linkStrokeColor: (l: HierarchyPointLink<TreeviewNode>) => string =
+        (l: HierarchyPointLink<TreeviewNode>) => l.source.data.isSelected() ? l.target.data.getColor() : "#aaa";
 
+    /**
+     * Function that returns the color that should be used for a specific node. This actually corresponds to the
+     * specific color scale that should be used for this visualization.
+     *
+     * @param d A TreeviewNode for which the corresponding color should be computed.
+     * @return The color associated with the given node.
+     */
     colorProvider: (d: TreeviewNode) => string = (d: TreeviewNode) => defaultColorScale(d.name);
 
+    /**
+     * Returns the label that should be displayed for a specific node (the label corresponds to the text shown in the
+     * visualization on top of a node).
+     *
+     * @param d Node for which the label should be rendered.
+     * @return The label text, exactly as it should be used by the visualization.
+     */
     getLabel: (d: TreeviewNode) => string = (d: TreeviewNode) => d.name;
 
     /**
