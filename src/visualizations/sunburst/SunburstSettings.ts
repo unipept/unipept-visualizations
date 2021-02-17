@@ -1,5 +1,5 @@
 import Settings from "./../../Settings";
-import DataNode from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 import ColorPalette from "./../../color/ColorPalette";
 
 export default class SunburstSettings extends Settings {
@@ -50,7 +50,9 @@ export default class SunburstSettings extends Settings {
      *
      * @param node The node for which the count value should be returned.
      */
-    countAccessor: (node: DataNode) => number = (node: DataNode) => node.data.self_count;
+    selfCountAccessor: (node: DataNodeLike) => number = (node: DataNodeLike) => node.data.self_count;
+
+    countAccessor: (node: DataNodeLike) => number = (node: DataNodeLike) => node.data.count;
 
     /**
      * Callback that's called whenever the user clicks on a node in the visualization.
@@ -118,7 +120,7 @@ export default class SunburstSettings extends Settings {
      * @param x Current value for the node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipText: (x: DataNode) => string = (x: DataNode) => `${x.data.count} hits`;
+    getTooltipText: (x: DataNode) => string = (x: DataNode) => `${this.countAccessor(x.data.count)} hits`;
 
     getLabel: (x: DataNode) => string = (x: DataNode) => x.name === "empty" ? "" : x.name;
 

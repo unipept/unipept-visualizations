@@ -1,5 +1,5 @@
 import Settings from "./../../Settings";
-import DataNode from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 export default class SunburstSettings extends Settings {
     /**
      * Radius size of the sunburst visualization (in pixels).
@@ -40,7 +40,8 @@ export default class SunburstSettings extends Settings {
      *
      * @param node The node for which the count value should be returned.
      */
-    countAccessor: (node: DataNode) => number;
+    selfCountAccessor: (node: DataNodeLike) => number;
+    countAccessor: (node: DataNodeLike) => number;
     /**
      * Callback that's called whenever the user clicks on a node in the visualization.
      */

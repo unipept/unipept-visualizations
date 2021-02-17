@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 import SunburstSettings from "./SunburstSettings";
 import SunburstPreprocessor from "./SunburstPreprocessor";
-import DataNode from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import StringUtils from "./../../utilities/StringUtils";
 import NodeUtils from "./../../utilities/NodeUtils";
@@ -39,7 +39,7 @@ export default class Sunburst {
 
     constructor(
         private readonly element: HTMLElement,
-        data: DataNode,
+        data: DataNodeLike,
         options: SunburstSettings = new SunburstSettings()
     ) {
         this.settings = this.fillOptions(options);
@@ -47,7 +47,9 @@ export default class Sunburst {
         this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
 
         const preprocessor = new SunburstPreprocessor();
-        preprocessor.preprocessData(data, this.settings);
+        const processedData = preprocessor.preprocessData(data, this.settings);
+
+        console.log(processedData);
 
         if (this.settings.enableTooltips) {
             this.tooltip = TooltipUtilities.initTooltip(this.element.id);
@@ -58,10 +60,12 @@ export default class Sunburst {
         this.xScale = d3.scaleLinear().range([0, 2 * Math.PI]); // use full circle
         this.yScale = d3.scaleLinear().domain([0, 1]).range([0, this.settings.radius]);
 
-        const rootNode = d3.hierarchy<DataNode>(data);
+        const rootNode = d3.hierarchy<DataNode>(processedData);
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
-        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : this.settings.countAccessor(d));
+
+        console.log(rootNode);
 
         const partition = d3.partition<DataNode>();
         this.data = partition(rootNode).descendants();
@@ -452,7 +456,7 @@ export default class Sunburst {
             .outerRadius(15)
             .startAngle(0)
             .endAngle((d: any) => {
-                return 2 * Math.PI * d.data.data.count / d.parent!.data.data.count
+                return 2 * Math.PI * this.settings.countAccessor(d.data) / this.settings.countAccessor(d.parent!.data)
             });
 
         this.breadCrumbs.selectAll(".crumb")
@@ -467,7 +471,7 @@ export default class Sunburst {
             .attr("title", (d: HRN<DataNode>) => this.settings.getTitleText(d.data))
             .html((d: HRN<DataNode>) => `
 <p class='name'>${d.data.name}</p>
-<p class='percentage'>${Math.round(100 * d.data.data.count / d.parent?.data.data.count)}% of ${d.parent?.data.name}</p>`)
+<p class='percentage'>${Math.round(100 * this.settings.countAccessor(d.data) / this.settings.countAccessor(d.parent!.data))}% of ${d.parent?.data.name}</p>`)
             .insert("svg", ":first-child").attr("width", 30)
             .attr("height", 30)
             .append("path")
