@@ -63,7 +63,7 @@ export default class Sunburst {
         const rootNode = d3.hierarchy<DataNode>(processedData);
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
-        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : this.settings.selfCountAccessor(d));
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.selfCount);
 
         console.log(rootNode);
 
@@ -133,9 +133,7 @@ export default class Sunburst {
         }
         if (this.settings.useFixedColors) {
             return this.settings.fixedColorPalette[
-                Math.abs(
-                    StringUtils.stringHash(d.name + " " + d.data.rank)
-                ) % this.settings.fixedColorPalette.length
+                Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
             ];
         } else {
             if (d.children.length > 0) {
@@ -153,10 +151,10 @@ export default class Sunburst {
                 return d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
             }
             // if we don't have children, pick a new color
-            if (!d.data.color) {
-                d.data.color = this.getColor();
+            if (!d.extra.color) {
+                d.extra.color = this.getColor();
             }
-            return d.data.color;
+            return d.extra.color;
         }
     }
 
@@ -456,7 +454,7 @@ export default class Sunburst {
             .outerRadius(15)
             .startAngle(0)
             .endAngle((d: any) => {
-                return 2 * Math.PI * this.settings.countAccessor(d.data) / this.settings.countAccessor(d.parent!.data)
+                return 2 * Math.PI * d.data.count / d.parent!.data.count
             });
 
         this.breadCrumbs.selectAll(".crumb")
@@ -471,7 +469,7 @@ export default class Sunburst {
             .attr("title", (d: HRN<DataNode>) => this.settings.getTitleText(d.data))
             .html((d: HRN<DataNode>) => `
 <p class='name'>${d.data.name}</p>
-<p class='percentage'>${Math.round(100 * this.settings.countAccessor(d.data) / this.settings.countAccessor(d.parent!.data))}% of ${d.parent?.data.name}</p>`)
+<p class='percentage'>${Math.round(100 * d.data.count / d.parent!.data.count)}% of ${d.parent?.data.name}</p>`)
             .insert("svg", ":first-child").attr("width", 30)
             .attr("height", 30)
             .append("path")

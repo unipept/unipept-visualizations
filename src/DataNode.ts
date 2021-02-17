@@ -3,7 +3,9 @@ export default class DataNode {
         public id: number,
         public name: string,
         public children: DataNode[] = [],
-        public data: any = {}
+        public count: number,
+        public selfCount: number,
+        public extra: any = {}
     ) {}
 }
 
@@ -14,8 +16,12 @@ export default class DataNode {
  * placeholders during the conversion if they are not provided by the user).
  */
 export type DataNodeLike = {
+    count: number,
+    selfCount: number,
     id?: number,
     name?: string,
     children?: DataNodeLike[],
-    data?: any
+    extra?: any
 }
+
+

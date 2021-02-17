@@ -1,6 +1,7 @@
 import Settings from "./../../Settings";
 import DataNode, { DataNodeLike } from "./../../DataNode";
 import ColorPalette from "./../../color/ColorPalette";
+import StringUtils from "./../../utilities/StringUtils";
 
 export default class SunburstSettings extends Settings {
     /**
@@ -46,15 +47,6 @@ export default class SunburstSettings extends Settings {
     levels: number = 4;
 
     /**
-     * Returns the value of the given data node that should be used to count the occurrences of this node.
-     *
-     * @param node The node for which the count value should be returned.
-     */
-    selfCountAccessor: (node: DataNodeLike) => number = (node: DataNodeLike) => node.data.self_count;
-
-    countAccessor: (node: DataNodeLike) => number = (node: DataNodeLike) => node.data.count;
-
-    /**
      * Callback that's called whenever the user clicks on a node in the visualization.
      */
     rerootCallback: (node: DataNode) => void = () => {};
@@ -63,6 +55,8 @@ export default class SunburstSettings extends Settings {
      * How long should the sunburst visualization animation take (in milliseconds)?
      */
     animationDuration: number = 1000;
+
+    fixedColorHash: (node: DataNode) => number = (node: DataNode) => StringUtils.stringHash(node.name);
 
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
@@ -120,7 +114,7 @@ export default class SunburstSettings extends Settings {
      * @param x Current value for the node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipText: (x: DataNode) => string = (x: DataNode) => `${this.countAccessor(x.data.count)} hits`;
+    getTooltipText: (x: DataNode) => string = (x: DataNode) => `${x.count} hits`;
 
     getLabel: (x: DataNode) => string = (x: DataNode) => x.name === "empty" ? "" : x.name;
 

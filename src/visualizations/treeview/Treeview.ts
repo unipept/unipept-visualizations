@@ -49,7 +49,7 @@ export default class Treeview {
         const rootNode = d3.hierarchy<TreeviewNode>(data);
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
-        rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.data.count);
+        rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.count);
 
         this.widthScale = d3.scaleLinear()
             .range([this.settings.minNodeSize, this.settings.maxNodeSize]);
@@ -98,7 +98,7 @@ export default class Treeview {
     }
 
     private render(root: HPN<TreeviewNode>) {
-        this.widthScale.domain([0, root.data.data.count]);
+        this.widthScale.domain([0, root.data.count]);
 
         this.root = root;
 
@@ -140,11 +140,11 @@ export default class Treeview {
             root.data.expand(this.settings.levelsToExpand);
         } else {
             root.data.expand(1);
-            let allowedCount = root.data.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
-            const pq = new MaxCountHeap<HPN<TreeviewNode>>(root.children, (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.data.count - a.data.data.count);
+            let allowedCount = root.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
+            const pq = new MaxCountHeap<HPN<TreeviewNode>>(root.children, (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.count - a.data.count);
             while (allowedCount > 0 && pq.size() > 0) {
                 const toExpand = pq.remove();
-                allowedCount -= toExpand.data.data.count;
+                allowedCount -= toExpand.data.count;
                 toExpand.data.expand(1);
                 toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => pq.add(d));
             }
@@ -293,7 +293,7 @@ export default class Treeview {
             .style("stroke", this.settings.linkStrokeColor)
             .style("stroke-width", (d: HPL<TreeviewNode>) => {
                 if (d.source.data.isSelected()) {
-                    return this.widthScale(d.target.data.data.count) + "px";
+                    return this.widthScale(d.target.data.count) + "px";
                 } else {
                     return "4px";
                 }
@@ -329,7 +329,7 @@ export default class Treeview {
 
     private computeNodeSize(d: HPN<TreeviewNode>): number {
         if (d.data.isSelected()) {
-            return this.widthScale(d.data.data.count) / 2;
+            return this.widthScale(d.data.count) / 2;
         } else {
             return 2;
         }

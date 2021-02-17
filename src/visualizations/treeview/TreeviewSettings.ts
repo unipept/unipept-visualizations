@@ -97,5 +97,5 @@ export default class TreeviewSettings extends Settings {
      * @param x Current value for the node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipText: (x: TreeviewNode) => string = (x: TreeviewNode) => `${x.data.count} hits`;
+    getTooltipText: (x: TreeviewNode) => string = (x: TreeviewNode) => `${x.count} hits`;
 }

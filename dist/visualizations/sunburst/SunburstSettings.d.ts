@@ -1,5 +1,5 @@
 import Settings from "./../../Settings";
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import DataNode from "./../../DataNode";
 export default class SunburstSettings extends Settings {
     /**
      * Radius size of the sunburst visualization (in pixels).
@@ -36,13 +36,6 @@ export default class SunburstSettings extends Settings {
      */
     levels: number;
     /**
-     * Returns the value of the given data node that should be used to count the occurrences of this node.
-     *
-     * @param node The node for which the count value should be returned.
-     */
-    selfCountAccessor: (node: DataNodeLike) => number;
-    countAccessor: (node: DataNodeLike) => number;
-    /**
      * Callback that's called whenever the user clicks on a node in the visualization.
      */
     rerootCallback: (node: DataNode) => void;
@@ -50,6 +43,7 @@ export default class SunburstSettings extends Settings {
      * How long should the sunburst visualization animation take (in milliseconds)?
      */
     animationDuration: number;
+    fixedColorHash: (node: DataNode) => number;
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.

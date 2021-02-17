@@ -2,8 +2,10 @@ export default class DataNode {
     id: number;
     name: string;
     children: DataNode[];
-    data: any;
-    constructor(id: number, name: string, children?: DataNode[], data?: any);
+    count: number;
+    selfCount: number;
+    extra: any;
+    constructor(id: number, name: string, children: DataNode[], count: number, selfCount: number, extra?: any);
 }
 /**
  * The visualizations are flexible in the kind of data that they require. This type is very much like a DataNode, but
@@ -12,8 +14,10 @@ export default class DataNode {
  * placeholders during the conversion if they are not provided by the user).
  */
 export declare type DataNodeLike = {
+    count: number;
+    selfCount: number;
     id?: number;
     name?: string;
     children?: DataNodeLike[];
-    data?: any;
+    extra?: any;
 };

@@ -42,7 +42,7 @@ export default class Treemap {
         this.initCss();
 
         const rootNode = d3.hierarchy<DataNode>(data);
-        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.count);
         rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
 
         this.partition = d3.treemap<DataNode>();
@@ -154,7 +154,7 @@ export default class Treemap {
         this.setBreadcrumbs();
 
         const rootNode = d3.hierarchy<DataNode>(data.data);
-        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.data.count);
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.count);
 
         rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
 
