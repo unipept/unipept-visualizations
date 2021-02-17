@@ -11,28 +11,6 @@
         <div id="d3Sunburst"></div>
 
         <script>
-            // function convert(root) {
-            //     const children = [];
-            //
-            //     if (root.children && root.children.length > 0) {
-            //         for (const child of root.children) {
-            //             children.push(convert(child));
-            //         }
-            //     }
-            //
-            //     return {
-            //         id: root.id,
-            //         name: root.name,
-            //         children: children,
-            //         count: root.data.count,
-            //         selfCount: root.data.self_count,
-            //         extra: {
-            //             valid_taxon: root.data.valid_taxon,
-            //             rank: root.data.rank
-            //         }
-            //     }
-            // }
-
             d3.json("data/taxonomy.json").then(data => {
                 const sunburst = new UnipeptVisualizations.Sunburst(
                     document.getElementById("d3Sunburst"),

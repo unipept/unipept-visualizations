@@ -3,7 +3,8 @@
     <title>Sunburst example</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
-    <!-- Visualiations -->
+
+    <!-- Visualisations -->
     <script src="../dist/bundle.js"></script>
 </head>
 
@@ -12,13 +13,10 @@
 
 <script>
     d3.json("data/flare.json").then(data => {
-        console.log(data);
         const sunburst = new UnipeptVisualizations.Sunburst(
             document.getElementById("d3Sunburst"),
             data,
             {
-                countAccessor: function (d) { return d.size; },
-                selfCountAccessor: function(d) { return d.size; },
                 width: 600,
                 height: 600,
                 enableTooltips: false,
