@@ -1,14 +1,25 @@
 import TreeviewNode from "./TreeviewNode";
+import { DataNodeLike } from "./../../DataNode";
 
 export default class TreeviewPreprocessor {
-    public preprocessData(data: TreeviewNode | any): TreeviewNode {
-        // TODO FIX
-        return new TreeviewNode(12, "x", [], 0, 0);
-        // if (data instanceof TreeviewNode) {
-        //     return data;
-        // } else {
-        //     const children: TreeviewNode[] = data.children.map((c: any) => this.preprocessData(c));
-        //     return new TreeviewNode(data.id, data.name, children, data.data);
-        // }
+    private static idCounter: number = 0;
+
+    public preprocessData(data: DataNodeLike): TreeviewNode {
+        const children: TreeviewNode[] = [];
+
+        if (data.children) {
+            for (const child of data.children) {
+                children.push(this.preprocessData(child));
+            }
+        }
+
+        return new TreeviewNode(
+            data.id || ++TreeviewPreprocessor.idCounter,
+            data.name || "",
+            children,
+            data.count,
+            data.selfCount,
+            data.extra
+        );
     }
 }

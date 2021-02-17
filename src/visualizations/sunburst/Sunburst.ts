@@ -47,9 +47,7 @@ export default class Sunburst {
         this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
 
         const preprocessor = new SunburstPreprocessor();
-        const processedData = preprocessor.preprocessData(data, this.settings);
-
-        console.log(processedData);
+        const processedData = preprocessor.preprocessData(data);
 
         if (this.settings.enableTooltips) {
             this.tooltip = TooltipUtilities.initTooltip(this.element.id);
@@ -64,8 +62,6 @@ export default class Sunburst {
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
         rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.selfCount);
-
-        console.log(rootNode);
 
         const partition = d3.partition<DataNode>();
         this.data = partition(rootNode).descendants();

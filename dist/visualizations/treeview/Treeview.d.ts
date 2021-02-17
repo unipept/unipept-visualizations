@@ -1,5 +1,5 @@
 import TreeviewSettings from "./TreeviewSettings";
-import TreeviewNode from "./TreeviewNode";
+import { DataNodeLike } from "./../../DataNode";
 export default class Treeview {
     private readonly element;
     private readonly settings;
@@ -14,7 +14,7 @@ export default class Treeview {
     private tooltipTimer;
     private zoomScale;
     private svg;
-    constructor(element: HTMLElement, data: TreeviewNode, options?: TreeviewSettings);
+    constructor(element: HTMLElement, data: DataNodeLike, options?: TreeviewSettings);
     private fillOptions;
     private render;
     private centerRoot;

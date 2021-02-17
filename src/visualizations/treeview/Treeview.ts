@@ -5,6 +5,7 @@ import TreeviewNode from "./TreeviewNode";
 import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
+import { DataNodeLike } from "./../../DataNode";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;
@@ -32,7 +33,7 @@ export default class Treeview {
 
     constructor(
         private readonly element: HTMLElement,
-        data: TreeviewNode,
+        data: DataNodeLike,
         options: TreeviewSettings = new TreeviewSettings()
     ) {
         this.settings = this.fillOptions(options);
@@ -44,9 +45,9 @@ export default class Treeview {
         }
 
         const dataProcessor = new TreeviewPreprocessor();
-        data = dataProcessor.preprocessData(data);
+        const processedData = dataProcessor.preprocessData(data);
 
-        const rootNode = d3.hierarchy<TreeviewNode>(data);
+        const rootNode = d3.hierarchy<TreeviewNode>(processedData);
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
         rootNode.sum((d: TreeviewNode) => d.children.length > 0 ? 0 : d.count);

@@ -1,8 +1,9 @@
 import * as d3 from "d3";
 import TreemapSettings from "./TreemapSettings";
-import DataNode from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import ColorUtils from "./../../color/ColorUtils";
+import TreemapPreprocessor from "./TreemapPreprocessor";
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 
@@ -27,7 +28,7 @@ export default class Treemap {
 
     constructor(
         private element: HTMLElement,
-        data: DataNode,
+        data: DataNodeLike,
         options: TreemapSettings = new TreemapSettings()
     ) {
         this.settings = this.fillOptions(options);
@@ -41,7 +42,9 @@ export default class Treemap {
 
         this.initCss();
 
-        const rootNode = d3.hierarchy<DataNode>(data);
+        const preprocessor = new TreemapPreprocessor();
+
+        const rootNode = d3.hierarchy<DataNode>(preprocessor.preprocessData(data));
         rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : d.count);
         rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
 

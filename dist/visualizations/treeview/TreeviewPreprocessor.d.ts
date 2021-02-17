@@ -1,4 +1,6 @@
 import TreeviewNode from "./TreeviewNode";
+import { DataNodeLike } from "./../../DataNode";
 export default class TreeviewPreprocessor {
-    preprocessData(data: TreeviewNode | any): TreeviewNode;
+    private static idCounter;
+    preprocessData(data: DataNodeLike): TreeviewNode;
 }
