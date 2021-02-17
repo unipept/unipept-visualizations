@@ -28,7 +28,7 @@ export default class SunburstPreprocessor {
         }
 
         if (children.length > 0 && count !== 0 && count !== undefined) {
-            children.push(new DataNode(-1, "empty", [],{}));
+            children.push(new DataNode(-1, "empty", [],{count: count, self_count: count}));
         }
 
         return new DataNode(data.id || idCount, data.name || "", children, data.data);

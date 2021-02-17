@@ -63,7 +63,7 @@ export default class Sunburst {
         const rootNode = d3.hierarchy<DataNode>(processedData);
         // We don't want D3 to compute the sum itself. That's why we need to return 0 if the current node has no
         // children.
-        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : this.settings.countAccessor(d));
+        rootNode.sum((d: DataNode) => d.children.length > 0 ? 0 : this.settings.selfCountAccessor(d));
 
         console.log(rootNode);
 
