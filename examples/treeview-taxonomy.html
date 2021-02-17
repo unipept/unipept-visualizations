@@ -15,7 +15,6 @@
 
     <script>
         d3.json("data/taxonomy.json").then(data => {
-            console.log(data);
             const treeview = new UnipeptVisualizations.Treeview(
                 document.getElementById("d3Treeview"),
                 data,

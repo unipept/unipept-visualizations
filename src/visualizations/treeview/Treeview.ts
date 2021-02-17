@@ -196,7 +196,7 @@ export default class Treeview {
             .startAngle(0)
             .endAngle(d => {
                 // @ts-ignore
-                return arcScale(d.data.data.self_count / d.data.data.count) || 0;
+                return arcScale(d.data.selfCount / d.data.count) || 0;
             });
 
         if (this.settings.enableInnerArcs) {
