@@ -36,6 +36,7 @@ export default class Sunburst {
     private textData: HRN<DataNode>[] = [];
 
     private previousRoot: HRN<DataNode> | null = null;
+    private previousMaxLevel: number = this.currentMaxLevel;
 
     constructor(
         private readonly element: HTMLElement,
@@ -327,7 +328,7 @@ export default class Sunburst {
             .attr("d", this.arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
             .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
-            .attr("fill-opacity", d => d.depth >= this.currentMaxLevel ? 0.2 : 1)
+            .attr("fill-opacity", d => d.depth >= this.previousMaxLevel ? 0.2 : 1)
             .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
                 if (d.depth < this.currentMaxLevel) {
                     this.click(d);
@@ -343,9 +344,13 @@ export default class Sunburst {
                 .duration(this.settings.animationDuration)
                 .attrTween("d", this.arcTween(parentNode, this))
                 .attr("class", (d: HRN<DataNode>) => d.depth >= this.currentMaxLevel ? "arc toHide" : "arc")
-                .on("end", () => resolve());
+                .attr("fill-opacity", d => d.depth >= this.currentMaxLevel ? 0.2 : 1)
+                .on("end", () => {
+                    resolve();
+                });
         });
 
+        this.previousMaxLevel = this.currentMaxLevel;
         this.arcData = filteredData;
     }
 

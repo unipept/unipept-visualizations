@@ -19,6 +19,7 @@ export default class Sunburst {
     private arcData;
     private textData;
     private previousRoot;
+    private previousMaxLevel;
     constructor(element: HTMLElement, data: DataNodeLike, options?: SunburstSettings);
     reset(): void;
     private fillOptions;
