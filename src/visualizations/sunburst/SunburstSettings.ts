@@ -1,5 +1,5 @@
 import Settings from "./../../Settings";
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import DataNode  from "./../../DataNode";
 import ColorPalette from "./../../color/ColorPalette";
 import StringUtils from "./../../utilities/StringUtils";
 
