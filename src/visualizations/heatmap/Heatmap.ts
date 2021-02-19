@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 import HeatmapSettings from "./HeatmapSettings";
-import UPGMAClusterer from "./../../cluster/UPGMAClusterer";
-import EuclidianDistanceMetric from "./../../metric/EuclidianDistanceMetric";
-import ClusterElement from "./../../cluster/ClusterElement";
-import TreeNode from "./../../cluster/TreeNode";
-import Reorderer from "./../../reorder/Reorderer";
-import MoloReorderer from "./../../reorder/MoloReorderer";
+import UPGMAClusterer from "./cluster/UPGMAClusterer";
+import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
+import ClusterElement from "./cluster/ClusterElement";
+import TreeNode from "./cluster/TreeNode";
+import Reorderer from "./reorder/Reorderer";
+import MoloReorderer from "./reorder/MoloReorderer";
 import HeatmapFeature from "./HeatmapFeature";
 import HeatmapValue from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";

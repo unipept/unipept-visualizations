@@ -1,5 +1,5 @@
 import TreemapSettings from "./TreemapSettings";
-import DataNode from "./../../DataNode";
+import { DataNodeLike } from "./../../DataNode";
 export default class Treemap {
     private element;
     private readonly settings;
@@ -12,7 +12,7 @@ export default class Treemap {
     private colorScale;
     private partition;
     private nodeId;
-    constructor(element: HTMLElement, data: DataNode, options?: TreemapSettings);
+    constructor(element: HTMLElement, data: DataNodeLike, options?: TreemapSettings);
     resize(newWidth: number, newHeight: number): void;
     private fillOptions;
     private initCss;

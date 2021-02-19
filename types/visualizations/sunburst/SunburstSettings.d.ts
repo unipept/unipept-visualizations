@@ -36,12 +36,6 @@ export default class SunburstSettings extends Settings {
      */
     levels: number;
     /**
-     * Returns the value of the given data node that should be used to count the occurrences of this node.
-     *
-     * @param node The node for which the count value should be returned.
-     */
-    countAccessor: (node: DataNode) => number;
-    /**
      * Callback that's called whenever the user clicks on a node in the visualization.
      */
     rerootCallback: (node: DataNode) => void;
@@ -49,6 +43,13 @@ export default class SunburstSettings extends Settings {
      * How long should the sunburst visualization animation take (in milliseconds)?
      */
     animationDuration: number;
+    /**
+     * Returns the hash that's used to determine which color should be assigned to this datanode. The hash should be
+     * a number. Hash should be the same for all nodes to which the same color should be assigned.
+     *
+     * @param node The DataNode for which the current hash should be returned.
+     */
+    fixedColorHash: (node: DataNode) => number;
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.
@@ -70,11 +71,24 @@ export default class SunburstSettings extends Settings {
     /**
      * Returns text that's being used for the body of a tooltip. This tooltip provides information to the user about
      * the node that's currently hovered by the mouse cursor.
-     **
+     *
      * @param x Current value for the node that's being hovered by the mouse cursor.
      * @return Text content that should be used for the header of the tooltip.
      */
     getTooltipText: (x: DataNode) => string;
+    /**
+     * Returns the label that should be displayed for a specific node (the label corresponds to the text shown in the
+     * visualization on top of an arc).
+     *
+     * @param x Node for which the label should be rendered.
+     * @return The label text, exactly as it should be used by the visualization.
+     */
     getLabel: (x: DataNode) => string;
+    /**
+     * Returns the label or title text that's associated to a breadcrumb for a specific node.
+     *
+     * @param x Node for which the label / title text should be rendered.
+     * @return The title that should be associated with a breadcrumb for the given node.
+     */
     getTitleText: (x: DataNode) => string;
 }

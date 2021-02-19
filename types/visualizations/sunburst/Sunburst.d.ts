@@ -1,5 +1,5 @@
 import SunburstSettings from "./SunburstSettings";
-import DataNode from "./../../DataNode";
+import { DataNodeLike } from "./../../DataNode";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 export default class Sunburst {
@@ -19,7 +19,8 @@ export default class Sunburst {
     private arcData;
     private textData;
     private previousRoot;
-    constructor(element: HTMLElement, data: DataNode, options?: SunburstSettings);
+    private previousMaxLevel;
+    constructor(element: HTMLElement, data: DataNodeLike, options?: SunburstSettings);
     reset(): void;
     private fillOptions;
     private maxY;

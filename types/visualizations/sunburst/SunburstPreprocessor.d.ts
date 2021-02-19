@@ -1,11 +1,11 @@
-import DataNode from "./../../DataNode";
-import SunburstSettings from "./SunburstSettings";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 export default class SunburstPreprocessor {
+    private static idCounter;
     /**
      * Preprocesses the given Node data structure.
      *
-     * @param data
+     * @param data A node-like structure that should be converted to proper DataNode-objects and that should be prepared
+     * for use in the Sunburst visualization.
      */
-    preprocessData(data: DataNode, settings: SunburstSettings): void;
-    private addEmptyChildren;
+    preprocessData(data: DataNodeLike): DataNode;
 }
