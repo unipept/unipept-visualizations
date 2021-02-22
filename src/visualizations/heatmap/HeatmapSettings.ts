@@ -104,8 +104,14 @@ export default class HeatmapSettings extends Settings {
      */
     dendrogramWidth: number = 100;
 
+    /**
+     * Width of the lines used to construct a dendrogram (in pixels).
+     */
     dendrogramLineWidth: number = 1;
 
+    /**
+     * Color of the lines used to construct a dendrogram (must be a valid HTML color string).
+     */
     dendrogramColor: string = "#404040";
 
     /**
