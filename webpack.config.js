@@ -19,11 +19,11 @@ module.exports = {
         extensions: [".tsx", ".ts", ".js"],
     },
     output: {
-        filename: "bundle.js",
+        filename: "unipept-visualizations.js",
         path: path.resolve(__dirname, "dist"),
         library: "UnipeptVisualizations",
         libraryTarget: "umd",
         globalObject: "this",
     },
-    mode: "development",
+    mode: "production",
 };
