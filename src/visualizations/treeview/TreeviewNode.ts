@@ -24,7 +24,7 @@ export default class TreeviewNode extends DataNode {
     }
 
     /**
-     * Mark this node and all of it's children as (de)selected.
+     * Mark this node and all of its children as (de)selected.
      *
      * @param value True if the node should be marked as selected, false otherwise.
      */
@@ -50,13 +50,12 @@ export default class TreeviewNode extends DataNode {
      */
     public collapse(): void {
         for (const child of (this.children as TreeviewNode[])) {
-            console.log("Collapsing: " + child.name);
             child.setCollapsed(true);
         }
     }
 
     /**
-     * Expand this node and all of it's children recursively.
+     * Expand this node and all of its children recursively.
      */
     public expandAll(): void {
         this.expand(100);

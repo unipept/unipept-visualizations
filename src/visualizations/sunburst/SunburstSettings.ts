@@ -47,14 +47,14 @@ export default class SunburstSettings extends Settings {
     levels: number = 4;
 
     /**
-     * Callback that's called whenever the user clicks on a node in the visualization.
-     */
-    rerootCallback: (node: DataNode) => void = () => {};
-
-    /**
      * How long should the sunburst visualization animation take (in milliseconds)?
      */
     animationDuration: number = 1000;
+
+    /**
+     * Callback that's called whenever the user clicks on a node in the visualization.
+     */
+    rerootCallback: (node: DataNode) => void = () => {};
 
     /**
      * Returns the hash that's used to determine which color should be assigned to this datanode. The hash should be
