@@ -84,7 +84,13 @@ export default class HeatmapSettings extends Settings {
      * Amount of pixels that can be taken in by the dendrogram
      */
     dendrogramWidth: number;
+    /**
+     * Width of the lines used to construct a dendrogram (in pixels).
+     */
     dendrogramLineWidth: number;
+    /**
+     * Color of the lines used to construct a dendrogram (must be a valid HTML color string).
+     */
     dendrogramColor: string;
     /**
      * Returns the html to use as tooltip for a cell. Is called with a HeatmapValue that represents the current cell and

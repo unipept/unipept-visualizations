@@ -12,7 +12,7 @@ export default class TreeviewNode extends DataNode {
     isSelected(): boolean;
     getColor(): string;
     /**
-     * Mark this node and all of it's children as (de)selected.
+     * Mark this node and all of its children as (de)selected.
      *
      * @param value True if the node should be marked as selected, false otherwise.
      */
@@ -26,7 +26,7 @@ export default class TreeviewNode extends DataNode {
      */
     collapse(): void;
     /**
-     * Expand this node and all of it's children recursively.
+     * Expand this node and all of its children recursively.
      */
     expandAll(): void;
     /**
