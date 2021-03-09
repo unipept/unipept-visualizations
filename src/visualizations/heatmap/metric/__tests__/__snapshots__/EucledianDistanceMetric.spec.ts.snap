@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EuclidianDistanceMetric should correctly calculate euclidean distances for small 2D dataset 1`] = `
+Array [
+  Array [
+    0,
+  ],
+  Array [
+    0.19999999999999996,
+    0,
+  ],
+  Array [
+    1.5206906325745548,
+    1.5660459763365826,
+    0,
+  ],
+  Array [
+    2.23606797749979,
+    2.154065922853802,
+    1.346291201783626,
+    0,
+  ],
+  Array [
+    2.5,
+    2.3853720883753127,
+    1.8200274723201295,
+    0.5,
+    0,
+  ],
+]
+`;

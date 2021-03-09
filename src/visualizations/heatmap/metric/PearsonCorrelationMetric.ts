@@ -16,9 +16,9 @@ export default class PearsonCorrelationMetric implements Metric {
     }
 
     private getPearsonCorrelationBetween2Samples(x: number[], y: number[]) {
-        let sum = (a: number, b: number) => a + b;
-        let xMean = x.reduce(sum, 0) / x.length;
-        let yMean = y.reduce(sum, 0) / y.length;
+        const sum = (a: number, b: number) => a + b;
+        const xMean = x.reduce(sum, 0) / x.length;
+        const yMean = y.reduce(sum, 0) / y.length;
 
         let numerator = 0;
         let denominator = 0;
