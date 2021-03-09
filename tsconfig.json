@@ -9,6 +9,6 @@
     "strict": true,
     "moduleResolution": "node",
     "declaration": true,
-    "types": ["d3", "node"]
+    "types": ["d3", "node", "jest"]
   }
 }
