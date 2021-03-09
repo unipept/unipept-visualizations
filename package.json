@@ -1,7 +1,9 @@
 {
     "name": "unipept-visualizations",
     "version": "2.0.6",
-    "description": "Unipept visualisation tools",
+    "description": "The Unipept visualisation library",
+    "homepage": "https://github.com/unipept/unipept-visualizations",
+    "bugs": "https://github.com/unipept/unipept-visualizations/issues",
     "main": "dist/unipept-visualizations.js",
     "typings": "./types",
     "scripts": {
@@ -9,13 +11,13 @@
         "build": "webpack",
         "types": "tsc --emitDeclarationOnly --downlevelIteration --declaration src/**/*.ts --outDir types --target esnext --skipLibCheck"
     },
-    "repository": "git@github.ugent.be:unipept/unipept-visualizations.git",
+    "repository": "github:unipept/unipept-visualizations",
     "keywords": [
         "unipept",
         "d3",
         "visualisations"
     ],
-    "author": "Bart Mesuere",
+    "author": "Team Unipept <unipept@ugent.be>",
     "contributors": [
         "Bart Mesuere",
         "Pieter Verschaffelt"
