@@ -1,5 +1,6 @@
 import DataNode from "./DataNode";
-export { DataNode };
+import { DataNodeLike } from "./DataNode";
+export { DataNode, DataNodeLike };
 export * from "./visualizations";
 export * from "./transition";
 export * from "./color";
