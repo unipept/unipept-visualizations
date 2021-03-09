@@ -76,22 +76,22 @@ export default class SunburstSettings extends Settings {
     ) => string = (value: DataNode) => {
         return `
             <style>
-                .tooltip {
+                .unipept-tooltip {
                     padding: 10px;
                     border-radius: 5px; 
                     background: rgba(0, 0, 0, 0.8); 
                     color: #fff;
                 }
                 
-                .tooltip div,a {
+                .unipept-tooltip div,a {
                     font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 }
                 
-                .tooltip div {
+                .unipept-tooltip div {
                     font-weight: bold;
                 }
             </style>
-            <div class="tooltip">
+            <div class="unipept-tooltip">
                 <div>
                     ${this.getTooltipTitle(value)}
                 </div>

@@ -1,5 +1,4 @@
-import DataNode from "./DataNode";
-import { DataNodeLike } from "./DataNode";
+import DataNode, { DataNodeLike } from "./DataNode";
 
 export { DataNode, DataNodeLike };
 export * from "./visualizations";
