@@ -1,6 +1,8 @@
-import Settings from "./../../settings";
+import Settings from "./../../Settings";
 import HeatmapFeature from "./HeatmapFeature";
 import HeatmapValue from "./HeatmapValue";
+import Clusterer from "./cluster/Clusterer";
+import Reorderer from "./reorder/Reorderer";
 export default class HeatmapSettings extends Settings {
     /**
      * The amount of pixels that can maximally be used for row labels when initially rendering the heatmap.
@@ -92,6 +94,8 @@ export default class HeatmapSettings extends Settings {
      * Color of the lines used to construct a dendrogram (must be a valid HTML color string).
      */
     dendrogramColor: string;
+    clusteringAlgorithm: Clusterer;
+    reorderer: Reorderer;
     /**
      * Returns the html to use as tooltip for a cell. Is called with a HeatmapValue that represents the current cell and
      * the row and column objects associated with the highlighted cell as parameters. The result of getTooltipTitle is

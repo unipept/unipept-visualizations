@@ -1,7 +1,12 @@
-import Settings from "./../../settings";
+import Settings from "./../../Settings";
 import HeatmapFeature from "./HeatmapFeature";
 import HeatmapValue from "./HeatmapValue";
 import { Transition } from "./../../transition/Transition";
+import Clusterer from "./cluster/Clusterer";
+import UPGMAClusterer from "./cluster/UPGMAClusterer";
+import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
+import MoloReorderer from "./reorder/MoloReorderer";
+import Reorderer from "./reorder/Reorderer";
 
 export default class HeatmapSettings extends Settings {
     /**
@@ -113,6 +118,10 @@ export default class HeatmapSettings extends Settings {
      * Color of the lines used to construct a dendrogram (must be a valid HTML color string).
      */
     dendrogramColor: string = "#404040";
+
+    clusteringAlgorithm: Clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
+
+    reorderer: Reorderer = new MoloReorderer();
 
     /**
      * Returns the html to use as tooltip for a cell. Is called with a HeatmapValue that represents the current cell and

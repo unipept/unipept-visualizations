@@ -265,8 +265,8 @@ export default class Heatmap {
     }
 
     private computeClusterRoots() {
-        let clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
-        let molo: Reorderer = new MoloReorderer();
+        let clusterer = this.settings.clusteringAlgorithm;
+        let molo: Reorderer = this.settings.reorderer;
 
         // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of
         // numbers that correspond to a row's values.
