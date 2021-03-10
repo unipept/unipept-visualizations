@@ -83,7 +83,7 @@ export default class Sunburst {
             .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
-        const visElement = d3.select("#" + this.element.id)
+        const visElement = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -93,10 +93,13 @@ export default class Sunburst {
             .attr("overflow", "hidden")
             .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
 
+        console.log(d3.select(this.element).html());
+
         visElement.append("style")
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
+        // @ts-ignore
         this.visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
