@@ -12,7 +12,7 @@ const taxonomyObject = require('./resources/taxonomy.json');
 describe("Sunburst", () => {
     let browser: any;
 
-    async function createScreenshotForSunburst(settings: SunburstSettings): Promise<any> {
+    function createJSDom() {
         const dom = new JSDOM(`<!DOCTYPE html><div id="visualization"></div>`, {
             beforeParse(window: any) {
                 window.Element.prototype.getComputedTextLength = function() {
@@ -20,6 +20,12 @@ describe("Sunburst", () => {
                 }
             }
         });
+
+        return dom;
+    }
+
+    async function createScreenshotForSunburst(settings: SunburstSettings): Promise<any> {
+        const dom = createJSDom();
 
         const element = dom.window.document.getElementById("visualization");
 
@@ -63,13 +69,7 @@ describe("Sunburst", () => {
     });
 
     it("should show breadcrumbs if a node is clicked", async() => {
-        const dom = new JSDOM(`<!DOCTYPE html><head></head><div id="visualization"></div>`, {
-            beforeParse(window: any) {
-                window.Element.prototype.getComputedTextLength = function() {
-                    return 20
-                }
-            }
-        });
+        const dom = createJSDom();
 
         const element = dom.window.document.getElementById("visualization");
 
@@ -98,13 +98,7 @@ describe("Sunburst", () => {
     });
 
     it("should trigger a custom callback when a node is clicked", async() => {
-        const dom = new JSDOM(`<!DOCTYPE html><head></head><div id="visualization"></div>`, {
-            beforeParse(window: any) {
-                window.Element.prototype.getComputedTextLength = function() {
-                    return 20
-                }
-            }
-        });
+        const dom = createJSDom();
 
         const element = dom.window.document.getElementById("visualization");
 
