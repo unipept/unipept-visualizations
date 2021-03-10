@@ -28,9 +28,13 @@ describe("Sunburst", () => {
 
         const sunburst = new Sunburst(element, taxonomyObject, settings);
 
-        await waitForCondition(() => element.innerHTML.includes("svg"), 500, 3000);
+        await waitForCondition(() => element.innerHTML.includes("svg"), 3000, 500);
 
         const page = await browser.newPage();
+        page.setViewport({
+            width: 1000,
+            height: 800
+        });
         await page.setContent(dom.serialize());
 
         const image = await page.screenshot();
@@ -56,6 +60,41 @@ describe("Sunburst", () => {
         expect(await createScreenshotForSunburst({
             getLabel: (x: DataNode) => x.id
         })).toMatchImageSnapshot();
+    });
+
+    it("should show breadcrumbs if a node is clicked", async() => {
+        const dom = new JSDOM(`<!DOCTYPE html><head></head><div id="visualization"></div>`, {
+            beforeParse(window: any) {
+                window.Element.prototype.getComputedTextLength = function() {
+                    return 20
+                }
+            }
+        });
+
+        const element = dom.window.document.getElementById("visualization");
+
+        const sunburst = new Sunburst(element, taxonomyObject, { animationDuration: 0 });
+
+        await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
+
+        // new Event("click") does apparently not work in combination with Jest and JSDOM
+        const event = dom.window.document.createEvent("CustomEvent");
+        event.initEvent("click", true, true);
+
+        element.getElementsByTagName("path").item(1).dispatchEvent(event)
+
+        await waitForCondition(() => element.innerHTML.includes("crumb"), 2000, 500);
+
+        const page = await browser.newPage();
+        page.setViewport({
+            width: 1000,
+            height: 800
+        });
+        await page.setContent(dom.serialize());
+
+        const image = await page.screenshot();
+
+        expect(image).toMatchImageSnapshot();
     });
 
     afterAll(async () => {
