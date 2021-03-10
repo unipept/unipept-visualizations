@@ -81,7 +81,7 @@ describe("Sunburst", () => {
         const event = dom.window.document.createEvent("CustomEvent");
         event.initEvent("click", true, true);
 
-        element.getElementsByTagName("path").item(1).dispatchEvent(event)
+        element.getElementsByTagName("path").item(1).dispatchEvent(event);
 
         await waitForCondition(() => element.innerHTML.includes("crumb"), 2000, 500);
 
@@ -95,6 +95,39 @@ describe("Sunburst", () => {
         const image = await page.screenshot();
 
         expect(image).toMatchImageSnapshot();
+    });
+
+    it("should trigger a custom callback when a node is clicked", async() => {
+        const dom = new JSDOM(`<!DOCTYPE html><head></head><div id="visualization"></div>`, {
+            beforeParse(window: any) {
+                window.Element.prototype.getComputedTextLength = function() {
+                    return 20
+                }
+            }
+        });
+
+        const element = dom.window.document.getElementById("visualization");
+
+        let nodeFromCallback: DataNode | null = null;
+
+        const sunburst = new Sunburst(element, taxonomyObject, { animationDuration: 0, rerootCallback: (d) => {
+                nodeFromCallback = d;
+            }
+        });
+
+        await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
+
+        expect(nodeFromCallback.name).toEqual("root");
+
+        // new Event("click") does apparently not work in combination with Jest and JSDOM
+        const event = dom.window.document.createEvent("CustomEvent");
+        event.initEvent("click", true, true);
+
+        element.getElementsByTagName("path").item(1).dispatchEvent(event);
+
+        await waitForCondition(() => element.innerHTML.includes("crumb"), 2000, 500);
+
+        expect(nodeFromCallback.name).toEqual("Eukaryota");
     });
 
     afterAll(async () => {
