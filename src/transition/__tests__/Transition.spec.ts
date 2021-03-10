@@ -1,6 +1,6 @@
 import { Transition } from "./../Transition";
 
-describe("easeInEaseOutCubic", () => {
+describe("Transition.easeInEaseOutCubic", () => {
     /**
      * We need to make sure that the transition moves equally fast at the beginning and at the end.
      */
@@ -35,7 +35,7 @@ describe("easeInEaseOutCubic", () => {
     });
 });
 
-describe("easeInCubic", () => {
+describe("Transition.easeInCubic", () => {
     it("should keep speeding up", () => {
         let previousValue = 0;
         let previousDifference = 0;
@@ -56,7 +56,7 @@ describe("easeInCubic", () => {
     });
 });
 
-describe("easeOutCubic", () => {
+describe("Transition.easeOutCubic", () => {
     it("should keep slowing down", () => {
         let previousValue = 0;
         let previousDifference = 1;
@@ -77,7 +77,7 @@ describe("easeOutCubic", () => {
     });
 });
 
-describe("easeInEaseOutElastic", () => {
+describe("Transition.easeInEaseOutElastic", () => {
     it("should speed up symmetrically", () => {
         const xLeft1 = Transition.easeInEaseOutElastic(0.1);
         const xLeft2 = Transition.easeInEaseOutElastic(0.2);
@@ -88,7 +88,7 @@ describe("easeInEaseOutElastic", () => {
     });
 });
 
-describe("easeInElastic", () => {
+describe("Transition.easeInElastic", () => {
     it("should keep speeding up", () => {
         let previousValue = 0;
         let previousDifference = 0;
@@ -101,7 +101,7 @@ describe("easeInElastic", () => {
     });
 });
 
-describe("easeOutElastic", () => {
+describe("Transition.easeOutElastic", () => {
     it("should keep slowing down", () => {
         let previousValue = 0;
         let previousDifference = Infinity;
