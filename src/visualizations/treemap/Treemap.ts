@@ -112,7 +112,7 @@ export default class Treemap {
         const styleElement = this.element.ownerDocument.createElement("style");
         styleElement.appendChild(this.element.ownerDocument.createTextNode(`
             .${elementClass} {
-                font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+                font-family: Arial,sans-serif;
             }
             .${elementClass} .node {
                 font-size: 9px;
