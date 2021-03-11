@@ -113,7 +113,8 @@ export default class Heatmap {
         // Add a canvas to the desired element and set it's required properties
         this.element.innerHTML = "";
 
-        this.visElement = d3.select("#" + this.element.id)
+        // @ts-ignore
+        this.visElement = d3.select(this.element)
             .append("canvas")
             .attr("width", this.pixelRatio * this.settings.width)
             .attr("height", this.pixelRatio * this.settings.height)

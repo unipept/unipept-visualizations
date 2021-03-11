@@ -41,11 +41,9 @@ describe("Sunburst", () => {
             width: 1000,
             height: 800
         });
+
         await page.setContent(dom.serialize());
-
-        const image = await page.screenshot();
-
-        return image;
+        return page.screenshot();
     }
 
     beforeAll(async () => {

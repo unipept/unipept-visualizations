@@ -21,8 +21,8 @@
         <script>
             d3.csv("data/clusters.csv").then(data => {
                 const items = [];
-                const columns = Object.keys(data[0]).filter(k => k !== "Family");
                 const rows = [];
+                const columns = Object.keys(data[0]).filter(k => k !== "Family");
 
                 for (const row of data) {
                     const newRow = [];
