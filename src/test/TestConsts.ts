@@ -1,7 +1,9 @@
 export type ImageSnapshotSettings = {
     comparisonMethod: string,
     customSnapshotsDir: string,
-    customDiffDir: string
+    customDiffDir: string,
+    failureThreshold: number,
+    failureThresholdType: string
 }
 
 export default class TestConsts {
@@ -10,6 +12,8 @@ export default class TestConsts {
         path = splitted.slice(0, splitted.length - 1).join("/")
         return {
             comparisonMethod: 'ssim',
+            failureThreshold: 0.01,
+            failureThresholdType: 'percent',
             customSnapshotsDir: path.replace("src", "test/snapshots"),
             customDiffDir: path.replace("src", "test/snapshots/diffs")
         };
