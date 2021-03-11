@@ -23,7 +23,12 @@ jobs:
       - name: Install Jest CLI
         run: npm i -g jest-cli
       - name: Run tests
-        run: jest
+        uses: mattallty/jest-github-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          test-command: "jest"
+          coverage-comment: false
       - name: Upload test artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
