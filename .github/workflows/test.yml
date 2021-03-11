@@ -24,3 +24,9 @@ jobs:
         run: npm i -g jest-cli
       - name: Run tests
         run: jest
+      - name: Upload test artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+            name: snapshots
+            path: test

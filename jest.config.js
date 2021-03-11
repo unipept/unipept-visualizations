@@ -12,4 +12,5 @@ module.exports = {
         "node",
     ],
     "setupFilesAfterEnv": ["<rootDir>/jest-setup.js"],
+    "snapshotResolver": "<rootDir>/snapshotResolver.js",
 };

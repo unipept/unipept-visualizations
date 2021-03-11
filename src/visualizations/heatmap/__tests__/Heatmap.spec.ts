@@ -5,6 +5,7 @@ import Heatmap from "./../Heatmap";
 import * as cluster from "cluster";
 import { JSDOM } from "jsdom";
 import { sleep, waitForCondition } from "./../../../test/TestUtils";
+import TestConsts from "./../../../test/TestConsts";
 
 const puppeteer = require("puppeteer");
 
@@ -91,7 +92,7 @@ describe("Heatmap", () => {
         const heatmap = await createHeatmap(jsDom, {});
 
         const image = await makeScreenshot(jsDom);
-        expect(image).toMatchImageSnapshot();
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should cluster the results if requested", async() => {
@@ -106,7 +107,7 @@ describe("Heatmap", () => {
         await waitForCondition(() => firstDataUrl !== canvas.toDataURL(), 2000, 500);
 
         const image = await makeScreenshot(jsDom);
-        expect(image).toMatchImageSnapshot();
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should render dendrograms if requested", async() => {
@@ -121,7 +122,7 @@ describe("Heatmap", () => {
         await waitForCondition(() => firstDataUrl !== canvas.toDataURL(), 2000, 500);
 
         const image = await makeScreenshot(jsDom);
-        expect(image).toMatchImageSnapshot();
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should change color if custom colors are configured", async() => {
@@ -129,7 +130,7 @@ describe("Heatmap", () => {
         const heatmap = await createHeatmap(jsDom, { minColor: "#ffebee", maxColor: "#c62828" });
 
         const image = await makeScreenshot(jsDom);
-        expect(image).toMatchImageSnapshot();
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     afterAll(async() => {

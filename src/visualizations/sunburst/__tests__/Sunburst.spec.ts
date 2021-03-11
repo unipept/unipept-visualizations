@@ -4,6 +4,7 @@ import Sunburst from "./../Sunburst";
 import { waitForCondition } from "./../../../test/TestUtils";
 import SunburstSettings from "./../SunburstSettings";
 import DataNode from "./../../../DataNode";
+import TestConsts from "./../../../test/TestConsts";
 
 const puppeteer = require('puppeteer');
 const { JSDOM } = require('jsdom');
@@ -51,19 +52,19 @@ describe("Sunburst", () => {
     });
 
     it("should produce the expected image with the default settings", async () => {
-        expect(await createScreenshotForSunburst({})).toMatchImageSnapshot();
+        expect(await createScreenshotForSunburst({})).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should use fixed colors if requested", async() => {
         expect(await createScreenshotForSunburst({
             useFixedColors: true
-        })).toMatchImageSnapshot();
+        })).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should change labels if requested", async() => {
         expect(await createScreenshotForSunburst({
             getLabel: (x: DataNode) => x.id
-        })).toMatchImageSnapshot();
+        })).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should show breadcrumbs if a node is clicked", async() => {
@@ -92,7 +93,7 @@ describe("Sunburst", () => {
 
         const image = await page.screenshot();
 
-        expect(image).toMatchImageSnapshot();
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should trigger a custom callback when a node is clicked", async() => {
