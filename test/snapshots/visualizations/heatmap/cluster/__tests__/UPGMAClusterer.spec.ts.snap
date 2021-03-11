@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UPGMAClusterer should cluster the provided data as expected 1`] = `
+Object {
+  "id": Array [
+    5,
+    4,
+    2,
+    1,
+    3,
+  ],
+  "leftChild": Object {
+    "id": Array [
+      5,
+      4,
+      2,
+      1,
+    ],
+    "leftChild": Object {
+      "id": Array [
+        5,
+        4,
+      ],
+      "leftChild": Object {
+        "id": Array [
+          5,
+        ],
+        "leftChild": null,
+        "rightChild": null,
+      },
+      "rightChild": Object {
+        "id": Array [
+          4,
+        ],
+        "leftChild": null,
+        "rightChild": null,
+      },
+    },
+    "rightChild": Object {
+      "id": Array [
+        2,
+        1,
+      ],
+      "leftChild": Object {
+        "id": Array [
+          2,
+        ],
+        "leftChild": null,
+        "rightChild": null,
+      },
+      "rightChild": Object {
+        "id": Array [
+          1,
+        ],
+        "leftChild": null,
+        "rightChild": null,
+      },
+    },
+  },
+  "rightChild": Object {
+    "id": Array [
+      3,
+    ],
+    "leftChild": null,
+    "rightChild": null,
+  },
+}
+`;

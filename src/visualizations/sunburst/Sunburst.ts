@@ -77,13 +77,14 @@ export default class Sunburst {
 
         // Prepare element and create SVG container
         this.element.innerHTML = "";
-        this.breadCrumbs = d3.select("#" + this.element.id)
+        // @ts-ignore
+        this.breadCrumbs = d3.select(this.element)
             .append("div")
             .attr("id", this.element.id + "-breadcrumbs")
             .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
-        const visElement = d3.select("#" + this.element.id)
+        const visElement = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -97,6 +98,7 @@ export default class Sunburst {
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
+        // @ts-ignore
         this.visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
@@ -169,8 +171,8 @@ export default class Sunburst {
         let elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
-        const styleElement = document.createElement("style");
-        styleElement.appendChild(document.createTextNode(`
+        const styleElement = this.element.ownerDocument.createElement("style");
+        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
 .${elementClass} {
     font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
     width: ${this.settings.width + this.settings.breadcrumbWidth}px;
@@ -204,7 +206,7 @@ export default class Sunburst {
 .${elementClass} .sunburst-breadcrumbs .crumb .percentage {
     font-size: 11px;
 }`))
-        document.head.appendChild(styleElement);
+        this.element.ownerDocument.head.appendChild(styleElement);
     }
 
     /**
