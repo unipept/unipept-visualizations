@@ -660,7 +660,7 @@ export default class Heatmap {
         this.context.fillStyle = this.settings.labelColor;
         this.context.textBaseline = "top";
         this.context.textAlign = "start"
-        this.context.font = `${this.settings.fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+        this.context.font = `${this.settings.fontSize}px Arial, sans-serif`;
         for (let i = 0; i < this.rows.length; i += stepSize) {
             const row = this.rows[i];
 
@@ -713,7 +713,7 @@ export default class Heatmap {
         this.context.fillStyle = this.settings.labelColor;
         this.context.textBaseline = "bottom";
         this.context.textAlign = "start";
-        this.context.font = `${this.settings.fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+        this.context.font = `${this.settings.fontSize}px Arial, sans-serif`;
         for (let i = 0; i < this.columns.length; i += stepSize) {
             const col = this.columns[i];
 
