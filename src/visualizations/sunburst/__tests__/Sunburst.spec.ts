@@ -5,9 +5,9 @@ import { waitForCondition } from "./../../../test/TestUtils";
 import SunburstSettings from "./../SunburstSettings";
 import DataNode from "./../../../DataNode";
 import TestConsts from "./../../../test/TestConsts";
+import { JSDOM } from "jsdom";
 
 const puppeteer = require('puppeteer');
-const { JSDOM } = require('jsdom');
 const taxonomyObject = require('./resources/taxonomy.json');
 
 describe("Sunburst", () => {
