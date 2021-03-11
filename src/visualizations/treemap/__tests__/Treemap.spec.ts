@@ -10,7 +10,6 @@ import DataNode from "./../../../DataNode";
 const puppeteer = require('puppeteer');
 const taxonomyObject = require('./resources/taxonomy.json');
 
-
 describe("Treemap", () => {
     let browser: any;
 
@@ -26,7 +25,7 @@ describe("Treemap", () => {
         return dom;
     }
 
-    async function createTreemap(jsDom: JSDOM, settings: TreemapSettings) {
+    async function createTreemap(jsDom: JSDOM, settings: TreemapSettings): Promise<Treemap> {
         const element = jsDom.window.document.getElementById("visualization")!;
 
         settings["width"] = 800;
@@ -42,8 +41,8 @@ describe("Treemap", () => {
     async function makeScreenshot(jsDom: JSDOM): Promise<any> {
         const page = await browser.newPage();
         page.setViewport({
-            width: 800,
-            height: 800
+            width: 1000,
+            height: 1000
         });
 
         // Render image and capture screenshot
