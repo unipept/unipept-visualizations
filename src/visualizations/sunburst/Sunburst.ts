@@ -372,11 +372,12 @@ export default class Sunburst {
         const that = this;
 
         const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
+        // eslint-disable-next-line no-undef
         let ctx: OffscreenCanvasRenderingContext2D;
         if (offscreenCanvasSupported) {
             const offscreenCanvas = new OffscreenCanvas(1, 1);
             ctx = offscreenCanvas.getContext("2d")!;
-            ctx.font = ctx!.font = `16px 'Helvetica Neue', Helvetica, Arial, sans-serif`
+            ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }
 
         // Remove old text nodes
@@ -390,7 +391,7 @@ export default class Sunburst {
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
-            .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
+            .style("font-size", function(this: SVGTextContentElement, d: HRN<DataNode>) {
                 const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
             });
@@ -411,7 +412,7 @@ export default class Sunburst {
                         return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
                     }
                 })
-                .styleTween("fill-opacity", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                .styleTween("fill-opacity", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const selectedFontSize = Number.parseInt(d3.select(this).style("font-size").replace("px", ""))
 
                     return (t: number) => {
@@ -424,7 +425,7 @@ export default class Sunburst {
                         }
                     }
                 })
-                .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                .on("end", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const availableSpace = that.computeAvailableSpace(e);
                     const node = d3.select(this);
 

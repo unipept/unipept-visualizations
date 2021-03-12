@@ -7,14 +7,14 @@ import { JSDOM } from "jsdom";
 import Treemap from "./../Treemap";
 import DataNode from "./../../../DataNode";
 
-const puppeteer = require('puppeteer');
-const taxonomyObject = require('./resources/taxonomy.json');
+const puppeteer = require("puppeteer");
+const taxonomyObject = require("./resources/taxonomy.json");
 
 describe("Treemap", () => {
     let browser: any;
 
     function createJSDom() {
-        const dom = new JSDOM(`<!DOCTYPE html><div id="visualization"></div>`, {
+        const dom = new JSDOM("<!DOCTYPE html><div id=\"visualization\"></div>", {
             beforeParse(window: any) {
                 window.Element.prototype.getComputedTextLength = function() {
                     return 20

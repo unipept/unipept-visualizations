@@ -11,9 +11,9 @@ export default class TestConsts {
         const splitted = path.split("/");
         path = splitted.slice(0, splitted.length - 1).join("/")
         return {
-            comparisonMethod: 'ssim',
+            comparisonMethod: "ssim",
             failureThreshold: 0.02,
-            failureThresholdType: 'percent',
+            failureThresholdType: "percent",
             customSnapshotsDir: path.replace("src", "test/snapshots"),
             customDiffDir: path.replace("src", "test/snapshots/diffs")
         };

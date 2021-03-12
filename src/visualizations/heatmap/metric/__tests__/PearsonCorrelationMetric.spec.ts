@@ -2,7 +2,7 @@ import TestDataGenerator from "./../../../../test/TestDataGenerator";
 import PearsonCorrelationMetric from "./../PearsonCorrelationMetric";
 
 describe("PearsonCorrelationMetric", () => {
-    it('should produce lower triangular matrices', () => {
+    it("should produce lower triangular matrices", () => {
         const dataGenerator: TestDataGenerator = new TestDataGenerator();
         const data: number[][] = dataGenerator.generateSmall2DDataset();
 
@@ -14,7 +14,7 @@ describe("PearsonCorrelationMetric", () => {
         }
     });
 
-    it('should correctly calculate pearson correlation distances for small 2D dataset', () => {
+    it("should correctly calculate pearson correlation distances for small 2D dataset", () => {
         const dataGenerator: TestDataGenerator = new TestDataGenerator();
         const data: number[][] = dataGenerator.generateSmall2DDataset();
 

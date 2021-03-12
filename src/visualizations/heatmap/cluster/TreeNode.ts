@@ -58,17 +58,17 @@ export default class TreeNode {
             return nameExtractor(this.values[0].id) + ":" + this.height;
         }
 
-        output += '(';
+        output += "(";
 
         if (this.leftChild) {
-            output += this.leftChild.toNewick(nameExtractor) + ',';
+            output += this.leftChild.toNewick(nameExtractor) + ",";
         }
 
         if (this.rightChild) {
             output += this.rightChild.toNewick(nameExtractor);
         }
 
-        output += ')' + this.id + ':' + this.height;
+        output += ")" + this.id + ":" + this.height;
 
         return output;
     }
@@ -79,9 +79,9 @@ export default class TreeNode {
     public toGraphViz(nameExtractor: (id: number) => string): string {
         let root: TreeNode | undefined = this;
 
-        let output = 'digraph dendrogram {\n';
-        let labels = '';
-        let edges = '';
+        let output = "digraph dendrogram {\n";
+        let labels = "";
+        let edges = "";
 
         let toCheck: TreeNode[] = [root];
         while (toCheck.length > 0) {
@@ -108,7 +108,7 @@ export default class TreeNode {
                 toCheck.push(root.rightChild);
             }
         }
-        output += labels + edges + '}';
+        output += labels + edges + "}";
         return output;
     }
 }
