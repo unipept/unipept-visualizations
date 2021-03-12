@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release_npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Install dependencies
+        run: npm install
+      - name: Build library
+        run: npm run build && npm run types
+      - name: Publish to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+      - name: Get latest commit SHA
+        id: commit_sha
+        shell: bash
+        run: |
+          echo "::set-output name=sha::$(git rev-parse HEAD)"
+      - name: Get package version number
+        id: package_version
+        shell: bash
+        run: |
+          echo "::set-output name=package_version::$(cat package.json | grep 'version' | sed 's/^.*\([0-9]\+.[0-9]\+.[0-9]\+\).*$/\1/')"
+      - name: Create new tag
+        uses: octokit/request-action@v2.x
+        id: create_new_tag
+        with:
+          route: POST /repos/:owner/:repo/git/tags
+          owner: mega-go
+          repo: megago
+          tag: ${{ steps.package_version.outputs.package_version }}
+          message: "Release for version ${{ steps.package_version.outputs.package_version }}"
+          object: ${{ steps.commit_sha.outputs.sha }}
+          type: commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.package_version.outputs.package_version }}
+          release_name: ${{ steps.package_version.outputs.package_version }}
+          draft: false
+          prerelease: false
