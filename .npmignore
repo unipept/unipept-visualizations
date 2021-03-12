@@ -1,0 +1,7 @@
+examples
+docs
+.github
+jest-setup.js
+jest.config.js
+snapshotResolver.js
+unipept-visualizations.iml
