@@ -1,7 +1,7 @@
 import DataNode from "./../../DataNode";
 
 export default class TreeviewNode extends DataNode {
-    public previousPosition: { x: number, y: number } = { x: 0, y: 0};
+    public previousPosition: { x: number, y: number } = { x: 0, y: 0 };
 
     private selected: boolean = false;
     private collapsed: boolean = false;

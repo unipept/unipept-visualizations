@@ -16,7 +16,7 @@ export default class ColorUtils {
      * Returns the brightness of an rgb-color.
      * from: http:// www.w3.org/WAI/ER/WD-AERT/#color-contrast
      */
-    public static brightness({r, g, b}: {r: number, g: number, b: number}): number {
+    public static brightness({ r, g, b }: {r: number, g: number, b: number}): number {
         return r * 0.299 + g * 0.587 + b * 0.114;
     }
 }

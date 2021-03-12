@@ -13,7 +13,7 @@ describe("Heatmap", () => {
     let browser: any;
 
     function createJSDom(): JSDOM {
-        const dom = new JSDOM(`<!DOCTYPE html><div id="visualization"></div>`, {
+        const dom = new JSDOM("<!DOCTYPE html><div id=\"visualization\"></div>", {
             beforeParse(window: any) {
                 window.Element.prototype.getComputedTextLength = function() {
                     return 20

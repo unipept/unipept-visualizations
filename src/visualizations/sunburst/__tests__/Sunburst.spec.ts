@@ -7,14 +7,14 @@ import DataNode from "./../../../DataNode";
 import TestConsts from "./../../../test/TestConsts";
 import { JSDOM } from "jsdom";
 
-const puppeteer = require('puppeteer');
-const taxonomyObject = require('./resources/taxonomy.json');
+const puppeteer = require("puppeteer");
+const taxonomyObject = require("./resources/taxonomy.json");
 
 describe("Sunburst", () => {
     let browser: any;
 
     function createJSDom() {
-        const dom = new JSDOM(`<!DOCTYPE html><div id="visualization"></div>`, {
+        const dom = new JSDOM("<!DOCTYPE html><div id=\"visualization\"></div>", {
             beforeParse(window: any) {
                 window.Element.prototype.getComputedTextLength = function() {
                     return 20
@@ -47,11 +47,11 @@ describe("Sunburst", () => {
         return page.screenshot();
     }
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         browser = await puppeteer.launch();
     });
 
-    it("should produce the expected image with the default settings", async () => {
+    it("should produce the expected image with the default settings", async() => {
         expect(await createScreenshotForSunburst({})).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
@@ -104,8 +104,8 @@ describe("Sunburst", () => {
         let nodeFromCallback: DataNode | null = null;
 
         const sunburst = new Sunburst(element, taxonomyObject, { animationDuration: 0, rerootCallback: (d) => {
-                nodeFromCallback = d;
-            }
+            nodeFromCallback = d;
+        }
         });
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
@@ -123,7 +123,7 @@ describe("Sunburst", () => {
         expect(nodeFromCallback.name).toEqual("Eukaryota");
     });
 
-    afterAll(async () => {
+    afterAll(async() => {
         await browser.close();
     });
 });

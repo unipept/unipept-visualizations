@@ -58,7 +58,7 @@ export default class HeatmapSettings extends Settings {
     /**
      * Classname that's internally used for the object.
      */
-    className: string = 'heatmap';
+    className: string = "heatmap";
 
     /**
      * Determines if animations should be rendered when rows and columns are reordered.
@@ -182,7 +182,7 @@ export default class HeatmapSettings extends Settings {
         row: HeatmapFeature,
         column: HeatmapFeature
     ) => string = (value: HeatmapValue, row: HeatmapFeature, column: HeatmapFeature) => {
-        return `${column.name ? column.name : ''}${column.name ? ' and ' : ''}${row.name ? row.name : ''}`;
+        return `${column.name ? column.name : ""}${column.name ? " and " : ""}${row.name ? row.name : ""}`;
     };
 
     /**
