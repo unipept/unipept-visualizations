@@ -45,7 +45,9 @@ export default class Sunburst {
     ) {
         this.settings = this.fillOptions(options);
 
-        this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
+        if (!this.element.id) {
+            this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
+        }
 
         const preprocessor = new SunburstPreprocessor();
         const processedData = preprocessor.preprocessData(data);

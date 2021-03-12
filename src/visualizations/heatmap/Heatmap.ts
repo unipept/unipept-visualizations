@@ -77,7 +77,9 @@ export default class Heatmap {
         this.settings = this.fillOptions(options);
 
         this.element = elementIdentifier;
-        this.element.id = "U_HEATMAP_" + Math.floor(Math.random() * 2**16);
+        if (!this.element.id) {
+            this.element.id = "U_HEATMAP_" + Math.floor(Math.random() * 2**16);
+        }
 
         const preprocessor = new Preprocessor();
         this.rows = preprocessor.preprocessFeatures(rowLabels);

@@ -33,8 +33,9 @@ export default class Treemap {
     ) {
         this.settings = this.fillOptions(options);
 
-
-        this.element.id = "U_TREEMAP_" + Math.floor(Math.random() * 2**16);
+        if (!this.element.id) {
+            this.element.id = "U_TREEMAP_" + Math.floor(Math.random() * 2**16);
+        }
 
         if (this.settings.enableTooltips) {
             this.tooltip = TooltipUtilities.initTooltip(this.element.id);
