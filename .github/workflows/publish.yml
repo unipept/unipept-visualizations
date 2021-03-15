@@ -1,9 +1,11 @@
 name: Publish
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      versionNumber:
+        description: 'Version number'
+        required: true
 
 jobs:
   release_npm:
@@ -13,12 +15,6 @@ jobs:
       - uses: actions/setup-node@v2
       - name: Install dependencies
         run: npm install
-      - name: Build library
-        run: npm run build && npm run types
-      - name: Publish to NPM
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
       - name: Get latest commit SHA
         id: commit_sha
         shell: bash
@@ -29,13 +25,28 @@ jobs:
         shell: bash
         run: |
           echo "::set-output name=package_version::$(cat package.json | grep 'version' | sed 's/^.*\([0-9]\+.[0-9]\+.[0-9]\+\).*$/\1/')"
+      - name: Update package version number
+        run: sed -i package.json 's/"version":"${{ steps.package.version.outputs.package_version }}"/"version":"${{ github.event.inputs.versionNumber }}"/'
+      - name: Build library
+        run: npm run build && npm run types
+      - name: Publish to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+      - name: Commit the new package (and version number)
+        uses: EndBug/add-and-commit@v7.1.0
+        with:
+          author_name: Pieter Verschaffelt
+          author_email: pieter.verschaffelt@ugent.be
+          message: Bump version number to ${{steps.package_version.outputs.package_version}}
+          push: true
       - name: Create new tag
         uses: octokit/request-action@v2.x
         id: create_new_tag
         with:
           route: POST /repos/:owner/:repo/git/tags
-          owner: mega-go
-          repo: megago
+          owner: unipept
+          repo: unipept-visualizations
           tag: ${{ steps.package_version.outputs.package_version }}
           message: "Release for version ${{ steps.package_version.outputs.package_version }}"
           object: ${{ steps.commit_sha.outputs.sha }}
