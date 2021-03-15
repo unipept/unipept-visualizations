@@ -1,11 +1,11 @@
 name: Publish
 
-on: [push]
-#  workflow_dispatch:
-#    inputs:
-#      versionNumber:
-#        description: 'Version number'
-#        required: true
+on:
+  workflow_dispatch:
+    inputs:
+      versionNumber:
+        description: 'Version number'
+        required: true
 
 jobs:
   release_npm:
