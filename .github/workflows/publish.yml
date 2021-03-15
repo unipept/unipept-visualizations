@@ -29,10 +29,6 @@ jobs:
         run: sed -i package.json 's/"version":"${{ steps.package.version.outputs.package_version }}"/"version":"${{ github.event.inputs.versionNumber }}"/'
       - name: Build library
         run: npm run build && npm run types
-      - name: Publish to NPM
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
       - name: Commit the new package (and version number)
         uses: EndBug/add-and-commit@v7.1.0
         with:
@@ -53,6 +49,11 @@ jobs:
           type: commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          dry-run: true
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
