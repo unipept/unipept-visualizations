@@ -6,6 +6,7 @@ on:
       versionNumber:
         description: 'Version number'
         required: true
+  push
 
 jobs:
   release_npm:
