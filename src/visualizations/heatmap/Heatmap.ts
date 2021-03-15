@@ -77,9 +77,6 @@ export default class Heatmap {
         this.settings = this.fillOptions(options);
 
         this.element = elementIdentifier;
-        if (!this.element.id) {
-            this.element.id = "U_HEATMAP_" + Math.floor(Math.random() * 2**16);
-        }
 
         const preprocessor = new Preprocessor();
         this.rows = preprocessor.preprocessFeatures(rowLabels);
@@ -952,7 +949,7 @@ export default class Heatmap {
     private initTooltip() {
         return d3.select("body")
             .append("div")
-            .attr("id", this.element.id + "-tooltip")
+            .attr("id", Math.floor(Math.random() * 2**16) + "-tooltip")
             .attr("class", "tip")
             .style("position", "absolute")
             .style("z-index", "10")

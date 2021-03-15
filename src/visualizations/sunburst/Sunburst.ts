@@ -45,15 +45,11 @@ export default class Sunburst {
     ) {
         this.settings = this.fillOptions(options);
 
-        if (!this.element.id) {
-            this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
-        }
-
         const preprocessor = new SunburstPreprocessor();
         const processedData = preprocessor.preprocessData(data);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+            this.tooltip = TooltipUtilities.initTooltip(Math.floor(Math.random() * 2**16).toString());
         }
 
         this.currentMaxLevel = this.settings.levels;
@@ -82,7 +78,7 @@ export default class Sunburst {
         // @ts-ignore
         this.breadCrumbs = d3.select(this.element)
             .append("div")
-            .attr("id", this.element.id + "-breadcrumbs")
+            .attr("id", Math.floor(Math.random() * 2**16) + "-breadcrumbs")
             .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
