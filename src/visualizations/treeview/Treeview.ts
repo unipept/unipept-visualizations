@@ -227,7 +227,7 @@ export default class Treeview {
         // Animate the fill and stroke of each circle (these circles make up the nodes that are rendered).
         nodeUpdate.select("circle")
             .attr("r", (d: HPN<TreeviewNode>) => this.computeNodeSize(d))
-            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.data.isCollapsed() ? 1 : 0)
+            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.children && d.children[0].data.isCollapsed() ? 1 : 0)
             .style("stroke", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
             .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeFillColor(d.data));
 
