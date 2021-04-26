@@ -12,6 +12,11 @@ export default class TreeviewNode extends DataNode {
     }
 
     public setCollapsed(value: boolean): void {
+        if (value) {
+            console.log("Collapsed " + this.id);
+        } else {
+            console.log("Expanded " + this.id);
+        }
         this.collapsed = value;
     }
 
