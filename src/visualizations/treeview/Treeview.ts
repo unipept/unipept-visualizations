@@ -139,16 +139,19 @@ export default class Treeview {
     private initialExpand(root: HPN<TreeviewNode>): void {
         if (!this.settings.enableAutoExpand) {
             root.data.expand(this.settings.levelsToExpand);
-        } else {
-            root.data.expand(1);
-            let allowedCount = root.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
-            const pq = new MaxCountHeap<HPN<TreeviewNode>>(root.children, (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.count - a.data.count);
-            while (allowedCount > 0 && pq.size() > 0) {
-                const toExpand = pq.remove();
-                allowedCount -= toExpand.data.count;
-                toExpand.data.expand(1);
-                toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => pq.add(d));
-            }
+            return;
+        }
+
+        root.data.expand(1);
+        let allowedCount = root.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
+        const pq = new MaxCountHeap<HPN<TreeviewNode>>([...(root.children || [])], (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.count - a.data.count);
+        while (allowedCount > 0 && pq.size() > 0) {
+            const toExpand = pq.remove();
+            allowedCount -= toExpand.data.count;
+            toExpand.data.expand(1);
+            toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+                pq.add(d);
+            });
         }
     }
 
