@@ -34,7 +34,7 @@ export default class Treemap {
         this.settings = this.fillOptions(options);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(Math.floor(Math.random() * 2**16).toString());
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         this.initCss();

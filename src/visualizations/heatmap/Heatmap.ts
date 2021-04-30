@@ -949,7 +949,6 @@ export default class Heatmap {
     private initTooltip() {
         return d3.select("body")
             .append("div")
-            .attr("id", Math.floor(Math.random() * 2**16) + "-tooltip")
             .attr("class", "tip")
             .style("position", "absolute")
             .style("z-index", "10")

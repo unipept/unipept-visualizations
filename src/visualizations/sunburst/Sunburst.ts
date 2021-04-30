@@ -49,7 +49,7 @@ export default class Sunburst {
         const processedData = preprocessor.preprocessData(data);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(Math.floor(Math.random() * 2**16).toString());
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         this.currentMaxLevel = this.settings.levels;
