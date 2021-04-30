@@ -101,8 +101,8 @@ export default class Heatmap {
         this.originalViewPort = {
             xTop: 0,
             yTop: 0,
-            xBottom: options.width,
-            yBottom: options.height
+            xBottom: this.settings.width,
+            yBottom: this.settings.height
         }
 
         this.currentViewPort = this.originalViewPort;
