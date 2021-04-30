@@ -38,10 +38,8 @@ export default class Treeview {
     ) {
         this.settings = this.fillOptions(options);
 
-        this.element.id = "U_TREEVIEW_" + Math.floor(Math.random() * 2**16);
-
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         const dataProcessor = new TreeviewPreprocessor();
