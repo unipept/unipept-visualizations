@@ -83,7 +83,7 @@ export default class SunburstSettings extends Settings {
                     color: #fff;
                 }
                 
-                .unipept-tooltip div,a {
+                .unipept-tooltip div, .unipept-tooltip a {
                     font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 }
                 
