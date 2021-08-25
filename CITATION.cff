@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Verschaffelt"
+    given-names: "Pieter"
+  - family-names: "Collier"
+    given-names: "James"
+  - family-names: "Botzki"
+    given-names: "Alexander"
+  - family-names: "Martens"
+    given-names: "Lennart"
+  - family-names: "Dawyndt"
+    given-names: "Peter"
+  - family-names: "Mesuere"
+    given-names: "Bart"
+    orcid: "https://orcid.org/0000-0003-0610-3441"
+  doi: "10.1093/bioinformatics/btab590"
+  journal: "Bioinformatics"
+  title: "Unipept Visualizations: An Interactive Visualization Library For Biological Data"
+  year: 2021
