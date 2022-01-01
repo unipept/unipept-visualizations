@@ -34,7 +34,7 @@
     "devDependencies": {
         "@babel/core": "^7.12.9",
         "@babel/preset-env": "^7.12.7",
-        "@types/jest": "^26.0.20",
+        "@types/jest": "^27.4.0",
         "@types/jsdom": "^16.2.7",
         "@types/puppeteer": "^5.4.3",
         "babel-loader": "^8.2.2",
