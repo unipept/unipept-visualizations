@@ -5,7 +5,7 @@ import TreeviewNode from "./TreeviewNode";
 import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import { DataNodeLike } from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;

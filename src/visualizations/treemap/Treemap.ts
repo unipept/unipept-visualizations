@@ -99,6 +99,20 @@ export default class Treemap {
         this.render(this.currentRoot, false);
     }
 
+    /**
+     * Change the root of the visualization to the node with a given ID. Note that the reroot will only be executed if
+     * a node with the given ID exists. If no node was found, nothing happens.
+     *
+     * @param nodeId ID of the node that should now become the new root of the tree.
+     * @param triggerCallback Should the `rerootCallback` be triggered for this node?
+     */
+    public reroot(nodeId: number, triggerCallback: boolean = true) {
+        const newRoot = this.data.find((obj: HRN<DataNode>) => obj.data.id === nodeId);
+        if (newRoot) {
+            this.render(newRoot, triggerCallback);
+        }
+    }
+
     private fillOptions(options: any = undefined): TreemapSettings {
         const output = new TreemapSettings();
         return Object.assign(output, options);
