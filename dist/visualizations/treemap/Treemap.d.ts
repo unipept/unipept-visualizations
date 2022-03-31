@@ -14,6 +14,7 @@ export default class Treemap {
     private nodeId;
     constructor(element: HTMLElement, data: DataNodeLike, options?: TreemapSettings);
     resize(newWidth: number, newHeight: number): void;
+    reset(): void;
     private fillOptions;
     private initCss;
     private render;
