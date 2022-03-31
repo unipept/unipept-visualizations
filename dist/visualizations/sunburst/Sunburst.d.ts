@@ -21,7 +21,18 @@ export default class Sunburst {
     private previousRoot;
     private previousMaxLevel;
     constructor(element: HTMLElement, data: DataNodeLike, options?: SunburstSettings);
+    /**
+     * Reset the current view of the visualization. The visualization will completely be reset to it's initial state.
+     */
     reset(): void;
+    /**
+     * Change the root of the visualization to the node with a given ID. Note that the reroot will only be executed if
+     * a node with the given ID exists. If no node was found, nothing happens.
+     *
+     * @param nodeId ID of the node that should now become the new root of the tree.
+     * @param triggerCallback Should the `rerootCallback` be triggered for this node?
+     */
+    reroot(nodeId: number, triggerCallback?: boolean): void;
     private fillOptions;
     private maxY;
     /**
@@ -60,6 +71,7 @@ export default class Sunburst {
      * Defines what happens after a node is clicked.
      *
      * @param d The data object of the clicked arc
+     * @param triggerCallback Should the rerootCallback function be triggered for this click?
      */
     private click;
     private renderArcs;

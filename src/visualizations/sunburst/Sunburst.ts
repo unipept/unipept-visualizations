@@ -105,8 +105,25 @@ export default class Sunburst {
         this.reset();
     }
 
+    /**
+     * Reset the current view of the visualization. The visualization will completely be reset to it's initial state.
+     */
     public reset() {
         this.click(this.data[0]);
+    }
+
+    /**
+     * Change the root of the visualization to the node with a given ID. Note that the reroot will only be executed if
+     * a node with the given ID exists. If no node was found, nothing happens.
+     *
+     * @param nodeId ID of the node that should now become the new root of the tree.
+     * @param triggerCallback Should the `rerootCallback` be triggered for this node?
+     */
+    public reroot(nodeId: number, triggerCallback: boolean = true) {
+        const newRoot = this.data.find((obj: HRN<DataNode>) => obj.data.id === nodeId);
+        if (newRoot) {
+            this.click(newRoot, triggerCallback);
+        }
     }
 
     private fillOptions(options: any = undefined): SunburstSettings {
@@ -280,8 +297,9 @@ export default class Sunburst {
      * Defines what happens after a node is clicked.
      *
      * @param d The data object of the clicked arc
+     * @param triggerCallback Should the rerootCallback function be triggered for this click?
      */
-    private click(d: HRN<DataNode>) {
+    private click(d: HRN<DataNode>, triggerCallback: boolean = true) {
         if (d.data.name === "empty" || (this.previousRoot && this.previousRoot.data.id === d.data.id)) {
             return;
         }
@@ -292,7 +310,7 @@ export default class Sunburst {
             this.setBreadcrumbs(d);
         }
 
-        if (this.settings.rerootCallback) {
+        if (this.settings.rerootCallback && triggerCallback) {
             this.settings.rerootCallback(d.data);
         }
 
