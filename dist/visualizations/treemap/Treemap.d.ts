@@ -22,6 +22,7 @@ export default class Treemap {
      * @param triggerCallback Should the `rerootCallback` be triggered for this node?
      */
     reroot(nodeId: number, triggerCallback?: boolean): void;
+    reset(): void;
     private fillOptions;
     private initCss;
     private render;

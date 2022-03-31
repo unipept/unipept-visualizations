@@ -91,6 +91,10 @@ export default class Treeview {
         this.render(this.root);
     }
 
+    public reset() {
+        this.render(this.data[0]);
+    }
+
     private fillOptions(options: any = undefined): TreeviewSettings {
         const output = new TreeviewSettings();
         return Object.assign(output, options);

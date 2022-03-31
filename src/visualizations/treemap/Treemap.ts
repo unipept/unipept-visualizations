@@ -111,6 +111,10 @@ export default class Treemap {
         }
     }
 
+    public reset() {
+        this.render(this.data[0], false);
+    }
+
     private fillOptions(options: any = undefined): TreemapSettings {
         const output = new TreemapSettings();
         return Object.assign(output, options);
