@@ -17,7 +17,7 @@ export default class SunburstSettings extends Settings {
     /**
      * Classname that's internally used for the object.
      */
-    className: string = 'sunburst';
+    className: string = "sunburst";
 
     /**
      * Should the colors that are used to mark nodes be based upon the label-names? (I.e. if this is enabled, all nodes
@@ -83,7 +83,7 @@ export default class SunburstSettings extends Settings {
                     color: #fff;
                 }
                 
-                .unipept-tooltip div,a {
+                .unipept-tooltip div, .unipept-tooltip a {
                     font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 }
                 

@@ -45,13 +45,11 @@ export default class Sunburst {
     ) {
         this.settings = this.fillOptions(options);
 
-        this.element.id = "U_SUNBURST_" + Math.floor(Math.random() * 2**16);
-
         const preprocessor = new SunburstPreprocessor();
         const processedData = preprocessor.preprocessData(data);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         this.currentMaxLevel = this.settings.levels;
@@ -77,13 +75,14 @@ export default class Sunburst {
 
         // Prepare element and create SVG container
         this.element.innerHTML = "";
-        this.breadCrumbs = d3.select("#" + this.element.id)
+        // @ts-ignore
+        this.breadCrumbs = d3.select(this.element)
             .append("div")
-            .attr("id", this.element.id + "-breadcrumbs")
+            .attr("id", Math.floor(Math.random() * 2**16) + "-breadcrumbs")
             .attr("class", "sunburst-breadcrumbs")
             .append("ul");
 
-        const visElement = d3.select("#" + this.element.id)
+        const visElement = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -97,6 +96,7 @@ export default class Sunburst {
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
+        // @ts-ignore
         this.visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
@@ -186,8 +186,8 @@ export default class Sunburst {
         let elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
-        const styleElement = document.createElement("style");
-        styleElement.appendChild(document.createTextNode(`
+        const styleElement = this.element.ownerDocument.createElement("style");
+        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
 .${elementClass} {
     font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
     width: ${this.settings.width + this.settings.breadcrumbWidth}px;
@@ -221,7 +221,7 @@ export default class Sunburst {
 .${elementClass} .sunburst-breadcrumbs .crumb .percentage {
     font-size: 11px;
 }`))
-        document.head.appendChild(styleElement);
+        this.element.ownerDocument.head.appendChild(styleElement);
     }
 
     /**
@@ -388,11 +388,12 @@ export default class Sunburst {
         const that = this;
 
         const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
+        // eslint-disable-next-line no-undef
         let ctx: OffscreenCanvasRenderingContext2D;
         if (offscreenCanvasSupported) {
             const offscreenCanvas = new OffscreenCanvas(1, 1);
             ctx = offscreenCanvas.getContext("2d")!;
-            ctx.font = ctx!.font = `16px 'Helvetica Neue', Helvetica, Arial, sans-serif`
+            ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }
 
         // Remove old text nodes
@@ -406,7 +407,7 @@ export default class Sunburst {
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
-            .style("font-size", function (this: SVGTextContentElement, d: HRN<DataNode>) {
+            .style("font-size", function(this: SVGTextContentElement, d: HRN<DataNode>) {
                 const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
             });
@@ -427,7 +428,7 @@ export default class Sunburst {
                         return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
                     }
                 })
-                .styleTween("fill-opacity", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                .styleTween("fill-opacity", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const selectedFontSize = Number.parseInt(d3.select(this).style("font-size").replace("px", ""))
 
                     return (t: number) => {
@@ -440,7 +441,7 @@ export default class Sunburst {
                         }
                     }
                 })
-                .on("end", function (this: SVGTextContentElement, e: HRN<DataNode>) {
+                .on("end", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const availableSpace = that.computeAvailableSpace(e);
                     const node = d3.select(this);
 

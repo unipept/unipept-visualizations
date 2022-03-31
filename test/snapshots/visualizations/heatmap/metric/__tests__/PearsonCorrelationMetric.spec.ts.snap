@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PearsonCorrelationMetric should correctly calculate pearson correlation distances for small 2D dataset 1`] = `
+Array [
+  Array [
+    NaN,
+  ],
+  Array [
+    NaN,
+    0,
+  ],
+  Array [
+    NaN,
+    2,
+    0,
+  ],
+  Array [
+    NaN,
+    2,
+    0,
+    0,
+  ],
+  Array [
+    NaN,
+    2,
+    0,
+    0,
+    0,
+  ],
+]
+`;

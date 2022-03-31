@@ -58,7 +58,7 @@ export default class HeatmapSettings extends Settings {
     /**
      * Classname that's internally used for the object.
      */
-    className: string = 'heatmap';
+    className: string = "heatmap";
 
     /**
      * Determines if animations should be rendered when rows and columns are reordered.
@@ -140,22 +140,22 @@ export default class HeatmapSettings extends Settings {
     ) => string = (value: HeatmapValue, row: HeatmapFeature, column: HeatmapFeature) => {
         return `
             <style>
-                .tooltip {
+                .unipept-tooltip {
                     padding: 10px;
                     border-radius: 5px; 
                     background: rgba(0, 0, 0, 0.8); 
                     color: #fff;
                 }
                 
-                .tooltip div,a {
+                .unipept-tooltip div, .unipept-tooltip a {
                     font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 }
                 
-                .tooltip div {
+                .unipept-tooltip div {
                     font-weight: bold;
                 }
             </style>
-            <div class="tooltip">
+            <div class="unipept-tooltip">
                 <div>
                     ${this.getTooltipTitle(value, row, column)}
                 </div>
@@ -182,7 +182,7 @@ export default class HeatmapSettings extends Settings {
         row: HeatmapFeature,
         column: HeatmapFeature
     ) => string = (value: HeatmapValue, row: HeatmapFeature, column: HeatmapFeature) => {
-        return `${column.name ? column.name : ''}${column.name ? ' and ' : ''}${row.name ? row.name : ''}`;
+        return `${column.name ? column.name : ""}${column.name ? " and " : ""}${row.name ? row.name : ""}`;
     };
 
     /**

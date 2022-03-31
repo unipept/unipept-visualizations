@@ -33,11 +33,8 @@ export default class Treemap {
     ) {
         this.settings = this.fillOptions(options);
 
-
-        this.element.id = "U_TREEMAP_" + Math.floor(Math.random() * 2**16);
-
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         this.initCss();
@@ -70,7 +67,8 @@ export default class Treemap {
             // @ts-ignore
             .interpolate(d3.interpolateLab);
 
-        this.breadCrumbs = d3.select("#" + this.element.id)
+        // @ts-ignore
+        this.breadCrumbs = d3.select(this.element)
             .append("div")
             .attr("class", "breadcrumbs")
             .style("position", "relative")
@@ -122,10 +120,10 @@ export default class Treemap {
         let elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
-        const styleElement = document.createElement("style");
-        styleElement.appendChild(document.createTextNode(`
+        const styleElement = this.element.ownerDocument.createElement("style");
+        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
             .${elementClass} {
-                font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+                font-family: Arial,sans-serif;
             }
             .${elementClass} .node {
                 font-size: 9px;
@@ -162,7 +160,7 @@ export default class Treemap {
                 cursor: default;
             }
         `));
-        document.head.append(styleElement);
+        this.element.ownerDocument.head.append(styleElement);
     }
 
     private render(data: HRN<DataNode>, triggerCallback: boolean = true) {

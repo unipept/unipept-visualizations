@@ -17,7 +17,7 @@ export default class EuclidianDistanceMetric implements Metric {
 
     private calculateEuclideanDistance(value1: number[], value2: number[]) {
         if (value1.length != value2.length) {
-            throw "Euclidian distance can only be calculated for 2 equally sized input arrays!";
+            throw "Euclidean distance can only be calculated for 2 equally sized input arrays!";
         }
 
         let powers = 0;

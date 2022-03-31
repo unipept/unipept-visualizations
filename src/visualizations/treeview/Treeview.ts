@@ -38,10 +38,8 @@ export default class Treeview {
     ) {
         this.settings = this.fillOptions(options);
 
-        this.element.id = "U_TREEVIEW_" + Math.floor(Math.random() * 2**16);
-
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip(this.element.id);
+            this.tooltip = TooltipUtilities.initTooltip();
         }
 
         const dataProcessor = new TreeviewPreprocessor();
@@ -71,7 +69,7 @@ export default class Treeview {
 
         this.element.innerHTML = "";
 
-        this.svg = d3.select("#" + this.element.id)
+        this.svg = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -139,16 +137,19 @@ export default class Treeview {
     private initialExpand(root: HPN<TreeviewNode>): void {
         if (!this.settings.enableAutoExpand) {
             root.data.expand(this.settings.levelsToExpand);
-        } else {
-            root.data.expand(1);
-            let allowedCount = root.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
-            const pq = new MaxCountHeap<HPN<TreeviewNode>>(root.children, (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.count - a.data.count);
-            while (allowedCount > 0 && pq.size() > 0) {
-                const toExpand = pq.remove();
-                allowedCount -= toExpand.data.count;
-                toExpand.data.expand(1);
-                toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => pq.add(d));
-            }
+            return;
+        }
+
+        root.data.expand(1);
+        let allowedCount = root.data.count * (this.settings.enableAutoExpand ? this.settings.autoExpandValue : 0.8);
+        const pq = new MaxCountHeap<HPN<TreeviewNode>>([...(root.children || [])], (a: HPN<TreeviewNode>, b: HPN<TreeviewNode>) => b.data.count - a.data.count);
+        while (allowedCount > 0 && pq.size() > 0) {
+            const toExpand = pq.remove();
+            allowedCount -= toExpand.data.count;
+            toExpand.data.expand(1);
+            toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+                pq.add(d);
+            });
         }
     }
 
@@ -227,7 +228,7 @@ export default class Treeview {
         // Animate the fill and stroke of each circle (these circles make up the nodes that are rendered).
         nodeUpdate.select("circle")
             .attr("r", (d: HPN<TreeviewNode>) => this.computeNodeSize(d))
-            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.data.isCollapsed() ? 1 : 0)
+            .style("fill-opacity", (d: HPN<TreeviewNode>) => d.children && d.children[0].data.isCollapsed() ? 1 : 0)
             .style("stroke", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
             .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeFillColor(d.data));
 
