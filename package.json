@@ -25,6 +25,7 @@
     "license": "MIT",
     "dependencies": {
         "@types/d3": "^6.2.0",
+        "@types/offscreencanvas": "^2019.7.0",
         "@typescript-eslint/eslint-plugin": "^4.17.0",
         "@typescript-eslint/parser": "^4.17.0",
         "core-js": "^3.8.1",
