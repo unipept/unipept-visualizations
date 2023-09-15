@@ -175,7 +175,7 @@ export default class Treeview {
             .attr("class", "node")
             .style("cursor", "pointer")
             // Every node is originally situated on the clicked node's (the source) position. Animations afterwards
-            // reposition the node to it's final location.
+            // reposition the node to its final location.
             .attr("transform", `translate(${source.y || 0},${source.data.previousPosition.x || 0})`)
             .on("click", (event: MouseEvent, d: HPN<TreeviewNode>) => this.click(event, d))
             .on("mouseover", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipIn(event, d))
