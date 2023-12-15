@@ -49,6 +49,12 @@ export default class TreeviewSettings extends Settings {
      */
     animationDuration: number;
     /**
+     * Amount of levels deep in the true for which the color should be set explicitly. This parameter determines up
+     * until which point in the tree the colorProvider function will be called. By default only the direct children of
+     * the root node (at level 1) are distinctly colored.
+     */
+    colorProviderLevels: number;
+    /**
      * Function that returns a color to use as a fill color.
      *
      * @param d The TreeviewNode for which the node fill color should be returned.
@@ -71,7 +77,8 @@ export default class TreeviewSettings extends Settings {
     linkStrokeColor: (l: HierarchyPointLink<TreeviewNode>) => string;
     /**
      * Function that returns the color that should be used for a specific node. This actually corresponds to the
-     * specific color scale that should be used for this visualization.
+     * specific color scale that should be used for this visualization. Note that this function will only be called for
+     * nodes up until the level in the tree specified by the parameter "colorProviderLevels".
      *
      * @param d A TreeviewNode for which the corresponding color should be computed.
      * @return The color associated with the given node.
