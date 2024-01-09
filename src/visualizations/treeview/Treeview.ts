@@ -110,8 +110,17 @@ export default class Treeview {
 
         this.root.data.setSelected(true);
 
-        this.root.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+        const updateColor = (d: HPN<TreeviewNode>, level: number) => {
             d.data.setColor(this.settings.colorProvider(d.data));
+            if (level < this.settings.colorProviderLevels && d.children) {
+                for (const child of d.children) {
+                    updateColor(child, level + 1);
+                }
+            }
+        }
+
+        this.root.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+            updateColor(d, 1);
         });
 
         if (this.settings.enableExpandOnClick) {

@@ -15,6 +15,7 @@ export default class Treeview {
     private zoomScale;
     private svg;
     constructor(element: HTMLElement, data: DataNodeLike, options?: TreeviewSettings);
+    reset(): void;
     private fillOptions;
     private render;
     private centerRoot;
