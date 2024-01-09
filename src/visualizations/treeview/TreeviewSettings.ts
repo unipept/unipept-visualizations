@@ -108,9 +108,10 @@ export default class TreeviewSettings extends Settings {
      * nodes up until the level in the tree specified by the parameter "colorProviderLevels".
      *
      * @param d A TreeviewNode for which the corresponding color should be computed.
+     * @param level The depth in the tree at which this node is situated.
      * @return The color associated with the given node.
      */
-    colorProvider: (d: TreeviewNode) => string = (d: TreeviewNode) => defaultColorScale(d.name);
+    colorProvider: (d: TreeviewNode, level?: number) => string = (d: TreeviewNode) => defaultColorScale(d.name);
 
     /**
      * Returns the label that should be displayed for a specific node (the label corresponds to the text shown in the
