@@ -1,5 +1,5 @@
 
-import { waitForCondition } from "./../../../test/TestUtils";
+import { waitForCondition } from "../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
 import TreemapSettings from "./../TreemapSettings";
 import { JSDOM } from "jsdom";
@@ -7,8 +7,8 @@ import Treemap from "./../Treemap";
 import DataNode from "./../../../DataNode";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
-const puppeteer = require("puppeteer");
-const taxonomyObject = require("./resources/taxonomy.json");
+import puppeteer from "puppeteer";
+import taxonomyObject from "./resources/taxonomy.json";
 
 describe("Treemap", () => {
     let browser: any;
@@ -56,7 +56,7 @@ describe("Treemap", () => {
 
     it("should render a treemap with default settings", async() => {
         const jsDom = createJSDom();
-        const treemap = await createTreemap(jsDom, {});
+        const treemap = await createTreemap(jsDom, new TreemapSettings());
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
@@ -67,11 +67,12 @@ describe("Treemap", () => {
 
         let nodeFromCallback: DataNode | null = null;
 
-        const treemap = await createTreemap(jsDom, {
-            rerootCallback: (d: DataNode) => nodeFromCallback = d
-        });
+        const settings = new TreemapSettings();
+        settings.rerootCallback = (d: DataNode) => nodeFromCallback = d;
 
-        expect(nodeFromCallback.name).toEqual("root");
+        const treemap = await createTreemap(jsDom, settings);
+
+        expect(nodeFromCallback!.name).toEqual("root");
 
         // new Event("click") does apparently not work in combination with Jest and JSDOM
         const event = jsDom.window.document.createEvent("CustomEvent");
@@ -79,11 +80,11 @@ describe("Treemap", () => {
 
         const oldSerializedHtml = jsDom.serialize();
 
-        jsDom.window.document.getElementsByClassName("node").item(1).dispatchEvent(event);
+        jsDom.window.document.getElementsByClassName("node").item(1)!.dispatchEvent(event);
 
         await waitForCondition(() => oldSerializedHtml !== jsDom.serialize(), 2000, 500);
 
-        expect(nodeFromCallback.name).toEqual("Bacteria");
+        expect(nodeFromCallback!.name).toEqual("Bacteria");
     });
 
     afterAll(async() => {

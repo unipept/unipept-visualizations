@@ -8,8 +8,12 @@ expect.extend({
   toMatchImageSnapshot(received, snapshotSettings) {
     const { customSnapshotsDir, customDiffDir, failureThreshold = 0.02 } = snapshotSettings || {};
 
+    if (!customSnapshotsDir) {
+      throw new Error('customSnapshotsDir must be specified');
+    }
+
     // Create directories if they don't exist
-    if (customSnapshotsDir && !fs.existsSync(customSnapshotsDir)) {
+    if (!fs.existsSync(customSnapshotsDir)) {
       fs.mkdirSync(customSnapshotsDir, { recursive: true });
     }
 
@@ -17,12 +21,16 @@ expect.extend({
       fs.mkdirSync(customDiffDir, { recursive: true });
     }
 
-    // Generate a hash of the image for the snapshot name
-    const hash = crypto.createHash('md5').update(received).digest('hex');
-    const snapshotName = `snapshot-${hash}.png`;
-    const snapshotPath = customSnapshotsDir ? path.join(customSnapshotsDir, snapshotName) : snapshotName;
+    // Extract test name from the current test context
+    const testPath = this.testPath || '';
+    const testName = path.basename(testPath, path.extname(testPath));
+    const currentTest = this.currentTestName?.replace(/\s+/g, '_') || 'unknown_test';
 
-    // If snapshot doesn't exist, create it
+    // Create a stable snapshot name based on the test name
+    const snapshotName = `${testName}_${currentTest}.png`;
+    const snapshotPath = path.join(customSnapshotsDir, snapshotName);
+
+    // If snapshot doesn't exist, create it (first run)
     if (!fs.existsSync(snapshotPath)) {
       fs.writeFileSync(snapshotPath, received);
       return {
@@ -31,16 +39,21 @@ expect.extend({
       };
     }
 
-    // For now, we'll just compare if the files are identical
-    // In a real implementation, you'd want to do a proper image comparison
+    // Compare with existing snapshot
     const existing = fs.readFileSync(snapshotPath);
     const pass = Buffer.compare(existing, received) === 0;
 
+    // If test fails and diff directory is specified, save the received image for comparison
+    if (!pass && customDiffDir) {
+      const diffPath = path.join(customDiffDir, `diff_${snapshotName}`);
+      fs.writeFileSync(diffPath, received);
+    }
+
     return {
       pass,
-      message: () => pass 
-        ? `Snapshot matches ${snapshotPath}`
-        : `Snapshot does not match ${snapshotPath}`
+      message: () => pass
+          ? `Snapshot matches ${snapshotPath}`
+          : `Snapshot does not match ${snapshotPath}. ${customDiffDir ? `See diff at ${path.join(customDiffDir, `diff_${snapshotName}`)}` : ''}`
     };
   }
 });
