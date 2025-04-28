@@ -12,8 +12,6 @@
     ],
     "scripts": {
         "test": "vitest run",
-        "test:watch": "vitest",
-        "test:ui": "vitest --ui",
         "build": "vite build",
         "dev": "vite",
         "preview": "vite preview"
@@ -38,7 +36,6 @@
         "@types/jsdom": "^16.2.7",
         "@typescript-eslint/eslint-plugin": "^4.17.0",
         "@typescript-eslint/parser": "^4.17.0",
-        "@vitest/browser": "^3.1.2",
         "@vitest/ui": "^3.1.2",
         "canvas": "^3.1.0",
         "core-js": "^3.8.1",

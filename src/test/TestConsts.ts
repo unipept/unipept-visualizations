@@ -10,6 +10,7 @@ export default class TestConsts {
     public static resolveImageSnapshotFolder(path: string): ImageSnapshotSettings {
         const splitted = path.split("/");
         path = splitted.slice(0, splitted.length - 1).join("/")
+
         return {
             comparisonMethod: "ssim",
             failureThreshold: 0.02,

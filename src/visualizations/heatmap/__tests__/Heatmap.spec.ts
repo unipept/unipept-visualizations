@@ -3,7 +3,7 @@ import Heatmap from "./../Heatmap";
 import { JSDOM } from "jsdom";
 import { sleep, waitForCondition } from "./../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 
 import puppeteer from "puppeteer";
 
@@ -88,7 +88,7 @@ describe("Heatmap", () => {
     it("should produce the expected image with default settings ", async() => {
         // This test requires the canvas package to be installed
         const jsDom = createJSDom();
-        const heatmap = await createHeatmap(jsDom, new HeatmapSettings());
+        await createHeatmap(jsDom, new HeatmapSettings());
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));

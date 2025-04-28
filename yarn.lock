@@ -664,7 +664,7 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@vitest/browser@^3.1.2", "@vitest/browser@3.1.2":
+"@vitest/browser@3.1.2":
   version "3.1.2"
   resolved "https://registry.npmjs.org/@vitest/browser/-/browser-3.1.2.tgz"
   integrity sha512-dwL6hQg3NSDP3Z4xzIZL0xHq/AkQAPQ4StFpWVlY2zbRJtK3Y2YqdFZ7YmZjszTETN1BDQZRn/QOrcP+c8ATgg==
