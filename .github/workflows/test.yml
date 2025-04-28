@@ -18,6 +18,8 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm install
+      - name: Install Chromium
+        run: npx puppeteer browsers install chrome
       - name: Install Jest CLI
         run: npm i -g jest-cli
       - name: Run tests
