@@ -1,30 +1,29 @@
 <html>
-<head>
-    <title>Sunburst example</title>
+    <head>
+        <title>Sunburst example</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    </head>
 
-    <!-- Visualisations -->
-    <script src="../dist/unipept-visualizations.js"></script>
-</head>
+    <body>
+        <div id="d3Sunburst"></div>
 
-<body>
-<div id="d3Sunburst"></div>
+        <script type="module">
+            import {Sunburst} from "../dist/unipept-visualizations.js";
 
-<script>
-    d3.json("data/flare.json").then(data => {
-        const sunburst = new UnipeptVisualizations.Sunburst(
-            document.getElementById("d3Sunburst"),
-            data,
-            {
-                width: 600,
-                height: 600,
-                enableTooltips: false,
-                fixedColors: true
-            }
-        );
-    });
-</script>
-</body>
+            d3.json("data/flare.json").then(data => {
+                new Sunburst(
+                    document.getElementById("d3Sunburst"),
+                    data,
+                    {
+                        width: 600,
+                        height: 600,
+                        enableTooltips: false,
+                        fixedColors: true
+                    }
+                );
+            });
+        </script>
+    </body>
 </html>
 

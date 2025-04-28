@@ -7,8 +7,8 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'UnipeptVisualizations',
-      fileName: (format) => `unipept-visualizations.${format === 'es' ? 'mjs' : 'js'}`,
-      formats: ['umd', 'es'],
+      fileName: (format) => `unipept-visualizations.js`,
+      formats: ['es'],
     },
     sourcemap: true,
     outDir: 'dist',

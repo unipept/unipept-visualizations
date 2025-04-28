@@ -1,31 +1,29 @@
 <html>
+    <head>
+        <title>Treeview example</title>
 
-  <head>
-    <title>Treeview example</title>
+        <!-- D3 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    </head>
 
-    <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <body>
+        <div id="d3Treeview"></div>
 
-    <!-- Visualisations -->
-    <script src="../dist/unipept-visualizations.js"></script>
-  </head>
+        <script type="module">
+            import {Treeview} from "../dist/unipept-visualizations.js";
 
-  <body>
-    <div id="d3Treeview"></div>
-
-    <script>
-        d3.json("data/taxonomy.json").then(data => {
-            const treeview = new UnipeptVisualizations.Treeview(
-                document.getElementById("d3Treeview"),
-                data,
-                {
-                    width: 900,
-                    height: 600,
-                    colorProviderLevels: 3
-                }
-            );
-        });
-    </script>
-  </body>
+            d3.json("data/taxonomy.json").then(data => {
+                new Treeview(
+                    document.getElementById("d3Treeview"),
+                    data,
+                    {
+                        width: 900,
+                        height: 600,
+                        colorProviderLevels: 3
+                    }
+                );
+            });
+        </script>
+    </body>
 
 </html>

@@ -4,8 +4,8 @@
     "description": "The Unipept visualisation library",
     "homepage": "https://github.com/unipept/unipept-visualizations",
     "bugs": "https://github.com/unipept/unipept-visualizations/issues",
+    "type": "module",
     "main": "dist/unipept-visualizations.js",
-    "module": "dist/unipept-visualizations.mjs",
     "types": "dist/index.d.ts",
     "files": [
         "dist"
@@ -38,17 +38,18 @@
         "@types/jsdom": "^16.2.7",
         "@typescript-eslint/eslint-plugin": "^4.17.0",
         "@typescript-eslint/parser": "^4.17.0",
-        "@vitest/browser": "^1.0.0",
-        "@vitest/ui": "^1.0.0",
+        "@vitest/browser": "^3.1.2",
+        "@vitest/ui": "^3.1.2",
+        "canvas": "^3.1.0",
         "core-js": "^3.8.1",
         "eslint": "^7.17.0",
         "flush-promises": "^1.0.2",
-        "jsdom": "^16.5.0",
-        "puppeteer": "^21.0.0",
+        "jsdom": "^26.1.0",
+        "puppeteer": "^24.7.2",
         "regenerator-runtime": "^0.13.7",
         "typescript": "^4.1.2",
         "vite": "^4.4.9",
         "vite-plugin-dts": "^3.5.3",
-        "vitest": "^1.0.0"
+        "vitest": "^3.1.2"
     }
 }

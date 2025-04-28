@@ -1,65 +1,64 @@
 <html>
-<head>
-    <title>Sunburst example</title>
+    <head>
+        <title>Sunburst example</title>
 
-    <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+        <><!-- D3 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 
-    <!-- Visualisations -->
-    <script src="../dist/unipept-visualizations.js"></script>
+        <script type="module">
+            import {Sunburst, StringUtils} from "../dist/unipept-visualizations.js";
 
-    <script>
-        d3.json("data/taxonomy.json").then(data => {
-            const sunburst = new UnipeptVisualizations.Sunburst(
-                document.getElementById("sunburst1"),
-                data,
-                {
-                    getTooltipText: (d) => {
-                        let numberFormat = d3.format(",d");
-                        return numberFormat(!d.selfCount ? "0" : d.selfCount) + (d.selfCount && d.selfCount === 1 ? " sequence" : " sequences") +
-                            " specific to this level<br/>" + numberFormat(!d.count ? "0" : d.count) + (d.count && d.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
-                    },
-                    width: 900,
-                    height: 400,
-                    fixedColors: true,
-                    fixedColorHash: (d) => UnipeptVisualizations.StringUtils.stringHash(d.name + " " + d.extra.rank)
-                }
-            );
-        });
+            d3.json("data/taxonomy.json").then(data => {
+                const sunburst = new Sunburst(
+                    document.getElementById("sunburst1"),
+                    data,
+                    {
+                        getTooltipText: (d) => {
+                            let numberFormat = d3.format(",d");
+                            return numberFormat(!d.selfCount ? "0" : d.selfCount) + (d.selfCount && d.selfCount === 1 ? " sequence" : " sequences") +
+                                " specific to this level<br/>" + numberFormat(!d.count ? "0" : d.count) + (d.count && d.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
+                        },
+                        width: 900,
+                        height: 400,
+                        fixedColors: true,
+                        fixedColorHash: (d) => StringUtils.stringHash(d.name + " " + d.extra.rank)
+                    }
+                );
+            });
 
-        d3.json("data/family.json").then(data => {
-            const sunburst = new UnipeptVisualizations.Sunburst(
-                document.getElementById("sunburst2"),
-                data,
-                {
-                    width: 900,
-                    height: 400
-                }
-            );
-        });
+            d3.json("data/family.json").then(data => {
+                new Sunburst(
+                    document.getElementById("sunburst2"),
+                    data,
+                    {
+                        width: 900,
+                        height: 400
+                    }
+                );
+            });
 
-        d3.json("data/flare.json").then(data => {
-            const sunburst = new UnipeptVisualizations.Sunburst(
-                document.getElementById("sunburst3"),
-                data,
-                {
-                    width: 900,
-                    height: 400,
-                    enableTooltips: false,
-                    fixedColors: true
-                }
-            );
-        });
-    </script>
-</head>
+            d3.json("data/flare.json").then(data => {
+                new Sunburst(
+                    document.getElementById("sunburst3"),
+                    data,
+                    {
+                        width: 900,
+                        height: 400,
+                        enableTooltips: false,
+                        fixedColors: true
+                    }
+                );
+            });
+        </script>
+    </head>
 
-<body>
-    <div id="sunburst1"></div>
-    <div id="sunburst2"></div>
-    <div id="sunburst3"></div>
+    <body>
+        <div id="sunburst1"></div>
+        <div id="sunburst2"></div>
+        <div id="sunburst3"></div>
 
-    <script>
+        <script>
 
-    </script>
-</body>
+        </script>
+    </body>
 </html>

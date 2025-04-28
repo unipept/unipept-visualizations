@@ -6,11 +6,5 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    transformMode: {
-      web: [/\.[jt]sx?$/],
-    },
-    deps: {
-      inline: [/d3/, /d3-.*/],
-    },
   },
 });

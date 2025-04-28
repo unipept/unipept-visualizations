@@ -5,7 +5,7 @@ import { sleep, waitForCondition } from "./../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
-const puppeteer = require("puppeteer");
+import puppeteer from "puppeteer";
 
 describe("Heatmap", () => {
     let browser: any;
@@ -61,7 +61,7 @@ describe("Heatmap", () => {
     }
 
     async function makeScreenshot(jsDom: JSDOM): Promise<any> {
-        const dataUrl = jsDom.window.document.getElementsByTagName("canvas").item(0).toDataURL();
+        const dataUrl = jsDom.window.document.getElementsByTagName("canvas").item(0)!.toDataURL();
 
         const page = await browser.newPage();
         page.setViewport({
@@ -85,23 +85,21 @@ describe("Heatmap", () => {
         browser = await puppeteer.launch();
     });
 
-    it.skip("should produce the expected image with default settings (requires canvas package)", async() => {
+    it("should produce the expected image with default settings ", async() => {
         // This test requires the canvas package to be installed
-        // Skip for now until canvas support is properly configured
         const jsDom = createJSDom();
-        const heatmap = await createHeatmap(jsDom, {});
+        const heatmap = await createHeatmap(jsDom, new HeatmapSettings());
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
-    it.skip("should cluster the results if requested (requires canvas package)", async() => {
+    it("should cluster the results if requested", async() => {
         // This test requires the canvas package to be installed
-        // Skip for now until canvas support is properly configured
         const jsDom = createJSDom();
-        const heatmap = await createHeatmap(jsDom, {});
+        const heatmap = await createHeatmap(jsDom, new HeatmapSettings());
 
-        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0);
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
         const firstDataUrl = canvas.toDataURL();
 
         heatmap.cluster();
@@ -112,13 +110,16 @@ describe("Heatmap", () => {
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
-    it.skip("should render dendrograms if requested (requires canvas package)", async() => {
+    it("should render dendrograms if requested", async() => {
         // This test requires the canvas package to be installed
-        // Skip for now until canvas support is properly configured
         const jsDom = createJSDom();
-        const heatmap = await createHeatmap(jsDom, { dendrogramEnabled: true });
 
-        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0);
+        const settings = new HeatmapSettings();
+        settings.dendrogramEnabled = true;
+
+        const heatmap = await createHeatmap(jsDom, settings);
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
         const firstDataUrl = canvas.toDataURL();
 
         heatmap.cluster();
@@ -129,11 +130,16 @@ describe("Heatmap", () => {
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
-    it.skip("should change color if custom colors are configured (requires canvas package)", async() => {
+    it("should change color if custom colors are configured", async() => {
         // This test requires the canvas package to be installed
         // Skip for now until canvas support is properly configured
         const jsDom = createJSDom();
-        const heatmap = await createHeatmap(jsDom, { minColor: "#ffebee", maxColor: "#c62828" });
+
+        const settings = new HeatmapSettings();
+        settings.minColor = "#ffebee";
+        settings.maxColor = "#c62828";
+
+        const heatmap = await createHeatmap(jsDom, settings);
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));

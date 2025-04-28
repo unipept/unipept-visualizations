@@ -6,8 +6,8 @@ import TestConsts from "./../../../test/TestConsts";
 import { JSDOM } from "jsdom";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
-const puppeteer = require("puppeteer");
-const taxonomyObject = require("./resources/taxonomy.json");
+import puppeteer from "puppeteer";
+import taxonomyObject from "./resources/taxonomy.json";
 
 describe("Sunburst", () => {
     let browser: any;
@@ -27,7 +27,7 @@ describe("Sunburst", () => {
     async function createScreenshotForSunburst(settings: SunburstSettings): Promise<any> {
         const dom = createJSDom();
 
-        const element = dom.window.document.getElementById("visualization");
+        const element = dom.window.document.getElementById("visualization")!;
 
         // Animations need to be disabled during the tests
         settings["animationDuration"] = 0;
@@ -51,27 +51,30 @@ describe("Sunburst", () => {
     });
 
     it("should produce the expected image with the default settings", async() => {
-        expect(await createScreenshotForSunburst({})).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
+        expect(await createScreenshotForSunburst(new SunburstSettings())).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should use fixed colors if requested", async() => {
-        expect(await createScreenshotForSunburst({
-            useFixedColors: true
-        })).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
+        const settings = new SunburstSettings();
+        settings.useFixedColors = true;
+        expect(await createScreenshotForSunburst(settings)).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should change labels if requested", async() => {
-        expect(await createScreenshotForSunburst({
-            getLabel: (x: DataNode) => x.id
-        })).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
+        const settings = new SunburstSettings();
+        settings.getLabel = (x: DataNode) => x.id.toString();
+        expect(await createScreenshotForSunburst(settings)).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should show breadcrumbs if a node is clicked", async() => {
         const dom = createJSDom();
 
-        const element = dom.window.document.getElementById("visualization");
+        const element = dom.window.document.getElementById("visualization")!;
 
-        const sunburst = new Sunburst(element, taxonomyObject, { animationDuration: 0 });
+        const settings = new SunburstSettings();
+        settings.animationDuration = 0;
+
+        const sunburst = new Sunburst(element, taxonomyObject, settings);
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
 
@@ -79,7 +82,7 @@ describe("Sunburst", () => {
         const event = dom.window.document.createEvent("CustomEvent");
         event.initEvent("click", true, true);
 
-        element.getElementsByTagName("path").item(1).dispatchEvent(event);
+        element.getElementsByTagName("path").item(1)!.dispatchEvent(event);
 
         await waitForCondition(() => element.innerHTML.includes("crumb"), 2000, 500);
 
@@ -98,28 +101,29 @@ describe("Sunburst", () => {
     it("should trigger a custom callback when a node is clicked", async() => {
         const dom = createJSDom();
 
-        const element = dom.window.document.getElementById("visualization");
+        const element = dom.window.document.getElementById("visualization")!;
 
         let nodeFromCallback: DataNode | null = null;
 
-        const sunburst = new Sunburst(element, taxonomyObject, { animationDuration: 0, rerootCallback: (d) => {
-            nodeFromCallback = d;
-        }
-        });
+        const settings = new SunburstSettings();
+        settings.animationDuration = 0;
+        settings.rerootCallback = (d: DataNode) => nodeFromCallback = d;
+
+        const sunburst = new Sunburst(element, taxonomyObject, settings);
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
 
-        expect(nodeFromCallback.name).toEqual("root");
+        expect(nodeFromCallback!.name).toEqual("root");
 
         // new Event("click") does apparently not work in combination with Jest and JSDOM
         const event = dom.window.document.createEvent("CustomEvent");
         event.initEvent("click", true, true);
 
-        element.getElementsByTagName("path").item(1).dispatchEvent(event);
+        element.getElementsByTagName("path").item(1)!.dispatchEvent(event);
 
         await waitForCondition(() => element.innerHTML.includes("crumb"), 2000, 500);
 
-        expect(nodeFromCallback.name).toEqual("Eukaryota");
+        expect(nodeFromCallback!.name).toEqual("Eukaryota");
     });
 
     afterAll(async() => {

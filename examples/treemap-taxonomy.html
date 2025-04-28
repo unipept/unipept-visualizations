@@ -1,35 +1,31 @@
 <html>
+    <head>
+        <title>Treemap example</title>
 
-  <head>
-    <title>Treemap example</title>
+        <!-- D3 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    </head>
 
-    <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <body>
+        <div id="d3Treemap"></div>
 
-    <!-- Visualisations -->
-    <script src="../dist/unipept-visualizations.js"></script>
+        <script type="module">
+            import {Treemap} from "./../dist/unipept-visualizations.js";
 
-  </head>
+            d3.json("data/taxonomy.json").then(data => {
+                const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
 
-  <body>
-    <div id="d3Treemap"></div>
-
-    <script>
-        d3.json("data/taxonomy.json").then(data => {
-            const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
-
-            const treemap = new UnipeptVisualizations.Treemap(
-                document.getElementById("d3Treemap"),
-                data,
-                {
-                    width: 900,
-                    height: 600,
-                    levels: ranks.length,
-                    getLevel: (d) => ranks.indexOf(d.data.extra.rank)
-                }
-            );
-        });
-    </script>
-  </body>
-
+                new Treemap(
+                    document.getElementById("d3Treemap"),
+                    data,
+                    {
+                        width: 900,
+                        height: 600,
+                        levels: ranks.length,
+                        getLevel: (d) => ranks.indexOf(d.data.extra.rank)
+                    }
+                );
+            });
+        </script>
+    </body>
 </html>
