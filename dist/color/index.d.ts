@@ -1,3 +1,4 @@
-import ColorPalette from "./ColorPalette";
-import ColorUtils from "./ColorUtils";
+import { default as ColorPalette } from './ColorPalette';
+import { default as ColorUtils } from './ColorUtils';
+
 export { ColorPalette, ColorUtils };

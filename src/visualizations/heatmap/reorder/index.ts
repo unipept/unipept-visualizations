@@ -1,4 +1,5 @@
-import Reorderer from "./Reorderer";
+import { Reorderer } from "./Reorderer";
 import MoloReorderer from "./MoloReorderer";
 
-export { Reorderer, MoloReorderer };
+export type { Reorderer };
+export { MoloReorderer };

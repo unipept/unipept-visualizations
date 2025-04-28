@@ -1,3 +1,4 @@
-import Treemap from "./Treemap";
-import TreemapSettings from "./TreemapSettings";
+import { default as Treemap } from './Treemap';
+import { default as TreemapSettings } from './TreemapSettings';
+
 export { Treemap, TreemapSettings };

@@ -1,6 +1,6 @@
 import ClusterElement from "../cluster/ClusterElement";
 
-export default interface Metric {
+export interface Metric {
     /**
      * Returns a correlation or distance matrix based upon this metric. Note that the returned matrix is lower
      * triangular.

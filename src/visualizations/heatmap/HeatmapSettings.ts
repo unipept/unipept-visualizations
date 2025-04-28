@@ -1,12 +1,12 @@
 import Settings from "./../../Settings";
-import HeatmapFeature from "./HeatmapFeature";
-import HeatmapValue from "./HeatmapValue";
+import {HeatmapFeature} from "./HeatmapFeature";
+import {HeatmapValue} from "./HeatmapValue";
 import { Transition } from "./../../transition/Transition";
-import Clusterer from "./cluster/Clusterer";
+import {Clusterer} from "./cluster/Clusterer";
 import UPGMAClusterer from "./cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
 import MoloReorderer from "./reorder/MoloReorderer";
-import Reorderer from "./reorder/Reorderer";
+import {Reorderer} from "./reorder/Reorderer";
 
 export default class HeatmapSettings extends Settings {
     /**

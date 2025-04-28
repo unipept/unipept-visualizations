@@ -1,2 +1,3 @@
-import { Transition } from "./Transition";
+import { Transition } from './Transition';
+
 export { Transition };

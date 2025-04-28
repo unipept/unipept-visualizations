@@ -1,5 +1,6 @@
-import Settings from "./../../Settings";
-import DataNode from "./../../DataNode";
+import { default as Settings } from './../../Settings';
+import { default as DataNode } from './../../DataNode';
+
 export default class SunburstSettings extends Settings {
     /**
      * Radius size of the sunburst visualization (in pixels).

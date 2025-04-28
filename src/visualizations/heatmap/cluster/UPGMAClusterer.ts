@@ -1,6 +1,6 @@
-import Clusterer from "./Clusterer";
+import { Clusterer } from "./Clusterer";
 import TreeNode from "./TreeNode";
-import Metric from "../metric/Metric";
+import { Metric } from "../metric/Metric";
 import ClusterElement from "./ClusterElement";
 import Cluster from "./Cluster";
 

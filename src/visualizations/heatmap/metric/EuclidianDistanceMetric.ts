@@ -1,4 +1,4 @@
-import Metric from "./Metric";
+import { Metric } from "./Metric";
 
 export default class EuclidianDistanceMetric implements Metric {
     getDistance(matrix: number[][]): number[][] {

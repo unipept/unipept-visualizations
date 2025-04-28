@@ -1,4 +1,5 @@
-import RenderHelper from "./RenderHelper";
+import { default as RenderHelper } from './RenderHelper';
+
 export default class CanvasRenderHelper implements RenderHelper {
     private readonly context;
     constructor(context: CanvasRenderingContext2D);

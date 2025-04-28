@@ -1,4 +1,4 @@
-import Reorderer from "./Reorderer";
+import { Reorderer } from "./Reorderer";
 import TreeNode from "../cluster/TreeNode";
 
 /**

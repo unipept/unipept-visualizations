@@ -1,8 +1,9 @@
-import Settings from "./../../Settings";
-import HeatmapFeature from "./HeatmapFeature";
-import HeatmapValue from "./HeatmapValue";
-import Clusterer from "./cluster/Clusterer";
-import Reorderer from "./reorder/Reorderer";
+import { default as Settings } from './../../Settings';
+import { HeatmapFeature } from './HeatmapFeature';
+import { HeatmapValue } from './HeatmapValue';
+import { Clusterer } from './cluster/Clusterer';
+import { Reorderer } from './reorder/Reorderer';
+
 export default class HeatmapSettings extends Settings {
     /**
      * The amount of pixels that can maximally be used for row labels when initially rendering the heatmap.

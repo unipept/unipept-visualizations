@@ -1,21 +1,28 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
-        "module": "es6",
-        "target": "es6",
+        "module": "esnext",
+        "target": "es2015",
+        "lib": ["dom", "dom.iterable", "esnext"],
         "jsx": "react",
         "allowJs": false,
         "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "sourceMap": true,
         "strict": true,
         "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
         "declaration": true,
+        "declarationDir": "./dist",
         "types": [
             "d3",
             "node",
             "jest",
-            "puppeteer",
-            "jsdom"
+            "jsdom",
+            "vite/client"
         ]
-    }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
 }

@@ -1,5 +1,6 @@
-import Metric from "./Metric";
+import { Metric } from "./Metric";
 import EuclidianDistanceMetric from "./EuclidianDistanceMetric";
 import PearsonCorrelationMetric from "./PearsonCorrelationMetric";
 
-export { Metric, EuclidianDistanceMetric, PearsonCorrelationMetric };
+export type { Metric };
+export { EuclidianDistanceMetric, PearsonCorrelationMetric };

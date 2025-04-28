@@ -1,6 +1,5 @@
-import HeatmapSettings from "./HeatmapSettings";
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+import { default as HeatmapSettings } from './HeatmapSettings';
+
 export default class Heatmap {
     private element;
     private settings;
