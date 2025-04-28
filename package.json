@@ -11,7 +11,9 @@
         "dist"
     ],
     "scripts": {
-        "test": "jest src/.*/.*.spec.ts",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui",
         "build": "vite build",
         "dev": "vite",
         "preview": "vite preview"
@@ -33,19 +35,20 @@
     },
     "devDependencies": {
         "@types/d3": "^7.4.3",
-        "@types/jest": "^26.0.20",
         "@types/jsdom": "^16.2.7",
         "@typescript-eslint/eslint-plugin": "^4.17.0",
         "@typescript-eslint/parser": "^4.17.0",
+        "@vitest/browser": "^1.0.0",
+        "@vitest/ui": "^1.0.0",
         "core-js": "^3.8.1",
         "eslint": "^7.17.0",
         "flush-promises": "^1.0.2",
-        "jest": "^26.6.3",
         "jsdom": "^16.5.0",
+        "puppeteer": "^21.0.0",
         "regenerator-runtime": "^0.13.7",
-        "ts-jest": "^26.5.3",
         "typescript": "^4.1.2",
         "vite": "^4.4.9",
-        "vite-plugin-dts": "^3.5.3"
+        "vite-plugin-dts": "^3.5.3",
+        "vitest": "^1.0.0"
     }
 }

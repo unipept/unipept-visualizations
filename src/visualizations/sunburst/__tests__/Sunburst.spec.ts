@@ -1,11 +1,10 @@
-// @ts-nocheck
-
 import Sunburst from "./../Sunburst";
 import { waitForCondition } from "./../../../test/TestUtils";
 import SunburstSettings from "./../SunburstSettings";
 import DataNode from "./../../../DataNode";
 import TestConsts from "./../../../test/TestConsts";
 import { JSDOM } from "jsdom";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 const puppeteer = require("puppeteer");
 const taxonomyObject = require("./resources/taxonomy.json");

@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { waitForCondition } from "./../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
@@ -6,6 +5,7 @@ import TreemapSettings from "./../TreemapSettings";
 import { JSDOM } from "jsdom";
 import Treemap from "./../Treemap";
 import DataNode from "./../../../DataNode";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 const puppeteer = require("puppeteer");
 const taxonomyObject = require("./resources/taxonomy.json");

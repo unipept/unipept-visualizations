@@ -13,7 +13,7 @@ export default class DataNode {
  * they are given and convert it into real DataNode's that do contain all the required fields (which will be filled with
  * placeholders during the conversion if they are not provided by the user).
  */
-export declare type DataNodeLike = {
+export type DataNodeLike = {
     count: number;
     selfCount: number;
     id?: number;

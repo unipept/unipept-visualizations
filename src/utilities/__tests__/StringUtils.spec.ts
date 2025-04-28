@@ -1,4 +1,5 @@
 import StringUtils from "./../StringUtils";
+import { describe, it, expect } from "vitest";
 
 describe("StringUtils.stringHash", () => {
     it("produces different hashes for different input strings", () => {
