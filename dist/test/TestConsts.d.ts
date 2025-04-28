@@ -1,4 +1,4 @@
-export type ImageSnapshotSettings = {
+export declare type ImageSnapshotSettings = {
     comparisonMethod: string;
     customSnapshotsDir: string;
     customDiffDir: string;
