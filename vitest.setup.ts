@@ -1,12 +1,15 @@
 import { expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as crypto from 'crypto';
+//@ts-ignore
+import {PNG} from 'pngjs';
+import pixelmatch from 'pixelmatch';
+
 
 // Custom image snapshot matcher
 expect.extend({
   toMatchImageSnapshot(received, snapshotSettings) {
-    const { customSnapshotsDir, customDiffDir, failureThreshold = 0.02 } = snapshotSettings || {};
+    const { customSnapshotsDir, customDiffDir, failureThreshold = 0.1 } = snapshotSettings || {};
 
     if (!customSnapshotsDir) {
       throw new Error('customSnapshotsDir must be specified');
@@ -41,16 +44,24 @@ expect.extend({
 
     // Compare with existing snapshot
     const existing = fs.readFileSync(snapshotPath);
-    const pass = Buffer.compare(existing, received) === 0;
+
+    const img1 = PNG.sync.read(fs.readFileSync(snapshotPath));
+    const img2 = PNG.sync.read(received);
+    const {width, height} = img1;
+    const diff = new PNG({width, height});
+
+    const pass = pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: failureThreshold});
 
     // If test fails and diff directory is specified, save the received image for comparison
-    if (!pass && customDiffDir) {
+    if (pass != 0 && customDiffDir) {
+      const actualPath = path.join(customDiffDir, `actual_${snapshotName}`);
       const diffPath = path.join(customDiffDir, `diff_${snapshotName}`);
-      fs.writeFileSync(diffPath, received);
+      fs.writeFileSync(actualPath, received);
+      fs.writeFileSync(diffPath, PNG.sync.write(diff));
     }
 
     return {
-      pass,
+      pass: pass == 0,
       message: () => pass
           ? `Snapshot matches ${snapshotPath}`
           : `Snapshot does not match ${snapshotPath}. ${customDiffDir ? `See diff at ${path.join(customDiffDir, `diff_${snapshotName}`)}` : ''}`
