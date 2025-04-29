@@ -74,6 +74,11 @@ export class BarplotSettings extends Settings {
     barHeight: number = 75;
 
     /**
+     * Classname that's internally used for the object.
+     */
+    className: string = "barplot";
+
+    /**
      * Only shows the n largest items in the barplot and moves all the others into a single group "other"
      * The order of the items is determined by looking at values in the first bar. Pass undefined into this option
      * to display all items (and disable the "other" category).
