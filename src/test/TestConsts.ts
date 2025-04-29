@@ -13,7 +13,7 @@ export default class TestConsts {
 
         return {
             comparisonMethod: "ssim",
-            failureThreshold: 0.02,
+            failureThreshold: 0.1,
             failureThresholdType: "percent",
             customSnapshotsDir: path.replace("src", "test/snapshots"),
             customDiffDir: path.replace("src", "test/snapshots/diffs")

@@ -18,11 +18,11 @@
         "types": [
             "d3",
             "node",
-            "jest",
+            "vitest/globals",
             "jsdom",
             "vite/client"
         ]
     },
-    "include": ["src"],
-    "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+    "include": ["src", "vitest-extensions.d.ts"],
+    "exclude": ["node_modules", "dist"]
 }

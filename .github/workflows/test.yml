@@ -24,3 +24,16 @@ jobs:
         run: npm i -g jest-cli
       - name: Run tests
         run: npm run test
+      - name: Sanitize filenames
+        if: failure()
+        run: |
+          find test/snapshots -depth -name '*[<>:"|?*]*' | while read file; do
+            safe_name=$(echo "$file" | sed 's/[<>:"|?*]/_/g')
+            mv "$file" "$safe_name"
+          done
+      - name: Upload failed images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+         name: regression-images
+         path: test/snapshots
