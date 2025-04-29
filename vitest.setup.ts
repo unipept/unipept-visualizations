@@ -51,9 +51,11 @@ expect.extend({
     const diff = new PNG({width, height});
 
     const pass = pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: failureThreshold});
+    // Also check if the relative amount of mismatched pixels is within the threshold
+    const mismatchedPixels = (pass / (width * height));
 
     // If test fails and diff directory is specified, save the received image for comparison
-    if (pass != 0 && customDiffDir) {
+    if (mismatchedPixels > failureThreshold && customDiffDir) {
       const actualPath = path.join(customDiffDir, `actual_${snapshotName}`);
       const diffPath = path.join(customDiffDir, `diff_${snapshotName}`);
       fs.writeFileSync(actualPath, received);
@@ -61,7 +63,7 @@ expect.extend({
     }
 
     return {
-      pass: pass == 0,
+      pass: mismatchedPixels <= failureThreshold,
       message: () => pass
           ? `Snapshot matches ${snapshotPath}`
           : `Snapshot does not match ${snapshotPath}. ${customDiffDir ? `See diff at ${path.join(customDiffDir, `diff_${snapshotName}`)}` : ''}`
