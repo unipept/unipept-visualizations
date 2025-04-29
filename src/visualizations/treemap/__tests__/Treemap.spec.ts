@@ -59,7 +59,7 @@ describe("Treemap", () => {
         const treemap = await createTreemap(jsDom, new TreemapSettings());
 
         const image = await makeScreenshot(jsDom);
-        expect(image).toMatchImageSnapshot({failureThreshold: 0.3});
+        expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
     it("should trigger a custom callback when a node is clicked in the visualization", async() => {
