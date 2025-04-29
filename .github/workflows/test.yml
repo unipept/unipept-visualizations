@@ -25,6 +25,7 @@ jobs:
       - name: Run tests
         run: npm run test
       - name: Sanitize filenames
+        if: failure()
         run: |
           find test/snapshots -depth -name '*[<>:"|?*]*' | while read file; do
             safe_name=$(echo "$file" | sed 's/[<>:"|?*]/_/g')
