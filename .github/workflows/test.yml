@@ -24,3 +24,9 @@ jobs:
         run: npm i -g jest-cli
       - name: Run tests
         run: npm run test
+      - name: Upload failed images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+         name: regression-images
+         path: test/diff
