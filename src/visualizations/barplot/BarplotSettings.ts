@@ -43,7 +43,7 @@ export class BarplotLegendSettings {
     /**
      * The number of columns that should be used in the legend.
      */
-    columns: number = 4;
+    columns: number = 3;
 
     /**
      * Maximum width of the legend (in pixels), when used in horizontal mode. The width of the complete visualization is

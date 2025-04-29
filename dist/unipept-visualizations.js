@@ -4725,102 +4725,102 @@ var J6 = TypeError, Z6 = 9007199254740991, oa = function(t) {
   if (t > Z6)
     throw J6("Maximum allowed index exceeded");
   return t;
-}, Q6 = U, t4 = lt, r4 = tr, Zr = function(t, r, e) {
-  Q6 ? t4.f(t, r, r4(0, e)) : t[r] = e;
-}, e4 = O, n4 = K, a4 = Kr, i4 = n4("species"), Li = function(t) {
-  return a4 >= 51 || !e4(function() {
+}, Q6 = U, t5 = lt, r5 = tr, Zr = function(t, r, e) {
+  Q6 ? t5.f(t, r, r5(0, e)) : t[r] = e;
+}, e5 = O, n5 = K, a5 = Kr, i5 = n5("species"), Li = function(t) {
+  return a5 >= 51 || !e5(function() {
     var r = [], e = r.constructor = {};
-    return e[i4] = function() {
+    return e[i5] = function() {
       return { foo: 1 };
     }, r[t](Boolean).foo !== 1;
   });
-}, o4 = g, s4 = O, u4 = me, l4 = Y, c4 = et, f4 = st, Y$ = oa, K$ = Zr, v4 = Ci, h4 = Li, d4 = K, g4 = Kr, dE = d4("isConcatSpreadable"), p4 = g4 >= 51 || !s4(function() {
+}, o5 = g, s5 = O, u5 = me, l5 = Y, c5 = et, f5 = st, Y$ = oa, K$ = Zr, v5 = Ci, h5 = Li, d5 = K, g5 = Kr, dE = d5("isConcatSpreadable"), p5 = g5 >= 51 || !s5(function() {
   var t = [];
   return t[dE] = !1, t.concat()[0] !== t;
-}), $4 = function(t) {
-  if (!l4(t))
+}), $5 = function(t) {
+  if (!l5(t))
     return !1;
   var r = t[dE];
-  return r !== void 0 ? !!r : u4(t);
-}, y4 = !p4 || !h4("concat");
-o4({ target: "Array", proto: !0, arity: 1, forced: y4 }, {
+  return r !== void 0 ? !!r : u5(t);
+}, y5 = !p5 || !h5("concat");
+o5({ target: "Array", proto: !0, arity: 1, forced: y5 }, {
   // eslint-disable-next-line no-unused-vars -- required for `.length`
   concat: function(r) {
-    var e = c4(this), n = v4(e, 0), a = 0, i, o, s, u, l;
+    var e = c5(this), n = v5(e, 0), a = 0, i, o, s, u, l;
     for (i = -1, s = arguments.length; i < s; i++)
-      if (l = i === -1 ? e : arguments[i], $4(l))
-        for (u = f4(l), Y$(a + u), o = 0; o < u; o++, a++)
+      if (l = i === -1 ? e : arguments[i], $5(l))
+        for (u = f5(l), Y$(a + u), o = 0; o < u; o++, a++)
           o in l && K$(n, a, l[o]);
       else
         Y$(a + 1), K$(n, a++, l);
     return n.length = a, n;
   }
 });
-var X$ = We, m4 = TypeError, Ru = function(t, r) {
+var X$ = We, m5 = TypeError, Ru = function(t, r) {
   if (!delete t[r])
-    throw new m4("Cannot delete property " + X$(r) + " of " + X$(t));
-}, b4 = et, nc = Jr, w4 = st, S4 = Ru, x4 = Math.min, gE = [].copyWithin || function(r, e) {
-  var n = b4(this), a = w4(n), i = nc(r, a), o = nc(e, a), s = arguments.length > 2 ? arguments[2] : void 0, u = x4((s === void 0 ? a : nc(s, a)) - o, a - i), l = 1;
+    throw new m5("Cannot delete property " + X$(r) + " of " + X$(t));
+}, b5 = et, nc = Jr, w5 = st, S5 = Ru, x5 = Math.min, gE = [].copyWithin || function(r, e) {
+  var n = b5(this), a = w5(n), i = nc(r, a), o = nc(e, a), s = arguments.length > 2 ? arguments[2] : void 0, u = x5((s === void 0 ? a : nc(s, a)) - o, a - i), l = 1;
   for (o < i && i < o + u && (l = -1, o += u - 1, i += u - 1); u-- > 0; )
-    o in n ? n[i] = n[o] : S4(n, i), i += l, o += l;
+    o in n ? n[i] = n[o] : S5(n, i), i += l, o += l;
   return n;
-}, E4 = g, T4 = gE, I4 = kt;
-E4({ target: "Array", proto: !0 }, {
-  copyWithin: T4
+}, E5 = g, T5 = gE, I5 = kt;
+E5({ target: "Array", proto: !0 }, {
+  copyWithin: T5
 });
-I4("copyWithin");
-var O4 = O, Qr = function(t, r) {
+I5("copyWithin");
+var O5 = O, Qr = function(t, r) {
   var e = [][t];
-  return !!e && O4(function() {
+  return !!e && O5(function() {
     e.call(null, r || function() {
       return 1;
     }, 1);
   });
-}, A4 = g, R4 = bt.every, _4 = Qr, C4 = _4("every");
-A4({ target: "Array", proto: !0, forced: !C4 }, {
+}, A5 = g, R5 = bt.every, _5 = Qr, C5 = _5("every");
+A5({ target: "Array", proto: !0, forced: !C5 }, {
   every: function(r) {
-    return R4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return R5(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-var P4 = et, J$ = Jr, M4 = st, id = function(r) {
-  for (var e = P4(this), n = M4(e), a = arguments.length, i = J$(a > 1 ? arguments[1] : void 0, n), o = a > 2 ? arguments[2] : void 0, s = o === void 0 ? n : J$(o, n); s > i; )
+var P5 = et, J$ = Jr, M5 = st, id = function(r) {
+  for (var e = P5(this), n = M5(e), a = arguments.length, i = J$(a > 1 ? arguments[1] : void 0, n), o = a > 2 ? arguments[2] : void 0, s = o === void 0 ? n : J$(o, n); s > i; )
     e[i++] = r;
   return e;
-}, N4 = g, D4 = id, F4 = kt;
-N4({ target: "Array", proto: !0 }, {
-  fill: D4
+}, N5 = g, D5 = id, F5 = kt;
+N5({ target: "Array", proto: !0 }, {
+  fill: D5
 });
-F4("fill");
-var L4 = g, k4 = bt.filter, B4 = Li, j4 = B4("filter");
-L4({ target: "Array", proto: !0, forced: !j4 }, {
+F5("fill");
+var L5 = g, k5 = bt.filter, B5 = Li, j5 = B5("filter");
+L5({ target: "Array", proto: !0, forced: !j5 }, {
   filter: function(r) {
-    return k4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return k5(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-var U4 = g, z4 = bt.find, V4 = kt, Tv = "find", pE = !0;
+var U5 = g, z5 = bt.find, V5 = kt, Tv = "find", pE = !0;
 Tv in [] && Array(1)[Tv](function() {
   pE = !1;
 });
-U4({ target: "Array", proto: !0, forced: pE }, {
+U5({ target: "Array", proto: !0, forced: pE }, {
   find: function(r) {
-    return z4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return z5(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-V4(Tv);
-var H4 = g, G4 = bt.findIndex, W4 = kt, Iv = "findIndex", $E = !0;
+V5(Tv);
+var H5 = g, G5 = bt.findIndex, W5 = kt, Iv = "findIndex", $E = !0;
 Iv in [] && Array(1)[Iv](function() {
   $E = !1;
 });
-H4({ target: "Array", proto: !0, forced: $E }, {
+H5({ target: "Array", proto: !0, forced: $E }, {
   findIndex: function(r) {
-    return G4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return G5(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-W4(Iv);
-var q4 = pr, Y4 = Qn, K4 = et, X4 = st, Z$ = function(t) {
+W5(Iv);
+var q5 = pr, Y5 = Qn, K5 = et, X5 = st, Z$ = function(t) {
   var r = t === 1;
   return function(e, n, a) {
-    for (var i = K4(e), o = Y4(i), s = X4(o), u = q4(n, a), l, c; s-- > 0; )
+    for (var i = K5(e), o = Y5(i), s = X5(o), u = q5(n, a), l, c; s-- > 0; )
       if (l = o[s], c = u(l, s, i), c)
         switch (t) {
           case 0:
@@ -4837,66 +4837,66 @@ var q4 = pr, Y4 = Qn, K4 = et, X4 = st, Z$ = function(t) {
   // `Array.prototype.findLastIndex` method
   // https://github.com/tc39/proposal-array-find-from-last
   findLastIndex: Z$(1)
-}, J4 = g, Z4 = _u.findLast, Q4 = kt;
-J4({ target: "Array", proto: !0 }, {
+}, J5 = g, Z5 = _u.findLast, Q5 = kt;
+J5({ target: "Array", proto: !0 }, {
   findLast: function(r) {
-    return Z4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return Z5(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-Q4("findLast");
-var t5 = g, r5 = _u.findLastIndex, e5 = kt;
-t5({ target: "Array", proto: !0 }, {
+Q5("findLast");
+var t4 = g, r4 = _u.findLastIndex, e4 = kt;
+t4({ target: "Array", proto: !0 }, {
   findLastIndex: function(r) {
-    return r5(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return r4(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-e5("findLastIndex");
-var n5 = me, a5 = st, i5 = oa, o5 = pr, yE = function(t, r, e, n, a, i, o, s) {
-  for (var u = a, l = 0, c = o ? o5(o, s) : !1, f, v; l < n; )
-    l in e && (f = c ? c(e[l], l, r) : e[l], i > 0 && n5(f) ? (v = a5(f), u = yE(t, r, f, v, u, i - 1) - 1) : (i5(u + 1), t[u] = f), u++), l++;
+e4("findLastIndex");
+var n4 = me, a4 = st, i4 = oa, o4 = pr, yE = function(t, r, e, n, a, i, o, s) {
+  for (var u = a, l = 0, c = o ? o4(o, s) : !1, f, v; l < n; )
+    l in e && (f = c ? c(e[l], l, r) : e[l], i > 0 && n4(f) ? (v = a4(f), u = yE(t, r, f, v, u, i - 1) - 1) : (i4(u + 1), t[u] = f), u++), l++;
   return u;
-}, mE = yE, s5 = g, u5 = mE, l5 = et, c5 = st, f5 = ft, v5 = Ci;
-s5({ target: "Array", proto: !0 }, {
+}, mE = yE, s4 = g, u4 = mE, l4 = et, c4 = st, f4 = ft, v4 = Ci;
+s4({ target: "Array", proto: !0 }, {
   flat: function() {
-    var r = arguments.length ? arguments[0] : void 0, e = l5(this), n = c5(e), a = v5(e, 0);
-    return a.length = u5(a, e, e, n, 0, r === void 0 ? 1 : f5(r)), a;
+    var r = arguments.length ? arguments[0] : void 0, e = l4(this), n = c4(e), a = v4(e, 0);
+    return a.length = u4(a, e, e, n, 0, r === void 0 ? 1 : f4(r)), a;
   }
 });
-var h5 = g, d5 = mE, g5 = tt, p5 = et, $5 = st, y5 = Ci;
-h5({ target: "Array", proto: !0 }, {
+var h4 = g, d4 = mE, g4 = tt, p4 = et, $4 = st, y4 = Ci;
+h4({ target: "Array", proto: !0 }, {
   flatMap: function(r) {
-    var e = p5(this), n = $5(e), a;
-    return g5(r), a = y5(e, 0), a.length = d5(a, e, e, n, 0, 1, r, arguments.length > 1 ? arguments[1] : void 0), a;
+    var e = p4(this), n = $4(e), a;
+    return g4(r), a = y4(e, 0), a.length = d4(a, e, e, n, 0, 1, r, arguments.length > 1 ? arguments[1] : void 0), a;
   }
 });
-var m5 = bt.forEach, b5 = Qr, w5 = b5("forEach"), bE = w5 ? [].forEach : function(r) {
-  return m5(this, r, arguments.length > 1 ? arguments[1] : void 0);
-}, S5 = g, Q$ = bE;
-S5({ target: "Array", proto: !0, forced: [].forEach !== Q$ }, {
+var m4 = bt.forEach, b4 = Qr, w4 = b4("forEach"), bE = w4 ? [].forEach : function(r) {
+  return m4(this, r, arguments.length > 1 ? arguments[1] : void 0);
+}, S4 = g, Q$ = bE;
+S4({ target: "Array", proto: !0, forced: [].forEach !== Q$ }, {
   forEach: Q$
 });
-var x5 = j, E5 = Xe, od = function(t, r, e, n) {
+var x4 = j, E4 = Xe, od = function(t, r, e, n) {
   try {
-    return n ? r(x5(e)[0], e[1]) : r(e);
+    return n ? r(x4(e)[0], e[1]) : r(e);
   } catch (a) {
-    E5(t, "throw", a);
+    E4(t, "throw", a);
   }
-}, T5 = pr, I5 = z, O5 = et, A5 = od, R5 = nd, _5 = aa, C5 = st, ty = Zr, P5 = Au, M5 = ia, ry = Array, wE = function(r) {
-  var e = O5(r), n = _5(this), a = arguments.length, i = a > 1 ? arguments[1] : void 0, o = i !== void 0;
-  o && (i = T5(i, a > 2 ? arguments[2] : void 0));
-  var s = M5(e), u = 0, l, c, f, v, h, d;
-  if (s && !(this === ry && R5(s)))
-    for (c = n ? new this() : [], v = P5(e, s), h = v.next; !(f = I5(h, v)).done; u++)
-      d = o ? A5(v, i, [f.value, u], !0) : f.value, ty(c, u, d);
+}, T4 = pr, I4 = z, O4 = et, A4 = od, R4 = nd, _4 = aa, C4 = st, ty = Zr, P4 = Au, M4 = ia, ry = Array, wE = function(r) {
+  var e = O4(r), n = _4(this), a = arguments.length, i = a > 1 ? arguments[1] : void 0, o = i !== void 0;
+  o && (i = T4(i, a > 2 ? arguments[2] : void 0));
+  var s = M4(e), u = 0, l, c, f, v, h, d;
+  if (s && !(this === ry && R4(s)))
+    for (c = n ? new this() : [], v = P4(e, s), h = v.next; !(f = I4(h, v)).done; u++)
+      d = o ? A4(v, i, [f.value, u], !0) : f.value, ty(c, u, d);
   else
-    for (l = C5(e), c = n ? new this(l) : ry(l); l > u; u++)
+    for (l = C4(e), c = n ? new this(l) : ry(l); l > u; u++)
       d = o ? i(e[u], u) : e[u], ty(c, u, d);
   return c.length = u, c;
-}, N5 = K, SE = N5("iterator"), xE = !1;
+}, N4 = K, SE = N4("iterator"), xE = !1;
 try {
-  var D5 = 0, ey = {
+  var D4 = 0, ey = {
     next: function() {
-      return { done: !!D5++ };
+      return { done: !!D4++ };
     },
     return: function() {
       xE = !0;
@@ -4929,40 +4929,40 @@ var Cu = function(t, r) {
   } catch {
   }
   return e;
-}, F5 = g, L5 = wE, k5 = Cu, B5 = !k5(function(t) {
+}, F4 = g, L4 = wE, k4 = Cu, B4 = !k4(function(t) {
   Array.from(t);
 });
-F5({ target: "Array", stat: !0, forced: B5 }, {
-  from: L5
+F4({ target: "Array", stat: !0, forced: B4 }, {
+  from: L4
 });
-var j5 = g, U5 = Ti.includes, z5 = O, V5 = kt, H5 = z5(function() {
+var j4 = g, U4 = Ti.includes, z4 = O, V4 = kt, H4 = z4(function() {
   return !Array(1).includes();
 });
-j5({ target: "Array", proto: !0, forced: H5 }, {
+j4({ target: "Array", proto: !0, forced: H4 }, {
   includes: function(r) {
-    return U5(this, r, arguments.length > 1 ? arguments[1] : void 0);
+    return U4(this, r, arguments.length > 1 ? arguments[1] : void 0);
   }
 });
-V5("includes");
-var G5 = g, W5 = qe, q5 = Ti.indexOf, Y5 = Qr, Ov = W5([].indexOf), EE = !!Ov && 1 / Ov([1], 1, -0) < 0, K5 = EE || !Y5("indexOf");
-G5({ target: "Array", proto: !0, forced: K5 }, {
+V4("includes");
+var G4 = g, W4 = qe, q4 = Ti.indexOf, Y4 = Qr, Ov = W4([].indexOf), EE = !!Ov && 1 / Ov([1], 1, -0) < 0, K4 = EE || !Y4("indexOf");
+G4({ target: "Array", proto: !0, forced: K4 }, {
   indexOf: function(r) {
     var e = arguments.length > 1 ? arguments[1] : void 0;
-    return EE ? Ov(this, r, e) || 0 : q5(this, r, e);
+    return EE ? Ov(this, r, e) || 0 : q4(this, r, e);
   }
 });
-var X5 = g, J5 = me;
-X5({ target: "Array", stat: !0 }, {
-  isArray: J5
+var X4 = g, J4 = me;
+X4({ target: "Array", stat: !0 }, {
+  isArray: J4
 });
-var Z5 = O, Q5 = Z, tj = Y, ny = Ht, rj = ct, ej = K, Av = ej("iterator"), TE = !1, Ue, ac, ic;
+var Z4 = O, Q4 = Z, tj = Y, ny = Ht, rj = ct, ej = K, Av = ej("iterator"), TE = !1, Ue, ac, ic;
 [].keys && (ic = [].keys(), "next" in ic ? (ac = ny(ny(ic)), ac !== Object.prototype && (Ue = ac)) : TE = !0);
-var nj = !tj(Ue) || Z5(function() {
+var nj = !tj(Ue) || Z4(function() {
   var t = {};
   return Ue[Av].call(t) !== t;
 });
 nj && (Ue = {});
-Q5(Ue[Av]) || rj(Ue, Av, function() {
+Q4(Ue[Av]) || rj(Ue, Av, function() {
   return this;
 });
 var ki = {
@@ -12329,7 +12329,7 @@ class iyt {
       right: 10,
       bottom: 10,
       left: 10
-    }, this.titleFontSize = 24, this.labelFontSize = 16, this.symbolSize = 16, this.columns = 4, this.width = 300, this.rowSpacing = 5, this.columnSpacing = 20;
+    }, this.titleFontSize = 24, this.labelFontSize = 16, this.symbolSize = 16, this.columns = 3, this.width = 300, this.rowSpacing = 5, this.columnSpacing = 20;
   }
 }
 class fS extends wi {
@@ -12434,9 +12434,7 @@ class vyt {
     const N = r.append("g"), m = iN().keys(Array.from(new Set(this.data.flatMap((b) => b.items.map((I) => I.label))))).value((b, I) => {
       var C;
       return ((C = b.items.find((k) => k.label === I)) == null ? void 0 : C.counts) ?? 0;
-    })(this.data);
-    console.log(m);
-    const _ = de().domain([0, Zg(m, (b) => Zg(b, (I) => I[1])) || 0]).range([0, q]), E = JS().domain(this.data.map((b, I) => I.toString())).range([0, a * this.data.length]).paddingInner(0.1).paddingOuter(0), P = [
+    })(this.data), _ = de().domain([0, Zg(m, (b) => Zg(b, (I) => I[1])) || 0]).range([0, q]), E = JS().domain(this.data.map((b, I) => I.toString())).range([0, a * this.data.length]).paddingInner(0.1).paddingOuter(0), P = [
       "#F44336",
       // red
       "#B71C1C",

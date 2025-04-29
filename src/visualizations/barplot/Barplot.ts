@@ -141,8 +141,6 @@ export default class Barplot {
             .value((d, key) => d.items.find(item => item.label === key)?.counts ?? 0)
             (this.data);
 
-        console.log(stackedData);
-
         // Scales
         const xScale = d3.scaleLinear()
             .domain([0, d3.max(stackedData, d => d3.max(d, d => d[1])) || 0])
