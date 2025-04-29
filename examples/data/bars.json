@@ -1,0 +1,248 @@
+[
+  {
+    "label": "Sample 7",
+    "items": [
+      {
+        "label": "Blautia obeum",
+        "counts": 1
+      },
+      {
+        "label": "Blautia fusiformis",
+        "counts": 1
+      },
+      {
+        "label": "Fusicatenibacter saccharivorans",
+        "counts": 6
+      },
+      {
+        "label": "Anaerostipes hadrus",
+        "counts": 2
+      },
+      {
+        "label": "Agathobacter rectalis",
+        "counts": 1
+      },
+      {
+        "label": "Roseburia intestinalis",
+        "counts": 1
+      },
+      {
+        "label": "Gemmiger formicilis",
+        "counts": 3
+      },
+      {
+        "label": "Eubacterium ventriosum",
+        "counts": 2
+      },
+      {
+        "label": "Clostridium acetobutylicum",
+        "counts": 2
+      },
+      {
+        "label": "Clostridioides difficile",
+        "counts": 4
+      },
+      {
+        "label": "Holdemanella biformis",
+        "counts": 1
+      },
+      {
+        "label": "Ligilactobacillus salivarius",
+        "counts": 1
+      },
+      {
+        "label": "Bifidobacterium adolescentis",
+        "counts": 15
+      },
+      {
+        "label": "Bifidobacterium longum",
+        "counts": 3
+      },
+      {
+        "label": "Arthrobacter oryzae",
+        "counts": 1
+      },
+      {
+        "label": "Nostoc punctiforme",
+        "counts": 2
+      },
+      {
+        "label": "Bacteroides fragilis",
+        "counts": 3
+      },
+      {
+        "label": "Bacteroides thetaiotaomicron",
+        "counts": 2
+      },
+      {
+        "label": "Rhodopseudomonas palustris",
+        "counts": 1
+      },
+      {
+        "label": "Xanthobacter autotrophicus",
+        "counts": 1
+      },
+      {
+        "label": "Nitrosospira multiformis",
+        "counts": 1
+      },
+      {
+        "label": "Homo sapiens",
+        "counts": 18
+      },
+      {
+        "label": "Pan paniscus",
+        "counts": 1
+      },
+      {
+        "label": "Sus scrofa",
+        "counts": 7
+      },
+      {
+        "label": "Oryza sativa",
+        "counts": 6
+      }
+    ]
+  },
+  {
+    "label": "Sample 8",
+    "items": [
+      {
+        "label": "Ruminococcus bromii",
+        "counts": 126
+      },
+      {
+        "label": "Ruminococcus callidus",
+        "counts": 1
+      },
+      {
+        "label": "Ruminococcus bovis",
+        "counts": 2
+      },
+      {
+        "label": "Clostridium beijerinckii",
+        "counts": 2
+      },
+      {
+        "label": "Clostridium acetobutylicum",
+        "counts": 2
+      },
+      {
+        "label": "Clostridium perfringens",
+        "counts": 3
+      },
+      {
+        "label": "Agathobacter rectalis",
+        "counts": 165
+      },
+      {
+        "label": "Blautia luti",
+        "counts": 1
+      },
+      {
+        "label": "Anaerostipes hadrus",
+        "counts": 9
+      },
+      {
+        "label": "Fusicatenibacter saccharivorans",
+        "counts": 17
+      },
+      {
+        "label": "Faecalicatena orotica",
+        "counts": 1
+      },
+      {
+        "label": "Candidatus Merdiplasma excrementigallinarum",
+        "counts": 1
+      },
+      {
+        "label": "Mediterraneibacter gnavus",
+        "counts": 1
+      },
+      {
+        "label": "[Ruminococcus] torques",
+        "counts": 1
+      },
+      {
+        "label": "Coprococcus comes",
+        "counts": 1
+      },
+      {
+        "label": "Listeria monocytogenes",
+        "counts": 1
+      },
+      {
+        "label": "Lactiplantibacillus plantarum",
+        "counts": 1
+      },
+      {
+        "label": "Holdemanella biformis",
+        "counts": 1
+      },
+      {
+        "label": "Bifidobacterium adolescentis",
+        "counts": 10
+      },
+      {
+        "label": "Bifidobacterium longum",
+        "counts": 2
+      },
+      {
+        "label": "Collinsella aerofaciens",
+        "counts": 10
+      },
+      {
+        "label": "Prochlorococcus marinus",
+        "counts": 2
+      },
+      {
+        "label": "Bacteroides fragilis",
+        "counts": 27
+      },
+      {
+        "label": "Bacteroides thetaiotaomicron",
+        "counts": 14
+      },
+      {
+        "label": "Azotobacter vinelandii",
+        "counts": 2
+      },
+      {
+        "label": "Shewanella oneidensis",
+        "counts": 1
+      },
+      {
+        "label": "Halorhodospira halophila",
+        "counts": 1
+      },
+      {
+        "label": "Oharaeibacter diazotrophicus",
+        "counts": 1
+      },
+      {
+        "label": "Homo sapiens",
+        "counts": 14
+      },
+      {
+        "label": "Sus scrofa",
+        "counts": 5
+      },
+      {
+        "label": "Oryza sativa",
+        "counts": 5
+      },
+      {
+        "label": "Schizothecium vesticola",
+        "counts": 1
+      },
+      {
+        "label": "Aspergillus niger",
+        "counts": 2
+      },
+      {
+        "label": "Human coronavirus HKU1",
+        "counts": 1
+      }
+    ]
+  }
+]

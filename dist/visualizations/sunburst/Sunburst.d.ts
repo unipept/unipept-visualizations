@@ -21,7 +21,7 @@ export default class Sunburst {
     private previousMaxLevel;
     constructor(element: HTMLElement, data: DataNodeLike, options?: SunburstSettings);
     /**
-     * Reset the current view of the visualization. The visualization will completely be reset to it's initial state.
+     * Reset the current view of the visualization. The visualization will completely be reset to its initial state.
      */
     reset(): void;
     /**

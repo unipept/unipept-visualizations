@@ -12,3 +12,9 @@ export default abstract class Settings {
      */
     enableTooltips: boolean;
 }
+export interface VisualizationPadding {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+}
