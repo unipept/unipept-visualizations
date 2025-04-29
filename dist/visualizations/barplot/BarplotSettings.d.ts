@@ -1,4 +1,5 @@
 import { default as Settings, VisualizationPadding } from '../../Settings';
+import { BarItem } from './Bar';
 
 export declare class BarplotChartSettings {
     /**
@@ -92,4 +93,31 @@ export declare class BarplotSettings extends Settings {
      * All settings that are directly related to the legend area of the visualization.
      */
     legend: BarplotLegendSettings;
+    enableTooltips: boolean;
+    /**
+     * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
+     * about the node that's currently hovered by the mouse cursor.
+     *
+     * @param value Current node that's being hovered by the mouse cursor.
+     * @return A valid HTML-string that represents a tooltip.
+     */
+    getTooltip: (value: BarItem) => string;
+    /**
+     * Returns text that's being used for the title of a tooltip. This tooltip provides information to the user about
+     * the node that's currently hovered by the mouse cursor.
+     *
+     * This function returns the row and column title of the currently selected value by default.
+     *
+     * @param value Current node that's being hovered by the mouse cursor.
+     * @return Text content that should be used for the header of the tooltip.
+     */
+    getTooltipTitle: (value: BarItem) => string;
+    /**
+     * Returns text that's being used for the body of a tooltip. This tooltip provides information to the user about
+     * the node that's currently hovered by the mouse cursor.
+     *
+     * @param x Current value for the node that's being hovered by the mouse cursor.
+     * @return Text content that should be used for the header of the tooltip.
+     */
+    getTooltipText: (x: BarItem) => string;
 }

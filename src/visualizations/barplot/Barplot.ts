@@ -1,7 +1,9 @@
 import {BarplotSettings} from "./BarplotSettings";
 import * as d3 from "d3";
-import {Bar} from "./Bar";
+import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
+import TooltipUtilities from "../../utilities/TooltipUtilities";
+import DataNode from "../../DataNode";
 
 export default class Barplot {
     private readonly settings: BarplotSettings;
@@ -21,6 +23,10 @@ export default class Barplot {
 
         if (this.settings.displayMode === "relative") {
             this.data = preprocessor.convertAbsoluteToRelative(this.data);
+        }
+
+        if (this.settings.enableTooltips) {
+            this.tooltip = TooltipUtilities.initTooltip();
         }
         
         this.renderBarplot();
@@ -135,6 +141,8 @@ export default class Barplot {
             .value((d, key) => d.items.find(item => item.label === key)?.counts ?? 0)
             (this.data);
 
+        console.log(stackedData);
+
         // Scales
         const xScale = d3.scaleLinear()
             .domain([0, d3.max(stackedData, d => d3.max(d, d => d[1])) || 0])
@@ -145,7 +153,6 @@ export default class Barplot {
             .range([0, barHeight * this.data.length])
             .paddingInner(0.1)
             .paddingOuter(0);
-
 
         const materialDesignColors = [
             "#F44336",    // red
@@ -185,7 +192,6 @@ export default class Barplot {
             .domain(Array.from(new Set(this.data.flatMap(bar => bar.items.map(item => item.label)))))
             .range(materialDesignColors);
 
-
         if (this.settings.showBarLabel) {
             // Add bar labels
             svgGElement.append("g")
@@ -207,20 +213,35 @@ export default class Barplot {
                 });
         }
 
-
         // Add bars
         svgGElement.append("g")
             .selectAll("g")
             .data(stackedData)
             .join("g")
             .attr("fill", d => colorScale(d.key))
+            .attr("data-key", d => d.key)
             .selectAll("rect")
             .data(d => d)
             .join("rect")
             .attr("x", d => plotPadding.left + barLabelWidth + barLabelPaddingRight + Math.floor(xScale(d[0])))
             .attr("y", (d, i) => plotPadding.top + (yScale(i.toString()) || 0))
             .attr("width", d => Math.floor(xScale(d[1])) - Math.floor(xScale(d[0])))
-            .attr("height", yScale.bandwidth());
+            .attr("height", yScale.bandwidth())
+            .on("mouseover", (event: MouseEvent, d: any) => {
+                const key = d3.select((event.target! as any).parentNode).attr("data-key");
+                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
+                this.tooltipIn(event, selectedItem);
+            })
+            .on("mousemove", (event: MouseEvent, d: any) => {
+                const key = d3.select((event.target! as any).parentNode).attr("data-key");
+                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
+                this.tooltipMove(event, selectedItem);
+            })
+            .on("mouseout", (event: MouseEvent, d: any) => {
+                const key = d3.select((event.target! as any).parentNode).attr("data-key");
+                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
+                this.tooltipOut(event, selectedItem);
+            });
 
         if (this.settings.showValuesInBars) {
             svgGElement.append("g")
@@ -248,7 +269,6 @@ export default class Barplot {
                     return this.settings.displayMode === "relative" ? `${value.toFixed(1)}%` : value;
                 });
         }
-
 
         // Add x-axis
         svgGElement.append("g")
@@ -302,5 +322,28 @@ export default class Barplot {
                 }
                 return d;
             });
+    }
+
+    private tooltipIn(event: MouseEvent, d: BarItem) {
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip.html(this.settings.getTooltip(d))
+                .style("top", (event.pageY + 10) + "px")
+                .style("left", (event.pageX + 10) + "px")
+                .style("visibility", "visible");
+        }
+    }
+
+    private tooltipMove(event: MouseEvent, d: BarItem) {
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip
+                .style("top", (event.pageY + 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        }
+    }
+
+    private tooltipOut(event: MouseEvent, d: BarItem) {
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip.style("visibility", "hidden");
+        }
     }
 }
