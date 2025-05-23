@@ -1,66 +1,63 @@
 <html>
 
-<head>
-    <title>Treemap example</title>
+    <head>
+        <title>Treemap example</title>
 
-    <!-- D3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+        <!-- D3 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    </head>
 
-    <!-- Visualisations -->
-    <script src="../dist/unipept-visualizations.js"></script>
+    <body>
+        <div id="treemap1"></div>
+        <br>
+        <div id="treemap2"></div>
+        <br>
+        <div id="treemap3"></div>
 
+        <script type="module">
+            import {Treemap} from "../dist/unipept-visualizations.js";
 
-</head>
+            d3.json("data/taxonomy.json").then(data => {
+                const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
 
-<body>
-    <div id="treemap1"></div>
-    <br>
-    <div id="treemap2"></div>
-    <br>
-    <div id="treemap3"></div>
+                new Treemap(
+                    document.getElementById("treemap1"),
+                    data,
+                    {
+                        width: 900,
+                        height: 400,
+                        levels: ranks.length,
+                        getLevel: (d) => ranks.indexOf(d.data.extra.rank)
+                    }
+                );
+            });
 
-    <script>
-        d3.json("data/taxonomy.json").then(data => {
-            const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
+            d3.json("data/family.json").then(data => {
+                new Treemap(
+                    document.getElementById("treemap2"),
+                    data,
+                    {
+                        width: 900,
+                        height: 400,
+                        colorRoot: "red",
+                        colorLeaf: "yellow",
+                        enableTooltips: false
+                    }
+                );
+            });
 
-            const treemap = new UnipeptVisualizations.Treemap(
-                document.getElementById("treemap1"),
-                data,
-                {
-                    width: 900,
-                    height: 400,
-                    levels: ranks.length,
-                    getLevel: (d) => ranks.indexOf(d.data.extra.rank)
-                }
-            );
-        });
-
-        d3.json("data/family.json").then(data => {
-            const treemap = new UnipeptVisualizations.Treemap(
-                document.getElementById("treemap2"),
-                data,
-                {
-                    width: 900,
-                    height: 400,
-                    colorRoot: "red",
-                    colorLeaf: "yellow",
-                    enableTooltips: false
-                }
-            );
-        });
-
-        d3.json("data/flare.json").then(data => {
-            const treemap = new UnipeptVisualizations.Treemap(
-                document.getElementById("treemap3"),
-                data,
-                {
-                    width: 900,
-                    height: 400,
-                    enableTooltips: false
-                }
-            );
-        });
-    </script>
-</body>
+            d3.json("data/flare.json").then(data => {
+                new Treemap(
+                    document.getElementById("treemap3"),
+                    data,
+                    {
+                        width: 900,
+                        height: 400,
+                        enableTooltips: false
+                    }
+                );
+            });
+        </script>
+    </body>
 
 </html>

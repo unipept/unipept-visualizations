@@ -1,6 +1,6 @@
 import TreeNode from "../cluster/TreeNode";
 
-export default interface Reorderer {
+export interface Reorderer {
     /**
      * Reorders the given dendrogram with root according to a specific heuristic or algorithm.
      *

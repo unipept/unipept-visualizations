@@ -4,10 +4,8 @@
         <meta charset="UTF-8">
         <title>Heatmap example</title>
 
-        <!-- D3 v5 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
-        <!-- Visualizations -->
-        <script src="../dist/unipept-visualizations.js"></script>
+        <!-- D3 v7 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 
         <style>
             body {
@@ -23,7 +21,9 @@
             <button id="resize">Resize!</button>
         </div>
 
-        <script>
+        <script type="module">
+            import {Heatmap} from "../dist/unipept-visualizations.js";
+
             const amountOfRows = 50;
             const amountOfColumns = 100;
 
@@ -58,7 +58,7 @@
             const heatmapElement = document.getElementById("heatmap");
 
             if (heatmapElement) {
-                let heatmap = new UnipeptVisualizations.Heatmap(heatmapElement, randomData, rows, cols, {
+                let heatmap = new Heatmap(heatmapElement, randomData, rows, cols, {
                     width: window.innerWidth,
                     height: window.innerHeight - 50
                 });

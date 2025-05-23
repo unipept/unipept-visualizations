@@ -1,2 +1,3 @@
-import StringUtils from "./StringUtils";
+import { default as StringUtils } from './StringUtils';
+
 export { StringUtils };

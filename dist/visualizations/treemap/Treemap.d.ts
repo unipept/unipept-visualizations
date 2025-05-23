@@ -1,5 +1,6 @@
-import TreemapSettings from "./TreemapSettings";
-import { DataNodeLike } from "./../../DataNode";
+import { default as TreemapSettings } from './TreemapSettings';
+import { DataNodeLike } from './../../DataNode';
+
 export default class Treemap {
     private element;
     private readonly settings;

@@ -1,7 +1,8 @@
-import Clusterer from "./Clusterer";
-import TreeNode from "./TreeNode";
-import Metric from "../metric/Metric";
-import ClusterElement from "./ClusterElement";
+import { Clusterer } from './Clusterer';
+import { default as TreeNode } from './TreeNode';
+import { Metric } from '../metric/Metric';
+import { default as ClusterElement } from './ClusterElement';
+
 export default class UPGMAClusterer implements Clusterer {
     private readonly metric;
     /**

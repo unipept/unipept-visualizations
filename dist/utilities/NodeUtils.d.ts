@@ -1,5 +1,5 @@
+import { default as DataNode } from './../DataNode';
 import * as d3 from "d3";
-import DataNode from "./../DataNode";
 export default class NodeUtils {
     /**
      * Checks if p is a parent of c. If the child is situated deeper in the hierarchy than maxLevels, false is returned.

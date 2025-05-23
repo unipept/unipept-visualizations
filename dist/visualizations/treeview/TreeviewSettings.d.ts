@@ -1,6 +1,7 @@
-import { HierarchyPointLink } from "d3";
-import Settings from "./../../Settings";
-import TreeviewNode from "./TreeviewNode";
+import { HierarchyPointLink } from 'd3';
+import { default as Settings } from './../../Settings';
+import { default as TreeviewNode } from './TreeviewNode';
+
 export default class TreeviewSettings extends Settings {
     /**
      * Size (in pixels) that should be associated to nodes with the lowest possible count value.
@@ -81,9 +82,10 @@ export default class TreeviewSettings extends Settings {
      * nodes up until the level in the tree specified by the parameter "colorProviderLevels".
      *
      * @param d A TreeviewNode for which the corresponding color should be computed.
+     * @param level The depth in the tree at which this node is situated.
      * @return The color associated with the given node.
      */
-    colorProvider: (d: TreeviewNode) => string;
+    colorProvider: (d: TreeviewNode, level?: number) => string;
     /**
      * Returns the label that should be displayed for a specific node (the label corresponds to the text shown in the
      * visualization on top of a node).

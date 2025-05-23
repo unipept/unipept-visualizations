@@ -1,4 +1,5 @@
-import DataNode from "./../../DataNode";
+import { default as DataNode } from './../../DataNode';
+
 export default class TreeviewNode extends DataNode {
     previousPosition: {
         x: number;

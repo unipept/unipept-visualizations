@@ -4,15 +4,13 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -20,7 +18,22 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm install
+      - name: Install Chromium
+        run: npx puppeteer browsers install chrome
       - name: Install Jest CLI
         run: npm i -g jest-cli
       - name: Run tests
         run: npm run test
+      - name: Sanitize filenames
+        if: failure()
+        run: |
+          find test/snapshots -depth -name '*[<>:"|?*]*' | while read file; do
+            safe_name=$(echo "$file" | sed 's/[<>:"|?*]/_/g')
+            mv "$file" "$safe_name"
+          done
+      - name: Upload failed images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+         name: regression-images
+         path: test/snapshots

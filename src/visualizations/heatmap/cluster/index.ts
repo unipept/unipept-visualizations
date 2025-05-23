@@ -1,5 +1,6 @@
-import Clusterer from "./Clusterer";
+import { Clusterer } from "./Clusterer";
 import UPGMAClusterer from "./UPGMAClusterer";
 import TreeNode from "./TreeNode";
 
-export { Clusterer, UPGMAClusterer, TreeNode };
+export type { Clusterer };
+export { UPGMAClusterer, TreeNode };

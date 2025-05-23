@@ -1,13 +1,10 @@
 import * as d3 from "d3";
 import HeatmapSettings from "./HeatmapSettings";
-import UPGMAClusterer from "./cluster/UPGMAClusterer";
-import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
 import ClusterElement from "./cluster/ClusterElement";
 import TreeNode from "./cluster/TreeNode";
-import Reorderer from "./reorder/Reorderer";
-import MoloReorderer from "./reorder/MoloReorderer";
-import HeatmapFeature from "./HeatmapFeature";
-import HeatmapValue from "./HeatmapValue";
+import {Reorderer} from "./reorder/Reorderer";
+import {HeatmapFeature} from "./HeatmapFeature";
+import {HeatmapValue} from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";
 
 import "core-js/stable";
@@ -346,6 +343,7 @@ export default class Heatmap {
         const offscreenCanvas = new OffscreenCanvas(1, 1);
         const ctx = offscreenCanvas.getContext("2d");
 
+        //@ts-ignore
         ctx!.font = `${fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
 
         // Then add the row and colum titles to the heatmap
@@ -370,6 +368,7 @@ export default class Heatmap {
             `;
 
             // Compute the length of the label in pixels
+            // @ts-ignore
             const computedWidth: number = ctx!.measureText(this.rows[row].name).width + x;
             if (computedWidth > maximumWidth) {
                 maximumWidth = computedWidth;
@@ -396,6 +395,7 @@ export default class Heatmap {
                 </text>
             `;
 
+            // @ts-ignore
             const computedWidth: number = ctx!.measureText(this.columns[col].name).width + y;
             if (computedWidth > maximumHeight) {
                 maximumHeight = computedWidth;

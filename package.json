@@ -4,12 +4,17 @@
     "description": "The Unipept visualisation library",
     "homepage": "https://github.com/unipept/unipept-visualizations",
     "bugs": "https://github.com/unipept/unipept-visualizations/issues",
+    "type": "module",
     "main": "dist/unipept-visualizations.js",
-    "typings": "./types",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
     "scripts": {
-        "test": "jest src/.*/.*.spec.ts",
-        "build": "webpack",
-        "types": "tsc --emitDeclarationOnly --downlevelIteration --declaration src/**/*.ts --outDir types --target esnext --skipLibCheck"
+        "test": "vitest run",
+        "build": "vite build",
+        "dev": "vite",
+        "preview": "vite preview"
     },
     "repository": "github:unipept/unipept-visualizations",
     "keywords": [
@@ -24,33 +29,28 @@
     ],
     "license": "MIT",
     "dependencies": {
-        "@types/d3": "^6.2.0",
-        "@typescript-eslint/eslint-plugin": "^4.17.0",
-        "@typescript-eslint/parser": "^4.17.0",
-        "core-js": "^3.8.1",
-        "d3": "^6.2.0",
-        "regenerator-runtime": "^0.13.7"
+        "d3": "^7.9.0"
     },
     "devDependencies": {
-        "@babel/core": "^7.12.9",
-        "@babel/preset-env": "^7.12.7",
-        "@types/jest": "^26.0.20",
+        "@eslint/js": "^9.0.0",
+        "@types/d3": "^7.4.3",
         "@types/jsdom": "^16.2.7",
-        "@types/puppeteer": "^5.4.3",
-        "babel-loader": "^8.2.2",
-        "babel-plugin-transform-object-assign": "^6.8.0",
-        "babel-preset-es2015": "^6.18.0",
-        "canvas": "^2.7.0",
-        "eslint": "^7.17.0",
+        "@typescript-eslint/eslint-plugin": "^8.29.0",
+        "@typescript-eslint/parser": "^8.29.0",
+        "@vitest/ui": "^3.1.2",
+        "canvas": "^3.1.0",
+        "core-js": "^3.8.1",
+        "eslint": "^9.0.0",
+        "eslint-define-config": "^2.1.0",
         "flush-promises": "^1.0.2",
-        "jest": "^26.6.3",
-        "jest-image-snapshot": "^4.4.0",
-        "jsdom": "^16.5.0",
-        "puppeteer": "^8.0.0",
-        "ts-jest": "^26.5.3",
-        "ts-loader": "^9.4.1",
+        "jsdom": "^26.1.0",
+        "pixelmatch": "^7.1.0",
+        "pngjs": "^7.0.0",
+        "puppeteer": "^24.7.2",
+        "regenerator-runtime": "^0.13.7",
         "typescript": "^4.1.2",
-        "webpack": "^5.10.0",
-        "webpack-cli": "^4.3.1"
+        "vite": "^4.4.9",
+        "vite-plugin-dts": "^3.5.3",
+        "vitest": "^3.1.2"
     }
 }

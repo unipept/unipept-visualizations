@@ -4,7 +4,6 @@ import SunburstSettings from "./SunburstSettings";
 import SunburstPreprocessor from "./SunburstPreprocessor";
 import DataNode, { DataNodeLike } from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import StringUtils from "./../../utilities/StringUtils";
 import NodeUtils from "./../../utilities/NodeUtils";
 import ColorUtils from "./../../color/ColorUtils";
 
@@ -388,10 +387,11 @@ export default class Sunburst {
         const that = this;
 
         const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
-        // eslint-disable-next-line no-undef
+         
         let ctx: OffscreenCanvasRenderingContext2D;
         if (offscreenCanvasSupported) {
             const offscreenCanvas = new OffscreenCanvas(1, 1);
+            // @ts-ignore
             ctx = offscreenCanvas.getContext("2d")!;
             ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }

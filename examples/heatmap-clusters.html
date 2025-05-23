@@ -4,10 +4,8 @@
         <meta charset="UTF-8">
         <title>Heatmap example</title>
 
-        <!-- D3 v5 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
-        <!-- Visualizations -->
-        <script src="../dist/unipept-visualizations.js"></script>
+        <!-- D3 v7 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 
         <style>
             body {
@@ -18,7 +16,9 @@
     <body>
         <div id="heatmap"></div>
 
-        <script>
+        <script type="module">
+            import {Heatmap} from "../dist/unipept-visualizations.js";
+
             d3.csv("data/clusters.csv").then(data => {
                 const items = [];
                 const rows = [];
@@ -39,7 +39,7 @@
                 const heatmapElement = document.getElementById("heatmap");
 
                 if (heatmapElement) {
-                    let heatmap = new UnipeptVisualizations.Heatmap(heatmapElement, items, rows, columns, {
+                    new Heatmap(heatmapElement, items, rows, columns, {
                         width: window.innerWidth,
                         height: window.innerHeight - 50,
                         dendrogramEnabled: true

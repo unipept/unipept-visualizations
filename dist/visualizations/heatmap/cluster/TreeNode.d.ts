@@ -1,4 +1,5 @@
-import ClusterElement from "./ClusterElement";
+import { default as ClusterElement } from './ClusterElement';
+
 export default class TreeNode {
     private _leftChild;
     private _rightChild;

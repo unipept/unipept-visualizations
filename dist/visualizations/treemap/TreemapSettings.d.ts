@@ -1,6 +1,7 @@
-import { HierarchyRectangularNode } from "d3";
-import Settings from "./../../Settings";
-import DataNode from "./../../DataNode";
+import { HierarchyRectangularNode } from 'd3';
+import { default as Settings } from './../../Settings';
+import { default as DataNode } from './../../DataNode';
+
 export default class TreemapSettings extends Settings {
     /**
      * Classname that's associated to the element that's used to render this treemap in.

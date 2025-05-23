@@ -1,7 +1,6 @@
-import SunburstSettings from "./SunburstSettings";
-import { DataNodeLike } from "./../../DataNode";
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+import { default as SunburstSettings } from './SunburstSettings';
+import { DataNodeLike } from './../../DataNode';
+
 export default class Sunburst {
     private readonly element;
     private readonly settings;

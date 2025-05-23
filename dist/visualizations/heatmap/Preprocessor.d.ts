@@ -1,5 +1,6 @@
-import HeatmapFeature from "./HeatmapFeature";
-import HeatmapValue from "./HeatmapValue";
+import { HeatmapFeature } from './HeatmapFeature';
+import { HeatmapValue } from './HeatmapValue';
+
 export default class Preprocessor {
     /**
      * Converts an array of feature labels into correct HeatmapFeature objects. These objects keep track of a name

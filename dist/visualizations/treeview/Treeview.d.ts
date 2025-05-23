@@ -1,5 +1,6 @@
-import TreeviewSettings from "./TreeviewSettings";
-import { DataNodeLike } from "./../../DataNode";
+import { default as TreeviewSettings } from './TreeviewSettings';
+import { DataNodeLike } from './../../DataNode';
+
 export default class Treeview {
     private readonly element;
     private readonly settings;

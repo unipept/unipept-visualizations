@@ -1,4 +1,5 @@
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import { default as DataNode, DataNodeLike } from './../../DataNode';
+
 export default class SunburstPreprocessor {
     private static idCounter;
     /**
