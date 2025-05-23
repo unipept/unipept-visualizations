@@ -14,3 +14,10 @@ export default abstract class Settings {
      */
     public enableTooltips: boolean = true;
 }
+
+export interface VisualizationPadding {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+}

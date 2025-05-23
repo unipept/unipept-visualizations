@@ -105,7 +105,7 @@ export default class Sunburst {
     }
 
     /**
-     * Reset the current view of the visualization. The visualization will completely be reset to it's initial state.
+     * Reset the current view of the visualization. The visualization will completely be reset to its initial state.
      */
     public reset() {
         this.click(this.data[0]);

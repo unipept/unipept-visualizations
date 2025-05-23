@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Sunburst example</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    </head>
+
+    <body>
+        <div id="d3Barplot"></div>
+
+        <script type="module">
+            import { Barplot } from "../dist/unipept-visualizations.js";
+
+            d3.json("data/bars.json").then(data => {
+                new Barplot(
+                    document.getElementById("d3Barplot"),
+                    data
+                );
+            });
+        </script>
+    </body>
+</html>
