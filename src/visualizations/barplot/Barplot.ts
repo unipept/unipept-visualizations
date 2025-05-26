@@ -48,6 +48,8 @@ export default class Barplot {
             .attr("overflow", "hidden")
             .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
 
+        this.initCss();
+
         const font = this.settings.font;
 
         // Plot settings
@@ -228,17 +230,17 @@ export default class Barplot {
             .on("mouseover", (event: MouseEvent, d: any) => {
                 const key = d3.select((event.target! as any).parentNode).attr("data-key");
                 const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.tooltipIn(event, selectedItem);
+                this.mouseIn(event, selectedItem, event.target!);
             })
             .on("mousemove", (event: MouseEvent, d: any) => {
                 const key = d3.select((event.target! as any).parentNode).attr("data-key");
                 const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.tooltipMove(event, selectedItem);
+                this.mouseMove(event, selectedItem, event.target!);
             })
             .on("mouseout", (event: MouseEvent, d: any) => {
                 const key = d3.select((event.target! as any).parentNode).attr("data-key");
                 const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.tooltipOut(event, selectedItem);
+                this.mouseOut(event, selectedItem, event.target!);
             });
 
         if (this.settings.showValuesInBars) {
@@ -306,7 +308,8 @@ export default class Barplot {
             .attr("width", legendSymbolSize)
             .attr("height", legendSymbolSize)
             .attr("rx", 5)
-            .attr("fill", colorScale);
+            .attr("fill", colorScale)
+            .attr("data-legend-entry", (d) => d);
 
         // Legend labels
         legend.append("text")
@@ -319,19 +322,45 @@ export default class Barplot {
                     return d.substring(0, charsToShow - 3) + "...";
                 }
                 return d;
-            });
+            })
+            .attr("data-legend-entry", (d) => d);
     }
 
-    private tooltipIn(event: MouseEvent, d: BarItem) {
+    private initCss() {
+        let elementClass = this.settings.className;
+        this.element.className += " " + elementClass;
+
+        const styleElement = this.element.ownerDocument.createElement("style");
+        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
+.${elementClass} {
+    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+.${elementClass} .barplot-item-highlighted {
+    filter: brightness(1.5);
+    transition: filter 0.2s ease-in-out;
+    font-size: 20px;
+}`))
+        this.element.ownerDocument.head.appendChild(styleElement);
+    }
+
+    private mouseIn(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.html(this.settings.getTooltip(d))
                 .style("top", (event.pageY + 10) + "px")
                 .style("left", (event.pageX + 10) + "px")
                 .style("visibility", "visible");
         }
+
+        if (this.settings.highlightOnHover) {
+            d3.select(targetElement as HTMLElement).classed("barplot-item-highlighted", true);
+            
+            // Also select the legend entry with the same label and highlight the corresponding rectangle
+            d3.selectAll(`rect[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", true);
+            d3.selectAll(`text[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", true);
+        }
     }
 
-    private tooltipMove(event: MouseEvent, d: BarItem) {
+    private mouseMove(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
                 .style("top", (event.pageY + 10) + "px")
@@ -339,9 +368,15 @@ export default class Barplot {
         }
     }
 
-    private tooltipOut(event: MouseEvent, d: BarItem) {
+    private mouseOut(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");
+        }
+
+        if (this.settings.highlightOnHover) {
+            d3.select(targetElement as HTMLElement).classed("barplot-item-highlighted", false);
+            d3.selectAll(`rect[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", false);
+            d3.selectAll(`text[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", false);
         }
     }
 }

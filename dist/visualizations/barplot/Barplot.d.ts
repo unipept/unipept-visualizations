@@ -9,7 +9,8 @@ export default class Barplot {
     constructor(element: HTMLElement, data: Bar[], options?: BarplotSettings);
     private fillOptions;
     private renderBarplot;
-    private tooltipIn;
-    private tooltipMove;
-    private tooltipOut;
+    private initCss;
+    private mouseIn;
+    private mouseMove;
+    private mouseOut;
 }

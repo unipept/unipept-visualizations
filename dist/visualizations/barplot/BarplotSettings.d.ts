@@ -93,7 +93,15 @@ export declare class BarplotSettings extends Settings {
      * All settings that are directly related to the legend area of the visualization.
      */
     legend: BarplotLegendSettings;
+    /**
+     * Show tooltips when hovering over a chunk in a bar?
+     */
     enableTooltips: boolean;
+    /**
+     * Highlight the selected chunk of each bar when it is being hovered by the mouse? This will also highlight the
+     * corresponding entry in the barplot's legend.
+     */
+    highlightOnHover: boolean;
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.
