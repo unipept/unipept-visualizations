@@ -46,7 +46,7 @@ export default class Barplot {
             .attr("width", this.settings.width)
             .attr("height", this.settings.height)
             .attr("overflow", "hidden")
-            .style("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+            .style("font-family", this.settings.font);
 
         this.initCss();
 
@@ -121,7 +121,7 @@ export default class Barplot {
         }
 
         let barLabelWidth = 150;
-        const barLabelFontSize = 15;
+        const barLabelFontSize = 18;
         const barLabelPaddingRight = 10;
 
         let barWidth = plotAreaWidth;
@@ -154,43 +154,41 @@ export default class Barplot {
             .paddingInner(0.1)
             .paddingOuter(0);
 
-        const materialDesignColors = [
-            "#F44336",    // red
-            "#B71C1C",    // red-darken-4
-            "#E91E63",    // pink
-            "#880E4F",    // pink-darken-4
-            "#9C27B0",    // purple
-            "#4A148C",    // purple-darken-4
-            "#673AB7",    // deep-purple
-            "#311B92",    // deep-purple-darken-4
-            "#3F51B5",    // indigo
-            "#1A237E",    // indigo-darken-4
-            "#2196F3",    // blue
-            "#006064",    // cyan-darken-4
-            "#009688",    // teal
-            "#004D40",    // teal-darken-4
-            "#4CAF50",    // green
-            "#1B5E20",    // green-darken-4
-            "#C0CA33",    // lime-darken-1
-            "#827717",    // lime-darken-4
-            "#FFC107",    // amber
-            "#FF6F00",    // amber-darken-4
-            "#FF9800",    // orange
-            "#E65100",    // orange-darken-4
-            "#FF5722",    // deep-orange
-            "#BF360C"     // deep-orange-darken-4
+        const extendedSpectralColors20 = [
+            "#9e0142",  // deep red
+            "#c72e4c",
+            "#d53e4f",
+            "#eb5c48",
+            "#f46d43",
+            "#fba35b",
+            "#fdae61",
+            "#fee08b",
+            "#ffffbf",
+            "#e6f598",
+            "#b5e3a5",
+            "#8dd380",
+            "#66c2a5",  // soft teal-green
+            "#4dacb1",  // teal-cyan
+            "#3288bd",  // medium blue
+            "#1f78b4",  // classic blue
+            "#5e4fa2",  // deep blue-violet
+            "#6a3d9a",  // purple
+            "#984ea3",  // medium purple-magenta
+            "#df7ab4"   // strong magenta
         ];
 
         // Color for the "other" class in the labels
-        const otherColor = "#9E9E9E";
+        const otherColor = "#acaaaa";
+
+        const colorScheme = new Array(...extendedSpectralColors20);
 
         if (this.settings.maxItems) {
-            materialDesignColors[this.settings.maxItems % (this.data[0].items.length + 1)] = otherColor;
+            colorScheme[this.settings.maxItems % (this.data[0].items.length + 1)] = otherColor;
         }
 
         const colorScale: d3.ScaleOrdinal<string, string, string> = d3.scaleOrdinal<string, string, string>()
             .domain(Array.from(new Set(this.data.flatMap(bar => bar.items.map(item => item.label)))))
-            .range(materialDesignColors);
+            .range(colorScheme);
 
         if (this.settings.showBarLabel) {
             // Add bar labels
@@ -213,66 +211,91 @@ export default class Barplot {
                 });
         }
 
-        // Add bars
+        // Instead of keeping track of n values per entry, we want to keep track of n bars with the entries
+        const transposedStackedData = Array(this.data.length).fill(null).map(_ => new Array());
+
+        for (const entry of stackedData) {
+            const entryTitle = entry.key;
+            for (let i = 0; i < entry.length; i++) {
+                transposedStackedData[i].push({
+                    barIndex: i,
+                    title: entryTitle,
+                    shape: entry[i]
+                });
+            }
+        }
+
         svgGElement.append("g")
             .selectAll("g")
-            .data(stackedData)
+            .data(transposedStackedData)
             .join("g")
-            .attr("fill", d => colorScale(d.key))
-            .attr("data-key", d => d.key)
-            .selectAll("rect")
+            .selectAll("g")
             .data(d => d)
-            .join("rect")
-            .attr("x", d => plotPadding.left + barLabelWidth + barLabelPaddingRight + Math.floor(xScale(d[0])))
-            .attr("y", (d, i) => plotPadding.top + (yScale(i.toString()) || 0))
-            .attr("width", d => Math.floor(xScale(d[1])) - Math.floor(xScale(d[0])))
-            .attr("height", yScale.bandwidth())
+            .join((container) => {
+                // A simple container per item per bar (which contains the actual colored rectangle and text)
+                const g = container
+                    .append("g");
+
+                // Colored rectangle for each bar item
+                g
+                    .append("rect")
+                    .attr("fill", d => colorScale(d.title))
+                    .attr("x", d => plotPadding.left + barLabelWidth + barLabelPaddingRight + Math.floor(xScale(d.shape[0])))
+                    .attr("y", d => plotPadding.top + (yScale(d.barIndex.toString()) || 0))
+                    .attr("width", d => Math.floor(xScale(d.shape[1])) - Math.floor(xScale(d.shape[0])))
+                    .attr("height", Math.floor(yScale.bandwidth()));
+
+                // Text (value of the item) for each bar item
+                if (this.settings.showValuesInBars) {
+                    g
+                        .append("text")
+                        .attr("data-key", d => d.title)
+                        .attr("x", d => {
+                            const barStart = Math.floor(xScale(d.shape[0]));
+                            const barEnd = Math.floor(xScale(d.shape[1]));
+                            return plotPadding.left + barLabelWidth + barLabelPaddingRight + barStart + (barEnd - barStart) / 2;
+                        })
+                        .attr("y", d => plotPadding.top + (yScale(d.barIndex.toString()) || 0) + yScale.bandwidth() / 2)
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", d => {
+                            const backgroundColor = colorScale(d.title);
+                            const rgb = d3.rgb(backgroundColor);
+                            // Use relative luminance formula to determine if color is dark
+                            const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+                            return luminance < 0.5 ? "white" : "#171717";
+                        })
+                        .attr("font-family", font)
+                        .attr("font-size", this.settings.valuesInBarsFontSize)
+                        .attr("font-weight", 600)
+                        .text(d => {
+                            const value = d.shape[1] - d.shape[0];
+                            const width = Math.floor(xScale(d.shape[1])) - Math.floor(xScale(d.shape[0]));
+                            if (width < 30) return "";
+                            return this.settings.displayMode === "relative" ? `${value.toFixed(1)}%` : value;
+                        });
+                }
+
+                return g;
+            })
+            .classed("barplot-item", true)
+            .attr("data-bar-item", (d) => d.title)
             .on("mouseover", (event: MouseEvent, d: any) => {
-                const key = d3.select((event.target! as any).parentNode).attr("data-key");
-                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.mouseIn(event, selectedItem, event.target!);
+                const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
+                this.mouseIn(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
             })
             .on("mousemove", (event: MouseEvent, d: any) => {
-                const key = d3.select((event.target! as any).parentNode).attr("data-key");
-                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.mouseMove(event, selectedItem, event.target!);
+                const selectedItem = this.data[d.barIndex].items.find((item: BarItem) => item.label === d.title)!;
+                this.mouseMove(event, selectedItem, (event.target! as HTMLElement).parentElement!);
             })
             .on("mouseout", (event: MouseEvent, d: any) => {
-                const key = d3.select((event.target! as any).parentNode).attr("data-key");
-                const selectedItem = d.data.items.find((item: BarItem) => item.label === key);
-                this.mouseOut(event, selectedItem, event.target!);
+                const selectedItem = this.data[d.barIndex].items.find((item: BarItem) => item.label === d.title)!;
+                this.mouseOut(event, selectedItem, (event.target! as HTMLElement).parentElement!);
             });
-
-        if (this.settings.showValuesInBars) {
-            svgGElement.append("g")
-                .selectAll("g")
-                .data(stackedData)
-                .join("g")
-                .selectAll("text")
-                .data(d => d)
-                .join("text")
-                .attr("x", d => {
-                    const barStart = Math.floor(xScale(d[0]));
-                    const barEnd = Math.floor(xScale(d[1]));
-                    return plotPadding.left + barLabelWidth + barLabelPaddingRight + barStart + (barEnd - barStart) / 2;
-                })
-                .attr("y", (d, i) => plotPadding.top + (yScale(i.toString()) || 0) + yScale.bandwidth() / 2)
-                .attr("dy", ".35em")
-                .attr("text-anchor", "middle")
-                .attr("fill", "white")
-                .attr("font-family", font)
-                .attr("font-size", this.settings.valuesInBarsFontSize)
-                .text(d => {
-                    const value = d[1] - d[0];
-                    const width = Math.floor(xScale(d[1])) - Math.floor(xScale(d[0]));
-                    if (width < 30) return "";
-                    return this.settings.displayMode === "relative" ? `${value.toFixed(1)}%` : value;
-                });
-        }
 
         // Add x-axis
         svgGElement.append("g")
-            .attr("transform", `translate(${plotPadding.left + barLabelWidth + barLabelPaddingRight}, ${plotPadding.top + barHeight * this.data.length})`)
+            .attr("transform", `translate(${plotPadding.left + barLabelWidth + barLabelPaddingRight}, ${plotPadding.top + barHeight * this.data.length + 5})`)
             .call(d3.axisBottom(xScale))
             .attr("font-size", "12px") // Increase tick label size
             .append("text")
@@ -291,6 +314,8 @@ export default class Barplot {
             .selectAll("g")
             .data(colorScale.domain())
             .join("g")
+            .classed("legend-item", true)
+            .attr("data-legend-entry", (d) => d)
             .attr("transform", (_, i) => `translate(${(i % legendColumns) * legendEntryWidth + Math.max((i % legendColumns) - 1, 0) * legendColumnSpacing}, ${Math.floor(i / legendColumns) * (legendEntryHeight + legendRowSpacing) + legendTitleFontSize + legendTitlePaddingBottom + legendContentStartTop})`);
 
         // Legend title
@@ -309,7 +334,6 @@ export default class Barplot {
             .attr("height", legendSymbolSize)
             .attr("rx", 5)
             .attr("fill", colorScale)
-            .attr("data-legend-entry", (d) => d);
 
         // Legend labels
         legend.append("text")
@@ -322,8 +346,7 @@ export default class Barplot {
                     return d.substring(0, charsToShow - 3) + "...";
                 }
                 return d;
-            })
-            .attr("data-legend-entry", (d) => d);
+            });
     }
 
     private initCss() {
@@ -332,31 +355,40 @@ export default class Barplot {
 
         const styleElement = this.element.ownerDocument.createElement("style");
         styleElement.appendChild(this.element.ownerDocument.createTextNode(`
-.${elementClass} {
-    font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
-}
 .${elementClass} .barplot-item-highlighted {
-    filter: brightness(1.5);
-    transition: filter 0.2s ease-in-out;
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
     font-size: 20px;
-}`))
+}
+
+.${elementClass} .legend-item-highlighted {
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+}
+`))
         this.element.ownerDocument.head.appendChild(styleElement);
     }
 
-    private mouseIn(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
+    private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+        const d = this.data[barIndex].items[itemIndex];
+
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.html(this.settings.getTooltip(d))
+            this.tooltip.html(this.settings.getTooltip(this.data, barIndex, itemIndex))
                 .style("top", (event.pageY + 10) + "px")
                 .style("left", (event.pageX + 10) + "px")
                 .style("visibility", "visible");
         }
 
         if (this.settings.highlightOnHover) {
-            d3.select(targetElement as HTMLElement).classed("barplot-item-highlighted", true);
+            // Select all barplot-items and make them slightly transparent
+            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", true);
+            // Except for the current element, we want this one to stand out of the rest
+            d3.selectAll(`g[data-bar-item="${d.label}"]`).classed("barplot-item-highlighted", false);
             
             // Also select the legend entry with the same label and highlight the corresponding rectangle
-            d3.selectAll(`rect[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", true);
-            d3.selectAll(`text[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", true);
+            d3.selectAll(".legend-item").classed("legend-item-highlighted", true);
+
+            d3.selectAll(`g[data-legend-entry="${d.label}"]`).classed("legend-item-highlighted", false);
         }
     }
 
@@ -374,9 +406,11 @@ export default class Barplot {
         }
 
         if (this.settings.highlightOnHover) {
-            d3.select(targetElement as HTMLElement).classed("barplot-item-highlighted", false);
-            d3.selectAll(`rect[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", false);
-            d3.selectAll(`text[data-legend-entry="${d.label}"]`).classed("barplot-item-highlighted", false);
+            // Stop highlighting of barplot items
+            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", false);
+
+            // Stop highlighting of the legend items
+            d3.selectAll(".legend-item").classed("legend-item-highlighted", false);
         }
     }
 }

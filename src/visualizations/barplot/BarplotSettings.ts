@@ -85,12 +85,12 @@ export class BarplotSettings extends Settings {
      * The order of the items is determined by looking at values in the first bar. Pass undefined into this option
      * to display all items (and disable the "other" category).
      */
-    maxItems: number | undefined = 15;
+    maxItems: number | undefined = 20;
 
     /**
      * Which font for the titles and labels in the visualization
      */
-    font: string = "Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;";
+    font: string = "\"Roboto\", sans-serif";
 
     /**
      * Should absolute counts be displayed in the visualization? Or should they be displayed as a percentage relative
@@ -139,12 +139,16 @@ export class BarplotSettings extends Settings {
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.
      *
-     * @param value Current node that's being hovered by the mouse cursor.
+     * @param bars All bars that are used in this visualization
+     * @param barIndex Index of the bar that's currently hovered by the user.
+     * @param itemIndex Index of the specific item within a bar that's currently hovered by the user
      * @return A valid HTML-string that represents a tooltip.
      */
     getTooltip: (
-        value: BarItem,
-    ) => string = (value: BarItem) => {
+        bars: Bar[],
+        barIndex: number,
+        itemIndex: number
+    ) => string = (bars: Bar[], barIndex: number, itemIndex: number) => {
         return `
             <style>
                 .unipept-tooltip {
@@ -154,21 +158,17 @@ export class BarplotSettings extends Settings {
                     color: #fff;
                 }
                 
-                .unipept-tooltip div, .unipept-tooltip a {
-                    font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                }
-                
                 .unipept-tooltip div {
-                    font-weight: bold;
+                    font-family: "Roboto", sans-serif;
                 }
             </style>
             <div class="unipept-tooltip">
-                <div>
-                    ${this.getTooltipTitle(value)}
+                <div style="font-size: 20px; margin-bottom: 8px;">
+                    ${this.getTooltipTitle(bars, barIndex, itemIndex)}
                 </div>
-                <a>
-                    ${this.getTooltipText(value)}
-                </a>
+                <div>
+                    ${this.getTooltipText(bars, barIndex, itemIndex)}
+                </div>
             </div>
         `
     };
@@ -179,23 +179,41 @@ export class BarplotSettings extends Settings {
      *
      * This function returns the row and column title of the currently selected value by default.
      *
-     * @param value Current node that's being hovered by the mouse cursor.
+     * @param bars All bars that are used in this visualization
+     * @param barIndex Index of the bar that's currently hovered by the user.
+     * @param itemIndex Index of the specific item within a bar that's currently hovered by the user
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipTitle: (value: BarItem) => string = (value: BarItem) => value.label;
+    getTooltipTitle: (bars: Bar[], barIndex: number, itemIndex: number) => string = (bars: Bar[], barIndex: number, itemIndex: number) => bars[barIndex].items[itemIndex].label;
 
     /**
      * Returns text that's being used for the body of a tooltip. This tooltip provides information to the user about
      * the node that's currently hovered by the mouse cursor.
      *
-     * @param x Current value for the node that's being hovered by the mouse cursor.
+     * @param bars All bars that are used in this visualization
+     * @param barIndex Index of the bar that's currently hovered by the user.
+     * @param itemIndex Index of the specific item within a bar that's currently hovered by the user
      * @return Text content that should be used for the header of the tooltip.
      */
-    getTooltipText: (x: BarItem) => string = (x: BarItem) => {
-        if (this.displayMode === "absolute") {
-            return `${x.counts.toFixed(1)} hits`;
-        } else {
-            return `${x.counts.toFixed(1)} %`;
+    getTooltipText: (bars: Bar[], barIndex: number, itemIndex: number) => string = (bars: Bar[], barIndex: number, itemIndex: number) => {
+        const displayText = [];
+
+        const itemKey  = bars[barIndex].items[itemIndex].label;
+
+        for (const bar of bars) {
+            const correspondingItem = bar.items.find((item: BarItem) => item.label === itemKey);
+
+            let countText: string;
+            if (correspondingItem) {
+                countText = this.displayMode === "absolute" ? `${correspondingItem.counts} hits` : `${correspondingItem.counts.toFixed(2)}%`;
+            } else {
+                countText = "Not present";
+            }
+
+            displayText.push(
+                `<span style="font-weight: 600;">${bar.label}: </span><span>${countText}</span>`
+            );
         }
+        return displayText.map(t => `<div style="margin-bottom: 4px;">${t}</div>`).join("\n");
     };
 }
