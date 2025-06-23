@@ -120,7 +120,7 @@ export default class Barplot {
             maxLegendLabelWidth = legendEntryWidth - legendSymbolSize - legendSymbolPaddingRight;
         }
 
-        let barLabelWidth = 150;
+        let barLabelWidth = this.settings.barLabelWidth;
         const barLabelFontSize = 18;
         const barLabelPaddingRight = 10;
 

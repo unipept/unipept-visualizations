@@ -12337,7 +12337,7 @@ class oyt {
 }
 class vS extends xi {
   constructor() {
-    super(...arguments), this.orientation = "vertical", this.barHeight = 75, this.className = "barplot", this.maxItems = 20, this.font = '"Roboto", sans-serif', this.displayMode = "relative", this.showBarLabel = !0, this.showValuesInBars = !0, this.valuesInBarsFontSize = 12, this.chart = new iyt(), this.legend = new oyt(), this.enableTooltips = !0, this.highlightOnHover = !0, this.getTooltip = (r, e, n) => `
+    super(...arguments), this.orientation = "vertical", this.barHeight = 75, this.className = "barplot", this.maxItems = 20, this.font = '"Roboto", sans-serif', this.displayMode = "relative", this.showBarLabel = !0, this.showValuesInBars = !0, this.barLabelWidth = 150, this.valuesInBarsFontSize = 12, this.chart = new iyt(), this.legend = new oyt(), this.enableTooltips = !0, this.highlightOnHover = !0, this.getTooltip = (r, e, n) => `
             <style>
                 .unipept-tooltip {
                     padding: 10px;
@@ -12439,7 +12439,7 @@ class vyt {
     const e = this.settings.font, n = this.settings.chart.padding, a = this.settings.barHeight, i = this.settings.orientation == "horizontal", o = this.settings.legend.padding, s = this.settings.legend.width, u = this.settings.legend.titleFontSize, l = this.settings.legend.labelFontSize, c = this.settings.legend.symbolSize, f = this.settings.legend.rowSpacing, h = this.settings.legend.columnSpacing, v = this.settings.legend.columns, d = 10, $ = 10, y = 40;
     let p, b, I, _, M, B, H, q;
     i ? (p = this.settings.width - n.left - n.right - s, b = a * this.data.length, _ = o.top, I = n.left + p + n.right + o.left, M = Math.max(c, l), B = s - o.left - o.right - c - $, q = s - o.left - o.right) : (p = this.settings.width - n.left - n.right, b = a * this.data.length, _ = b + o.top + y, I = o.left, M = Math.max(c, l), H = this.settings.width - o.left - o.right, q = Math.floor((H - Math.max(v - 1, 0) * h) / v), B = q - c - $);
-    let Z = 150;
+    let Z = this.settings.barLabelWidth;
     const nt = 18, k = 10;
     let Y = p;
     this.settings.showBarLabel ? Y = p - Z - k : Z = 0, r.selectAll("*").remove();
@@ -12477,7 +12477,7 @@ class vyt {
       "#df7ab4"
       // strong magenta
     ], j = "#acaaaa", w = new Array(...N);
-    console.log(w), this.settings.maxItems && (w[this.settings.maxItems % (this.data[0].items.length + 1)] = j);
+    this.settings.maxItems && (w[this.settings.maxItems % (this.data[0].items.length + 1)] = j);
     const S = $u().domain(Array.from(new Set(this.data.flatMap((T) => T.items.map((R) => R.label))))).range(w);
     this.settings.showBarLabel && L.append("g").attr("class", "barLabels").selectAll("text").data(this.data).join("text").attr("x", n.left).attr("y", (T, R) => n.top + (x(R.toString()) || 0) + x.bandwidth() / 2).attr("dy", ".35em").attr("font-family", e).attr("font-size", nt).text((T) => {
       if (T.label.length * (nt * 0.6) > Z) {

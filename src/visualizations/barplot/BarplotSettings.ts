@@ -110,6 +110,11 @@ export class BarplotSettings extends Settings {
     showValuesInBars: boolean = true;
 
     /**
+     * Width in pixels of the labels for the bars.
+     */
+    barLabelWidth: number = 150;
+
+    /**
      * Size (in pixels) of the values that are shown in the bars.
      */
     valuesInBarsFontSize: number = 12;
