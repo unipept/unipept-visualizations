@@ -154,9 +154,9 @@ export class BarplotSettings extends Settings {
 
     /**
      * This function is called when the user's pointer moves out of an item (that it was previously already pointing
-     * to). By default this function does not do anything, but it can be overwritten if requested.
+     * to). By default, this function does not do anything, but it can be overwritten if requested.
      */
-    mouseOut: (bars: Bar[], barIndex: number, itemIndex: number, mousePosition: { x: number, y: number }) => void = () => {};
+    mouseOut: (bars: Bar[], barIndex: number, itemIndex: number) => void = () => {};
 
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user

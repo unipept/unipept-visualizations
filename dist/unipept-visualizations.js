@@ -11605,8 +11605,11 @@ class Z$t {
 }
 class cS extends xi {
   constructor() {
-    super(...arguments), this.radius = 300, this.breadcrumbWidth = 200, this.className = "sunburst", this.useFixedColors = !1, this.colorPalette = bi.DEFAULT_COLORS, this.fixedColorPalette = bi.FIXED_COLORS, this.enableBreadcrumbs = !0, this.levels = 4, this.animationDuration = 1e3, this.rerootCallback = () => {
-    }, this.fixedColorHash = (r) => Z$t.stringHash(r.name), this.getTooltip = (r) => `
+    super(...arguments), this.radius = 300, this.breadcrumbWidth = 200, this.className = "sunburst", this.useFixedColors = !1, this.colorPalette = bi.DEFAULT_COLORS, this.fixedColorPalette = bi.FIXED_COLORS, this.enableBreadcrumbs = !0, this.enableTooltips = !0, this.levels = 4, this.animationDuration = 1e3, this.rerootCallback = () => {
+    }, this.fixedColorHash = (r) => Z$t.stringHash(r.name), this.mouseIn = () => {
+    }, this.mouseMove = () => {
+    }, this.mouseOut = () => {
+    }, this.getTooltip = (r) => `
             <style>
                 .unipept-tooltip {
                     padding: 10px;
@@ -11843,7 +11846,13 @@ class cyt {
     const n = e.filter((i) => !this.arcData.includes(i)), a = this.arcData.concat(...n);
     this.visGElement.selectAll("path").data([]).exit().remove(), this.path = this.visGElement.selectAll("path").data(a).enter().insert("path").attr("class", "arc").attr("id", (i, o) => "path-" + o).attr("d", this.arc).attr("fill-rule", "evenodd").style("fill", (i) => this.color(i.data)).attr("fill-opacity", (i) => i.depth >= this.previousMaxLevel ? 0.2 : 1).on("click", (i, o) => {
       o.depth < this.currentMaxLevel && this.click(o);
-    }).on("mouseover", (i, o) => this.tooltipIn(i, o)).on("mousemove", (i, o) => this.tooltipMove(i, o)).on("mouseout", (i, o) => this.tooltipOut(i, o)), await new Promise((i) => {
+    }).on("mouseover", (i, o) => {
+      this.settings.mouseIn(o.data, { x: i.clientX, y: i.clientY }), this.tooltipIn(i, o);
+    }).on("mousemove", (i, o) => {
+      this.settings.mouseMove(o.data, { x: i.clientX, y: i.clientY }), this.tooltipMove(i, o);
+    }).on("mouseout", (i, o) => {
+      this.settings.mouseOut(o.data), this.tooltipOut(i, o);
+    }), await new Promise((i) => {
       this.path.transition().duration(this.settings.animationDuration).attrTween("d", this.arcTween(r, this)).attr("class", (o) => o.depth >= this.currentMaxLevel ? "arc toHide" : "arc").attr("fill-opacity", (o) => o.depth >= this.currentMaxLevel ? 0.2 : 1).on("end", () => {
         i();
       });
@@ -12549,13 +12558,13 @@ class vyt {
   }
   mouseIn(r, e, n, a) {
     const i = this.data[e].items[n];
-    this.settings.mouseIn(this.data, e, n, { x: r.pageX, y: r.pageY }), this.settings.enableTooltips && this.tooltip && this.tooltip.html(this.settings.getTooltip(this.data, e, n)).style("top", r.pageY + 10 + "px").style("left", r.pageX + 10 + "px").style("visibility", "visible"), this.settings.highlightOnHover && (nn(".barplot-item").classed("barplot-item-highlighted", !0), nn(`g[data-bar-item="${i.label}"]`).classed("barplot-item-highlighted", !1), nn(".legend-item").classed("legend-item-highlighted", !0), nn(`g[data-legend-entry="${i.label}"]`).classed("legend-item-highlighted", !1));
+    this.settings.mouseIn(this.data, e, n, { x: r.clientX, y: r.clientY }), this.settings.enableTooltips && this.tooltip && this.tooltip.html(this.settings.getTooltip(this.data, e, n)).style("top", r.pageY + 10 + "px").style("left", r.pageX + 10 + "px").style("visibility", "visible"), this.settings.highlightOnHover && (nn(".barplot-item").classed("barplot-item-highlighted", !0), nn(`g[data-bar-item="${i.label}"]`).classed("barplot-item-highlighted", !1), nn(".legend-item").classed("legend-item-highlighted", !0), nn(`g[data-legend-entry="${i.label}"]`).classed("legend-item-highlighted", !1));
   }
   mouseMove(r, e, n, a) {
-    this.settings.mouseMove(this.data, e, n, { x: r.pageX, y: r.pageY }), this.settings.enableTooltips && this.tooltip && this.tooltip.style("top", r.pageY + 10 + "px").style("left", r.pageX + 10 + "px");
+    this.settings.mouseMove(this.data, e, n, { x: r.clientX, y: r.clientY }), this.settings.enableTooltips && this.tooltip && this.tooltip.style("top", r.pageY + 10 + "px").style("left", r.pageX + 10 + "px");
   }
   mouseOut(r, e, n, a) {
-    this.settings.mouseOut(this.data, e, n, { x: r.pageX, y: r.pageY }), this.settings.enableTooltips && this.tooltip && this.tooltip.style("visibility", "hidden"), this.settings.highlightOnHover && (nn(".barplot-item").classed("barplot-item-highlighted", !1), nn(".legend-item").classed("legend-item-highlighted", !1));
+    this.settings.mouseOut(this.data, e, n), this.settings.enableTooltips && this.tooltip && this.tooltip.style("visibility", "hidden"), this.settings.highlightOnHover && (nn(".barplot-item").classed("barplot-item-highlighted", !1), nn(".legend-item").classed("legend-item-highlighted", !1));
   }
 }
 export {

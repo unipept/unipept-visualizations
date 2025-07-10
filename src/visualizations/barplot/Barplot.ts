@@ -372,7 +372,7 @@ export default class Barplot {
     private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
         const d = this.data[barIndex].items[itemIndex];
 
-        this.settings.mouseIn(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY});
+        this.settings.mouseIn(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY});
 
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.html(this.settings.getTooltip(this.data, barIndex, itemIndex))
@@ -395,7 +395,7 @@ export default class Barplot {
     }
 
     private mouseMove(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
-        this.settings.mouseMove(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY})
+        this.settings.mouseMove(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY})
 
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
@@ -405,7 +405,7 @@ export default class Barplot {
     }
 
     private mouseOut(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
-        this.settings.mouseOut(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY})
+        this.settings.mouseOut(this.data, barIndex, itemIndex)
 
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");

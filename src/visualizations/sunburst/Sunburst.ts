@@ -351,9 +351,18 @@ export default class Sunburst {
                     this.click(d);
                 }
             })
-            .on("mouseover", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipIn(event, d))
-            .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d as HRN<DataNode>))
-            .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d as HRN<DataNode>));
+            .on("mouseover", (event: MouseEvent, d: HRN<DataNode>) => {
+                this.settings.mouseIn(d.data, {x: event.clientX, y: event.clientY});
+                this.tooltipIn(event, d);
+            })
+            .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => {
+                this.settings.mouseMove(d.data, {x: event.clientX, y: event.clientY});
+                this.tooltipMove(event, d as HRN<DataNode>);
+            })
+            .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => {
+                this.settings.mouseOut(d.data);
+                this.tooltipOut(event, d as HRN<DataNode>);
+            });
 
         // Wait for the animations to be completed...
         await new Promise<void>((resolve) => {

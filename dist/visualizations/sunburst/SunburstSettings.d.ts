@@ -33,6 +33,10 @@ export default class SunburstSettings extends Settings {
      */
     enableBreadcrumbs: boolean;
     /**
+     * Show tooltips when hovering over a piece of the sunburst?
+     */
+    enableTooltips: boolean;
+    /**
      * With how many levels can the user interact in the sunburst visualization?
      */
     levels: number;
@@ -51,6 +55,27 @@ export default class SunburstSettings extends Settings {
      * @param node The DataNode for which the current hash should be returned.
      */
     fixedColorHash: (node: DataNode) => number;
+    /**
+     * This function is called when the user's pointer starts to move over an item in the sunburst. By default, this
+     * function does not do anything, but it can be overwritten if requested.
+     */
+    mouseIn: (d: DataNode, mousePosition: {
+        x: number;
+        y: number;
+    }) => void;
+    /**
+     * This function is called when the user's pointer that was already over an item in the barplot moves. By default,
+     * this function does not do anything, but it can be overwritten if requested.
+     */
+    mouseMove: (d: DataNode, mousePosition: {
+        x: number;
+        y: number;
+    }) => void;
+    /**
+     * This function is called when the user's pointer moves out of an item (that it was previously already pointing
+     * to). By default, this function does not do anything, but it can be overwritten if requested.
+     */
+    mouseOut: (d: DataNode) => void;
     /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.
