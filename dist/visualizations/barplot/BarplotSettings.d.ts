@@ -107,6 +107,30 @@ export declare class BarplotSettings extends Settings {
      */
     highlightOnHover: boolean;
     /**
+     * This function is called when the user's pointer starts to move over an item in the barplot. By default, this
+     * function does not do anything, but it can be overwritten if requested.
+     */
+    mouseIn: (bars: Bar[], barIndex: number, itemIndex: number, mousePosition: {
+        x: number;
+        y: number;
+    }) => void;
+    /**
+     * This function is called when the user's pointer that was already over an item in the barplot moves. By default,
+     * this function does not do anything, but it can be overwritten if requested.
+     */
+    mouseMove: (bars: Bar[], barIndex: number, itemIndex: number, mousePosition: {
+        x: number;
+        y: number;
+    }) => void;
+    /**
+     * This function is called when the user's pointer moves out of an item (that it was previously already pointing
+     * to). By default this function does not do anything, but it can be overwritten if requested.
+     */
+    mouseOut: (bars: Bar[], barIndex: number, itemIndex: number, mousePosition: {
+        x: number;
+        y: number;
+    }) => void;
+    /**
      * Returns the html to use as tooltip for current mouse position. This tooltip provides information to the user
      * about the node that's currently hovered by the mouse cursor.
      *

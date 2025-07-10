@@ -285,12 +285,12 @@ export default class Barplot {
                 this.mouseIn(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
             })
             .on("mousemove", (event: MouseEvent, d: any) => {
-                const selectedItem = this.data[d.barIndex].items.find((item: BarItem) => item.label === d.title)!;
-                this.mouseMove(event, selectedItem, (event.target! as HTMLElement).parentElement!);
+                const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
+                this.mouseMove(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
             })
             .on("mouseout", (event: MouseEvent, d: any) => {
-                const selectedItem = this.data[d.barIndex].items.find((item: BarItem) => item.label === d.title)!;
-                this.mouseOut(event, selectedItem, (event.target! as HTMLElement).parentElement!);
+                const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
+                this.mouseOut(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
             });
 
         // Add x-axis
@@ -372,6 +372,8 @@ export default class Barplot {
     private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
         const d = this.data[barIndex].items[itemIndex];
 
+        this.settings.mouseIn(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY});
+
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.html(this.settings.getTooltip(this.data, barIndex, itemIndex))
                 .style("top", (event.pageY + 10) + "px")
@@ -384,7 +386,7 @@ export default class Barplot {
             d3.selectAll(".barplot-item").classed("barplot-item-highlighted", true);
             // Except for the current element, we want this one to stand out of the rest
             d3.selectAll(`g[data-bar-item="${d.label}"]`).classed("barplot-item-highlighted", false);
-            
+
             // Also select the legend entry with the same label and highlight the corresponding rectangle
             d3.selectAll(".legend-item").classed("legend-item-highlighted", true);
 
@@ -392,7 +394,9 @@ export default class Barplot {
         }
     }
 
-    private mouseMove(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
+    private mouseMove(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+        this.settings.mouseMove(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY})
+
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
                 .style("top", (event.pageY + 10) + "px")
@@ -400,7 +404,9 @@ export default class Barplot {
         }
     }
 
-    private mouseOut(event: MouseEvent, d: BarItem, targetElement: EventTarget) {
+    private mouseOut(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+        this.settings.mouseOut(this.data, barIndex, itemIndex, {x: event.pageX, y: event.pageY})
+
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");
         }
