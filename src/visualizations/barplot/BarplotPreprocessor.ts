@@ -77,7 +77,7 @@ export default class BarplotPreprocessor {
                 label: bar.label,
                 items: bar.items.map(item => ({
                     label: item.label,
-                    counts: (item.counts / total) * 100
+                    counts: total === 0 ? 0 : (item.counts / total) * 100
                 }))
             };
         });

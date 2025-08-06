@@ -12429,7 +12429,7 @@ class syt {
         label: e.label,
         items: e.items.map((a) => ({
           label: a.label,
-          counts: a.counts / n * 100
+          counts: n === 0 ? 0 : a.counts / n * 100
         }))
       };
     });
