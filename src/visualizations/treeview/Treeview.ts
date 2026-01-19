@@ -168,9 +168,16 @@ export default class Treeview {
 
     private update(source: HPN<TreeviewNode>): void {
         // Compute the new tree layout
-        const layout = this.treeLayout(this.root);
-        const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse().filter((d: HPN<TreeviewNode>) => !d.data.isCollapsed());
-        const links: HPL<TreeviewNode>[] = layout.links().filter((d: HPL<TreeviewNode>) => !d.target.data.isCollapsed() && !d.source.data.isCollapsed());
+        // We construct a new partial hierarchy that only contains the visible nodes. This way d3.tree only computes the
+        // layout for the nodes that are actually visible, which is much faster than computing the layout for the entire
+        // tree and then filtering the invisible nodes out.
+        const visibleRoot = d3.hierarchy<TreeviewNode>(this.root.data, (d: TreeviewNode) => {
+            return d.children.filter((c: DataNode) => !(c as TreeviewNode).isCollapsed());
+        });
+
+        const layout = this.treeLayout(visibleRoot);
+        const nodes: HPN<TreeviewNode>[] = layout.descendants().reverse();
+        const links: HPL<TreeviewNode>[] = layout.links();
 
         // Normalize for fixed depth. The depth of a node determines it's horizontal position from the root.
         nodes.forEach(d => d.y = d.depth * this.settings.nodeDistance);
