@@ -12,6 +12,7 @@
         "strict": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
+        "skipLibCheck": true,
         "isolatedModules": true,
         "declaration": true,
         "declarationDir": "./dist",

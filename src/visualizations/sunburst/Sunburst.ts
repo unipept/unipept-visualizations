@@ -7,8 +7,6 @@ import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import NodeUtils from "./../../utilities/NodeUtils";
 import ColorUtils from "./../../color/ColorUtils";
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 
