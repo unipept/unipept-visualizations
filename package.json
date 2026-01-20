@@ -14,7 +14,8 @@
         "test": "vitest run",
         "build": "vite build",
         "dev": "vite",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "types:check": "tsc --noEmit"
     },
     "repository": "github:unipept/unipept-visualizations",
     "keywords": [
