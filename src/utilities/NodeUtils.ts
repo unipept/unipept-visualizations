@@ -6,6 +6,9 @@ export default class NodeUtils {
     /**
      * Checks if p is a parent of c. If the child is situated deeper in the hierarchy than maxLevels, false is returned.
      *
+     * This implementation walks up from the child to the root using parent pointers, which is O(Depth) instead of
+     * searching the entire subtree of p which would be O(Subtree Size).
+     *
      * @param p Possible parent node.
      * @param c Possible child node.
      * @param maxLevels Maximum depth for the child node in the hierarchy.
@@ -19,14 +22,12 @@ export default class NodeUtils {
             return false;
         }
 
-        if (p === c) {
-            return true;
-        }
-
-        if (p.children) {
-            return p.children.some((d: d3.HierarchyRectangularNode<DataNode>) => {
-                return NodeUtils.isParentOf(d, c, maxLevels);
-            });
+        let current: d3.HierarchyRectangularNode<DataNode> | null = c;
+        while (current) {
+            if (current === p) {
+                return true;
+            }
+            current = current.parent;
         }
 
         return false;

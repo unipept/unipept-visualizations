@@ -33,7 +33,16 @@ describe("NodeUtils.isParentOf", () => {
                 children: []
             }
         ]
-    }
+    };
+
+    // Helper to add parent pointers, simulating d3 hierarchy
+    const addParents = (node: any, parent: any = null) => {
+        node.parent = parent;
+        if (node.children) {
+            node.children.forEach((c: any) => addParents(c, node));
+        }
+    };
+    addParents(hierarchy);
 
     it("should correctly detect proper parents", () => {
         const parent = hierarchy;
@@ -56,7 +65,8 @@ describe("NodeUtils.isParentOf", () => {
         const child = {
             id: 7,
             depth: 3,
-            children: []
+            children: [],
+            parent: null
         };
 
         // @ts-ignore
