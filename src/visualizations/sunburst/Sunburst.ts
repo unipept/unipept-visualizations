@@ -149,19 +149,27 @@ export default class Sunburst {
                 Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
             ];
         } else {
+            if (d.extra.computedSunburstColor) {
+                return d.extra.computedSunburstColor;
+            }
+
             if (d.children.length > 0) {
                 const colours: string[] = d.children.map(c => this.color(c));
                 const a = d3.hsl(colours[0]);
                 const b = d3.hsl(colours[1]);
                 const singleChild = d.children.length === 1 || d.children[1].name === "empty";
 
+                let result;
                 // if we only have one child, return a slightly darker variant of the child color
                 if (singleChild) {
-                    return d3.hsl(a.h, a.s, a.l * 0.98);
+                    result = d3.hsl(a.h, a.s, a.l * 0.98);
+                } else {
+                    // if we have 2 children or more, take the average of the first two children
+                    result = d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
                 }
 
-                // if we have 2 children or more, take the average of the first two children
-                return d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
+                d.extra.computedSunburstColor = result.toString();
+                return result;
             }
             // if we don't have children, pick a new color
             if (!d.extra.color) {
