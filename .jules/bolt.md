@@ -1,0 +1,3 @@
+## 2026-01-23 - NodeUtils.isParentOf Performance Bottleneck
+**Learning:** `NodeUtils.isParentOf` was implemented with O(Subtree Size) complexity using recursive downward traversal, causing significant overhead in large hierarchies. D3 `HierarchyRectangularNode` provides `parent` pointers, allowing for O(Depth) upward traversal which is orders of magnitude faster.
+**Action:** When optimizing tree operations in this codebase, always check if upward traversal (O(Depth)) is possible instead of downward recursion (O(N)). Ensure test mocks include back-pointers (parent) if the algorithm relies on them.
