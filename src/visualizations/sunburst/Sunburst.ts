@@ -417,8 +417,15 @@ export default class Sunburst {
             .attr("dy", ".2em")
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
             .style("font-size", function(this: SVGTextContentElement, d: HRN<DataNode>) {
+                const label = that.settings.getLabel(d.data);
+                if (d.data.extra.fontSizeCache && d.data.extra.fontSizeCache.label === label) {
+                    return d.data.extra.fontSizeCache.size;
+                }
+
                 const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
-                return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
+                const fontSize = Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
+                d.data.extra.fontSizeCache = { label, size: fontSize };
+                return fontSize;
             });
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
