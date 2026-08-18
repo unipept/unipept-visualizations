@@ -18,6 +18,15 @@ export default class Sunburst {
     private breadCrumbs: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
 
     private colorCounter: number = -1;
+
+    /**
+     * Colour of each interior node, which is a pure function of the colours of
+     * its children and therefore stable for the lifetime of this Sunburst: the
+     * data is preprocessed once, in the constructor, so no node's children ever
+     * change. Keyed on the node itself rather than stored on `extra`, so that a
+     * second Sunburst over the same input data does not inherit these.
+     */
+    private readonly computedColors: Map<DataNode, string | d3.HSLColor> = new Map();
     private currentMaxLevel: number = 4;
 
     private xScale: d3.ScaleLinear<number, number>;
@@ -138,7 +147,21 @@ export default class Sunburst {
      * @param d The node for which we want the color.
      * @return string The calculated color in HTML color representation.
      */
-    private color(d: DataNode) {
+    private static toHsl(colour: string | d3.HSLColor): d3.HSLColor {
+        return typeof colour === "string" ? d3.hsl(colour) : d3.hsl(colour);
+    }
+
+    /**
+     * The colour to paint a node with, as a string the DOM can take directly.
+     * `color` keeps returning d3 colour objects for interior nodes because the
+     * recursion averages them, and going through a string at every level would
+     * round trip each average through 8-bit rgb.
+     */
+    private fillColor(d: DataNode): string {
+        return String(this.color(d));
+    }
+
+    private color(d: DataNode): string | d3.HSLColor {
         if (d.name === "empty") {
             return "white";
         }
@@ -148,18 +171,27 @@ export default class Sunburst {
             ];
         } else {
             if (d.children.length > 0) {
-                const colours: string[] = d.children.map(c => this.color(c));
-                const a = d3.hsl(colours[0]);
-                const b = d3.hsl(colours[1]);
-                const singleChild = d.children.length === 1 || d.children[1].name === "empty";
-
-                // if we only have one child, return a slightly darker variant of the child color
-                if (singleChild) {
-                    return d3.hsl(a.h, a.s, a.l * 0.98);
+                const memoized = this.computedColors.get(d);
+                if (memoized !== undefined) {
+                    return memoized;
                 }
 
-                // if we have 2 children or more, take the average of the first two children
-                return d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
+                // Every child is visited, not only the two whose colour is used:
+                // colouring a leaf advances the palette counter, so skipping a
+                // child would change the colour of every leaf after it.
+                const colours: (string | d3.HSLColor)[] = d.children.map(c => this.color(c));
+                const a = Sunburst.toHsl(colours[0]);
+                const b = Sunburst.toHsl(colours[1]);
+                const singleChild = d.children.length === 1 || d.children[1].name === "empty";
+
+                const colour = singleChild
+                    // if we only have one child, return a slightly darker variant of the child color
+                    ? d3.hsl(a.h, a.s, a.l * 0.98)
+                    // if we have 2 children or more, take the average of the first two children
+                    : d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
+
+                this.computedColors.set(d, colour);
+                return colour;
             }
             // if we don't have children, pick a new color
             if (!d.extra.color) {
@@ -342,7 +374,7 @@ export default class Sunburst {
             .attr("id", (d: HRN<DataNode>, i: number) => "path-" + i) // id based on index
             .attr("d", this.arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
-            .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
+            .style("fill", (d: HRN<DataNode>) => this.fillColor(d.data)) // call function for colour
             .attr("fill-opacity", d => d.depth >= this.previousMaxLevel ? 0.2 : 1)
             .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
                 if (d.depth < this.currentMaxLevel) {
@@ -410,7 +442,7 @@ export default class Sunburst {
 
         // Add new text nodes
         this.text = this.visGElement.selectAll("text").data(data).enter().append("text")
-            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.fillColor(d.data)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
@@ -504,7 +536,7 @@ export default class Sunburst {
             .append("path")
             .attr("d", breadArc)
             .attr("transform", "translate(15, 15)")
-            .attr("fill", (d: HRN<DataNode>) => this.color(d.data));
+            .attr("fill", (d: HRN<DataNode>) => this.fillColor(d.data));
 
         this.breadCrumbs.selectAll(".crumb")
             .transition()
