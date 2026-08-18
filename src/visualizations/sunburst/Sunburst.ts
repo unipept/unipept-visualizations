@@ -18,6 +18,15 @@ export default class Sunburst {
     private breadCrumbs: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
 
     private colorCounter: number = -1;
+
+    /**
+     * Colour of each blended node, which is a pure function of the colours of
+     * its children and therefore stable for the lifetime of this Sunburst: the
+     * data is preprocessed once, in the constructor, so no node's children ever
+     * change. Keyed on the node itself rather than stored on `extra`, so that a
+     * second Sunburst over the same input data does not inherit these.
+     */
+    private readonly blendedColors: Map<DataNode, d3.HSLColor> = new Map();
     private currentMaxLevel: number = 4;
 
     private xScale: d3.ScaleLinear<number, number>;
@@ -133,40 +142,78 @@ export default class Sunburst {
     }
 
     /**
+     * Whether the colour of a node is the average of the colours of its
+     * children, rather than one taken straight from a palette.
+     */
+    private isBlended(d: DataNode): boolean {
+        return d.name !== "empty" && !this.settings.useFixedColors && d.children.length > 0;
+    }
+
+    /**
+     * The colour a node takes directly from a palette, in the HTML colour
+     * representation that palette uses.
+     *
+     * @param d A node that is not blended, i.e. `isBlended(d)` is false.
+     */
+    private unblendedColor(d: DataNode): string {
+        if (d.name === "empty") {
+            return "white";
+        }
+
+        if (this.settings.useFixedColors) {
+            return this.settings.fixedColorPalette[
+                Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
+            ];
+        }
+
+        // A leaf: pick the next colour off the palette, once.
+        if (!d.extra.color) {
+            d.extra.color = this.getColor();
+        }
+        return d.extra.color;
+    }
+
+    /**
+     * The colour of an arc, averaged from the colours of its first two
+     * children. Stays an HSL object rather than a string because each level
+     * averages the level below it, and going through a string in between would
+     * round trip every average through 8-bit rgb and shift the result.
+     *
+     * @param d A node that is blended, i.e. `isBlended(d)` is true.
+     */
+    private blendedColor(d: DataNode): d3.HSLColor {
+        const memoized = this.blendedColors.get(d);
+        if (memoized !== undefined) {
+            return memoized;
+        }
+
+        // Every child is visited, not only the two whose colour is used:
+        // colouring a leaf advances the palette counter, so skipping a child
+        // would change the colour of every leaf after it.
+        const colours = d.children.map(
+            c => this.isBlended(c) ? this.blendedColor(c) : d3.hsl(this.unblendedColor(c))
+        );
+        const [a, b] = colours;
+        const singleChild = d.children.length === 1 || d.children[1].name === "empty";
+
+        const colour = singleChild
+            // if we only have one child, return a slightly darker variant of the child color
+            ? d3.hsl(a.h, a.s, a.l * 0.98)
+            // if we have 2 children or more, take the average of the first two children
+            : d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
+
+        this.blendedColors.set(d, colour);
+        return colour;
+    }
+
+    /**
      * Calculates the color of an arc based on the color of his children.
      *
      * @param d The node for which we want the color.
      * @return string The calculated color in HTML color representation.
      */
-    private color(d: DataNode) {
-        if (d.name === "empty") {
-            return "white";
-        }
-        if (this.settings.useFixedColors) {
-            return this.settings.fixedColorPalette[
-                Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
-            ];
-        } else {
-            if (d.children.length > 0) {
-                const colours: string[] = d.children.map(c => this.color(c));
-                const a = d3.hsl(colours[0]);
-                const b = d3.hsl(colours[1]);
-                const singleChild = d.children.length === 1 || d.children[1].name === "empty";
-
-                // if we only have one child, return a slightly darker variant of the child color
-                if (singleChild) {
-                    return d3.hsl(a.h, a.s, a.l * 0.98);
-                }
-
-                // if we have 2 children or more, take the average of the first two children
-                return d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
-            }
-            // if we don't have children, pick a new color
-            if (!d.extra.color) {
-                d.extra.color = this.getColor();
-            }
-            return d.extra.color;
-        }
+    private color(d: DataNode): string {
+        return this.isBlended(d) ? this.blendedColor(d).toString() : this.unblendedColor(d);
     }
 
     /**
