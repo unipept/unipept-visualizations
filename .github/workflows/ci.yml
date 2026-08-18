@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Allow Chromium's sandbox
+        # Ubuntu 24.04+ restricts unprivileged user namespaces through AppArmor,
+        # which stops Chromium from bringing up its sandbox and was why the old
+        # workflow pinned ubuntu-22.04. The runner is a throwaway VM, so lifting
+        # the restriction here beats launching the browser with --no-sandbox in
+        # the tests, which would weaken them everywhere else too.
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Install Chromium
+        # The visual regression tests screenshot the visualizations in a real
+        # browser, so puppeteer needs its matching Chrome build.
+        run: npx puppeteer browsers install chrome
+      - name: Test
+        run: npm test
+      - name: Sanitize snapshot filenames
+        # Test names become snapshot filenames, and the ones holding > or "
+        # cannot be uploaded as an artifact.
+        if: failure()
+        run: |
+          find test/snapshots -depth -name '*[<>:"|?*]*' | while read -r file; do
+            mv "$file" "$(echo "$file" | sed 's/[<>:"|?*]/_/g')"
+          done
+      - name: Upload failed images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-images
+          path: test/snapshots
