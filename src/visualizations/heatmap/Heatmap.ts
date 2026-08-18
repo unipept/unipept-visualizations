@@ -7,8 +7,6 @@ import {HeatmapFeature} from "./HeatmapFeature";
 import {HeatmapValue} from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import CanvasRenderHelper from "./../../render/CanvasRenderHelper";
 import RenderHelper from "./../../render/RenderHelper";
 
