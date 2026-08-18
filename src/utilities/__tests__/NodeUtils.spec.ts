@@ -39,7 +39,7 @@ describe("NodeUtils.isParentOf", () => {
         const parent = hierarchy;
         const child = hierarchy.children[0].children[1].children[0];
 
-        // @ts-ignore
+        // @ts-expect-error
         expect(NodeUtils.isParentOf(parent, child, 4)).toBeTruthy();
     });
 
@@ -47,7 +47,7 @@ describe("NodeUtils.isParentOf", () => {
         const parent = hierarchy;
         const child = hierarchy.children[0].children[1].children[0];
 
-        // @ts-ignore
+        // @ts-expect-error
         expect(NodeUtils.isParentOf(parent, child, 3)).toBeFalsy();
     });
 
@@ -59,7 +59,7 @@ describe("NodeUtils.isParentOf", () => {
             children: []
         };
 
-        // @ts-ignore
+        // @ts-expect-error
         expect(NodeUtils.isParentOf(parent, child, 5)).toBeFalsy();
     });
 });

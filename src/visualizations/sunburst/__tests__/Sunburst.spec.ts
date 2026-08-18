@@ -32,7 +32,7 @@ describe("Sunburst", () => {
         // Animations need to be disabled during the tests
         settings["animationDuration"] = 0;
 
-        const sunburst = new Sunburst(element, taxonomyObject, settings);
+        new Sunburst(element, taxonomyObject, settings);
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 3000, 500);
 
@@ -74,7 +74,7 @@ describe("Sunburst", () => {
         const settings = new SunburstSettings();
         settings.animationDuration = 0;
 
-        const sunburst = new Sunburst(element, taxonomyObject, settings);
+        new Sunburst(element, taxonomyObject, settings);
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
 
@@ -109,7 +109,7 @@ describe("Sunburst", () => {
         settings.animationDuration = 0;
         settings.rerootCallback = (d: DataNode) => nodeFromCallback = d;
 
-        const sunburst = new Sunburst(element, taxonomyObject, settings);
+        new Sunburst(element, taxonomyObject, settings);
 
         await waitForCondition(() => element.innerHTML.includes("svg"), 2000, 500);
 

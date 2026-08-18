@@ -2,10 +2,10 @@ import { Metric } from "./Metric";
 
 export default class PearsonCorrelationMetric implements Metric {
     getDistance(matrix: number[][]): number[][] {
-        let output: number[][] = [];
+        const output: number[][] = [];
 
         for (let i = 0; i < matrix.length; i++) {
-            let row: number[] = [];
+            const row: number[] = [];
             for (let j = 0; j <= i; j++) {
                 row.push(this.getPearsonCorrelationBetween2Samples(matrix[i], matrix[j]));
             }

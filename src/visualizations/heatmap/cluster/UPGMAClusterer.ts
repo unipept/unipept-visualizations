@@ -29,13 +29,13 @@ export default class UPGMAClusterer implements Clusterer {
         }
 
         // All clusters that exist in a current step.
-        let clusters: Map<number, Cluster> = new Map();
+        const clusters: Map<number, Cluster> = new Map();
 
         // Now we need to compute a distance matrix. A distance matrix needs a matrix with raw values to be calculated.
         // We thus need to convert the input into a value matrix, before proceeding.
-        let valueMatrix: number[][] = [];
+        const valueMatrix: number[][] = [];
         for (let i = 0; i < data.length; i++) {
-            let row: number[] = data[i].values;
+            const row: number[] = data[i].values;
             clusters.set(i, new Cluster([data[i]], i, new TreeNode(null, null, null, [data[i]], 0)));
             valueMatrix.push(row);
         }
@@ -50,8 +50,8 @@ export default class UPGMAClusterer implements Clusterer {
             let smallestDistance = Infinity;
             let x = -1;
             let y = -1;
-            for (let i of clusters.keys()) {
-                for (let j of clusters.keys()) {
+            for (const i of clusters.keys()) {
+                for (const j of clusters.keys()) {
                     if (i > j) {
                         if (distanceMatrix[i][j] < smallestDistance) {
                             smallestDistance = distanceMatrix[i][j];
@@ -63,20 +63,20 @@ export default class UPGMAClusterer implements Clusterer {
             }
 
             // Get the cluster objects corresponding to the closest distance found.
-            let xCluster = clusters.get(x);
-            let yCluster = clusters.get(y);
+            const xCluster = clusters.get(x);
+            const yCluster = clusters.get(y);
 
-            let nodeHeight: number = smallestDistance / 2;
+            const nodeHeight: number = smallestDistance / 2;
 
             if (!xCluster || !yCluster) {
                 throw "At least one cluster is invalid!";
             }
 
             // Recalculate distance from this cluster to other clusters (Use average distance)
-            let updatedDistanceMatrix: number[][] = this.copyDistanceMatrix(distanceMatrix);
+            const updatedDistanceMatrix: number[][] = this.copyDistanceMatrix(distanceMatrix);
 
             // Cluster.keys() returns a reference to every cluster at the current step
-            for (let j of clusters.keys()) {
+            for (const j of clusters.keys()) {
                 if (j != x && j != y) {
                     // Our matrix is lower triangular (because it is symmetric). This means we should extract the value
                     // from the right part of the matrix.
@@ -95,7 +95,7 @@ export default class UPGMAClusterer implements Clusterer {
                     }
 
                     // Recalculate the distance between the new, merged cluster and all other clusters.
-                    let temp = (xCluster.elements.length * xDistance + yCluster.elements.length * yDistance) / (xCluster.elements.length + yCluster.elements.length);
+                    const temp = (xCluster.elements.length * xDistance + yCluster.elements.length * yDistance) / (xCluster.elements.length + yCluster.elements.length);
                     if (j > x) {
                         updatedDistanceMatrix[j][x] = temp;
                     } else {
@@ -117,11 +117,11 @@ export default class UPGMAClusterer implements Clusterer {
     }
 
     private copyDistanceMatrix(distanceMatrix: number[][]): number[][] {
-        let output: number[][] = [];
+        const output: number[][] = [];
 
         for (let i = 0; i < distanceMatrix.length; i++) {
-            let current: number[] = [];
-            let row = distanceMatrix[i];
+            const current: number[] = [];
+            const row = distanceMatrix[i];
             for (let j = 0; j < row.length; j++) {
                 current.push(row[j]);
             }

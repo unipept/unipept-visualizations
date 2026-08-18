@@ -1,7 +1,7 @@
 import HeatmapSettings from "./../HeatmapSettings";
 import Heatmap from "./../Heatmap";
 import { JSDOM } from "jsdom";
-import { sleep, waitForCondition } from "./../../../test/TestUtils";
+import { waitForCondition } from "./../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 
@@ -139,7 +139,7 @@ describe("Heatmap", () => {
         settings.minColor = "#ffebee";
         settings.maxColor = "#c62828";
 
-        const heatmap = await createHeatmap(jsDom, settings);
+        await createHeatmap(jsDom, settings);
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));

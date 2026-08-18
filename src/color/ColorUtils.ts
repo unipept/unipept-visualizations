@@ -8,7 +8,7 @@ export default class ColorUtils {
         let textColor = "#000";
         try {
             textColor = ColorUtils.brightness(rgb(color)) < 125 ? "#eee" : "#000";
-        } catch (err) { /* go on */ }
+        } catch { /* go on */ }
         return textColor;
     }
 

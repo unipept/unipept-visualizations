@@ -1,3 +1,6 @@
+// `Transition.easeX` is part of the published API, so turning this namespace
+// into a module would be a breaking change for consumers.
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Transition {
     /**
      * A transition that starts slowly, then accelerates and ends slowly again.

@@ -1,5 +1,4 @@
 import Settings, {VisualizationPadding} from "../../Settings";
-import DataNode from "../../DataNode";
 import {Bar, BarItem} from "./Bar";
 
 export class BarplotChartSettings {

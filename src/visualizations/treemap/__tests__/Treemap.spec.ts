@@ -56,7 +56,7 @@ describe("Treemap", () => {
 
     it("should render a treemap with default settings", async() => {
         const jsDom = createJSDom();
-        const treemap = await createTreemap(jsDom, new TreemapSettings());
+        await createTreemap(jsDom, new TreemapSettings());
 
         const image = await makeScreenshot(jsDom);
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
@@ -70,7 +70,7 @@ describe("Treemap", () => {
         const settings = new TreemapSettings();
         settings.rerootCallback = (d: DataNode) => nodeFromCallback = d;
 
-        const treemap = await createTreemap(jsDom, settings);
+        await createTreemap(jsDom, settings);
 
         expect(nodeFromCallback!.name).toEqual("root");
 
