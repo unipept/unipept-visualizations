@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unipept Visualizations &mdash; examples</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23742f8f%27/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      margin: 0 auto;
+      max-width: 60rem;
+      padding: 2rem 1rem 4rem;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    p.lede { margin-top: 0; }
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+      margin-top: 2rem;
+    }
+    article {
+      border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+    article h2 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+    article img {
+      aspect-ratio: 3 / 2;
+      background: color-mix(in srgb, currentColor 6%, transparent);
+      border-radius: 0.25rem;
+      display: block;
+      object-fit: cover;
+      object-position: top left;
+      width: 100%;
+    }
+    article ul { margin: 0.75rem 0 0; padding-left: 1.1rem; }
+  </style>
+</head>
+<body>
+  <h1>Unipept Visualizations</h1>
+  <p class="lede">
+    Live examples of the visualizations in
+    <a href="https://github.com/unipept/unipept-visualizations">unipept/unipept-visualizations</a>,
+    built from the default branch.
+  </p>
+  <main class="grid">
+      <article>
+        <h2>Treeview</h2>
+        <img src="treeview-taxonomy.png" alt="Treeview example">
+        <ul>
+          <li><a href="treeview-taxonomy.html">Unipept taxonomy</a></li>
+          <li><a href="treeview-flare.html">Flare hierarchy</a></li>
+          <li><a href="treeview-multi.html">Several at once</a></li>
+        </ul>
+      </article>
+      <article>
+        <h2>Treemap</h2>
+        <img src="treemap-taxonomy.png" alt="Treemap example">
+        <ul>
+          <li><a href="treemap-taxonomy.html">Unipept taxonomy</a></li>
+          <li><a href="treemap-flare.html">Flare hierarchy</a></li>
+          <li><a href="treemap-multi.html">Several at once</a></li>
+        </ul>
+      </article>
+      <article>
+        <h2>Sunburst</h2>
+        <img src="sunburst-taxonomy.png" alt="Sunburst example">
+        <ul>
+          <li><a href="sunburst-taxonomy.html">Unipept taxonomy</a></li>
+          <li><a href="sunburst-flare.html">Flare hierarchy</a></li>
+          <li><a href="sunburst-multi.html">Several at once</a></li>
+        </ul>
+      </article>
+      <article>
+        <h2>Heatmap</h2>
+        <img src="heatmap.png" alt="Heatmap example">
+        <ul>
+          <li><a href="heatmap-random.html">Random values</a></li>
+          <li><a href="heatmap-clusters.html">Clustered CSV</a></li>
+        </ul>
+      </article>
+      <article>
+        <h2>Barplot</h2>
+        <img src="barplot-taxonomy.png" alt="Barplot example">
+        <ul>
+          <li><a href="barplot-taxonomy.html">Stacked, Unipept taxonomy</a></li>
+        </ul>
+      </article>
+  </main>
+</body>
+</html>

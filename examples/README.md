@@ -1,8 +1,11 @@
 # Examples
 
-Each example is a standalone HTML page that imports the library from
-`../dist/unipept-visualizations.js`. That file is a build artifact and is no
-longer committed, so build it once before opening any of these pages:
+Every example below is deployed from `main` and can be viewed without checking
+anything out: **<https://unipept.github.io/unipept-visualizations/>**.
+
+To run them against your own working copy instead: each page is a standalone
+HTML file that imports the library from `../dist/unipept-visualizations.js`.
+That file is a build artifact and is not committed, so build it first:
 
 ```sh
 npm install
