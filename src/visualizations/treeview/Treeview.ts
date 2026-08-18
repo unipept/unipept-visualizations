@@ -270,8 +270,7 @@ export default class Treeview {
             .style("fill-opacity", 1e-6);
 
         // Update the links between the different nodes.
-        // @ts-expect-error
-        const link = this.visElement.selectAll("path.link")
+        const link = this.visElement.selectAll<SVGPathElement, HPL<TreeviewNode>>("path.link")
             .data(links, (d: HPL<TreeviewNode>) => d.target.data.id);
 
         const linkGenerator = d3.linkHorizontal<any, HPL<TreeviewNode>, HPN<TreeviewNode>>().x(d => d.y).y(d => d.x);
@@ -297,7 +296,6 @@ export default class Treeview {
                     target: o
                 });
             })
-            // @ts-expect-error
             .merge(link)
             .transition()
             .duration(this.settings.animationDuration)

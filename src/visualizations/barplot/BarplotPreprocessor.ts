@@ -18,9 +18,6 @@ export default class BarplotPreprocessor {
         bars: Bar[],
         maxItems: number | undefined
     ): Bar[] {
-        // Clone the bars such that we can modify them without updating the data moved into this structure
-        let outputBars = bars.map(b => { return { ... b } });
-
         // Determine which items are the largest and which should be moved into the "rest" category
         let firstBarItems = [...(bars[0].items)].sort((a, b) => b.counts - a.counts);
 
@@ -29,7 +26,9 @@ export default class BarplotPreprocessor {
         }
 
         // After sorting out the items of the first bar, make sure that the remaining bars use the same categories
-        outputBars = bars.map(bar => {
+        // Build new bars rather than mutating the caller's, so the data handed to
+        // this preprocessor is left alone.
+        const outputBars = bars.map(bar => {
             let otherCount = 0;
 
             const newItems: BarItem[] = [];

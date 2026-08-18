@@ -401,7 +401,6 @@ export default class Sunburst {
         let ctx: OffscreenCanvasRenderingContext2D;
         if (offscreenCanvasSupported) {
             const offscreenCanvas = new OffscreenCanvas(1, 1);
-            // @ts-expect-error
             ctx = offscreenCanvas.getContext("2d")!;
             ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }

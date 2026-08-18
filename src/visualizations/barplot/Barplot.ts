@@ -90,7 +90,6 @@ export default class Barplot {
         const xAxisHeight: number = 40;
 
         let plotAreaWidth: number;
-        let plotAreaHeight: number;
         let legendContentStartLeft: number;
         let legendContentStartTop: number;
         let legendEntryHeight: number;
@@ -101,7 +100,6 @@ export default class Barplot {
         // Computed metrics
         if (isHorizontal) {
             plotAreaWidth = this.settings.width  - plotPadding.left - plotPadding.right - legendWidth;
-            plotAreaHeight = barHeight * this.data.length;
             legendContentStartTop = legendPadding.top;
             legendContentStartLeft = plotPadding.left + plotAreaWidth + plotPadding.right + legendPadding.left;
             legendEntryHeight = Math.max(legendSymbolSize, legendLabelFontSize);
@@ -110,7 +108,7 @@ export default class Barplot {
             legendEntryWidth = legendWidth - legendPadding.left - legendPadding.right;
         } else {
             plotAreaWidth = this.settings.width - plotPadding.left - plotPadding.right;
-            plotAreaHeight = barHeight * this.data.length;
+            const plotAreaHeight = barHeight * this.data.length;
             legendContentStartTop = plotAreaHeight + legendPadding.top + xAxisHeight;
             legendContentStartLeft = legendPadding.left;
             legendEntryHeight = Math.max(legendSymbolSize, legendLabelFontSize);

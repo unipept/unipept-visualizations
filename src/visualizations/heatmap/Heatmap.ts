@@ -341,7 +341,6 @@ export default class Heatmap {
         const offscreenCanvas = new OffscreenCanvas(1, 1);
         const ctx = offscreenCanvas.getContext("2d");
 
-        // @ts-expect-error
         ctx!.font = `${fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
 
         // Then add the row and colum titles to the heatmap
@@ -366,7 +365,6 @@ export default class Heatmap {
             `;
 
             // Compute the length of the label in pixels
-            // @ts-expect-error
             const computedWidth: number = ctx!.measureText(this.rows[row].name).width + x;
             if (computedWidth > maximumWidth) {
                 maximumWidth = computedWidth;
@@ -393,7 +391,6 @@ export default class Heatmap {
                 </text>
             `;
 
-            // @ts-expect-error
             const computedWidth: number = ctx!.measureText(this.columns[col].name).width + y;
             if (computedWidth > maximumHeight) {
                 maximumHeight = computedWidth;
