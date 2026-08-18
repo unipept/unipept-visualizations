@@ -1,0 +1,88 @@
+name: Publish on NPM
+
+on:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      dist_tag: ${{ steps.check.outputs.dist_tag }}
+      prerelease: ${{ steps.check.outputs.prerelease }}
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Verify tag
+        id: check
+        run: |
+          VERSION="${TAG_NAME#v}"
+          if [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            DIST_TAG=latest
+            PRERELEASE=false
+          elif [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*$ ]]; then
+            DIST_TAG=next
+            PRERELEASE=true
+          else
+            echo "::error::$VERSION is not a semver version"
+            exit 1
+          fi
+          PKG=$(jq -r .version package.json)
+          if [ "$VERSION" != "$PKG" ]; then
+            echo "::error::Tag $TAG_NAME does not match package.json version $PKG"
+            exit 1
+          fi
+          echo "dist_tag=$DIST_TAG" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+  publish:
+    needs: [test, verify]
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DIST_TAG: ${{ needs.verify.outputs.dist_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          # No registry-url: auth uses npm trusted publishing (OIDC), which
+          # needs no .npmrc, and the registry defaults to registry.npmjs.org.
+      - name: Install dependencies
+        run: npm ci
+      - name: Publish unipept-visualizations to NPM
+        # The prepack script builds dist/ as part of npm publish.
+        run: npm publish --provenance --access public --tag "$DIST_TAG"
+  release:
+    needs: [verify, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      PRERELEASE: ${{ needs.verify.outputs.prerelease }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$PRERELEASE" = "true" ]; then
+            gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag --prerelease
+          else
+            gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
+          fi
