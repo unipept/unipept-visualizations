@@ -37,7 +37,7 @@ jobs:
           cp examples/index.html _site/index.html
           sed -i 's|href="\([a-z0-9-]*\.html\)"|href="examples/\1"|g; s|src="\([a-z0-9-]*\.png\)"|src="examples/\1"|g' _site/index.html
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -53,4 +53,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
