@@ -20,13 +20,13 @@ export default class Sunburst {
     private colorCounter: number = -1;
 
     /**
-     * Colour of each interior node, which is a pure function of the colours of
+     * Colour of each blended node, which is a pure function of the colours of
      * its children and therefore stable for the lifetime of this Sunburst: the
      * data is preprocessed once, in the constructor, so no node's children ever
      * change. Keyed on the node itself rather than stored on `extra`, so that a
      * second Sunburst over the same input data does not inherit these.
      */
-    private readonly computedColors: Map<DataNode, string | d3.HSLColor> = new Map();
+    private readonly blendedColors: Map<DataNode, d3.HSLColor> = new Map();
     private currentMaxLevel: number = 4;
 
     private xScale: d3.ScaleLinear<number, number>;
@@ -142,63 +142,78 @@ export default class Sunburst {
     }
 
     /**
+     * Whether the colour of a node is the average of the colours of its
+     * children, rather than one taken straight from a palette.
+     */
+    private isBlended(d: DataNode): boolean {
+        return d.name !== "empty" && !this.settings.useFixedColors && d.children.length > 0;
+    }
+
+    /**
+     * The colour a node takes directly from a palette, in the HTML colour
+     * representation that palette uses.
+     *
+     * @param d A node that is not blended, i.e. `isBlended(d)` is false.
+     */
+    private unblendedColor(d: DataNode): string {
+        if (d.name === "empty") {
+            return "white";
+        }
+
+        if (this.settings.useFixedColors) {
+            return this.settings.fixedColorPalette[
+                Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
+            ];
+        }
+
+        // A leaf: pick the next colour off the palette, once.
+        if (!d.extra.color) {
+            d.extra.color = this.getColor();
+        }
+        return d.extra.color;
+    }
+
+    /**
+     * The colour of an arc, averaged from the colours of its first two
+     * children. Stays an HSL object rather than a string because each level
+     * averages the level below it, and going through a string in between would
+     * round trip every average through 8-bit rgb and shift the result.
+     *
+     * @param d A node that is blended, i.e. `isBlended(d)` is true.
+     */
+    private blendedColor(d: DataNode): d3.HSLColor {
+        const memoized = this.blendedColors.get(d);
+        if (memoized !== undefined) {
+            return memoized;
+        }
+
+        // Every child is visited, not only the two whose colour is used:
+        // colouring a leaf advances the palette counter, so skipping a child
+        // would change the colour of every leaf after it.
+        const colours = d.children.map(
+            c => this.isBlended(c) ? this.blendedColor(c) : d3.hsl(this.unblendedColor(c))
+        );
+        const [a, b] = colours;
+        const singleChild = d.children.length === 1 || d.children[1].name === "empty";
+
+        const colour = singleChild
+            // if we only have one child, return a slightly darker variant of the child color
+            ? d3.hsl(a.h, a.s, a.l * 0.98)
+            // if we have 2 children or more, take the average of the first two children
+            : d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
+
+        this.blendedColors.set(d, colour);
+        return colour;
+    }
+
+    /**
      * Calculates the color of an arc based on the color of his children.
      *
      * @param d The node for which we want the color.
      * @return string The calculated color in HTML color representation.
      */
-    private static toHsl(colour: string | d3.HSLColor): d3.HSLColor {
-        return typeof colour === "string" ? d3.hsl(colour) : d3.hsl(colour);
-    }
-
-    /**
-     * The colour to paint a node with, as a string the DOM can take directly.
-     * `color` keeps returning d3 colour objects for interior nodes because the
-     * recursion averages them, and going through a string at every level would
-     * round trip each average through 8-bit rgb.
-     */
-    private fillColor(d: DataNode): string {
-        return String(this.color(d));
-    }
-
-    private color(d: DataNode): string | d3.HSLColor {
-        if (d.name === "empty") {
-            return "white";
-        }
-        if (this.settings.useFixedColors) {
-            return this.settings.fixedColorPalette[
-                Math.abs(this.settings.fixedColorHash(d)) % this.settings.fixedColorPalette.length
-            ];
-        } else {
-            if (d.children.length > 0) {
-                const memoized = this.computedColors.get(d);
-                if (memoized !== undefined) {
-                    return memoized;
-                }
-
-                // Every child is visited, not only the two whose colour is used:
-                // colouring a leaf advances the palette counter, so skipping a
-                // child would change the colour of every leaf after it.
-                const colours: (string | d3.HSLColor)[] = d.children.map(c => this.color(c));
-                const a = Sunburst.toHsl(colours[0]);
-                const b = Sunburst.toHsl(colours[1]);
-                const singleChild = d.children.length === 1 || d.children[1].name === "empty";
-
-                const colour = singleChild
-                    // if we only have one child, return a slightly darker variant of the child color
-                    ? d3.hsl(a.h, a.s, a.l * 0.98)
-                    // if we have 2 children or more, take the average of the first two children
-                    : d3.hsl((a.h + b.h) / 2, (a.s + b.s) / 2, (a.l + b.l) / 2);
-
-                this.computedColors.set(d, colour);
-                return colour;
-            }
-            // if we don't have children, pick a new color
-            if (!d.extra.color) {
-                d.extra.color = this.getColor();
-            }
-            return d.extra.color;
-        }
+    private color(d: DataNode): string {
+        return this.isBlended(d) ? this.blendedColor(d).toString() : this.unblendedColor(d);
     }
 
     /**
@@ -374,7 +389,7 @@ export default class Sunburst {
             .attr("id", (d: HRN<DataNode>, i: number) => "path-" + i) // id based on index
             .attr("d", this.arc) // path data
             .attr("fill-rule", "evenodd") // fill rule
-            .style("fill", (d: HRN<DataNode>) => this.fillColor(d.data)) // call function for colour
+            .style("fill", (d: HRN<DataNode>) => this.color(d.data)) // call function for colour
             .attr("fill-opacity", d => d.depth >= this.previousMaxLevel ? 0.2 : 1)
             .on("click", (event: MouseEvent, d: HRN<DataNode>) => {
                 if (d.depth < this.currentMaxLevel) {
@@ -442,7 +457,7 @@ export default class Sunburst {
 
         // Add new text nodes
         this.text = this.visGElement.selectAll("text").data(data).enter().append("text")
-            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.fillColor(d.data)))
+            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
@@ -536,7 +551,7 @@ export default class Sunburst {
             .append("path")
             .attr("d", breadArc)
             .attr("transform", "translate(15, 15)")
-            .attr("fill", (d: HRN<DataNode>) => this.fillColor(d.data));
+            .attr("fill", (d: HRN<DataNode>) => this.color(d.data));
 
         this.breadCrumbs.selectAll(".crumb")
             .transition()
