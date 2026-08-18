@@ -77,15 +77,13 @@ export default class TreeNode {
      * Convert this tree and all of it's children to the dot GraphViz-format.
      */
     public toGraphViz(nameExtractor: (id: number) => string): string {
-        let root: TreeNode | undefined = this;
-
         let output = "digraph dendrogram {\n";
         let labels = "";
         let edges = "";
 
-        let toCheck: TreeNode[] = [root];
+        const toCheck: TreeNode[] = [this];
         while (toCheck.length > 0) {
-            root = toCheck.shift();
+            const root = toCheck.shift();
 
             if (!root) {
                 break;

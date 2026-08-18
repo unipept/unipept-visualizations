@@ -109,7 +109,7 @@ export default class Heatmap {
         // Add a canvas to the desired element and set it's required properties
         this.element.innerHTML = "";
 
-        // @ts-ignore
+        // @ts-expect-error
         this.visElement = d3.select(this.element)
             .append("canvas")
             .attr("width", this.pixelRatio * this.settings.width)
@@ -129,7 +129,7 @@ export default class Heatmap {
                 this.zoomed(event.transform);
             });
 
-        // @ts-ignore
+        // @ts-expect-error
         this.visElement.call(zoom);
 
         this.computeClusterRoots();
@@ -138,7 +138,7 @@ export default class Heatmap {
     }
 
     private fillOptions(options: any = undefined): HeatmapSettings {
-        let output = new HeatmapSettings();
+        const output = new HeatmapSettings();
         return Object.assign(output, options);
     }
 
@@ -186,7 +186,7 @@ export default class Heatmap {
         const preprocessor = new Preprocessor();
 
         let rowOrder: number[] = Array.from(Array(this.rows.length).keys())
-        let inverseRowOrder: number[] = new Array(rowOrder.length);
+        const inverseRowOrder: number[] = new Array(rowOrder.length);
 
         if ((toCluster === "all" || toCluster === "rows") && !this.clusteredVertical) {
             this.clusteredVertical = true;
@@ -203,7 +203,7 @@ export default class Heatmap {
             await createAnimator(inverseRowOrder, columnIdentity);
             this.animatingRows = false;
 
-            let newValues = [];
+            const newValues = [];
             // Swap rows into the correct position
             for (const row of rowOrder) {
                 newValues.push(this.values[row]);
@@ -221,7 +221,7 @@ export default class Heatmap {
         }
 
         let columnOrder: number[] = Array.from(Array(this.columns.length).keys())
-        let inverseColumnOrder: number[] = new Array(columnOrder.length);
+        const inverseColumnOrder: number[] = new Array(columnOrder.length);
 
         if ((toCluster === "all" || toCluster === "columns") && !this.clusteredHorizontal) {
             this.clusteredHorizontal = true;
@@ -237,10 +237,10 @@ export default class Heatmap {
             await createAnimator(rowIdentity, inverseColumnOrder);
             this.animatingCols = false;
 
-            let newValues = [];
+            const newValues = [];
             // Swap columns
             for (const row of rowIdentity) {
-                let newRow: HeatmapValue[] = [];
+                const newRow: HeatmapValue[] = [];
                 for (const column of columnOrder) {
                     newRow.push(this.values[row][column]);
                 }
@@ -262,12 +262,12 @@ export default class Heatmap {
     }
 
     private computeClusterRoots() {
-        let clusterer = this.settings.clusteringAlgorithm;
-        let molo: Reorderer = this.settings.reorderer;
+        const clusterer = this.settings.clusteringAlgorithm;
+        const molo: Reorderer = this.settings.reorderer;
 
         // Create a new ClusterElement for every row that exists. This ClusterElement keeps track of an array of
         // numbers that correspond to a row's values.
-        let rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(
+        const rowElements: ClusterElement[] = this.rows.map((el, idx) => new ClusterElement(
             this.values[idx].filter(val => val.rowId == el.idx).map(x => x.value), el.idx!)
         );
 
@@ -275,7 +275,7 @@ export default class Heatmap {
         this.verticalNodesPerDepth = this.bfsNodesPerDepth(this.rowClusterRoot);
 
         // Create a new ClusterElement for every column that exists.
-        let columnElements: ClusterElement[] = this.columns.map(
+        const columnElements: ClusterElement[] = this.columns.map(
             (el, idx) => new ClusterElement(
                 this.values.map(col => col[idx].value),
                 el.idx!
@@ -343,7 +343,7 @@ export default class Heatmap {
         const offscreenCanvas = new OffscreenCanvas(1, 1);
         const ctx = offscreenCanvas.getContext("2d");
 
-        //@ts-ignore
+        // @ts-expect-error
         ctx!.font = `${fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
 
         // Then add the row and colum titles to the heatmap
@@ -368,7 +368,7 @@ export default class Heatmap {
             `;
 
             // Compute the length of the label in pixels
-            // @ts-ignore
+            // @ts-expect-error
             const computedWidth: number = ctx!.measureText(this.rows[row].name).width + x;
             if (computedWidth > maximumWidth) {
                 maximumWidth = computedWidth;
@@ -395,7 +395,7 @@ export default class Heatmap {
                 </text>
             `;
 
-            // @ts-ignore
+            // @ts-expect-error
             const computedWidth: number = ctx!.measureText(this.columns[col].name).width + y;
             if (computedWidth > maximumHeight) {
                 maximumHeight = computedWidth;
@@ -441,8 +441,8 @@ export default class Heatmap {
             textHeight;
 
         // Squares should at least be one pixel in height
-        let squareWidth = Math.max(1, visualizationWidth / this.columns.length);
-        let squareHeight = Math.max(1, visualizationHeight / this.rows.length);
+        const squareWidth = Math.max(1, visualizationWidth / this.columns.length);
+        const squareHeight = Math.max(1, visualizationHeight / this.rows.length);
 
         return Math.min(squareWidth, squareHeight);
     }
@@ -549,7 +549,7 @@ export default class Heatmap {
             animationStep = 0;
         }
 
-        let squareWidth = this.determineSquareWidth();
+        const squareWidth = this.determineSquareWidth();
         const dendrogramWidth: number = this.determineDendrogramWidth();
 
         this.context.clearRect(0, 0, this.settings.width, this.settings.height);
@@ -570,10 +570,10 @@ export default class Heatmap {
                 const xDifference = xTopEnd - xTopStart;
                 const yDifference = yTopEnd - yTopStart;
 
-                let xTopCurrent = xTopStart + xDifference * animationStep;
-                let yTopCurrent = yTopStart + yDifference * animationStep;
-                let xBottomCurrent = xTopCurrent + (squareWidth + this.settings.squarePadding);
-                let yBottomCurrent = yTopCurrent + (squareWidth + this.settings.squarePadding);
+                const xTopCurrent = xTopStart + xDifference * animationStep;
+                const yTopCurrent = yTopStart + yDifference * animationStep;
+                const xBottomCurrent = xTopCurrent + (squareWidth + this.settings.squarePadding);
+                const yBottomCurrent = yTopCurrent + (squareWidth + this.settings.squarePadding);
 
                 // We do not need to draw the current square
                 if (xBottomCurrent < 0 || xTopCurrent > this.settings.width) {
@@ -698,13 +698,13 @@ export default class Heatmap {
             animationStep = 0;
         }
 
-        let squareWidth = this.determineSquareWidth();
+        const squareWidth = this.determineSquareWidth();
         const dendrogramWidth = this.determineDendrogramWidth();
 
         // Per how many items should we display a text item? (padding is 8)
-        let stepSize: number = Math.max(Math.floor((this.settings.fontSize + 12) / (squareWidth + this.settings.squarePadding)), 1);
+        const stepSize: number = Math.max(Math.floor((this.settings.fontSize + 12) / (squareWidth + this.settings.squarePadding)), 1);
 
-        let textStart = this.computeTextStartY();
+        const textStart = this.computeTextStartY();
         let textCenter = Math.max((squareWidth - this.settings.fontSize) / 2, 0);
 
         this.context.save();
@@ -970,7 +970,7 @@ export default class Heatmap {
 
     private tooltipMove(event: MouseEvent) {
         // Find out which element is situated under the current mouse position.
-        // @ts-ignore
+        // @ts-expect-error
         const rect = event.target.getBoundingClientRect();
         const [row, col] = this.findRowAndColForPosition(event.clientX - rect.left, event.clientY - rect.top);
 
@@ -1018,7 +1018,7 @@ export default class Heatmap {
         const dendroWidth = this.determineDendrogramWidth();
         const squareWidth = this.determineSquareWidth();
 
-        // @ts-ignore
+        // @ts-expect-error
         const rect = event.target.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;

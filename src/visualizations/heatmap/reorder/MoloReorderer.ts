@@ -21,19 +21,19 @@ export default class MoloReorderer implements Reorderer {
             return root;
         }
 
-        let leftTree: TreeNode = root.leftChild;
-        let rightTree: TreeNode = root.rightChild;
+        const leftTree: TreeNode = root.leftChild;
+        const rightTree: TreeNode = root.rightChild;
 
-        let leftSingleton: boolean = !leftTree.leftChild && !leftTree.rightChild;
-        let rightSingleton: boolean = !rightTree.leftChild && !rightTree.rightChild;
+        const leftSingleton: boolean = !leftTree.leftChild && !leftTree.rightChild;
+        const rightSingleton: boolean = !rightTree.leftChild && !rightTree.rightChild;
 
         if (leftSingleton && rightSingleton) {
             this.nodeMinMap.set(root, root.height);
         } else if (!leftSingleton && rightSingleton) {
-            let sorted: TreeNode = this.sortMinimum(leftTree);
+            const sorted: TreeNode = this.sortMinimum(leftTree);
             root.leftChild = sorted;
 
-            let sortedMin = this.nodeMinMap.get(sorted);
+            const sortedMin = this.nodeMinMap.get(sorted);
 
             if (sortedMin === undefined) {
                 throw "The recursive call to sort the left subtree did not yield a minimum value.";
@@ -41,11 +41,11 @@ export default class MoloReorderer implements Reorderer {
 
             this.nodeMinMap.set(root, Math.min(root.height, sortedMin));
         } else if (leftSingleton && !rightSingleton) {
-            let sorted: TreeNode = this.sortMinimum(rightTree);
+            const sorted: TreeNode = this.sortMinimum(rightTree);
             root.leftChild = sorted;
             root.rightChild = leftTree;
 
-            let sortedMin = this.nodeMinMap.get(sorted);
+            const sortedMin = this.nodeMinMap.get(sorted);
 
             if (sortedMin === undefined) {
                 throw "The recursive call to sort the right subtree did not yield a minimum value.";
@@ -54,11 +54,11 @@ export default class MoloReorderer implements Reorderer {
             this.nodeMinMap.set(root, Math.min(root.height, sortedMin));
         } else  {
             // Both trees are non-leaves
-            let leftSorted: TreeNode = this.sortMinimum(leftTree);
-            let rightSorted: TreeNode = this.sortMinimum(rightTree);
+            const leftSorted: TreeNode = this.sortMinimum(leftTree);
+            const rightSorted: TreeNode = this.sortMinimum(rightTree);
 
-            let leftMin = this.nodeMinMap.get(leftSorted);
-            let rightMin = this.nodeMinMap.get(rightSorted);
+            const leftMin = this.nodeMinMap.get(leftSorted);
+            const rightMin = this.nodeMinMap.get(rightSorted);
 
             if (leftMin === undefined || rightMin === undefined) {
                 throw "One of the recursive calls to sort a subtree did not yield a minimum value.";

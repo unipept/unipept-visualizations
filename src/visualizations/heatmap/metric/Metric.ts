@@ -1,4 +1,3 @@
-import ClusterElement from "../cluster/ClusterElement";
 
 export interface Metric {
     /**

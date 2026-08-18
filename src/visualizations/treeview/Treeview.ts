@@ -5,7 +5,7 @@ import TreeviewNode from "./TreeviewNode";
 import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import { DataNodeLike } from "./../../DataNode";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;
@@ -119,7 +119,7 @@ export default class Treeview {
             }
         }
 
-        this.root.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+        this.root.children?.forEach((d: HPN<TreeviewNode>, _i: number) => {
             updateColor(d, 1);
         });
 
@@ -160,7 +160,7 @@ export default class Treeview {
             const toExpand = pq.remove();
             allowedCount -= toExpand.data.count;
             toExpand.data.expand(1);
-            toExpand.children?.forEach((d: HPN<TreeviewNode>, i: number) => {
+            toExpand.children?.forEach((d: HPN<TreeviewNode>, _i: number) => {
                 pq.add(d);
             });
         }
@@ -179,7 +179,7 @@ export default class Treeview {
         const node = this.visElement.selectAll<d3.BaseType, HPN<TreeviewNode>>("g.node")
             .data(nodes, (d: HPN<TreeviewNode>) => d.data.id || (d.data.id = ++this.nodeId));
 
-        let nodeEnter = node.enter()
+        const nodeEnter = node.enter()
             .append("g")
             .attr("class", "node")
             .style("cursor", "pointer")
@@ -190,7 +190,7 @@ export default class Treeview {
             .on("mouseover", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipIn(event, d))
             .on("mouseout", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipOut(event, d))
             .on("contextmenu", (event: MouseEvent, d: HPN<TreeviewNode>) => this.rightClick(event, d))
-            // @ts-ignore
+            // @ts-expect-error
             .merge(node);
 
         nodeEnter.append("circle")
@@ -203,21 +203,20 @@ export default class Treeview {
 
         const innerArc = d3.arc()
             .innerRadius(0)
-            // @ts-ignore
+            // @ts-expect-error
             .outerRadius((d: HPN<TreeviewNode>) => {
                 return this.computeNodeSize(d);
             })
             .startAngle(0)
             .endAngle(d => {
-                // @ts-ignore
+                // @ts-expect-error
                 return arcScale(d.data.selfCount / d.data.count) || 0;
             });
 
         if (this.settings.enableInnerArcs) {
-            // @ts-ignore
             nodeEnter.append("path")
                 .attr("class", "innerArc")
-                // @ts-ignore
+                // @ts-expect-error
                 .attr("d", innerArc)
                 .style("fill", (d: HPN<TreeviewNode>) => this.settings.nodeStrokeColor(d.data))
                 .style("fill-opacity", 0);
@@ -258,7 +257,7 @@ export default class Treeview {
         // Animate the movement of every node that should be removed to the source node location.
         const nodeExit = node.exit().transition()
             .duration(this.settings.animationDuration)
-            .attr("transform", d => `translate(${source.y},${source.x})`)
+            .attr("transform", _d => `translate(${source.y},${source.x})`)
             .remove();
 
         nodeExit.select("circle")
@@ -271,14 +270,13 @@ export default class Treeview {
             .style("fill-opacity", 1e-6);
 
         // Update the links between the different nodes.
-        // @ts-ignore
-        let link = this.visElement.selectAll("path.link")
+        // @ts-expect-error
+        const link = this.visElement.selectAll("path.link")
             .data(links, (d: HPL<TreeviewNode>) => d.target.data.id);
 
         const linkGenerator = d3.linkHorizontal<any, HPL<TreeviewNode>, HPN<TreeviewNode>>().x(d => d.y).y(d => d.x);
 
         // Enter any new links at the parent's previous position.
-        // @ts-ignore
         link.enter()
             .insert("path", "g")
             .attr("class", "link")
@@ -287,20 +285,19 @@ export default class Treeview {
             .style("stroke-linecap", "round")
             .style("stroke", (d: HPL<TreeviewNode>) => this.settings.linkStrokeColor(d))
             .style("stroke-width", 1e-6)
-            // @ts-ignore
-            .attr("d", (d: HPL<TreeviewNode>) => {
+            .attr("d", (_d: HPL<TreeviewNode>) => {
                 const o = {
                     x: source.data.previousPosition.x,
                     y: source.data.previousPosition.y
                 }
 
-                // @ts-ignore
+                // @ts-expect-error
                 return linkGenerator({
                     source: o,
                     target: o
                 });
             })
-            // @ts-ignore
+            // @ts-expect-error
             .merge(link)
             .transition()
             .duration(this.settings.animationDuration)
@@ -318,14 +315,14 @@ export default class Treeview {
         link.exit().transition()
             .duration(this.settings.animationDuration)
             .style("stroke-width", 1e-6)
-            // @ts-ignore
-            .attr("d", (d: HPL<TreeviewNode>) => {
+            // @ts-expect-error
+            .attr("d", (_d: HPL<TreeviewNode>) => {
                 const o = {
                     x: source.x,
                     y: source.y
                 };
 
-                // @ts-ignore
+                // @ts-expect-error
                 return linkGenerator({
                     source: o,
                     target: o
@@ -381,7 +378,7 @@ export default class Treeview {
         }
     }
 
-    private tooltipOut(event: MouseEvent, d: HPN<TreeviewNode>) {
+    private tooltipOut(_event: MouseEvent, _d: HPN<TreeviewNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             clearTimeout(this.tooltipTimer);
             this.tooltip.style("visibility", "hidden");

@@ -3,7 +3,6 @@ import * as d3 from "d3";
 import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
 import TooltipUtilities from "../../utilities/TooltipUtilities";
-import DataNode from "../../DataNode";
 
 export default class Barplot {
     private readonly settings: BarplotSettings;
@@ -138,10 +137,10 @@ export default class Barplot {
         const svgGElement = visElement.append("g");
 
         // Prepare data
-        const stackedData = d3.stack<Bar, string>()
+        const stack = d3.stack<Bar, string>()
             .keys(Array.from(new Set(this.data.flatMap(bar => bar.items.map(item => item.label)))))
-            .value((d, key) => d.items.find(item => item.label === key)?.counts ?? 0)
-            (this.data);
+            .value((d, key) => d.items.find(item => item.label === key)?.counts ?? 0);
+        const stackedData = stack(this.data);
 
         // Scales
         const xScale = d3.scaleLinear()
@@ -212,7 +211,9 @@ export default class Barplot {
         }
 
         // Instead of keeping track of n values per entry, we want to keep track of n bars with the entries
-        const transposedStackedData = Array(this.data.length).fill(null).map(_ => new Array());
+        type StackedSegment = { barIndex: number, title: string, shape: d3.SeriesPoint<Bar> };
+        const transposedStackedData: StackedSegment[][] =
+            Array.from({ length: this.data.length }, () => []);
 
         for (const entry of stackedData) {
             const entryTitle = entry.key;
@@ -282,15 +283,15 @@ export default class Barplot {
             .attr("data-bar-item", (d) => d.title)
             .on("mouseover", (event: MouseEvent, d: any) => {
                 const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
-                this.mouseIn(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
+                this.mouseIn(event, d.barIndex, itemIdx);
             })
             .on("mousemove", (event: MouseEvent, d: any) => {
                 const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
-                this.mouseMove(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
+                this.mouseMove(event, d.barIndex, itemIdx);
             })
             .on("mouseout", (event: MouseEvent, d: any) => {
                 const itemIdx = this.data[d.barIndex].items.findIndex((item: BarItem) => item.label === d.title)!;
-                this.mouseOut(event, d.barIndex, itemIdx, (event.target! as HTMLElement).parentElement!);
+                this.mouseOut(event, d.barIndex, itemIdx);
             });
 
         // Add x-axis
@@ -350,7 +351,7 @@ export default class Barplot {
     }
 
     private initCss() {
-        let elementClass = this.settings.className;
+        const elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
         const styleElement = this.element.ownerDocument.createElement("style");
@@ -369,7 +370,7 @@ export default class Barplot {
         this.element.ownerDocument.head.appendChild(styleElement);
     }
 
-    private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+    private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number) {
         const d = this.data[barIndex].items[itemIndex];
 
         this.settings.mouseIn(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY});
@@ -394,7 +395,7 @@ export default class Barplot {
         }
     }
 
-    private mouseMove(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+    private mouseMove(event: MouseEvent, barIndex: number, itemIndex: number) {
         this.settings.mouseMove(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY})
 
         if (this.settings.enableTooltips && this.tooltip) {
@@ -404,7 +405,7 @@ export default class Barplot {
         }
     }
 
-    private mouseOut(event: MouseEvent, barIndex: number, itemIndex: number, targetElement: EventTarget) {
+    private mouseOut(event: MouseEvent, barIndex: number, itemIndex: number) {
         this.settings.mouseOut(this.data, barIndex, itemIndex)
 
         if (this.settings.enableTooltips && this.tooltip) {

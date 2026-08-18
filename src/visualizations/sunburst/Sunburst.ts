@@ -74,7 +74,7 @@ export default class Sunburst {
 
         // Prepare element and create SVG container
         this.element.innerHTML = "";
-        // @ts-ignore
+        // @ts-expect-error
         this.breadCrumbs = d3.select(this.element)
             .append("div")
             .attr("id", Math.floor(Math.random() * 2**16) + "-breadcrumbs")
@@ -95,7 +95,7 @@ export default class Sunburst {
             .attr("type", "text/css")
             .html(".hidden{ visibility: hidden;}");
 
-        // @ts-ignore
+        // @ts-expect-error
         this.visGElement = visElement.append("g")
             // set origin to radius center
             .attr("transform", "translate(" + this.settings.radius + "," + this.settings.radius + ")");
@@ -182,7 +182,7 @@ export default class Sunburst {
     }
 
     private initCss() {
-        let elementClass = this.settings.className;
+        const elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
         const styleElement = this.element.ownerDocument.createElement("style");
@@ -230,7 +230,7 @@ export default class Sunburst {
      * @return new scales
      */
     private arcTween(d: HRN<DataNode>, that: any): any {
-        let my = Math.min(this.maxY(d), d.y0 + that.settings.levels * (d.y1 - d.y0)),
+        const my = Math.min(this.maxY(d), d.y0 + that.settings.levels * (d.y1 - d.y0)),
             xd = d3.interpolate(that.xScale.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(that.yScale.domain(), [d.y0, my]),
             yr = d3.interpolate(that.yScale.range(), [d.y0 ? 20 : 0, that.settings.radius]);
@@ -257,7 +257,7 @@ export default class Sunburst {
         }
     }
 
-    private tooltipMove(event: MouseEvent, d: HRN<DataNode>) {
+    private tooltipMove(event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
                 .style("top", (event.pageY + 10) + "px")
@@ -265,7 +265,7 @@ export default class Sunburst {
         }
     }
 
-    private tooltipOut(event: MouseEvent, d: HRN<DataNode>) {
+    private tooltipOut(_event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");
         }
@@ -392,7 +392,10 @@ export default class Sunburst {
             data.splice(data.indexOf(parentNode.parent), 1);
         }
 
-        // hack for the getComputedTextLength
+        // The font-size callback below has to be a `function` so that d3 binds
+        // `this` to the <text> element for getComputedTextLength, which leaves it
+        // no way to reach the Sunburst instance except through an alias.
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const that = this;
 
         const offscreenCanvasSupported = typeof OffscreenCanvas !== "undefined";
@@ -400,7 +403,7 @@ export default class Sunburst {
         let ctx: OffscreenCanvasRenderingContext2D;
         if (offscreenCanvasSupported) {
             const offscreenCanvas = new OffscreenCanvas(1, 1);
-            // @ts-ignore
+            // @ts-expect-error
             ctx = offscreenCanvas.getContext("2d")!;
             ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }
@@ -416,7 +419,7 @@ export default class Sunburst {
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
-            .style("font-size", function(this: SVGTextContentElement, d: HRN<DataNode>) {
+            .style("font-size", function(this: SVGTextContentElement, _d: HRN<DataNode>) {
                 const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
             });
@@ -426,14 +429,14 @@ export default class Sunburst {
             this.text
                 .transition().duration(this.settings.animationDuration)
                 .attrTween("text-anchor", (d: HRN<DataNode>) => {
-                    return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
+                    return (_t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "end" : "start";
                 })
                 .attrTween("dx", (d: HRN<DataNode>) => {
-                    return (t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
+                    return (_t: number) => this.xScale(d.x0 + (d.x1 - d.x0) / 2) > Math.PI ? "-4px" : "4px";
                 })
                 .attrTween("transform", (d: HRN<DataNode>) => {
-                    return (t: number) => {
-                        let angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
+                    return (_t: number) => {
+                        const angle = this.xScale(d.x0 + (d.x1 - d.x0) / 2) * 180 / Math.PI - 90;
                         return `rotate(${angle})translate(${this.yScale(d.y0)})rotate(${angle > 90 ? -180 : 0})`;
                     }
                 })
@@ -468,7 +471,7 @@ export default class Sunburst {
 
     private setBreadcrumbs(d: HRN<DataNode>) {
         // First find out which nodes we encounter on the path from the root node to the clicked node.
-        let crumbs: HRN<DataNode>[] = [];
+        const crumbs: HRN<DataNode>[] = [];
         let temp: (HRN<DataNode> | null) = d;
 
         while (temp) {

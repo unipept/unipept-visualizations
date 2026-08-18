@@ -1,4 +1,4 @@
-const flushPromises = require("flush-promises");
+import flushPromises from "flush-promises";
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

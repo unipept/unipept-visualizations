@@ -62,12 +62,12 @@ export default class Treemap {
 
         this.colorScale =  d3.scaleLinear()
             .domain([0, this.settings.levels])
-            // @ts-ignore
+            // @ts-expect-error
             .range([this.settings.colorRoot, this.settings.colorLeaf])
-            // @ts-ignore
+            // @ts-expect-error
             .interpolate(d3.interpolateLab);
 
-        // @ts-ignore
+        // @ts-expect-error
         this.breadCrumbs = d3.select(this.element)
             .append("div")
             .attr("class", "breadcrumbs")
@@ -121,7 +121,7 @@ export default class Treemap {
     }
 
     private initCss() {
-        let elementClass = this.settings.className;
+        const elementClass = this.settings.className;
         this.element.className += " " + elementClass;
 
         const styleElement = this.element.ownerDocument.createElement("style");
@@ -177,7 +177,7 @@ export default class Treemap {
 
         rootNode.sort((a: d3.HierarchyNode<DataNode>, b: d3.HierarchyNode<DataNode>) => b.value! - a.value!);
 
-        let nodes = this.treemap.selectAll<d3.BaseType, HRN<DataNode>>(".node")
+        const nodes = this.treemap.selectAll<d3.BaseType, HRN<DataNode>>(".node")
             .data(
                 this.partition(rootNode).descendants(),
                 (d: HRN<DataNode>) => d.data.id || (d.data.id = ++this.nodeId)
@@ -194,7 +194,7 @@ export default class Treemap {
             .style("height", "0px")
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
             .on("click", (event: MouseEvent, d: HRN<DataNode>) => this.render(d))
-            .on("contextmenu", (event: MouseEvent, d: HRN<DataNode>) => {
+            .on("contextmenu", (event: MouseEvent, _d: HRN<DataNode>) => {
                 event.preventDefault();
                 if (this.currentRoot.parent) {
                     this.render(this.currentRoot.parent);
@@ -204,7 +204,7 @@ export default class Treemap {
             .on("mousemove", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipMove(event, d))
             .on("mouseout", (event: MouseEvent, d: HRN<DataNode>) => this.tooltipOut(event, d));
 
-        // @ts-ignore
+        // @ts-expect-error
         divNodes.merge(nodes)
             .order()
             .transition()
@@ -224,7 +224,7 @@ export default class Treemap {
     }
 
     private setBreadcrumbs() {
-        let crumbs: DataNode[] = [];
+        const crumbs: DataNode[] = [];
         let temp: DataNode | undefined = this.currentRoot.data;
         while (temp) {
             crumbs.push(temp);
@@ -254,7 +254,7 @@ export default class Treemap {
         }
     }
 
-    private tooltipMove(event: MouseEvent, d: HRN<DataNode>) {
+    private tooltipMove(event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip
                 .style("top", (event.pageY + 10) + "px")
@@ -262,7 +262,7 @@ export default class Treemap {
         }
     }
 
-    private tooltipOut(event: MouseEvent, d: HRN<DataNode>) {
+    private tooltipOut(_event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             this.tooltip.style("visibility", "hidden");
         }
