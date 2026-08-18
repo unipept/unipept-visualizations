@@ -45,6 +45,13 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Allow Chromium's sandbox
+        # Ubuntu 24.04+ restricts unprivileged user namespaces through AppArmor,
+        # which stops Chromium from bringing up its sandbox and was why the old
+        # workflow pinned ubuntu-22.04. The runner is a throwaway VM, so lifting
+        # the restriction here beats launching the browser with --no-sandbox in
+        # the tests, which would weaken them everywhere else too.
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Install Chromium
         # The visual regression tests screenshot the visualizations in a real
         # browser, so puppeteer needs its matching Chrome build.
