@@ -35,22 +35,22 @@
         "d3": "^7.9.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.0.0",
+        "@eslint/js": "^10.0.1",
         "@types/d3": "^7.4.3",
-        "@types/jsdom": "^16.2.7",
-        "@typescript-eslint/eslint-plugin": "^8.29.0",
-        "@typescript-eslint/parser": "^8.29.0",
-        "@vitest/ui": "^3.1.2",
-        "canvas": "^3.1.0",
-        "eslint": "^9.0.0",
+        "@types/jsdom": "^30.0.0",
+        "@typescript-eslint/eslint-plugin": "^8.67.0",
+        "@typescript-eslint/parser": "^8.67.0",
+        "@vitest/ui": "^4.1.11",
+        "canvas": "^3.2.3",
+        "eslint": "^10.8.1",
         "flush-promises": "^1.0.2",
-        "jsdom": "^26.1.0",
-        "pixelmatch": "^7.1.0",
+        "jsdom": "^30.0.1",
+        "pixelmatch": "^7.2.0",
         "pngjs": "^7.0.0",
-        "puppeteer": "^24.7.2",
-        "typescript": "^4.1.2",
-        "vite": "^4.4.9",
-        "vite-plugin-dts": "^3.5.3",
-        "vitest": "^3.1.2"
+        "puppeteer": "^25.8.0",
+        "typescript": "^5.9.3",
+        "vite": "^8.2.1",
+        "vite-plugin-dts": "^5.0.3",
+        "vitest": "^4.1.11"
     }
 }

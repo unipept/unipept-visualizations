@@ -113,7 +113,9 @@ export default class UPGMAClusterer implements Clusterer {
             ++done;
         }
 
-        return clusters.values().next().value.treeNode;
+        // `data.length < 1` returned early above, so there is at least one
+        // cluster, and the loop runs until exactly one is left.
+        return clusters.values().next().value!.treeNode;
     }
 
     private copyDistanceMatrix(distanceMatrix: number[][]): number[][] {
