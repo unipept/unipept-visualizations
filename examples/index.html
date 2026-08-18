@@ -48,7 +48,10 @@
   }
   a { color: inherit; }
 
-  .wrap { margin: 0 auto; max-width: 70rem; padding: 0 1.5rem; }
+  /* Axis-specific only: `.wrap` also matches <main> and <footer> and
+     out-specifies them, so a `margin`/`padding` shorthand here would silently
+     drop whatever block-axis spacing those elements set for themselves. */
+  .wrap { margin-inline: auto; max-width: 70rem; padding-inline: 1.5rem; }
 
   /* ---------- hero ---------- */
   header {
@@ -78,6 +81,8 @@
     border-radius: .5rem;
     font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: .9rem;
+    max-width: 100%;
+    overflow-x: auto;
     padding: .6rem .9rem;
     white-space: nowrap;
   }
@@ -100,19 +105,30 @@
   .btn-primary:hover { background: var(--accent); border-color: var(--accent); filter: brightness(1.1); }
 
   /* ---------- gallery ---------- */
-  main { padding: 3.5rem 0 1rem; }
+  main { padding-block: 4rem 1rem; }
   .section-label {
+    align-items: baseline;
     color: var(--text-dim);
-    font-size: .8rem;
+    display: flex;
+    font-size: .78rem;
     font-weight: 500;
-    letter-spacing: .08em;
-    margin: 0 0 1.5rem;
+    gap: 1rem;
+    letter-spacing: .09em;
+    margin: 0 0 1.75rem;
     text-transform: uppercase;
+  }
+  .section-label::after {
+    background: var(--border);
+    content: "";
+    flex: 1 1 1.5rem;
+    height: 1px;
+    min-width: 1.5rem;
   }
   .grid {
     display: grid;
     gap: 1.75rem;
-    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    /* min() so a 20rem track cannot outgrow a narrower viewport. */
+    grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
     margin: 0;
     padding: 0;
   }
@@ -173,12 +189,12 @@
   .card-foot { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .5rem; }
 
   /* ---------- footer ---------- */
-  footer.wrap {
+  footer {
     border-top: 1px solid var(--border);
     color: var(--text-dim);
     font-size: .88rem;
     margin-top: 4rem;
-    padding: 2.5rem 1.5rem 3.5rem;
+    padding-block: 2.5rem 3.5rem;
   }
   footer p { margin: 0 0 .6rem; }
   footer a { color: var(--accent); text-decoration: none; }
@@ -205,7 +221,7 @@
 </header>
 
 <main class="wrap">
-  <p class="section-label">Live examples &mdash; every page below runs the real library</p>
+  <p class="section-label">Live examples</p>
   <ul class="grid">
 
     <li class="card">
