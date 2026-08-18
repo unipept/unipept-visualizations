@@ -1,0 +1,56 @@
+name: Deploy examples
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Assemble site
+        # The example pages import ../dist/unipept-visualizations.js, so dist/
+        # has to stay a sibling of examples/. The gallery is lifted to the root
+        # so that the site URL itself lands somewhere useful.
+        run: |
+          mkdir -p _site
+          cp -r examples _site/examples
+          cp -r dist _site/dist
+          cp examples/index.html _site/index.html
+          sed -i 's|href="\([a-z0-9-]*\.html\)"|href="examples/\1"|g; s|src="\([a-z0-9-]*\.png\)"|src="examples/\1"|g' _site/index.html
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
