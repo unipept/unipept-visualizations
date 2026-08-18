@@ -1,95 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Unipept Visualizations &mdash; examples</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23742f8f%27/%3E%3C/svg%3E">
-  <style>
-    :root { color-scheme: light dark; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.5;
-      margin: 0 auto;
-      max-width: 60rem;
-      padding: 2rem 1rem 4rem;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unipept Visualizations</title>
+<meta name="description" content="Reusable D3 visualizations for hierarchical and matrix biological data: treeview, treemap, sunburst, heatmap and barplot.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-raised: #f7f7f9;
+    --bg-sunken: #eeeef2;
+    --text: #16161a;
+    --text-dim: #5b5b66;
+    --border: #dcdce4;
+    --accent: #a0248c;
+    --accent-text: #ffffff;
+    --shadow: 0 1px 2px rgba(20, 20, 30, .06), 0 8px 24px rgba(20, 20, 30, .06);
+    --shadow-hover: 0 2px 4px rgba(20, 20, 30, .08), 0 16px 40px rgba(20, 20, 30, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101014;
+      --bg-raised: #18181e;
+      --bg-sunken: #0b0b0e;
+      --text: #f2f2f5;
+      --text-dim: #a0a0ae;
+      --border: #2a2a34;
+      --accent: #f472d0;
+      --accent-text: #1a0417;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+      --shadow-hover: 0 2px 4px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .45);
     }
-    h1 { margin-bottom: 0.25rem; }
-    p.lede { margin-top: 0; }
-    .grid {
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-      margin-top: 2rem;
-    }
-    article {
-      border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
-      border-radius: 0.5rem;
-      padding: 1rem;
-    }
-    article h2 { font-size: 1.1rem; margin: 0 0 0.75rem; }
-    article img {
-      aspect-ratio: 3 / 2;
-      background: color-mix(in srgb, currentColor 6%, transparent);
-      border-radius: 0.25rem;
-      display: block;
-      object-fit: cover;
-      object-position: top left;
-      width: 100%;
-    }
-    article ul { margin: 0.75rem 0 0; padding-left: 1.1rem; }
-  </style>
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+  }
+  a { color: inherit; }
+
+  .wrap { margin: 0 auto; max-width: 70rem; padding: 0 1.5rem; }
+
+  /* ---------- hero ---------- */
+  header {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-raised);
+    padding: 4.5rem 0 3.5rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -.025em;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+  }
+  .tagline {
+    color: var(--text-dim);
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    margin: 0 0 2rem;
+    max-width: 46rem;
+  }
+  .tagline strong { color: var(--text); font-weight: 500; }
+
+  .actions { align-items: center; display: flex; flex-wrap: wrap; gap: .75rem; }
+  code.install {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .9rem;
+    padding: .6rem .9rem;
+    white-space: nowrap;
+  }
+  code.install::before { color: var(--text-dim); content: "$ "; }
+  .btn {
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    font-size: .9rem;
+    font-weight: 500;
+    padding: .6rem 1rem;
+    text-decoration: none;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--bg-sunken); border-color: var(--text-dim); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); filter: brightness(1.1); }
+
+  /* ---------- gallery ---------- */
+  main { padding: 3.5rem 0 1rem; }
+  .section-label {
+    color: var(--text-dim);
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    margin: 0 0 1.5rem;
+    text-transform: uppercase;
+  }
+  .grid {
+    display: grid;
+    gap: 1.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    margin: 0;
+    padding: 0;
+  }
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card.wide { grid-column: 1 / -1; }
+
+  .thumb {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: block;
+    overflow: hidden;
+  }
+  .thumb img {
+    aspect-ratio: var(--thumb-aspect, 16 / 10);
+    display: block;
+    object-fit: contain;
+    padding: .5rem;
+    transition: transform .3s ease;
+    width: 100%;
+  }
+  .card:hover .thumb img { transform: scale(1.015); }
+
+  .body { display: flex; flex-direction: column; flex: 1; gap: .5rem; padding: 1.25rem 1.35rem 1.35rem; }
+  .body h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+  .body p { color: var(--text-dim); font-size: .93rem; margin: 0; }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    list-style: none;
+    margin: .5rem 0 0;
+    padding: 0;
+  }
+  .links a {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: .82rem;
+    padding: .25rem .7rem;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .links a:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  .docs { margin-left: auto; }
+  .docs a { color: var(--text-dim); font-size: .82rem; text-decoration: none; }
+  .docs a:hover { color: var(--accent); text-decoration: underline; }
+  .card-foot { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .5rem; }
+
+  /* ---------- footer ---------- */
+  footer.wrap {
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: .88rem;
+    margin-top: 4rem;
+    padding: 2.5rem 1.5rem 3.5rem;
+  }
+  footer p { margin: 0 0 .6rem; }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
 </head>
 <body>
-  <h1>Unipept Visualizations</h1>
-  <p class="lede">
-    Live examples of the visualizations in
-    <a href="https://github.com/unipept/unipept-visualizations">unipept/unipept-visualizations</a>,
-    built from the default branch.
-  </p>
-  <main class="grid">
-      <article>
+
+<header>
+  <div class="wrap">
+    <h1>Unipept Visualizations</h1>
+    <p class="tagline">
+      Reusable <strong>D3</strong> visualizations for hierarchical and matrix biological data, built for
+      <a href="https://unipept.ugent.be">Unipept</a> and packaged to be used anywhere.
+      Written in TypeScript, and built to stay responsive on large datasets.
+    </p>
+    <div class="actions">
+      <code class="install">npm install unipept-visualizations</code>
+      <a class="btn btn-primary" href="https://github.com/unipept/unipept-visualizations/wiki">Documentation</a>
+      <a class="btn" href="https://github.com/unipept/unipept-visualizations">GitHub</a>
+      <a class="btn" href="https://www.npmjs.com/package/unipept-visualizations">npm</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="section-label">Live examples &mdash; every page below runs the real library</p>
+  <ul class="grid">
+
+    <li class="card">
+      <a class="thumb" href="treeview-taxonomy.html"><img src="treeview-taxonomy.png" alt="A treeview of a taxonomic hierarchy"></a>
+      <div class="body">
         <h2>Treeview</h2>
-        <img src="treeview-taxonomy.png" alt="Treeview example">
-        <ul>
-          <li><a href="treeview-taxonomy.html">Unipept taxonomy</a></li>
-          <li><a href="treeview-flare.html">Flare hierarchy</a></li>
-          <li><a href="treeview-multi.html">Several at once</a></li>
-        </ul>
-      </article>
-      <article>
-        <h2>Treemap</h2>
-        <img src="treemap-taxonomy.png" alt="Treemap example">
-        <ul>
-          <li><a href="treemap-taxonomy.html">Unipept taxonomy</a></li>
-          <li><a href="treemap-flare.html">Flare hierarchy</a></li>
-          <li><a href="treemap-multi.html">Several at once</a></li>
-        </ul>
-      </article>
-      <article>
+        <p>A collapsible node&ndash;link tree. Best when you want to walk a hierarchy branch by branch and read the labels.</p>
+        <div class="card-foot">
+          <ul class="links">
+            <li><a href="treeview-taxonomy.html">Taxonomy</a></li>
+            <li><a href="treeview-flare.html">Flare</a></li>
+            <li><a href="treeview-multi.html">Multiple</a></li>
+          </ul>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treeview">Docs</a></span>
+        </div>
+      </div>
+    </li>
+
+    <li class="card">
+      <a class="thumb" href="sunburst-taxonomy.html"><img src="sunburst-taxonomy.png" alt="A sunburst of a taxonomic hierarchy"></a>
+      <div class="body">
         <h2>Sunburst</h2>
-        <img src="sunburst-taxonomy.png" alt="Sunburst example">
-        <ul>
-          <li><a href="sunburst-taxonomy.html">Unipept taxonomy</a></li>
-          <li><a href="sunburst-flare.html">Flare hierarchy</a></li>
-          <li><a href="sunburst-multi.html">Several at once</a></li>
-        </ul>
-      </article>
-      <article>
-        <h2>Heatmap</h2>
-        <img src="heatmap.png" alt="Heatmap example">
-        <ul>
-          <li><a href="heatmap-random.html">Random values</a></li>
-          <li><a href="heatmap-clusters.html">Clustered CSV</a></li>
-        </ul>
-      </article>
-      <article>
+        <p>Concentric rings, one per level. Shows how a hierarchy divides at every depth at once, and zooms on click.</p>
+        <div class="card-foot">
+          <ul class="links">
+            <li><a href="sunburst-taxonomy.html">Taxonomy</a></li>
+            <li><a href="sunburst-flare.html">Flare</a></li>
+            <li><a href="sunburst-multi.html">Multiple</a></li>
+          </ul>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs</a></span>
+        </div>
+      </div>
+    </li>
+
+    <li class="card">
+      <a class="thumb" href="treemap-taxonomy.html"><img src="treemap-taxonomy.png" alt="A treemap of a taxonomic hierarchy"></a>
+      <div class="body">
+        <h2>Treemap</h2>
+        <p>Nested rectangles sized by count. The one to reach for when relative magnitude matters more than structure.</p>
+        <div class="card-foot">
+          <ul class="links">
+            <li><a href="treemap-taxonomy.html">Taxonomy</a></li>
+            <li><a href="treemap-flare.html">Flare</a></li>
+            <li><a href="treemap-multi.html">Multiple</a></li>
+          </ul>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treemap">Docs</a></span>
+        </div>
+      </div>
+    </li>
+
+    <li class="card wide" style="--thumb-aspect: 21 / 9">
+      <a class="thumb" href="barplot-taxonomy.html"><img src="barplot-taxonomy.png" alt="A stacked barplot comparing two samples"></a>
+      <div class="body">
         <h2>Barplot</h2>
-        <img src="barplot-taxonomy.png" alt="Barplot example">
-        <ul>
-          <li><a href="barplot-taxonomy.html">Stacked, Unipept taxonomy</a></li>
-        </ul>
-      </article>
-  </main>
+        <p>Stacked bars, one per sample, with categories aligned and coloured consistently so samples compare directly.</p>
+        <div class="card-foot">
+          <ul class="links">
+            <li><a href="barplot-taxonomy.html">Taxonomy</a></li>
+          </ul>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Barplot">Docs</a></span>
+        </div>
+      </div>
+    </li>
+
+    <li class="card wide" style="--thumb-aspect: 40 / 9">
+      <a class="thumb" href="heatmap-random.html"><img src="heatmap.png" alt="A clustered heatmap with dendrograms"></a>
+      <div class="body">
+        <h2>Heatmap</h2>
+        <p>A canvas-rendered matrix with optional UPGMA clustering and dendrograms, which keeps up with grids of a few hundred by a few hundred cells.</p>
+        <div class="card-foot">
+          <ul class="links">
+            <li><a href="heatmap-random.html">Random values</a></li>
+            <li><a href="heatmap-clusters.html">Clustered CSV</a></li>
+          </ul>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs</a></span>
+        </div>
+      </div>
+    </li>
+
+  </ul>
+</main>
+
+<footer class="wrap">
+  <p>
+    Released under the <a href="https://github.com/unipept/unipept-visualizations/blob/main/LICENSE.md">MIT license</a>.
+    If you use this library in published work, please cite
+    <a href="https://doi.org/10.1093/bioinformatics/btab590">Unipept Visualizations: an interactive visualization library for biological data</a>.
+  </p>
+  <p>Built from the default branch of <a href="https://github.com/unipept/unipept-visualizations">unipept/unipept-visualizations</a>.</p>
+</footer>
+
 </body>
 </html>
