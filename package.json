@@ -13,6 +13,7 @@
     "scripts": {
         "test": "vitest run",
         "build": "vite build",
+        "prepack": "npm run build",
         "dev": "vite",
         "preview": "vite preview"
     },
