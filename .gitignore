@@ -1,3 +1,13 @@
-node_modules/*
-.DS_Store
+node_modules/
+dist/
+
+# Build output used to be committed so that the examples in examples/ could be
+# opened straight from a checkout. Run `npm run build` once instead.
+
+# Visual regression diffs, written by the test run on failure
 test/snapshots/diffs
+
+# Editors and OS
+.idea/
+*.iml
+.DS_Store

@@ -16,6 +16,9 @@ export default defineConfig({
   plugins: [
     dts({
       insertTypesEntry: true,
+      // Test helpers and specs live under src/ so that `tsc` checks them, but
+      // their declarations have no business in the published package.
+      exclude: ['src/test/**', 'src/**/__tests__/**'],
     }),
   ],
   resolve: {
