@@ -172,6 +172,24 @@ describe("Barplot", () => {
         expect(element.className.split(/\s+/).filter((name: string) => name === "barplot")).toHaveLength(1);
     });
 
+    it("should keep the defaults of the nested settings that are not given", async() => {
+        const jsDom = createTestDom();
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        // A plain object literal is what a user of the library passes in, and it only mentions what it changes.
+        const settings = {
+            legend: { title: "Taxa" },
+            chart: { padding: { left: 40 } }
+        } as unknown as BarplotSettings;
+
+        const barplot = new Barplot(element, bars(), settings);
+
+        await waitForCondition(() => element.getElementsByClassName("barplot-item").length > 0, 2000, 500);
+
+        expect(barplot).toBeDefined();
+        expect(element.getElementsByClassName("barplot-item").length).toBeGreaterThan(0);
+    });
+
     afterAll(async() => {
         await browser.close();
     });
