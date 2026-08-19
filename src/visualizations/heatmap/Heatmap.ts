@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import HeatmapSettings from "./HeatmapSettings";
+import HeatmapSettings, {HeatmapLegendSettings} from "./HeatmapSettings";
 import ClusterElement from "./cluster/ClusterElement";
 import TreeNode from "./cluster/TreeNode";
 import {Reorderer} from "./reorder/Reorderer";
@@ -16,6 +16,17 @@ type ViewPort = {
     xBottom: number,
     yBottom: number
 };
+
+const LEGEND_FONT_FAMILY = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+
+// Vertical space (in pixels) between the legend's title and its color bar.
+const LEGEND_TITLE_SPACING = 6;
+
+// Vertical space (in pixels) between the legend's color bar and its tick labels. The tick marks are drawn in it.
+const LEGEND_LABEL_SPACING = 8;
+
+// Length (in pixels) of the tick marks underneath the legend's color bar.
+const LEGEND_TICK_LENGTH = 4;
 
 export default class Heatmap {
     private element: HTMLElement;
@@ -39,6 +50,8 @@ export default class Heatmap {
     private textHeight: number;
 
     private tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> | null = null;
+
+    private legendElement: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null;
 
     private highlightedRow: number = -1;
     private highlightedColumn: number = -1;
@@ -96,7 +109,7 @@ export default class Heatmap {
             xTop: 0,
             yTop: 0,
             xBottom: this.settings.width,
-            yBottom: this.settings.height
+            yBottom: this.gridHeight
         }
 
         this.currentViewPort = this.originalViewPort;
@@ -111,8 +124,8 @@ export default class Heatmap {
         this.visElement = d3.select(this.element)
             .append("canvas")
             .attr("width", this.pixelRatio * this.settings.width)
-            .attr("height", this.pixelRatio * this.settings.height)
-            .attr("style", `width: ${this.settings.width}px; height: ${this.settings.height}px`)
+            .attr("height", this.pixelRatio * this.gridHeight)
+            .attr("style", this.canvasStyle())
             .on("mouseover", (event: MouseEvent) => this.tooltipMove(event))
             .on("mousemove", (event: MouseEvent) => this.tooltipMove(event))
             .on("mouseout", (event: MouseEvent) => this.tooltipMove(event))
@@ -121,7 +134,7 @@ export default class Heatmap {
         this.context.scale(this.pixelRatio, this.pixelRatio);
 
         const zoom = d3.zoom()
-            .extent([[0, 0], [this.settings.width, this.settings.height]])
+            .extent([[0, 0], [this.settings.width, this.gridHeight]])
             .scaleExtent([0.25, 12])
             .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
                 this.zoomed(event.transform);
@@ -130,6 +143,11 @@ export default class Heatmap {
         // @ts-expect-error
         this.visElement.call(zoom);
 
+        if (this.settings.enableLegend) {
+            this.legendElement = d3.select(this.element).append("svg");
+            this.renderLegend();
+        }
+
         this.computeClusterRoots();
 
         this.redraw();
@@ -137,7 +155,11 @@ export default class Heatmap {
 
     private fillOptions(options: any = undefined): HeatmapSettings {
         const output = new HeatmapSettings();
-        return Object.assign(output, options);
+        Object.assign(output, options);
+        // Object.assign is shallow, so a legend object that only mentions some of the settings would otherwise wipe
+        // out the defaults for all the others.
+        output.legend = Object.assign(new HeatmapLegendSettings(), options?.legend);
+        return output;
     }
 
     /**
@@ -288,19 +310,152 @@ export default class Heatmap {
         this.settings.width = newWidth;
         this.settings.height = newHeight;
 
-        this.visElement.attr("height", this.pixelRatio * newHeight);
+        this.visElement.attr("height", this.pixelRatio * this.gridHeight);
         this.visElement.attr("width", this.pixelRatio * newWidth);
-        this.visElement.attr("style", `width: ${this.settings.width}px; height: ${this.settings.height}px`);
+        this.visElement.attr("style", this.canvasStyle());
         this.context.scale(this.pixelRatio, this.pixelRatio);
 
         this.originalViewPort = {
             xTop: 0,
             yTop: 0,
             xBottom: newWidth,
-            yBottom: newHeight
+            yBottom: this.gridHeight
         }
 
+        this.renderLegend();
+
         this.zoomed(this.lastZoomStatus);
+    }
+
+    /**
+     * Height that's available to the heatmap grid itself. The legend is rendered underneath the grid and takes away
+     * part of the configured height, so that the visualization as a whole keeps the dimensions that were requested.
+     */
+    private get gridHeight(): number {
+        return this.settings.height - this.legendHeight();
+    }
+
+    private canvasStyle(): string {
+        // A canvas is an inline element, which would put the descender gap of a line box between it and the legend
+        // underneath it. Only opt out of that when there actually is a legend to keep away from.
+        const display = this.settings.enableLegend ? "display: block; " : "";
+        return `${display}width: ${this.settings.width}px; height: ${this.gridHeight}px`;
+    }
+
+    /**
+     * Amount of vertical space (in pixels) that's taken up by the legend, or 0 when the legend is disabled.
+     */
+    private legendHeight(): number {
+        if (!this.settings.enableLegend) {
+            return 0;
+        }
+
+        const legend = this.settings.legend;
+        const titleHeight = legend.title ? legend.titleFontSize + LEGEND_TITLE_SPACING : 0;
+
+        return legend.padding.top +
+            titleHeight +
+            legend.height +
+            LEGEND_LABEL_SPACING +
+            legend.labelFontSize +
+            legend.padding.bottom;
+    }
+
+    /**
+     * Render the color bar that maps the colors used by the grid onto the values they represent. Does nothing when the
+     * legend is disabled.
+     */
+    private renderLegend() {
+        if (!this.legendElement) {
+            return;
+        }
+
+        const legend = this.settings.legend;
+        const height = this.legendHeight();
+        const barWidth = Math.max(
+            1,
+            Math.min(legend.width, this.settings.width - legend.padding.left - legend.padding.right)
+        );
+
+        this.legendElement
+            .attr("width", this.settings.width)
+            .attr("height", height)
+            .attr("style", `display: block; width: ${this.settings.width}px; height: ${height}px`);
+
+        this.legendElement.selectAll("*").remove();
+
+        const container = this.legendElement
+            .append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${legend.padding.left}, ${legend.padding.top})`)
+            .attr("font-family", LEGEND_FONT_FAMILY)
+            .attr("fill", this.settings.labelColor);
+
+        const barTop = legend.title ? legend.titleFontSize + LEGEND_TITLE_SPACING : 0;
+
+        if (legend.title) {
+            container.append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("font-size", legend.titleFontSize)
+                .attr("dominant-baseline", "hanging")
+                .text(legend.title);
+        }
+
+        // Render the palette that the grid itself uses instead of a smooth gradient, so that the legend also shows how
+        // coarse the color scale is when only a few color buckets are configured.
+        const palette = new Preprocessor().computeColorPalette(
+            this.settings.minColor,
+            this.settings.maxColor,
+            this.settings.colorBuckets
+        );
+
+        const bucketWidth = barWidth / palette.length;
+
+        for (const [idx, color] of palette.entries()) {
+            const x = idx * bucketWidth;
+
+            container.append("rect")
+                .attr("x", x)
+                .attr("y", barTop)
+                // Overlap the next bucket, since fractional widths otherwise leave hairlines between the buckets.
+                .attr("width", Math.min(bucketWidth + 1, barWidth - x))
+                .attr("height", legend.height)
+                .attr("fill", color);
+        }
+
+        // The color for the lowest value is a very light one by default, so outline the bar to keep it visible.
+        container.append("rect")
+            .attr("x", 0.5)
+            .attr("y", barTop + 0.5)
+            .attr("width", barWidth - 1)
+            .attr("height", legend.height - 1)
+            .attr("fill", "none")
+            .attr("stroke", "rgba(0, 0, 0, 0.2)");
+
+        const scale = d3.scaleLinear().domain([0, 1]).range([0, barWidth]);
+        const ticks = scale.ticks(legend.ticks);
+        const ticksTop = barTop + legend.height;
+
+        for (const [idx, tick] of ticks.entries()) {
+            const x = scale(tick);
+
+            container.append("line")
+                .attr("x1", x)
+                .attr("y1", ticksTop)
+                .attr("x2", x)
+                .attr("y2", ticksTop + LEGEND_TICK_LENGTH)
+                .attr("stroke", this.settings.labelColor);
+
+            container.append("text")
+                .attr("x", x)
+                .attr("y", ticksTop + LEGEND_LABEL_SPACING)
+                .attr("font-size", legend.labelFontSize)
+                .attr("dominant-baseline", "hanging")
+                // Anchor the outermost labels to the ends of the bar, otherwise they are clipped by the legend.
+                .attr("text-anchor", idx === 0 ? "start" : idx === ticks.length - 1 ? "end" : "middle")
+                .text(legend.tickFormat(tick));
+        }
     }
 
     /**
@@ -547,7 +702,7 @@ export default class Heatmap {
         const squareWidth = this.determineSquareWidth();
         const dendrogramWidth: number = this.determineDendrogramWidth();
 
-        this.context.clearRect(0, 0, this.settings.width, this.settings.height);
+        this.context.clearRect(0, 0, this.settings.width, this.gridHeight);
 
         for (const [color, values] of this.valuesPerColor) {
             this.context.beginPath();
@@ -575,7 +730,7 @@ export default class Heatmap {
                     continue;
                 }
 
-                if (yBottomCurrent < 0 || yTopCurrent > this.settings.height) {
+                if (yBottomCurrent < 0 || yTopCurrent > this.gridHeight) {
                     continue;
                 }
 

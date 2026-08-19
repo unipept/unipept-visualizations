@@ -36,17 +36,15 @@ export default class Preprocessor {
         highColor: string,
         colorValues: number
     ): HeatmapValue[][] {
-        const interpolator = d3.interpolateLab(d3.lab(lowColor), d3.lab(highColor));
-
-        const x = d3.scaleLinear().domain([0, 1]).range([0, 1]);
-        const ticks = x.ticks(colorValues);
-        const quantizeScale = d3.scaleQuantize().domain([0, 1]).range(ticks);
+        const quantizeScale = d3.scaleQuantize<string>()
+            .domain([0, 1])
+            .range(this.computeColorPalette(lowColor, highColor, colorValues));
 
         return Object.entries(data).map(([rowIdx, row]) => Object.entries(row).map(([colIdx, value]) => {
             if (typeof value === "number") {
-                const quantizedValue = quantizeScale(value);
+                const color = quantizeScale(value);
 
-                if (quantizedValue === undefined) {
+                if (color === undefined) {
                     throw new Error("Invalid heatmap value given: " + value);
                 }
 
@@ -54,12 +52,29 @@ export default class Preprocessor {
                     value: value as number,
                     rowId: Number.parseInt(rowIdx),
                     columnId: Number.parseInt(colIdx),
-                    color: interpolator(quantizedValue)
+                    color
                 };
             } else {
                 return value;
             }
         }));
+    }
+
+    /**
+     * Compute the discrete list of colors that's used to render the grid, ordered from the color for the lowest value
+     * to the color for the highest value. Every color covers an equally large part of the [0, 1] value range.
+     *
+     * @param lowColor Color value that should be used for low values
+     * @param highColor Color value that should be used for high values
+     * @param colorValues How many discrete color values should be generated?
+     * @return An array of valid HTML-color values.
+     */
+    computeColorPalette(lowColor: string, highColor: string, colorValues: number): string[] {
+        const interpolator = d3.interpolateLab(d3.lab(lowColor), d3.lab(highColor));
+
+        const x = d3.scaleLinear().domain([0, 1]).range([0, 1]);
+
+        return x.ticks(colorValues).map(tick => interpolator(tick));
     }
 
     /**

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Heatmap with a legend &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Heatmap &middot; Legend</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs &rarr;</a></span>
+  </div>
+</header>
+
+<main class="wrap example">
+  <h1>Heatmap with a legend</h1>
+  <p class="lede"><code>enableLegend: true</code> puts a color bar underneath the grid that maps the colors of the
+    cells onto the values they stand for. The bar shows the same discrete color buckets that the grid uses, and
+    <code>legend.title</code> and <code>legend.tickFormat</code> label it. The legend takes its height out of the
+    configured one, so the visualization as a whole still measures 1000 &times; 600 pixels.
+    <strong>Toggle legend</strong> rebuilds the heatmap with the legend off, which shows how much room it takes.</p>
+
+  <figure class="stage"><div id="heatmap"></div></figure>
+
+  <div class="controls">
+    <button id="legend" type="button">Toggle legend</button>
+    <button id="cluster" type="button">Cluster</button>
+    <button id="resize" type="button">Resize</button>
+  </div>
+
+<script type="module" data-source>
+    import { Heatmap } from "../dist/unipept-visualizations.js";
+
+    const rowCount = 25;
+    const columnCount = 50;
+
+    const values = Array.from(
+        { length: rowCount },
+        () => Array.from({ length: columnCount }, () => Math.random())
+    );
+    const rows = Array.from({ length: rowCount }, (_, i) => `Family ${i}`);
+    const columns = Array.from({ length: columnCount }, (_, i) => `Sample ${i}`);
+
+    const element = document.getElementById("heatmap");
+
+    let legendEnabled = true;
+    let heatmap;
+
+    // The legend is set up when the heatmap is constructed, so toggling it means building a new heatmap.
+    const render = () => {
+        heatmap = new Heatmap(element, values, rows, columns, {
+            width: 1000,
+            height: 600,
+            enableLegend: legendEnabled,
+            legend: {
+                title: "Similarity",
+                width: 320,
+                tickFormat: value => `${(value * 100).toFixed(0)}%`
+            }
+        });
+    };
+
+    render();
+
+    document.getElementById("legend").addEventListener("click", () => {
+        legendEnabled = !legendEnabled;
+        render();
+    });
+    document.getElementById("cluster").addEventListener("click", () => heatmap.cluster());
+    document.getElementById("resize").addEventListener("click", () => heatmap.resize(1000, 400));
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
+</html>
