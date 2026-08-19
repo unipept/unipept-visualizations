@@ -42,6 +42,21 @@ export default class Sunburst {
     private arcData: HRN<DataNode>[] = [];
     private textData: HRN<DataNode>[] = [];
 
+    /**
+     * Key under which a node's label is joined to its <text> element. The ids of
+     * the data nodes cannot be used here: every `empty` filler node produced by
+     * the preprocessor carries the same id, so only the hierarchy node itself
+     * identifies a label.
+     */
+    private readonly textKeys: Map<HRN<DataNode>, string> = new Map();
+
+    /**
+     * Incremented on every reroot. A render whose animation is interrupted by a
+     * newer one must not publish the view it was drawing afterwards, or the next
+     * render joins its labels on a view that is no longer on screen.
+     */
+    private renderGeneration: number = 0;
+
     private previousRoot: HRN<DataNode> | null = null;
     private previousMaxLevel: number = this.currentMaxLevel;
 
@@ -71,6 +86,7 @@ export default class Sunburst {
 
         const partition = d3.partition<DataNode>();
         this.data = partition(rootNode).descendants();
+        this.data.forEach((node: HRN<DataNode>, i: number) => this.textKeys.set(node, i.toString()));
 
         this.arc = d3.arc<HRN<DataNode>>()
             .startAngle((d: HRN<DataNode>) => Math.max(0, Math.min(Math.PI * 2, this.xScale(d.x0))))
@@ -358,6 +374,7 @@ export default class Sunburst {
 
         // perform animation
         this.currentMaxLevel = d.depth + this.settings.levels;
+        this.renderGeneration++;
 
         this.renderArcs(d);
         this.renderText(d);
@@ -424,6 +441,8 @@ export default class Sunburst {
     }
 
     private async renderText(parentNode: HRN<DataNode>) {
+        const generation = this.renderGeneration;
+
         const filteredData = this.data.filter((e: HRN<DataNode>) => {
             return NodeUtils.isParentOf(parentNode, e, this.currentMaxLevel);
         });
@@ -456,24 +475,43 @@ export default class Sunburst {
             ctx.font = ctx!.font = "16px 'Helvetica Neue', Helvetica, Arial, sans-serif"
         }
 
-        // Remove old text nodes
-        this.visGElement.selectAll("text").data([]).exit().remove();
+        const labels = this.visGElement.selectAll<SVGTextElement, HRN<DataNode>>("text")
+            .data(data, (d: HRN<DataNode>) => this.textKeys.get(d)!);
 
-        // Add new text nodes
-        this.text = this.visGElement.selectAll("text").data(data).enter().append("text")
-            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+        labels.exit().remove();
+
+        // Labels that were already on screen are deliberately not re-created: they
+        // keep their DOM element, and with it their current opacity, so that only
+        // their position is animated.
+        this.text = labels.enter()
+            .append("text")
             .style("fill-opacity", 0)
             .style("font-family", "font-family: Helvetica, 'Super Sans', sans-serif")
             .style("pointer-events", "none") // don't invoke mouse events
             .attr("dy", ".2em")
+            .merge(labels)
+            .style("fill", (d: HRN<DataNode>) => ColorUtils.getReadableColorFor(this.color(d.data)))
+            // A previous render may have left this label hidden; from here on its
+            // opacity alone decides whether it shows.
+            .style("visibility", null)
             .text((d: HRN<DataNode>) => this.settings.getLabel(d.data))
             .style("font-size", function(this: SVGTextContentElement, _d: HRN<DataNode>) {
                 const txtLength = offscreenCanvasSupported ? ctx.measureText(this.textContent!).width : this.getComputedTextLength();
                 return Math.floor(Math.min(((that.settings.radius / that.settings.levels) / txtLength * 10) + 1, 12)) + "px";
-            });
+            })
+            // renderArcs re-appends every arc on each render, so the labels have to
+            // be lifted back above them.
+            .raise();
 
         // Somewhat of a hack as we rely on arcTween updating the scales.
         await new Promise<void>((resolve) => {
+            // A transition never reports an end for an empty selection, which would
+            // leave this promise pending forever.
+            if (this.text.empty()) {
+                resolve();
+                return;
+            }
+
             this.text
                 .transition().duration(this.settings.animationDuration)
                 .attrTween("text-anchor", (d: HRN<DataNode>) => {
@@ -490,17 +528,23 @@ export default class Sunburst {
                 })
                 .styleTween("fill-opacity", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const selectedFontSize = Number.parseInt(d3.select(this).style("font-size").replace("px", ""))
+                    // Fade in from wherever this label already is: a label that survives
+                    // this render is at full opacity and has to stay there.
+                    const startOpacity = Number.parseFloat(d3.select(this).style("fill-opacity")) || 0;
 
                     return (t: number) => {
                         const availableSpace = that.computeAvailableSpace(e);
 
                         if (availableSpace > selectedFontSize) {
-                            return t.toString();
+                            return (startOpacity + (1 - startOpacity) * t).toString();
                         } else {
                             return "0";
                         }
                     }
                 })
+                // The next render interrupts this transition before it ends, and an
+                // interrupted transition reports no end.
+                .on("interrupt.resolve cancel.resolve", () => resolve())
                 .on("end", function(this: SVGTextContentElement, e: HRN<DataNode>) {
                     const availableSpace = that.computeAvailableSpace(e);
                     const node = d3.select(this);
@@ -514,7 +558,9 @@ export default class Sunburst {
                 });
         });
 
-        this.textData = filteredData;
+        if (generation === this.renderGeneration) {
+            this.textData = filteredData;
+        }
     }
 
     private setBreadcrumbs(d: HRN<DataNode>) {
