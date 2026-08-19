@@ -64,6 +64,12 @@ export class BarplotLegendSettings {
 
 export class BarplotSettings extends Settings {
     /**
+     * Ignored by the barplot, which is as tall as the bars, the axis and the legend it holds. Its height therefore
+     * follows from the data and from `barHeight`, rather than being something that can be set.
+     */
+    height: number = 800;
+
+    /**
      * In horizontal mode, the legend will be displayed to the right of the barplot area. In vertical mode, the legend
      * will be placed below the actual plot.
      */

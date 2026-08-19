@@ -46,6 +46,19 @@ describe("Barplot", () => {
         return barplot;
     }
 
+    /**
+     * Builds a barplot without forcing a size onto the settings first, which is what the tests about the size need.
+     */
+    async function buildBarplot(jsDom: JSDOM, settings: BarplotSettings, data: Bar[] = bars()): Promise<HTMLElement> {
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        new Barplot(element, data, settings);
+
+        await waitForCondition(() => element.getElementsByTagName("svg").length > 0, 2000, 500);
+
+        return element;
+    }
+
     function legendLabels(jsDom: JSDOM): string[] {
         return Array.from(jsDom.window.document.querySelectorAll(".legend-item"))
             .map(entry => entry.getAttribute("data-legend-entry") ?? "");
@@ -215,7 +228,7 @@ describe("Barplot", () => {
         expect(legendTitle(withDefaults).getAttribute("font-size")).toEqual("24");
     });
 
-    it("should lay the plot out against the new size when it is resized", async() => {
+    it("should lay the plot out against the new width when it is resized", async() => {
         const jsDom = createTestDom();
         const barplot = await createBarplot(jsDom, new BarplotSettings());
 
@@ -226,12 +239,16 @@ describe("Barplot", () => {
         // them: 800 - 10 - 10 - 150 - 10.
         expect(barExtent(jsDom)).toBe(790);
 
-        barplot.resize(1200, 400);
+        const height = svg().getAttribute("height");
+
+        barplot.resize(1200);
 
         expect(svg().getAttribute("width")).toBe("1200");
-        expect(svg().getAttribute("height")).toBe("400");
-        expect(svg().getAttribute("viewBox")).toBe("0 0 1200 400");
+        expect(svg().getAttribute("viewBox")).toBe(`0 0 1200 ${height}`);
         expect(barExtent(jsDom)).toBe(1190);
+
+        // Nothing about the height of the visualization is a function of its width.
+        expect(svg().getAttribute("height")).toBe(height);
     });
 
     it("should still render the same bars after a resize", async() => {
@@ -245,7 +262,7 @@ describe("Barplot", () => {
         const labelsBefore = barLabels();
         const itemsBefore = items();
 
-        barplot.resize(1200, 400);
+        barplot.resize(1200);
 
         expect(barLabels()).toEqual(labelsBefore);
         expect(items()).toEqual(itemsBefore);
@@ -264,13 +281,117 @@ describe("Barplot", () => {
         const children = element.children.length;
         const styles = jsDom.window.document.head.getElementsByTagName("style").length;
 
-        barplot.resize(1200, 400);
-        barplot.resize(900, 500);
+        barplot.resize(1200);
+        barplot.resize(900);
 
         expect(element.getElementsByTagName("svg").length).toBe(1);
         expect(element.children.length).toEqual(children);
         expect(jsDom.window.document.head.getElementsByTagName("style").length).toEqual(styles);
         expect(element.className.split(/\s+/).filter((name: string) => name === "barplot")).toHaveLength(1);
+    });
+
+    it("should be as tall as the bars, the axis and the legend it holds", async() => {
+        const jsDom = createTestDom();
+        await createBarplot(jsDom, new BarplotSettings());
+
+        const height = (dom: JSDOM) =>
+            dom.window.document.getElementsByTagName("svg").item(0)!.getAttribute("height");
+
+        // Two bars of 75, the 40 the axis takes up, and a legend of one row: its padding (10 and 10), its title
+        // (24) and the 10 underneath that, and a row of 16.
+        expect(height(jsDom)).toBe("260");
+
+        const taller = createTestDom();
+        await createBarplot(taller, new BarplotSettings(), [...bars(), {
+            label: "Sample 3",
+            items: [{ label: "Bacteria", counts: 4 }, { label: "Eukaryota", counts: 4 }]
+        }]);
+
+        // One more bar is one more barHeight, and nothing else.
+        expect(height(taller)).toBe("335");
+    });
+
+    it("should ignore the height in the settings", async() => {
+        const heightOf = async(height: number) => {
+            const settings = new BarplotSettings();
+            settings.height = height;
+
+            const element = await buildBarplot(createTestDom(), settings);
+
+            return element.getElementsByTagName("svg").item(0)!.getAttribute("height");
+        };
+
+        // A barplot is as tall as its contents whatever the settings ask for, so both of these are the 260 the two
+        // bars above come to.
+        expect(await heightOf(100)).toBe("260");
+        expect(await heightOf(5000)).toBe("260");
+    });
+
+    it("should draw every bar it is given, however many that is", async() => {
+        const jsDom = createTestDom();
+        const many = Array.from({ length: 20 }, (_, i) => ({
+            label: `Sample ${i}`,
+            items: [
+                { label: "Bacteria", counts: 10 + i },
+                { label: "Eukaryota", counts: 5 },
+                { label: "Archaea", counts: 1 }
+            ]
+        }));
+
+        await createBarplot(jsDom, new BarplotSettings(), many);
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const svg = element.getElementsByTagName("svg").item(0)!;
+        const height = Number.parseFloat(svg.getAttribute("height")!);
+
+        expect(jsDom.window.document.querySelectorAll(".barLabels text")).toHaveLength(20);
+
+        // The SVG hides its overflow, so a bar that reaches past the bottom of it is a bar that is cut off. Twenty
+        // bars of 75 are 1500 pixels, well past the 800 the height used to be fixed at.
+        const rects = Array.from(jsDom.window.document.querySelectorAll(".barplot-item rect"));
+        const lowest = Math.max(...rects.map(rect =>
+            Number.parseFloat(rect.getAttribute("y")!) + Number.parseFloat(rect.getAttribute("height")!)
+        ));
+
+        expect(height).toBeGreaterThan(1500);
+        expect(lowest).toBeLessThanOrEqual(height);
+    });
+
+    it("should render a resize exactly like a barplot that was built at that width", async() => {
+        const resized = createTestDom();
+        const barplot = await createBarplot(resized, new BarplotSettings());
+        barplot.resize(640);
+
+        const settings = new BarplotSettings();
+        settings.width = 640;
+
+        const element = await buildBarplot(createTestDom(), settings);
+
+        expect(resized.window.document.getElementById("visualization")!.innerHTML)
+            .toEqual(element.innerHTML);
+    });
+
+    it("should hide a tooltip that is showing when it is resized", async() => {
+        const jsDom = createTestDom();
+        const barplot = await createBarplot(jsDom, new BarplotSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        element.getElementsByClassName("barplot-item").item(0)!.dispatchEvent(new jsDom.window.MouseEvent("mouseover", {
+            view: jsDom.window as unknown as Window,
+            bubbles: true,
+            clientX: 100,
+            clientY: 50
+        }));
+
+        const tooltip = () => jsDom.window.document.body.querySelector(".tip") as HTMLElement;
+        expect(tooltip().style.visibility).toEqual("visible");
+
+        // The node the pointer is over is thrown away by the render, so it never gets a mouseout of its own. Without
+        // help, the tooltip is left showing what it said about a bar that is no longer there.
+        barplot.resize(1200);
+
+        expect(tooltip().style.visibility).toEqual("hidden");
     });
 
     afterAll(async() => {

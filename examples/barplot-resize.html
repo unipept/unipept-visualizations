@@ -25,13 +25,12 @@
 
 <main class="wrap example">
   <h1>Resizing a barplot</h1>
-  <p class="lede">The same two samples as the taxonomy example, but built with <code>width: 900</code>,
-    <code>height: 300</code>, <code>barHeight: 60</code>, <code>maxItems: 8</code> and
-    <code>legend.columns: 4</code>. <strong>Narrow</strong> and <strong>Wide</strong> call
-    <code>resize()</code> with a different width, which lays the bars, the axis and the legend columns out again
-    without rebuilding the barplot. <strong>Fit to stage</strong> passes the width the stage actually measures, which
-    is what a page that follows its container does. The stage scrolls sideways whenever the barplot ends up wider
-    than it is.</p>
+  <p class="lede">The same two samples as the taxonomy example, but built with <code>width: 700</code>,
+    <code>barHeight: 60</code>, <code>maxItems: 8</code> and <code>legend.columns: 4</code>. There is no height to
+    set: a barplot is as tall as the bars, the axis and the legend it holds. <strong>Narrow</strong> and
+    <strong>Wide</strong> call <code>resize()</code> with a different width, which lays the bars, the axis and the
+    legend columns out again without rebuilding the barplot. <strong>Fit to stage</strong> passes the width the stage
+    has room for, which is what a page that follows its container does.</p>
 
   <figure class="stage"><div id="barplot"></div></figure>
 
@@ -44,14 +43,17 @@
 <script type="module" data-source>
     import { Barplot } from "../dist/unipept-visualizations.js";
 
-    const height = 300;
     const element = document.getElementById("barplot");
     const stage = element.parentElement;
 
+    // The content box of the stage is the room the barplot has, and asking for it this way keeps the page from
+    // having to know anything about the padding the stylesheet gives the stage.
+    let roomInStage = 0;
+    new ResizeObserver(([entry]) => roomInStage = entry.contentBoxSize[0].inlineSize).observe(stage);
+
     d3.json("data/bars.json").then(data => {
         const barplot = new Barplot(element, data, {
-            width: 900,
-            height: height,
+            width: 700,
             barHeight: 60,
             maxItems: 8,
             legend: {
@@ -59,17 +61,9 @@
             }
         });
 
-        document.getElementById("narrow").addEventListener("click", () => barplot.resize(600, height));
-        document.getElementById("wide").addEventListener("click", () => barplot.resize(1200, height));
-        document.getElementById("fit").addEventListener("click", () => {
-            // The stage is what holds the barplot, so its padding is not room the barplot can use.
-            const style = getComputedStyle(stage);
-            const width = stage.clientWidth
-                - Number.parseFloat(style.paddingLeft)
-                - Number.parseFloat(style.paddingRight);
-
-            barplot.resize(Math.round(width), height);
-        });
+        document.getElementById("narrow").addEventListener("click", () => barplot.resize(500));
+        document.getElementById("wide").addEventListener("click", () => barplot.resize(900));
+        document.getElementById("fit").addEventListener("click", () => barplot.resize(Math.round(roomInStage)));
     });
 </script>
 

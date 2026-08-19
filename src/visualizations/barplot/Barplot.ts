@@ -6,6 +6,21 @@ import BarplotPreprocessor from "./BarplotPreprocessor";
 import Tooltip from "../../utilities/Tooltip";
 import StyleUtilities from "../../utilities/StyleUtilities";
 
+/**
+ * Height (in pixels) of the x-axis: its tick marks, their labels and the title underneath them.
+ */
+const X_AXIS_HEIGHT = 40;
+
+/**
+ * Vertical space (in pixels) between the bottom of the bars and the x-axis underneath them.
+ */
+const AXIS_PADDING_TOP = 5;
+
+/**
+ * Vertical space (in pixels) between the title of the legend and its first row of entries.
+ */
+const LEGEND_TITLE_PADDING_BOTTOM = 10;
+
 export default class Barplot {
     private readonly settings: BarplotSettings;
     private readonly data: Bar[];
@@ -34,18 +49,22 @@ export default class Barplot {
     }
 
     /**
-     * Resize the visualization to the given dimensions and render it again with the data and the options that were
-     * passed in the constructor.
+     * Resize the visualization to the given width and render it again with the data and the options that were passed
+     * in the constructor.
      *
-     * Note that only the width changes the layout of the plot: the height of the plot follows from the height of a bar
-     * and the number of bars, so the height given here only sets how much room the visualization takes up in the page.
+     * There is no height to give: a barplot is as tall as the bars, the axis and the legend it holds, so its height
+     * follows from the data and from settings such as `barHeight`, and it is recomputed here along with the layout.
      *
      * @param newWidth New total width (in pixels) of the visualization.
-     * @param newHeight New total height (in pixels) of the visualization.
      */
-    public resize(newWidth: number, newHeight: number) {
+    public resize(newWidth: number) {
+        // The render throws away the node the pointer is over, and a node that is removed never gets a mouseout of
+        // its own, so without this the tooltip is left on screen describing a bar that is no longer there.
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip.hide();
+        }
+
         this.settings.width = newWidth;
-        this.settings.height = newHeight;
 
         this.renderBarplot();
     }
@@ -72,6 +91,55 @@ export default class Barplot {
         return Object.assign(defaults, options, { padding });
     }
 
+    /**
+     * Total height (in pixels) of the visualization, which is the height of what it holds: the bars, the axis
+     * underneath them and the legend.
+     *
+     * There is no height setting to honour instead. How tall a barplot is follows from the number of bars it is given
+     * and from `barHeight`, so a configured height could only cut the visualization off (the SVG hides its overflow)
+     * or leave empty space below it.
+     */
+    private get contentHeight(): number {
+        const plotHeight = this.settings.chart.padding.top +
+            this.plotAreaHeight +
+            AXIS_PADDING_TOP +
+            X_AXIS_HEIGHT +
+            this.settings.chart.padding.bottom;
+
+        // A horizontal legend is placed beside the plot and so starts at the top of the visualization, while a
+        // vertical one is placed underneath the bars and the axis.
+        const legendBottom = this.settings.orientation === "horizontal"
+            ? this.legendHeight
+            : this.plotAreaHeight + X_AXIS_HEIGHT + this.legendHeight;
+
+        return Math.max(plotHeight, legendBottom);
+    }
+
+    /**
+     * Height (in pixels) of the area the bars themselves take up.
+     */
+    private get plotAreaHeight(): number {
+        return this.settings.barHeight * this.data.length;
+    }
+
+    /**
+     * Height (in pixels) of the legend, from the top of its padding down to the bottom of it.
+     */
+    private get legendHeight(): number {
+        const legend = this.settings.legend;
+
+        const entries = new Set(this.data.flatMap(bar => bar.items.map(item => item.label))).size;
+        const rows = Math.ceil(entries / legend.columns);
+        const rowHeight = Math.max(legend.symbolSize, legend.labelFontSize);
+
+        return legend.padding.top +
+            legend.titleFontSize +
+            LEGEND_TITLE_PADDING_BOTTOM +
+            rows * rowHeight +
+            Math.max(rows - 1, 0) * legend.rowSpacing +
+            legend.padding.bottom;
+    }
+
     private renderBarplot(): void {
         // Constructing a barplot on an element that already holds one has to replace it, not add a second one next to
         // it.
@@ -81,9 +149,9 @@ export default class Barplot {
             .append("svg")
             .attr("version", "1.1")
             .attr("xmlns", "http://www.w3.org/2000/svg")
-            .attr("viewBox", `0 0 ${this.settings.width} ${this.settings.height}`)
+            .attr("viewBox", `0 0 ${this.settings.width} ${this.contentHeight}`)
             .attr("width", this.settings.width)
-            .attr("height", this.settings.height)
+            .attr("height", this.contentHeight)
             .attr("overflow", "hidden")
             .style("font-family", this.settings.font);
 
@@ -94,9 +162,6 @@ export default class Barplot {
         // Plot settings
         // Padding for the actual plot area
         const plotPadding = this.settings.chart.padding;
-
-        // Height of each bar in the barplot
-        const barHeight = this.settings.barHeight;
 
         const isHorizontal = this.settings.orientation == "horizontal";
 
@@ -117,17 +182,8 @@ export default class Barplot {
 
         const legendColumns = this.settings.legend.columns;
 
-        // Padding below the title of the legend
-        const legendTitlePaddingBottom = 10;
-
         // Horizontal padding between legend colored box and legend label
         const legendSymbolPaddingRight = 10;
-
-        /**
-         * Axis settings
-         */
-        // Height of the x-axis bar and it's labels
-        const xAxisHeight: number = 40;
 
         let plotAreaWidth: number;
         let legendContentStartLeft: number;
@@ -148,8 +204,7 @@ export default class Barplot {
             legendEntryWidth = legendWidth - legendPadding.left - legendPadding.right;
         } else {
             plotAreaWidth = this.settings.width - plotPadding.left - plotPadding.right;
-            const plotAreaHeight = barHeight * this.data.length;
-            legendContentStartTop = plotAreaHeight + legendPadding.top + xAxisHeight;
+            legendContentStartTop = this.plotAreaHeight + legendPadding.top + X_AXIS_HEIGHT;
             legendContentStartLeft = legendPadding.left;
             legendEntryHeight = Math.max(legendSymbolSize, legendLabelFontSize);
             legendAreaWidth = this.settings.width - legendPadding.left - legendPadding.right;
@@ -184,7 +239,7 @@ export default class Barplot {
 
         const yScale = d3.scaleBand()
             .domain(this.data.map((_, i) => i.toString()))
-            .range([0, barHeight * this.data.length])
+            .range([0, this.plotAreaHeight])
             .paddingInner(0.1)
             .paddingOuter(0);
 
@@ -331,14 +386,14 @@ export default class Barplot {
 
         // Add x-axis
         svgGElement.append("g")
-            .attr("transform", `translate(${plotPadding.left + barLabelWidth + barLabelPaddingRight}, ${plotPadding.top + barHeight * this.data.length + 5})`)
+            .attr("transform", `translate(${plotPadding.left + barLabelWidth + barLabelPaddingRight}, ${plotPadding.top + this.plotAreaHeight + AXIS_PADDING_TOP})`)
             .call(d3.axisBottom(xScale))
             .attr("font-size", "12px") // Increase tick label size
             .append("text")
             .attr("font-family", font)
             .attr("fill", "black")
             .attr("x", barWidth / 2)
-            .attr("y", xAxisHeight)
+            .attr("y", X_AXIS_HEIGHT)
             .attr("text-anchor", "middle")
             .attr("font-size", 14)
             .text(this.settings.displayMode === "relative" ? "Percentage" : "Count");
@@ -352,7 +407,7 @@ export default class Barplot {
             .join("g")
             .classed("legend-item", true)
             .attr("data-legend-entry", (d) => d)
-            .attr("transform", (_, i) => `translate(${(i % legendColumns) * legendEntryWidth + Math.max((i % legendColumns) - 1, 0) * legendColumnSpacing}, ${Math.floor(i / legendColumns) * (legendEntryHeight + legendRowSpacing) + legendTitleFontSize + legendTitlePaddingBottom + legendContentStartTop})`);
+            .attr("transform", (_, i) => `translate(${(i % legendColumns) * legendEntryWidth + Math.max((i % legendColumns) - 1, 0) * legendColumnSpacing}, ${Math.floor(i / legendColumns) * (legendEntryHeight + legendRowSpacing) + legendTitleFontSize + LEGEND_TITLE_PADDING_BOTTOM + legendContentStartTop})`);
 
         // Legend title
         svgGElement.append("text")
