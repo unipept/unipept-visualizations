@@ -35,7 +35,9 @@ export default class Treeview {
     private svg: any;
 
     constructor(
-        private readonly element: HTMLElement,
+        // Public so that an embedding application can reach the rendered output, for example to export the SVG
+        // that was drawn into it.
+        public readonly element: HTMLElement,
         data: DataNodeLike,
         options: TreeviewSettings = new TreeviewSettings()
     ) {

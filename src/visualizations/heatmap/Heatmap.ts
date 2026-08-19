@@ -47,7 +47,11 @@ type LegendShape =
     { type: "text", x: number, y: number, fontSize: number, anchor: string, content: string };
 
 export default class Heatmap {
-    private element: HTMLElement;
+    /**
+     * The element this visualization renders into, as it was passed to the constructor. Exposed so that an embedding
+     * application can reach the rendered output, for example to export the SVG that was drawn into it.
+     */
+    public readonly element: HTMLElement;
     private settings: HeatmapSettings;
 
     private rows: HeatmapFeature[];

@@ -28,7 +28,9 @@ export default class Treemap {
     private nodeId: number = 0;
 
     constructor(
-        private element: HTMLElement,
+        // Public so that an embedding application can reach the rendered output, for example to export the SVG
+        // that was drawn into it.
+        public readonly element: HTMLElement,
         data: DataNodeLike,
         options: TreemapSettings = new TreemapSettings()
     ) {
