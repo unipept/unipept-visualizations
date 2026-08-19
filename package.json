@@ -7,6 +7,13 @@
     "type": "module",
     "main": "dist/unipept-visualizations.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/unipept-visualizations.js"
+        },
+        "./package.json": "./package.json"
+    },
     "files": [
         "dist"
     ],
