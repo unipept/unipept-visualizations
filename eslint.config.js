@@ -3,7 +3,9 @@ import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 
 export default [
-    { ignores: ['dist/*', 'types/*', 'node_modules/*', 'examples/*'] },
+    // dist/ is build output. Everything else in the repository is linted,
+    // including the config files at the root and the examples.
+    { ignores: ['dist/'] },
 
     js.configs.recommended,
     ...typescriptPlugin.configs['flat/recommended'],
@@ -42,6 +44,22 @@ export default [
                 varsIgnorePattern: '^_',
                 caughtErrorsIgnorePattern: '^_',
             }],
+        },
+    },
+
+    {
+        // The example pages are plain scripts in a browser, so the DOM and the
+        // d3 bundle they load from a CDN are ambient rather than imported.
+        // TypeScript checks this for the .ts files, but nothing else would here.
+        files: ['examples/**/*.js'],
+        languageOptions: {
+            globals: {
+                document: 'readonly',
+                fetch: 'readonly',
+                window: 'readonly',
+                console: 'readonly',
+                d3: 'readonly',
+            },
         },
     },
 ];

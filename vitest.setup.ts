@@ -1,7 +1,6 @@
 import { expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-//@ts-ignore
 import {PNG} from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
@@ -43,19 +42,19 @@ expect.extend({
     }
 
     // Compare with existing snapshot
-    const existing = fs.readFileSync(snapshotPath);
-
     const img1 = PNG.sync.read(fs.readFileSync(snapshotPath));
     const img2 = PNG.sync.read(received);
     const {width, height} = img1;
     const diff = new PNG({width, height});
 
-    const pass = pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: failureThreshold});
+    // pixelmatch returns the number of pixels that differ, not a verdict.
+    const mismatchedCount = pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: failureThreshold});
     // Also check if the relative amount of mismatched pixels is within the threshold
-    const mismatchedPixels = (pass / (width * height));
+    const mismatchedPixels = (mismatchedCount / (width * height));
+    const matches = mismatchedPixels <= failureThreshold;
 
     // If test fails and diff directory is specified, save the received image for comparison
-    if (mismatchedPixels > failureThreshold && customDiffDir) {
+    if (!matches && customDiffDir) {
       const actualPath = path.join(customDiffDir, `actual_${snapshotName}`);
       const diffPath = path.join(customDiffDir, `diff_${snapshotName}`);
       fs.writeFileSync(actualPath, received);
@@ -63,8 +62,8 @@ expect.extend({
     }
 
     return {
-      pass: mismatchedPixels <= failureThreshold,
-      message: () => pass
+      pass: matches,
+      message: () => matches
           ? `Snapshot matches ${snapshotPath}`
           : `Snapshot does not match ${snapshotPath}. ${customDiffDir ? `See diff at ${path.join(customDiffDir, `diff_${snapshotName}`)}` : ''}`
     };

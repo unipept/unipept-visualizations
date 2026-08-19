@@ -2,7 +2,7 @@
 import 'vitest';
 
 declare module 'vitest' {
-  interface Assertion<T = any> {
+  interface Assertion<_T = any> {
     toMatchImageSnapshot: (snapshotSettings?: {
       customSnapshotsDir?: string;
       customDiffDir?: string;
