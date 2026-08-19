@@ -13,7 +13,7 @@
     "scripts": {
         "test": "vitest run",
         "test:ui": "vitest --ui",
-        "lint": "eslint \"src/**/*.ts\"",
+        "lint": "eslint .",
         "typecheck": "tsc6 --noEmit",
         "build": "vite build",
         "prepack": "npm run build",
