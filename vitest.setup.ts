@@ -10,6 +10,12 @@ expect.extend({
   toMatchImageSnapshot(received, snapshotSettings) {
     const { customSnapshotsDir, customDiffDir, failureThreshold = 0.1 } = snapshotSettings || {};
 
+    // Puppeteer returns a Buffer on Node 24 but a plain Uint8Array on Node 25, and
+    // pngjs only accepts a Buffer. Wrap the bytes without copying them.
+    const image = Buffer.isBuffer(received)
+      ? received
+      : Buffer.from(received.buffer, received.byteOffset, received.byteLength);
+
     if (!customSnapshotsDir) {
       throw new Error('customSnapshotsDir must be specified');
     }
@@ -34,7 +40,7 @@ expect.extend({
 
     // If snapshot doesn't exist, create it (first run)
     if (!fs.existsSync(snapshotPath)) {
-      fs.writeFileSync(snapshotPath, received);
+      fs.writeFileSync(snapshotPath, image);
       return {
         pass: true,
         message: () => `Snapshot created at ${snapshotPath}`
@@ -43,7 +49,7 @@ expect.extend({
 
     // Compare with existing snapshot
     const img1 = PNG.sync.read(fs.readFileSync(snapshotPath));
-    const img2 = PNG.sync.read(received);
+    const img2 = PNG.sync.read(image);
     const {width, height} = img1;
     const diff = new PNG({width, height});
 
@@ -57,7 +63,7 @@ expect.extend({
     if (!matches && customDiffDir) {
       const actualPath = path.join(customDiffDir, `actual_${snapshotName}`);
       const diffPath = path.join(customDiffDir, `diff_${snapshotName}`);
-      fs.writeFileSync(actualPath, received);
+      fs.writeFileSync(actualPath, image);
       fs.writeFileSync(diffPath, PNG.sync.write(diff));
     }
 
