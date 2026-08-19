@@ -7,6 +7,9 @@ dist/
 # Visual regression diffs, written by the test run on failure
 test/snapshots/diffs
 
+# Claude Code, which puts agent worktrees under .claude/worktrees
+.claude/
+
 # Editors and OS
 .idea/
 *.iml

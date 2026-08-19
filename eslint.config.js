@@ -3,9 +3,11 @@ import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 
 export default [
-    // dist/ is build output. Everything else in the repository is linted,
-    // including the config files at the root and the examples.
-    { ignores: ['dist/'] },
+    // dist/ is build output and .claude/ holds Claude Code's agent worktrees,
+    // which are checkouts of this same repository and would otherwise be linted
+    // a second time. Everything else in the repository is linted, including the
+    // config files at the root and the examples.
+    { ignores: ['dist/', '.claude/'] },
 
     js.configs.recommended,
     ...typescriptPlugin.configs['flat/recommended'],
