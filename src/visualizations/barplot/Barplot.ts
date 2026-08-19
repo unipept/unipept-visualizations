@@ -33,6 +33,23 @@ export default class Barplot {
         this.renderBarplot();
     }
 
+    /**
+     * Resize the visualization to the given dimensions and render it again with the data and the options that were
+     * passed in the constructor.
+     *
+     * Note that only the width changes the layout of the plot: the height of the plot follows from the height of a bar
+     * and the number of bars, so the height given here only sets how much room the visualization takes up in the page.
+     *
+     * @param newWidth New total width (in pixels) of the visualization.
+     * @param newHeight New total height (in pixels) of the visualization.
+     */
+    public resize(newWidth: number, newHeight: number) {
+        this.settings.width = newWidth;
+        this.settings.height = newHeight;
+
+        this.renderBarplot();
+    }
+
     private fillOptions(options: any = undefined): BarplotSettings {
         const output = new BarplotSettings();
         Object.assign(output, options);

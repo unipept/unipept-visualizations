@@ -56,6 +56,17 @@ describe("Barplot", () => {
             .map(text => text.textContent ?? "");
     }
 
+    /**
+     * Right edge of the widest bar, which is where the plot area ends and thus follows the configured width.
+     */
+    function barExtent(jsDom: JSDOM): number {
+        const rects = Array.from(jsDom.window.document.querySelectorAll(".barplot-item rect"));
+
+        return Math.max(...rects.map(rect =>
+            Number.parseFloat(rect.getAttribute("x")!) + Number.parseFloat(rect.getAttribute("width")!)
+        ));
+    }
+
     beforeAll(async() => {
         browser = await puppeteer.launch();
     });
@@ -202,6 +213,64 @@ describe("Barplot", () => {
         expect(barLabel(withOverrides).getAttribute("y")).toEqual(barLabel(withDefaults).getAttribute("y"));
         expect(barLabel(withDefaults).getAttribute("x")).toEqual("10");
         expect(legendTitle(withDefaults).getAttribute("font-size")).toEqual("24");
+    });
+
+    it("should lay the plot out against the new size when it is resized", async() => {
+        const jsDom = createTestDom();
+        const barplot = await createBarplot(jsDom, new BarplotSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const svg = () => element.getElementsByTagName("svg").item(0)!;
+
+        // The plot area is what is left of the width after the chart padding, the bar labels and the space behind
+        // them: 800 - 10 - 10 - 150 - 10.
+        expect(barExtent(jsDom)).toBe(790);
+
+        barplot.resize(1200, 400);
+
+        expect(svg().getAttribute("width")).toBe("1200");
+        expect(svg().getAttribute("height")).toBe("400");
+        expect(svg().getAttribute("viewBox")).toBe("0 0 1200 400");
+        expect(barExtent(jsDom)).toBe(1190);
+    });
+
+    it("should still render the same bars after a resize", async() => {
+        const jsDom = createTestDom();
+        const barplot = await createBarplot(jsDom, new BarplotSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const barLabels = () => Array.from(element.querySelectorAll(".barLabels text")).map(text => text.textContent);
+        const items = () => element.getElementsByClassName("barplot-item").length;
+
+        const labelsBefore = barLabels();
+        const itemsBefore = items();
+
+        barplot.resize(1200, 400);
+
+        expect(barLabels()).toEqual(labelsBefore);
+        expect(items()).toEqual(itemsBefore);
+        expect(new Set(legendLabels(jsDom))).toEqual(new Set(["Bacteria", "Eukaryota", "Archaea"]));
+
+        const labels = valueLabels(jsDom).filter(label => label.length > 0);
+        expect(labels.length).toBeGreaterThan(0);
+        expect(labels.every(label => label.endsWith("%"))).toBe(true);
+    });
+
+    it("should replace the previous render when resized instead of adding a second one", async() => {
+        const jsDom = createTestDom();
+        const barplot = await createBarplot(jsDom, new BarplotSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const children = element.children.length;
+        const styles = jsDom.window.document.head.getElementsByTagName("style").length;
+
+        barplot.resize(1200, 400);
+        barplot.resize(900, 500);
+
+        expect(element.getElementsByTagName("svg").length).toBe(1);
+        expect(element.children.length).toEqual(children);
+        expect(jsDom.window.document.head.getElementsByTagName("style").length).toEqual(styles);
+        expect(element.className.split(/\s+/).filter((name: string) => name === "barplot")).toHaveLength(1);
     });
 
     afterAll(async() => {

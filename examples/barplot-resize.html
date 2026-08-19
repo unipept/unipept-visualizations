@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Resizing a barplot &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Barplot &middot; Resize</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Barplot">Docs &rarr;</a></span>
+  </div>
+</header>
+
+<main class="wrap example">
+  <h1>Resizing a barplot</h1>
+  <p class="lede">The same two samples as the taxonomy example, but built with <code>width: 900</code>,
+    <code>height: 300</code>, <code>barHeight: 60</code>, <code>maxItems: 8</code> and
+    <code>legend.columns: 4</code>. <strong>Narrow</strong> and <strong>Wide</strong> call
+    <code>resize()</code> with a different width, which lays the bars, the axis and the legend columns out again
+    without rebuilding the barplot. <strong>Fit to stage</strong> passes the width the stage actually measures, which
+    is what a page that follows its container does. The stage scrolls sideways whenever the barplot ends up wider
+    than it is.</p>
+
+  <figure class="stage"><div id="barplot"></div></figure>
+
+  <div class="controls">
+    <button id="narrow" type="button">Narrow</button>
+    <button id="wide" type="button">Wide</button>
+    <button id="fit" type="button">Fit to stage</button>
+  </div>
+
+<script type="module" data-source>
+    import { Barplot } from "../dist/unipept-visualizations.js";
+
+    const height = 300;
+    const element = document.getElementById("barplot");
+    const stage = element.parentElement;
+
+    d3.json("data/bars.json").then(data => {
+        const barplot = new Barplot(element, data, {
+            width: 900,
+            height: height,
+            barHeight: 60,
+            maxItems: 8,
+            legend: {
+                columns: 4
+            }
+        });
+
+        document.getElementById("narrow").addEventListener("click", () => barplot.resize(600, height));
+        document.getElementById("wide").addEventListener("click", () => barplot.resize(1200, height));
+        document.getElementById("fit").addEventListener("click", () => {
+            // The stage is what holds the barplot, so its padding is not room the barplot can use.
+            const style = getComputedStyle(stage);
+            const width = stage.clientWidth
+                - Number.parseFloat(style.paddingLeft)
+                - Number.parseFloat(style.paddingRight);
+
+            barplot.resize(Math.round(width), height);
+        });
+    });
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
+</html>
