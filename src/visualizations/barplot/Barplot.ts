@@ -5,6 +5,7 @@ import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
 import Tooltip from "../../utilities/Tooltip";
 import StyleUtilities from "../../utilities/StyleUtilities";
+import HostUtilities from "../../utilities/HostUtilities";
 
 /**
  * Height (in pixels) of the x-axis: its tick marks, their labels and the title underneath them.
@@ -20,6 +21,11 @@ const AXIS_PADDING_TOP = 5;
  * Vertical space (in pixels) between the title of the legend and its first row of entries.
  */
 const LEGEND_TITLE_PADDING_BOTTOM = 10;
+
+/**
+ * One item of one bar: what the rectangles the barplot is built from are bound to.
+ */
+type StackedSegment = { barIndex: number, title: string, shape: d3.SeriesPoint<Bar> };
 
 export default class Barplot {
     private readonly settings: BarplotSettings;
@@ -60,12 +66,6 @@ export default class Barplot {
      * @param newWidth New total width (in pixels) of the visualization.
      */
     public resize(newWidth: number) {
-        // The render throws away the node the pointer is over, and a node that is removed never gets a mouseout of
-        // its own, so without this the tooltip is left on screen describing a bar that is no longer there.
-        if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.hide();
-        }
-
         this.settings.width = newWidth;
 
         this.renderBarplot();
@@ -143,9 +143,7 @@ export default class Barplot {
     }
 
     private renderBarplot(): void {
-        // Constructing a barplot on an element that already holds one has to replace it, not add a second one next to
-        // it.
-        this.element.innerHTML = "";
+        HostUtilities.clear(this.element, this.settings.tooltipContainer);
 
         const visElement = d3.select(this.element)
             .append("svg")
@@ -303,7 +301,6 @@ export default class Barplot {
         }
 
         // Instead of keeping track of n values per entry, we want to keep track of n bars with the entries
-        type StackedSegment = { barIndex: number, title: string, shape: d3.SeriesPoint<Bar> };
         const transposedStackedData: StackedSegment[][] =
             Array.from({ length: this.data.length }, () => []);
 
@@ -469,15 +466,17 @@ export default class Barplot {
         }
 
         if (this.settings.highlightOnHover) {
-            // Select all barplot-items and make them slightly transparent
-            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", true);
-            // Except for the current element, we want this one to stand out of the rest
-            d3.selectAll(`g[data-bar-item="${d.label}"]`).classed("barplot-item-highlighted", false);
+            const barplot = d3.select(this.element);
 
-            // Also select the legend entry with the same label and highlight the corresponding rectangle
-            d3.selectAll(".legend-item").classed("legend-item-highlighted", true);
+            // Everything is dimmed except the hovered category, which is what makes it stand out, and its entry in
+            // the legend. The category is matched on the datum d3 bound rather than through an attribute selector
+            // holding the label: labels are free text, and a taxon name carrying a quote or a bracket builds a
+            // selector that does not parse, which would throw out of this handler and leave the whole plot dimmed.
+            barplot.selectAll<SVGGElement, StackedSegment>(".barplot-item")
+                .classed("barplot-item-highlighted", segment => segment.title !== d.label);
 
-            d3.selectAll(`g[data-legend-entry="${d.label}"]`).classed("legend-item-highlighted", false);
+            barplot.selectAll<SVGGElement, string>(".legend-item")
+                .classed("legend-item-highlighted", label => label !== d.label);
         }
     }
 
@@ -497,11 +496,13 @@ export default class Barplot {
         }
 
         if (this.settings.highlightOnHover) {
+            const barplot = d3.select(this.element);
+
             // Stop highlighting of barplot items
-            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", false);
+            barplot.selectAll(".barplot-item").classed("barplot-item-highlighted", false);
 
             // Stop highlighting of the legend items
-            d3.selectAll(".legend-item").classed("legend-item-highlighted", false);
+            barplot.selectAll(".legend-item").classed("legend-item-highlighted", false);
         }
     }
 }
