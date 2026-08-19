@@ -1,4 +1,5 @@
-import {BarplotSettings} from "./BarplotSettings";
+import {BarplotSettings, BarplotChartSettings, BarplotLegendSettings} from "./BarplotSettings";
+import {VisualizationPadding} from "../../Settings";
 import * as d3 from "d3";
 import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
@@ -34,7 +35,24 @@ export default class Barplot {
 
     private fillOptions(options: any = undefined): BarplotSettings {
         const output = new BarplotSettings();
-        return Object.assign(output, options);
+        Object.assign(output, options);
+
+        // Object.assign is shallow, so a caller that passes a plain object mentioning only the nested settings it
+        // wants to change would otherwise replace the whole group and leave the rest of it undefined. Rendering then
+        // fails on the first default it reads back.
+        output.chart = this.fillGroup(new BarplotChartSettings(), options?.chart);
+        output.legend = this.fillGroup(new BarplotLegendSettings(), options?.legend);
+
+        return output;
+    }
+
+    /**
+     * Copy the given overrides over a group of settings, treating the padding inside it the same way the group itself
+     * is treated: every corner that is not mentioned keeps its default.
+     */
+    private fillGroup<T extends { padding: VisualizationPadding }>(defaults: T, options: any): T {
+        const padding = Object.assign({}, defaults.padding, options?.padding);
+        return Object.assign(defaults, options, { padding });
     }
 
     private renderBarplot(): void {
