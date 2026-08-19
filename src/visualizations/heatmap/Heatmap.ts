@@ -6,6 +6,7 @@ import {Reorderer} from "./reorder/Reorderer";
 import {HeatmapFeature} from "./HeatmapFeature";
 import {HeatmapValue} from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";
+import Tooltip from "./../../utilities/Tooltip";
 import {VisualizationPadding} from "./../../Settings";
 
 import CanvasRenderHelper from "./../../render/CanvasRenderHelper";
@@ -54,8 +55,6 @@ export default class Heatmap {
     private values: HeatmapValue[][];
     private valuesPerColor: Map<string, [number, number][]>;
 
-    // private tooltip: d3.Selection<HTMLDivElement, any, HTMLElement, any> | null = null;
-
     private originalViewPort: ViewPort;
     private currentViewPort: ViewPort;
 
@@ -66,9 +65,12 @@ export default class Heatmap {
     private textWidth: number;
     private textHeight: number;
 
-    private tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> | null = null;
+    private tooltip: Tooltip | null = null;
 
     private legendElement: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null;
+
+    // Set while the user pans or zooms the heatmap, so that the tooltip stays out of the way of the gesture.
+    private navigating: boolean = false;
 
     private highlightedRow: number = -1;
     private highlightedColumn: number = -1;
@@ -116,7 +118,7 @@ export default class Heatmap {
         this.valuesPerColor = preprocessor.orderPerColor(this.values);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = this.initTooltip();
+            this.tooltip = Tooltip.create(this.element, this.settings.tooltipContainer);
         }
 
         this.pixelRatio = window.devicePixelRatio || 1;
@@ -153,8 +155,15 @@ export default class Heatmap {
         const zoom = d3.zoom()
             .extent([[0, 0], [this.settings.width, this.gridHeight]])
             .scaleExtent([0.25, 12])
+            .on("start", () => {
+                this.navigating = true;
+                this.hideTooltip();
+            })
             .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
                 this.zoomed(event.transform);
+            })
+            .on("end", () => {
+                this.navigating = false;
             });
 
         // @ts-expect-error
@@ -1222,15 +1231,6 @@ export default class Heatmap {
         this.context.restore();
     }
 
-    private initTooltip() {
-        return d3.select("body")
-            .append("div")
-            .attr("class", "tip")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden");
-    }
-
     private findRowAndColForPosition(x: number, y: number): [number, number] {
         const dendrogramWidth = this.determineDendrogramWidth();
         const currentX = x - this.currentViewPort.xTop - dendrogramWidth;
@@ -1245,15 +1245,19 @@ export default class Heatmap {
     }
 
     private tooltipMove(event: MouseEvent) {
+        // Panning keeps the cursor moving over the heatmap, which would otherwise drag a tooltip along with it.
+        if (this.navigating) {
+            this.hideTooltip();
+            return;
+        }
+
         // Find out which element is situated under the current mouse position.
         // @ts-expect-error
         const rect = event.target.getBoundingClientRect();
         const [row, col] = this.findRowAndColForPosition(event.clientX - rect.left, event.clientY - rect.top);
 
         if (row < 0 || row >= this.rows.length || col < 0 || col >= this.columns.length) {
-            if (this.settings.enableTooltips && this.tooltip) {
-                this.tooltip.style("visibility", "hidden");
-            }
+            this.hideTooltip();
 
             this.highlightedRow = -1;
             this.highlightedColumn = -1;
@@ -1273,10 +1277,13 @@ export default class Heatmap {
         }
 
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.html(this.settings.getTooltip(this.values[row][col], this.rows[row], this.columns[col]))
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px")
-                .style("visibility", "visible");
+            this.tooltip.show(event, this.settings.getTooltip(this.values[row][col], this.rows[row], this.columns[col]));
+        }
+    }
+
+    private hideTooltip() {
+        if (this.settings.enableTooltips && this.tooltip) {
+            this.tooltip.hide();
         }
     }
 

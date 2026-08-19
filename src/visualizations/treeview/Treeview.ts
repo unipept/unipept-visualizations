@@ -4,7 +4,7 @@ import TreeviewSettings from "./TreeviewSettings";
 import TreeviewNode from "./TreeviewNode";
 import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
+import Tooltip from "./../../utilities/Tooltip";
 import { DataNodeLike } from "./../../DataNode";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
@@ -22,12 +22,15 @@ export default class Treeview {
 
     private visElement: d3.Selection<SVGGElement, any, d3.BaseType, unknown>;
 
-    private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+    private tooltip!: Tooltip;
 
     private zoomListener: d3.ZoomBehavior<any, any>;
     private tooltipTimer!: number;
 
     private zoomScale: number = 1;
+
+    // Set while the user pans or zooms the tree, so that the tooltip stays out of the way of the gesture.
+    private navigating: boolean = false;
 
     private svg: any;
 
@@ -39,7 +42,7 @@ export default class Treeview {
         this.settings = this.fillOptions(options);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip();
+            this.tooltip = Tooltip.create(this.element, this.settings.tooltipContainer);
         }
 
         const dataProcessor = new TreeviewPreprocessor();
@@ -81,9 +84,16 @@ export default class Treeview {
         this.zoomListener = d3.zoom()
             .extent([[0, 0], [this.settings.width, this.settings.height]])
             .scaleExtent([0.1, 3])
+            .on("start", () => {
+                this.navigating = true;
+                this.tooltipOut();
+            })
             .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
                 this.zoomScale = event.transform.k;
                 this.visElement.attr("transform", event.transform.toString())
+            })
+            .on("end", () => {
+                this.navigating = false;
             })
 
         this.visElement = this.svg.call(this.zoomListener).append("g");
@@ -188,7 +198,7 @@ export default class Treeview {
             .attr("transform", `translate(${source.y || 0},${source.data.previousPosition.x || 0})`)
             .on("click", (event: MouseEvent, d: HPN<TreeviewNode>) => this.click(event, d))
             .on("mouseover", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipIn(event, d))
-            .on("mouseout", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipOut(event, d))
+            .on("mouseout", () => this.tooltipOut())
             .on("contextmenu", (event: MouseEvent, d: HPN<TreeviewNode>) => this.rightClick(event, d));
 
         nodeEnter.append("circle")
@@ -359,19 +369,16 @@ export default class Treeview {
     }
 
     private tooltipIn(event: MouseEvent, d: HPN<TreeviewNode>) {
-        if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.html(this.settings.getTooltip(d.data))
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
-
-            this.tooltipTimer = window.setTimeout(() => this.tooltip.style("visibility", "visible"), 1000);
+        if (this.settings.enableTooltips && this.tooltip && !this.navigating) {
+            const content = this.settings.getTooltip(d.data);
+            this.tooltipTimer = window.setTimeout(() => this.tooltip.show(event, content), 1000);
         }
     }
 
-    private tooltipOut(_event: MouseEvent, _d: HPN<TreeviewNode>) {
+    private tooltipOut() {
         if (this.settings.enableTooltips && this.tooltip) {
             clearTimeout(this.tooltipTimer);
-            this.tooltip.style("visibility", "hidden");
+            this.tooltip.hide();
         }
     }
 

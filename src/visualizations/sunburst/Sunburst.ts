@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import SunburstSettings from "./SunburstSettings";
 import SunburstPreprocessor from "./SunburstPreprocessor";
 import DataNode, { DataNodeLike } from "./../../DataNode";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
+import Tooltip from "./../../utilities/Tooltip";
 import NodeUtils from "./../../utilities/NodeUtils";
 import StyleUtilities from "./../../utilities/StyleUtilities";
 import ColorUtils from "./../../color/ColorUtils";
@@ -15,7 +15,7 @@ export default class Sunburst {
     private readonly settings: SunburstSettings;
     private readonly data: HRN<DataNode>[];
 
-    private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+    private tooltip!: Tooltip;
     private breadCrumbs: d3.Selection<HTMLUListElement, unknown, HTMLElement, any>;
 
     private colorCounter: number = -1;
@@ -71,7 +71,7 @@ export default class Sunburst {
         const processedData = preprocessor.preprocessData(data);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip();
+            this.tooltip = Tooltip.create(this.element, this.settings.tooltipContainer);
         }
 
         this.currentMaxLevel = this.settings.levels;
@@ -308,25 +308,20 @@ export default class Sunburst {
     private tooltipIn(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
             if (d.depth < this.currentMaxLevel && d.data.name !== "empty") {
-                this.tooltip.html(this.settings.getTooltip(d.data))
-                    .style("top", (event.pageY + 10) + "px")
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("visibility", "visible");
+                this.tooltip.show(event, this.settings.getTooltip(d.data));
             }
         }
     }
 
     private tooltipMove(event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            this.tooltip.move(event);
         }
     }
 
     private tooltipOut(_event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.style("visibility", "hidden");
+            this.tooltip.hide();
         }
     }
 

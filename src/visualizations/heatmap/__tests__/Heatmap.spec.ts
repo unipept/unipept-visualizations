@@ -336,6 +336,88 @@ describe("Heatmap", () => {
         expect(heatmap.toSVG()).not.toContain("class=\"legend\"");
     });
 
+    function mouseEvent(jsDom: JSDOM, type: string, x: number, y: number): MouseEvent {
+        return new jsDom.window.MouseEvent(type, {
+            view: jsDom.window as unknown as Window,
+            bubbles: true,
+            clientX: x,
+            clientY: y
+        });
+    }
+
+    function hoverAValue(jsDom: JSDOM): void {
+        jsDom.window.document.getElementsByTagName("canvas").item(0)!
+            .dispatchEvent(mouseEvent(jsDom, "mousemove", 100, 50));
+    }
+
+    it("should create the tooltip in the configured container", async() => {
+        const jsDom = createJSDom();
+
+        const container = jsDom.window.document.createElement("div");
+        container.id = "fullscreen";
+        jsDom.window.document.body.appendChild(container);
+
+        const settings = new HeatmapSettings();
+        settings.tooltipContainer = "#fullscreen";
+
+        await createHeatmap(jsDom, settings);
+        hoverAValue(jsDom);
+
+        expect(container.querySelectorAll(".tip")).toHaveLength(1);
+        expect(jsDom.window.document.querySelectorAll("body > .tip")).toHaveLength(0);
+    });
+
+    it("should share the tooltip element with a second heatmap", async() => {
+        const jsDom = createJSDom();
+
+        await createHeatmap(jsDom, new HeatmapSettings());
+        await createHeatmap(jsDom, new HeatmapSettings());
+        hoverAValue(jsDom);
+
+        expect(jsDom.window.document.querySelectorAll(".tip")).toHaveLength(1);
+    });
+
+    it("should show a tooltip inside the element it renders in when that is the tooltip container", async() => {
+        const jsDom = createJSDom();
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        // The natural choice for an application that puts this element in fullscreen, and the element the heatmap
+        // empties while it is being built.
+        const settings = new HeatmapSettings();
+        settings.tooltipContainer = element;
+
+        await createHeatmap(jsDom, settings);
+        hoverAValue(jsDom);
+
+        const tooltip = element.querySelector(".tip") as HTMLElement;
+        expect(tooltip).not.toBeNull();
+        expect(tooltip.style.visibility).toEqual("visible");
+    });
+
+    it("should keep the tooltip hidden while the heatmap is being dragged", async() => {
+        const jsDom = createJSDom();
+        await createHeatmap(jsDom, new HeatmapSettings());
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
+
+        hoverAValue(jsDom);
+
+        const tooltip = jsDom.window.document.querySelector(".tip") as HTMLElement;
+        expect(tooltip.style.visibility).toEqual("visible");
+
+        // Pressing the mouse button starts a pan gesture, which lasts until the button is released again.
+        canvas.dispatchEvent(mouseEvent(jsDom, "mousedown", 100, 50));
+        expect(tooltip.style.visibility).toEqual("hidden");
+
+        canvas.dispatchEvent(mouseEvent(jsDom, "mousemove", 120, 60));
+        expect(tooltip.style.visibility).toEqual("hidden");
+
+        jsDom.window.dispatchEvent(mouseEvent(jsDom, "mouseup", 120, 60));
+
+        canvas.dispatchEvent(mouseEvent(jsDom, "mousemove", 140, 70));
+        expect(tooltip.style.visibility).toEqual("visible");
+    });
+
     afterAll(async() => {
         await browser.close();
 
