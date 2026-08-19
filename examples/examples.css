@@ -1,0 +1,314 @@
+/*
+ * Shared styling for the example gallery and the individual example pages.
+ *
+ * Loaded by index.html and by every *.html example next to it. The pages carry
+ * no styles of their own, so this is the only place the theme is defined.
+ */
+
+:root {
+    /* `light dark` keeps the browser's own surfaces — scrollbars, form
+       controls, the canvas behind the page — following the system setting.
+       Every token below is a light-dark() pair, so nothing needs a media
+       query to switch with it. */
+    color-scheme: light dark;
+    accent-color: var(--accent);
+
+    --bg: light-dark(#ffffff, #101014);
+    --bg-raised: light-dark(#f7f7f9, #18181e);
+    --bg-sunken: light-dark(#eeeef2, #0b0b0e);
+    --text: light-dark(#16161a, #f2f2f5);
+    --text-dim: light-dark(#5b5b66, #a0a0ae);
+    --border: light-dark(#dcdce4, #2a2a34);
+    --accent: light-dark(#a0248c, #f472d0);
+    --accent-text: light-dark(#ffffff, #1a0417);
+
+    --shadow:
+        0 1px 2px light-dark(rgba(20, 20, 30, .06), rgba(0, 0, 0, .4)),
+        0 8px 24px light-dark(rgba(20, 20, 30, .06), rgba(0, 0, 0, .3));
+    --shadow-hover:
+        0 2px 4px light-dark(rgba(20, 20, 30, .08), rgba(0, 0, 0, .5)),
+        0 16px 40px light-dark(rgba(20, 20, 30, .12), rgba(0, 0, 0, .45));
+
+    --font: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.6;
+    margin: 0;
+}
+
+a { color: inherit; }
+
+/* Axis-specific only: `.wrap` also matches <main> and <footer> and
+   out-specifies them, so a `margin`/`padding` shorthand here would silently
+   drop whatever block-axis spacing those elements set for themselves. */
+.wrap { margin-inline: auto; max-width: 70rem; padding-inline: 1.5rem; }
+
+.section-label {
+    align-items: baseline;
+    color: var(--text-dim);
+    display: flex;
+    font-size: .78rem;
+    font-weight: 500;
+    gap: 1rem;
+    letter-spacing: .09em;
+    margin: 0 0 1.75rem;
+    text-transform: uppercase;
+}
+.section-label::after {
+    background: var(--border);
+    content: "";
+    flex: 1 1 1.5rem;
+    height: 1px;
+    min-width: 1.5rem;
+}
+
+
+/* ============================ gallery (index) ============================ */
+
+.hero {
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border);
+    padding: 4.5rem 0 3.5rem;
+}
+.hero h1 {
+    font-size: clamp(2rem, 5.5vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -.025em;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+}
+.tagline {
+    color: var(--text-dim);
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    margin: 0 0 2rem;
+    max-width: 46rem;
+}
+.tagline strong { color: var(--text); font-weight: 500; }
+
+.actions { align-items: center; display: flex; flex-wrap: wrap; gap: .75rem; }
+code.install {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    font-family: var(--font-mono);
+    font-size: .9rem;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: .6rem .9rem;
+    white-space: nowrap;
+}
+code.install::before { color: var(--text-dim); content: "$ "; }
+
+.btn {
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    font-size: .9rem;
+    font-weight: 500;
+    padding: .6rem 1rem;
+    text-decoration: none;
+    transition: background .15s, border-color .15s;
+}
+.btn:hover { background: var(--bg-sunken); border-color: var(--text-dim); }
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+}
+.btn-primary:hover { background: var(--accent); border-color: var(--accent); filter: brightness(1.1); }
+
+.gallery { padding-block: 4rem 1rem; }
+.grid {
+    display: grid;
+    gap: 1.75rem;
+    /* min() so a 20rem track cannot outgrow a narrower viewport. */
+    grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+    margin: 0;
+    padding: 0;
+}
+.card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s;
+}
+.card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.card.wide { grid-column: 1 / -1; }
+
+.thumb {
+    /* The visualizations draw dark text and thin strokes on an assumed light
+       ground, so the preview keeps its own light scheme in either theme. */
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    color-scheme: light;
+    display: block;
+    overflow: hidden;
+}
+.thumb img {
+    aspect-ratio: var(--thumb-aspect, 16 / 10);
+    display: block;
+    object-fit: contain;
+    padding: .5rem;
+    transition: transform .3s ease;
+    width: 100%;
+}
+.card:hover .thumb img { transform: scale(1.015); }
+
+.body { display: flex; flex-direction: column; flex: 1; gap: .5rem; padding: 1.25rem 1.35rem 1.35rem; }
+.body h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+.body p { color: var(--text-dim); font-size: .93rem; margin: 0; }
+
+.card-foot {
+    align-items: baseline;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: auto;
+    padding-top: .9rem;
+}
+.links-label {
+    color: var(--text-dim);
+    flex: 0 0 100%;
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .07em;
+    margin: 0;
+    text-transform: uppercase;
+}
+.links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.links a {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: .82rem;
+    padding: .25rem .7rem;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+}
+.links a:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.docs { margin-left: auto; }
+.docs a { color: var(--text-dim); font-size: .82rem; text-decoration: none; white-space: nowrap; }
+.docs a:hover { color: var(--accent); text-decoration: underline; }
+
+
+/* ========================== individual examples ========================== */
+
+.topbar {
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border);
+    padding-block: .9rem;
+}
+.topbar .wrap { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; }
+.topbar a { text-decoration: none; }
+.crumb-home { color: var(--text-dim); font-size: .9rem; }
+.crumb-home:hover { color: var(--accent); text-decoration: underline; }
+.crumb-sep { color: var(--border); }
+.crumb { font-size: .9rem; font-weight: 500; }
+.topbar .docs { margin-left: auto; }
+
+.example { padding-block: 2.75rem 4rem; }
+.example h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    margin: 0 0 .75rem;
+}
+.lede {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin: 0 0 2rem;
+    max-width: 48rem;
+}
+.lede code, .example p code {
+    background: var(--bg-sunken);
+    border-radius: .3rem;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: .88em;
+    padding: .1em .35em;
+}
+
+.stage {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    box-shadow: var(--shadow);
+    /* Same reason as .thumb: the visualizations assume a light ground, and
+       this also keeps any scrollbar on the stage light rather than dark. */
+    color-scheme: light;
+    color: #16161a;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.25rem;
+}
+/* The visualizations are laid out at a fixed pixel size, so they are narrower
+   than the stage on a wide screen. `fit-content` shrinks the wrapper onto the
+   drawing, and auto margins then centre it; when the drawing is the wider of
+   the two the margins collapse to zero and the stage scrolls instead. */
+.stage > div { margin-inline: auto; width: fit-content; }
+/* Several examples stack more than one visualization on a single stage. */
+.stage > * + * { border-top: 1px solid #eeeef2; margin-top: 1.25rem; padding-top: 1.25rem; }
+
+.controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.controls button {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 500;
+    padding: .5rem 1rem;
+    transition: background .15s, border-color .15s;
+}
+.controls button:hover { background: var(--bg-sunken); border-color: var(--text-dim); }
+
+.source { margin-top: 3rem; }
+.source pre {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    font-size: .85rem;
+    line-height: 1.6;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.1rem 1.25rem;
+    tab-size: 4;
+}
+.source code { font-family: var(--font-mono); }
+
+
+/* ================================ footer ================================ */
+
+footer {
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: .88rem;
+    margin-top: 4rem;
+    padding-block: 2.5rem 3.5rem;
+}
+footer p { margin: 0 0 .6rem; }
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }

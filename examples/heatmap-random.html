@@ -1,78 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Heatmap example</title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Heatmap of random values &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <!-- D3 v7 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Heatmap &middot; Random values</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs &rarr;</a></span>
+  </div>
+</header>
 
-        <style>
-            body {
-                margin: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="heatmap"></div>
+<main class="wrap example">
+  <h1>Heatmap of random values</h1>
+  <p class="lede">A 50 &times; 100 grid of random numbers, rendered to a canvas rather than to SVG so that grids of a
+    few hundred cells on a side stay interactive. <strong>Cluster</strong> runs UPGMA clustering and
+    animates the rows and columns into their new order; <strong>Resize</strong> redraws the same data
+    at 1000 &times; 1000 pixels.</p>
 
-        <div style="text-align: center;">
-            <button id="cluster">Cluster!</button>
-            <button id="resize">Resize!</button>
-        </div>
+  <figure class="stage"><div id="heatmap"></div></figure>
 
-        <script type="module">
-            import {Heatmap} from "../dist/unipept-visualizations.js";
+  <div class="controls">
+    <button id="cluster" type="button">Cluster</button>
+    <button id="resize" type="button">Resize</button>
+  </div>
 
-            const amountOfRows = 50;
-            const amountOfColumns = 100;
+<script type="module" data-source>
+    import { Heatmap } from "../dist/unipept-visualizations.js";
 
-            function getRandomData(rows, columns) {
-                const output = [];
+    const rowCount = 50;
+    const columnCount = 100;
 
-                for (let i = 0; i < rows; i++) {
-                    const row = [];
-                    for (let j = 0; j < columns; j++) {
-                        row.push(Math.random());
-                    }
-                    output.push(row);
-                }
+    const values = Array.from(
+        { length: rowCount },
+        () => Array.from({ length: columnCount }, () => Math.random())
+    );
+    const rows = Array.from({ length: rowCount }, (_, i) => `Family ${i}`);
+    const columns = Array.from({ length: columnCount }, (_, i) => `Sample ${i}`);
 
-                return output;
-            }
+    const element = document.getElementById("heatmap");
+    const heatmap = new Heatmap(element, values, rows, columns, {
+        width: 1000,
+        height: 600
+    });
 
-            const randomData = getRandomData(amountOfRows, amountOfColumns);
+    document.getElementById("cluster").addEventListener("click", () => heatmap.cluster());
+    document.getElementById("resize").addEventListener("click", () => heatmap.resize(1000, 1000));
+</script>
 
-            const rows = [];
-            const cols = [];
-            const grid = [];
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
 
-            for (let i = 0; i < amountOfRows; i++) {
-                rows.push("Family " + i);
-            }
-
-            for (let i = 0; i < amountOfColumns; i++) {
-                cols.push("Sample " + i);
-            }
-
-            const heatmapElement = document.getElementById("heatmap");
-
-            if (heatmapElement) {
-                let heatmap = new Heatmap(heatmapElement, randomData, rows, cols, {
-                    width: window.innerWidth,
-                    height: window.innerHeight - 50
-                });
-
-                document.getElementById("cluster")
-                    .addEventListener("click", () => {
-                        heatmap.cluster();
-                    });
-
-                document.getElementById("resize")
-                    .addEventListener("click", () => {
-                        heatmap.resize(1000, 1000);
-                    });
-            }
-        </script>
-    </body>
+<script type="module" src="examples.js"></script>
+</body>
 </html>

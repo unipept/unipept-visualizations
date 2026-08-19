@@ -1,29 +1,58 @@
-<html>
-    <head>
-        <title>Sunburst example</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Sunburst of the flare hierarchy &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    </head>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Sunburst &middot; Flare</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs &rarr;</a></span>
+  </div>
+</header>
 
-    <body>
-        <div id="d3Sunburst"></div>
+<main class="wrap example">
+  <h1>Sunburst of the flare hierarchy</h1>
+  <p class="lede">D3's <em>flare</em> sample data in a sunburst. <code>useFixedColors</code> pulls each arc's colour
+    from a fixed palette, and <code>enableTooltips: false</code> leaves the rings unannotated.</p>
 
-        <script type="module">
-            import {Sunburst} from "../dist/unipept-visualizations.js";
+  <figure class="stage"><div id="d3Sunburst"></div></figure>
 
-            d3.json("data/flare.json").then(data => {
-                new Sunburst(
-                    document.getElementById("d3Sunburst"),
-                    data,
-                    {
-                        width: 600,
-                        height: 600,
-                        enableTooltips: false,
-                        fixedColors: true
-                    }
-                );
-            });
-        </script>
-    </body>
+<script type="module" data-source>
+    import { Sunburst } from "../dist/unipept-visualizations.js";
+
+    d3.json("data/flare.json").then(data => {
+        new Sunburst(
+            document.getElementById("d3Sunburst"),
+            data,
+            {
+                width: 600,
+                height: 600,
+                enableTooltips: false,
+                useFixedColors: true
+            }
+        );
+    });
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>
-

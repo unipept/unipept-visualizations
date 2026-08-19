@@ -1,51 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Heatmap example</title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Clustered heatmap with dendrograms &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <!-- D3 v7 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Heatmap &middot; Clustered CSV</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs &rarr;</a></span>
+  </div>
+</header>
 
-        <style>
-            body {
-                margin: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="heatmap"></div>
+<main class="wrap example">
+  <h1>Clustered heatmap with dendrograms</h1>
+  <p class="lede">A CSV of pre-computed values, with the first column holding the row labels and every other column a
+    sample. <code>dendrogramEnabled: true</code> adds the two trees along the top and left edge, which
+    show how the rows and columns were grouped by the clustering.</p>
 
-        <script type="module">
-            import {Heatmap} from "../dist/unipept-visualizations.js";
+  <figure class="stage"><div id="heatmap"></div></figure>
 
-            d3.csv("data/clusters.csv").then(data => {
-                const items = [];
-                const rows = [];
-                const columns = Object.keys(data[0]).filter(k => k !== "Family");
+<script type="module" data-source>
+    import { Heatmap } from "../dist/unipept-visualizations.js";
 
-                for (const row of data) {
-                    const newRow = [];
-                    for (const [key, value] of Object.entries(row)) {
-                        if (key === "Family") {
-                            rows.push(value);
-                        } else {
-                            newRow.push(Number.parseFloat(value));
-                        }
-                    }
-                    items.push(newRow);
-                }
+    d3.csv("data/clusters.csv").then(data => {
+        const columns = Object.keys(data[0]).filter(key => key !== "Family");
+        const rows = data.map(row => row.Family);
+        const values = data.map(row => columns.map(column => Number.parseFloat(row[column])));
 
-                const heatmapElement = document.getElementById("heatmap");
+        const element = document.getElementById("heatmap");
+        new Heatmap(element, values, rows, columns, {
+            width: 1000,
+            height: 600,
+            dendrogramEnabled: true
+        });
+    });
+</script>
 
-                if (heatmapElement) {
-                    new Heatmap(heatmapElement, items, rows, columns, {
-                        width: window.innerWidth,
-                        height: window.innerHeight - 50,
-                        dendrogramEnabled: true
-                    });
-                }
-            });
-        </script>
-    </body>
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>

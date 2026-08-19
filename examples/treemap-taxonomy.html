@@ -1,31 +1,69 @@
-<html>
-    <head>
-        <title>Treemap example</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Treemap of a taxonomic tree &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <!-- D3 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    </head>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Treemap &middot; Taxonomy</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treemap">Docs &rarr;</a></span>
+  </div>
+</header>
 
-    <body>
-        <div id="d3Treemap"></div>
+<main class="wrap example">
+  <h1>Treemap of a taxonomic tree</h1>
+  <p class="lede">The taxonomy as nested rectangles, each sized by the number of hits below it. Click a rectangle to
+    descend into it and use the breadcrumb bar to come back up. <code>getLevel</code> is the interesting
+    part: instead of the default node depth it returns the index of the node's taxonomic rank, so colour
+    follows rank rather than distance from the root, and <code>levels</code> tells the treemap how many
+    of those ranks exist.</p>
 
-        <script type="module">
-            import {Treemap} from "./../dist/unipept-visualizations.js";
+  <figure class="stage"><div id="d3Treemap"></div></figure>
 
-            d3.json("data/taxonomy.json").then(data => {
-                const ranks = ["no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder", "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe", "genus", "subgenus", "species group", "species subgroup", "species", "subspecies", "varietas", "forma"];
+<script type="module" data-source>
+    import { Treemap } from "../dist/unipept-visualizations.js";
 
-                new Treemap(
-                    document.getElementById("d3Treemap"),
-                    data,
-                    {
-                        width: 900,
-                        height: 600,
-                        levels: ranks.length,
-                        getLevel: (d) => ranks.indexOf(d.data.extra.rank)
-                    }
-                );
-            });
-        </script>
-    </body>
+    const ranks = [
+        "no rank", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum",
+        "superclass", "class", "subclass", "infraclass", "superorder", "order", "suborder",
+        "infraorder", "parvorder", "superfamily", "family", "subfamily", "tribe", "subtribe",
+        "genus", "subgenus", "species group", "species subgroup", "species", "subspecies",
+        "varietas", "forma"
+    ];
+
+    d3.json("data/taxonomy.json").then(data => {
+        new Treemap(
+            document.getElementById("d3Treemap"),
+            data,
+            {
+                width: 900,
+                height: 600,
+                levels: ranks.length,
+                getLevel: d => ranks.indexOf(d.data.extra.rank)
+            }
+        );
+    });
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>
