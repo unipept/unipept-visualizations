@@ -5,6 +5,7 @@ import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
 import Tooltip from "../../utilities/Tooltip";
 import StyleUtilities from "../../utilities/StyleUtilities";
+import HostElement from "../../utilities/HostElement";
 
 /**
  * Height (in pixels) of the x-axis: its tick marks, their labels and the title underneath them.
@@ -143,9 +144,7 @@ export default class Barplot {
     }
 
     private renderBarplot(): void {
-        // Constructing a barplot on an element that already holds one has to replace it, not add a second one next to
-        // it.
-        this.element.innerHTML = "";
+        HostElement.clear(this.element, this.settings.tooltipContainer);
 
         const visElement = d3.select(this.element)
             .append("svg")
@@ -469,15 +468,17 @@ export default class Barplot {
         }
 
         if (this.settings.highlightOnHover) {
+            const barplot = d3.select(this.element);
+
             // Select all barplot-items and make them slightly transparent
-            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", true);
+            barplot.selectAll(".barplot-item").classed("barplot-item-highlighted", true);
             // Except for the current element, we want this one to stand out of the rest
-            d3.selectAll(`g[data-bar-item="${d.label}"]`).classed("barplot-item-highlighted", false);
+            barplot.selectAll(`g[data-bar-item="${d.label}"]`).classed("barplot-item-highlighted", false);
 
             // Also select the legend entry with the same label and highlight the corresponding rectangle
-            d3.selectAll(".legend-item").classed("legend-item-highlighted", true);
+            barplot.selectAll(".legend-item").classed("legend-item-highlighted", true);
 
-            d3.selectAll(`g[data-legend-entry="${d.label}"]`).classed("legend-item-highlighted", false);
+            barplot.selectAll(`g[data-legend-entry="${d.label}"]`).classed("legend-item-highlighted", false);
         }
     }
 
@@ -497,11 +498,13 @@ export default class Barplot {
         }
 
         if (this.settings.highlightOnHover) {
+            const barplot = d3.select(this.element);
+
             // Stop highlighting of barplot items
-            d3.selectAll(".barplot-item").classed("barplot-item-highlighted", false);
+            barplot.selectAll(".barplot-item").classed("barplot-item-highlighted", false);
 
             // Stop highlighting of the legend items
-            d3.selectAll(".legend-item").classed("legend-item-highlighted", false);
+            barplot.selectAll(".legend-item").classed("legend-item-highlighted", false);
         }
     }
 }

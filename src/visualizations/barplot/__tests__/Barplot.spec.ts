@@ -196,6 +196,36 @@ describe("Barplot", () => {
         expect(element.className.split(/\s+/).filter((name: string) => name === "barplot")).toHaveLength(1);
     });
 
+    // The document of the test environment rather than a JSDOM of its own: a selection that is not scoped to one
+    // barplot reaches across the whole document, and a barplot in a document nothing else lives in cannot show that.
+    it("should highlight only the barplot the cursor is over", async() => {
+        document.body.innerHTML = "";
+
+        const hosts = ["first", "second"].map(id => {
+            const host = document.createElement("div");
+            host.id = id;
+            document.body.appendChild(host);
+            return host;
+        });
+
+        for (const host of hosts) {
+            const settings = new BarplotSettings();
+            settings.width = 800;
+            settings.height = 800;
+            new Barplot(host, bars(), settings);
+            await waitForCondition(() => host.getElementsByTagName("svg").length > 0, 2000, 500);
+        }
+
+        const [first, second] = hosts;
+        first.querySelector(".barplot-item")!.dispatchEvent(
+            new MouseEvent("mouseover", { clientX: 10, clientY: 10 })
+        );
+
+        expect(first.getElementsByClassName("barplot-item-highlighted").length).toBeGreaterThan(0);
+        expect(second.getElementsByClassName("barplot-item-highlighted")).toHaveLength(0);
+        expect(second.getElementsByClassName("legend-item-highlighted")).toHaveLength(0);
+    });
+
     it("should keep the defaults of the nested settings that are not given", async() => {
         // A plain object literal is what a user of the library passes in, and it only mentions what it changes. The
         // cast is what that costs in TypeScript: the constructor asks for a complete BarplotSettings.

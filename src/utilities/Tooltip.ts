@@ -60,6 +60,28 @@ export default class Tooltip {
     }
 
     /**
+     * Hides the tooltip that belongs to the given container, if one was ever made for it.
+     *
+     * Static because the visualization that has to take a tooltip down is not necessarily the one that put it up: the
+     * tooltip is shared per container, and a visualization that runs with tooltips disabled holds no instance at all
+     * while a tooltip of a sibling may well be on screen. Hiding whatever the container has costs that sibling
+     * nothing more than a tooltip that returns on the next mouse move.
+     *
+     * Nothing is created here. A container that never showed a tooltip has none to hide, and an unresolvable
+     * container selector is left to whoever asks for a tooltip to actually show.
+     *
+     * @param reference An element of the visualization the tooltip belongs to, as in {@link create}.
+     * @param container The container the tooltip was created in, or a selector for it.
+     */
+    public static hideFor(reference: HTMLElement, container: HTMLElement | string | null = null): void {
+        const parent = Tooltip.findContainer(reference, container);
+
+        if (parent) {
+            Tooltip.instances.get(parent)?.hide();
+        }
+    }
+
+    /**
      * Fills the tooltip with the given content, moves it to the mouse cursor and shows it.
      */
     public show(event: MouseEvent, content: string): void {
@@ -163,6 +185,16 @@ export default class Tooltip {
     }
 
     private static resolveContainer(reference: HTMLElement, container: HTMLElement | string | null): HTMLElement {
+        const resolved = Tooltip.findContainer(reference, container);
+
+        if (!resolved) {
+            throw new Error(`No element matches the tooltip container selector "${container}".`);
+        }
+
+        return resolved;
+    }
+
+    private static findContainer(reference: HTMLElement, container: HTMLElement | string | null): HTMLElement | null {
         if (!container) {
             return reference.ownerDocument.body;
         }
@@ -171,13 +203,7 @@ export default class Tooltip {
             return container;
         }
 
-        const resolved = reference.ownerDocument.querySelector<HTMLElement>(container);
-
-        if (!resolved) {
-            throw new Error(`No element matches the tooltip container selector "${container}".`);
-        }
-
-        return resolved;
+        return reference.ownerDocument.querySelector<HTMLElement>(container);
     }
 
     /**

@@ -146,6 +146,24 @@ describe("Tooltip", () => {
         expect((tooltipElements(dom)[0] as HTMLElement).style.visibility).toEqual("hidden");
     });
 
+    it("should hide the tooltip of a container without being handed its instance", () => {
+        const dom = createTestDom();
+
+        Tooltip.create(reference(dom)).show(mouseEvent(100, 50), "<div>Bacteria</div>");
+        Tooltip.hideFor(reference(dom));
+
+        expect((tooltipElements(dom)[0] as HTMLElement).style.visibility).toEqual("hidden");
+    });
+
+    it("should not create a tooltip for a container that never showed one", () => {
+        const dom = createTestDom();
+
+        Tooltip.hideFor(reference(dom));
+        Tooltip.hideFor(reference(dom), "#nothing");
+
+        expect(tooltipElements(dom)).toHaveLength(0);
+    });
+
     it("should leave the styling of the tooltip to the application", () => {
         const dom = createTestDom();
         const style = dom.window.document.createElement("style");

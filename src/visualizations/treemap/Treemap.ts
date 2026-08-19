@@ -3,6 +3,7 @@ import TreemapSettings from "./TreemapSettings";
 import DataNode, { DataNodeLike } from "./../../DataNode";
 import Tooltip from "./../../utilities/Tooltip";
 import StyleUtilities from "./../../utilities/StyleUtilities";
+import HostElement from "./../../utilities/HostElement";
 import ColorUtils from "./../../color/ColorUtils";
 import TreemapPreprocessor from "./TreemapPreprocessor";
 
@@ -70,9 +71,7 @@ export default class Treemap {
             // @ts-expect-error
             .interpolate(d3.interpolateLab);
 
-        // Constructing a treemap on an element that already holds one has to replace it, not add a second one next to
-        // it.
-        this.element.innerHTML = "";
+        HostElement.clear(this.element, this.settings.tooltipContainer);
 
         // @ts-expect-error
         this.breadCrumbs = d3.select(this.element)
