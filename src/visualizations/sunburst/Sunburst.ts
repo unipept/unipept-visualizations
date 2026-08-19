@@ -433,8 +433,14 @@ export default class Sunburst {
         const newData = filteredData.filter((x: HRN<DataNode>) => !this.textData.includes(x));
         const data = this.textData.concat(...newData);
 
-        if (parentNode.parent) {
-            data.splice(data.indexOf(parentNode.parent), 1);
+        // The parent of the node that is being zoomed into sits in the ring around it, where there is no room for a
+        // label. It is only present when it was already on screen before this render: rerooting straight to a node
+        // that was not drawn yet reaches this with a parent that is absent, and splicing at the -1 that indexOf then
+        // returns would drop the last label of an unrelated node.
+        const parentIndex = parentNode.parent ? data.indexOf(parentNode.parent) : -1;
+
+        if (parentIndex !== -1) {
+            data.splice(parentIndex, 1);
         }
 
         // The font-size callback below has to be a `function` so that d3 binds
