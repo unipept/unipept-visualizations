@@ -52,14 +52,23 @@ export default class BarplotPreprocessor {
 
             return {
                 label: bar.label,
-                items: [
-                    ...sortedBarItems,
-                    {label: "Other", counts: otherCount}
-                ]
+                items: sortedBarItems,
+                otherCount
             };
         });
 
-        return outputBars;
+        // "Other" is either in every bar or in none of them: the bars are drawn
+        // as aligned stacks sharing one colour scale, so a category present in
+        // one has to be present in all. Dropping it when nothing was binned
+        // there keeps an empty entry out of the legend.
+        if (outputBars.every(bar => bar.otherCount === 0)) {
+            return outputBars.map(({label, items}) => ({label, items}));
+        }
+
+        return outputBars.map(({label, items, otherCount}) => ({
+            label,
+            items: [...items, {label: "Other", counts: otherCount}]
+        }));
     }
 
     /**

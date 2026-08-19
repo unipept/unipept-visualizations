@@ -70,6 +70,27 @@ describe("BarplotPreprocessor", () => {
             expect(JSON.stringify(input)).toEqual(before);
         });
 
+        it("should leave Other out entirely when no bar bins anything into it", () => {
+            const complete: Bar[] = [
+                { label: "Sample 1", items: [{ label: "a", counts: 1 }, { label: "b", counts: 2 }] },
+                { label: "Sample 2", items: [{ label: "a", counts: 3 }, { label: "b", counts: 4 }] }
+            ];
+
+            for (const bar of preprocessor.computeMaxItemsInBars(complete, undefined)) {
+                expect(bar.items.map(item => item.label)).toEqual(["b", "a"]);
+            }
+        });
+
+        it("should add Other to every bar as soon as one of them needs it", () => {
+            // Only the second bar has a category the first does not, but the
+            // bars are drawn as aligned stacks, so both have to carry "Other".
+            const output = preprocessor.computeMaxItemsInBars(bars(), undefined);
+
+            expect(output.map(bar => bar.items.at(-1)!.label)).toEqual(["Other", "Other"]);
+            expect(itemsOf(output[0]).Other).toEqual(0);
+            expect(itemsOf(output[1]).Other).toEqual(3);
+        });
+
         it("should keep every bar", () => {
             const output = preprocessor.computeMaxItemsInBars(bars(), 1);
 
