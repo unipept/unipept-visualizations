@@ -87,6 +87,23 @@ describe("Treemap", () => {
         expect(nodeFromCallback!.name).toEqual("Bacteria");
     });
 
+    it("should replace the previous treemap when constructed again on the same element", async() => {
+        const jsDom = createJSDom();
+        await createTreemap(jsDom, new TreemapSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const nodes = element.getElementsByClassName("node").length;
+        const children = element.children.length;
+        const styles = jsDom.window.document.head.getElementsByTagName("style").length;
+
+        await createTreemap(jsDom, new TreemapSettings());
+
+        expect(element.getElementsByClassName("node").length).toEqual(nodes);
+        expect(element.children.length).toEqual(children);
+        expect(jsDom.window.document.head.getElementsByTagName("style").length).toEqual(styles);
+        expect(element.className.split(/\s+/).filter((name: string) => name === "treemap")).toHaveLength(1);
+    });
+
     afterAll(async() => {
         await browser.close();
     });
