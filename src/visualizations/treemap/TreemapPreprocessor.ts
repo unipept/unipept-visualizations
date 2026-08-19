@@ -1,4 +1,4 @@
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode.js";
 
 export default class TreemapPreprocessor {
     private static idCounter: number = 0;

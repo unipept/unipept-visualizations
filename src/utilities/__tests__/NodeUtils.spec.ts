@@ -1,4 +1,4 @@
-import NodeUtils from "./../NodeUtils";
+import NodeUtils from "./../NodeUtils.js";
 
 /**
  * Links every node to its parent, the way d3.hierarchy() does. isParentOf walks

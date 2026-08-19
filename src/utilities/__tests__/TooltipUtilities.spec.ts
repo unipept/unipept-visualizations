@@ -1,4 +1,4 @@
-import TooltipUtilities from "./../TooltipUtilities";
+import TooltipUtilities from "./../TooltipUtilities.js";
 import { describe, it, expect } from "vitest";
 
 describe("TooltipUtilities.initTooltip", () => {

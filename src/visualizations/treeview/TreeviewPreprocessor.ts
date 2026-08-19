@@ -1,5 +1,5 @@
-import TreeviewNode from "./TreeviewNode";
-import { DataNodeLike } from "./../../DataNode";
+import TreeviewNode from "./TreeviewNode.js";
+import { DataNodeLike } from "./../../DataNode.js";
 
 export default class TreeviewPreprocessor {
     private static idCounter: number = 0;

@@ -1,5 +1,5 @@
-import { DataNodeLike } from "./../../../DataNode";
-import SunburstPreprocessor from "./../SunburstPreprocessor";
+import { DataNodeLike } from "./../../../DataNode.js";
+import SunburstPreprocessor from "./../SunburstPreprocessor.js";
 
 describe("SunburstPreprocessor", () => {
     it("should convert objects with only mandatory fields into proper DataNode's", () => {

@@ -1,7 +1,7 @@
-import Settings from "./../../Settings";
-import DataNode  from "./../../DataNode";
-import ColorPalette from "./../../color/ColorPalette";
-import StringUtils from "./../../utilities/StringUtils";
+import Settings from "./../../Settings.js";
+import DataNode  from "./../../DataNode.js";
+import ColorPalette from "./../../color/ColorPalette.js";
+import StringUtils from "./../../utilities/StringUtils.js";
 
 export default class SunburstSettings extends Settings {
     /**

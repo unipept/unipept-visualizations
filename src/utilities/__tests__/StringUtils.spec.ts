@@ -1,4 +1,4 @@
-import StringUtils from "./../StringUtils";
+import StringUtils from "./../StringUtils.js";
 import { describe, it, expect } from "vitest";
 
 describe("StringUtils.stringHash", () => {

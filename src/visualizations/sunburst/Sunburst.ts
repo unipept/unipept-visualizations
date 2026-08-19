@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 
-import SunburstSettings from "./SunburstSettings";
-import SunburstPreprocessor from "./SunburstPreprocessor";
-import DataNode, { DataNodeLike } from "./../../DataNode";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import NodeUtils from "./../../utilities/NodeUtils";
-import ColorUtils from "./../../color/ColorUtils";
+import SunburstSettings from "./SunburstSettings.js";
+import SunburstPreprocessor from "./SunburstPreprocessor.js";
+import DataNode, { DataNodeLike } from "./../../DataNode.js";
+import TooltipUtilities from "./../../utilities/TooltipUtilities.js";
+import NodeUtils from "./../../utilities/NodeUtils.js";
+import ColorUtils from "./../../color/ColorUtils.js";
 
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;

@@ -1,4 +1,4 @@
-import TreeNode from "../cluster/TreeNode";
+import TreeNode from "../cluster/TreeNode.js";
 
 export interface Reorderer {
     /**

@@ -1,5 +1,5 @@
-import { Reorderer } from "./Reorderer";
-import MoloReorderer from "./MoloReorderer";
+import { Reorderer } from "./Reorderer.js";
+import MoloReorderer from "./MoloReorderer.js";
 
 export type { Reorderer };
 export { MoloReorderer };

@@ -1,7 +1,7 @@
-import UPGMAClusterer from "./../UPGMAClusterer";
-import EuclidianDistanceMetric from "./../../metric/EuclidianDistanceMetric";
-import ClusterElement from "./../ClusterElement";
-import TreeNode from "./../TreeNode";
+import UPGMAClusterer from "./../UPGMAClusterer.js";
+import EuclidianDistanceMetric from "./../../metric/EuclidianDistanceMetric.js";
+import ClusterElement from "./../ClusterElement.js";
+import TreeNode from "./../TreeNode.js";
 
 describe("UPGMAClusterer", () => {
     it("should cluster the provided data as expected", () => {

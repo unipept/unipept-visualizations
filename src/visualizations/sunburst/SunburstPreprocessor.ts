@@ -1,4 +1,4 @@
-import DataNode, { DataNodeLike } from "./../../DataNode";
+import DataNode, { DataNodeLike } from "./../../DataNode.js";
 
 export default class SunburstPreprocessor {
     private static idCounter: number = 0;

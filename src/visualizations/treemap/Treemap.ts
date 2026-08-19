@@ -1,9 +1,9 @@
 import * as d3 from "d3";
-import TreemapSettings from "./TreemapSettings";
-import DataNode, { DataNodeLike } from "./../../DataNode";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import ColorUtils from "./../../color/ColorUtils";
-import TreemapPreprocessor from "./TreemapPreprocessor";
+import TreemapSettings from "./TreemapSettings.js";
+import DataNode, { DataNodeLike } from "./../../DataNode.js";
+import TooltipUtilities from "./../../utilities/TooltipUtilities.js";
+import ColorUtils from "./../../color/ColorUtils.js";
+import TreemapPreprocessor from "./TreemapPreprocessor.js";
 
 type HRN<T> = d3.HierarchyRectangularNode<T>;
 

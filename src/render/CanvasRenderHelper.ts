@@ -1,4 +1,4 @@
-import RenderHelper from "./RenderHelper";
+import RenderHelper from "./RenderHelper.js";
 
 export default class CanvasRenderHelper implements RenderHelper {
     constructor(

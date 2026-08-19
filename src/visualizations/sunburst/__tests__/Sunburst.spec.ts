@@ -1,8 +1,8 @@
-import Sunburst from "./../Sunburst";
-import { waitForCondition } from "./../../../test/TestUtils";
-import SunburstSettings from "./../SunburstSettings";
-import DataNode from "./../../../DataNode";
-import TestConsts from "./../../../test/TestConsts";
+import Sunburst from "./../Sunburst.js";
+import { waitForCondition } from "./../../../test/TestUtils.js";
+import SunburstSettings from "./../SunburstSettings.js";
+import DataNode from "./../../../DataNode.js";
+import TestConsts from "./../../../test/TestConsts.js";
 import { JSDOM } from "jsdom";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 

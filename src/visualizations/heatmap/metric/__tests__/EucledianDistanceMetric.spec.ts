@@ -1,5 +1,5 @@
-import TestDataGenerator from "./../../../../test/TestDataGenerator";
-import EuclidianDistanceMetric from "./../EuclidianDistanceMetric";
+import TestDataGenerator from "./../../../../test/TestDataGenerator.js";
+import EuclidianDistanceMetric from "./../EuclidianDistanceMetric.js";
 
 describe("EuclidianDistanceMetric", () => {
     it("should produce lower triangular matrices", () => {

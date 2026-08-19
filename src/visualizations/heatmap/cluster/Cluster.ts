@@ -1,5 +1,5 @@
-import ClusterElement from "./ClusterElement";
-import TreeNode from "./TreeNode";
+import ClusterElement from "./ClusterElement.js";
+import TreeNode from "./TreeNode.js";
 
 export default class Cluster {
     public elements: ClusterElement[];

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import BarplotPreprocessor from "./../BarplotPreprocessor";
-import { Bar } from "./../Bar";
+import BarplotPreprocessor from "./../BarplotPreprocessor.js";
+import { Bar } from "./../Bar.js";
 
 describe("BarplotPreprocessor", () => {
     const preprocessor = new BarplotPreprocessor();

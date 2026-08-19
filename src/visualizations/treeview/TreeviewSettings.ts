@@ -1,7 +1,7 @@
 import { scaleOrdinal, schemeCategory10, HierarchyPointLink } from "d3";
 
-import Settings from "./../../Settings";
-import TreeviewNode from "./TreeviewNode";
+import Settings from "./../../Settings.js";
+import TreeviewNode from "./TreeviewNode.js";
 
 const defaultColorScale = scaleOrdinal(schemeCategory10);
 
