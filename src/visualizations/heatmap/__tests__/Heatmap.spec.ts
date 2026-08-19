@@ -336,6 +336,31 @@ describe("Heatmap", () => {
         expect(heatmap.toSVG()).not.toContain("class=\"legend\"");
     });
 
+    it("should create the tooltip in the configured container", async() => {
+        const jsDom = createJSDom();
+
+        const container = jsDom.window.document.createElement("div");
+        container.id = "fullscreen";
+        jsDom.window.document.body.appendChild(container);
+
+        const settings = new HeatmapSettings();
+        settings.tooltipContainer = "#fullscreen";
+
+        await createHeatmap(jsDom, settings);
+
+        expect(container.querySelectorAll(".tip")).toHaveLength(1);
+        expect(jsDom.window.document.querySelectorAll("body > .tip")).toHaveLength(0);
+    });
+
+    it("should share the tooltip element with a second heatmap", async() => {
+        const jsDom = createJSDom();
+
+        await createHeatmap(jsDom, new HeatmapSettings());
+        await createHeatmap(jsDom, new HeatmapSettings());
+
+        expect(jsDom.window.document.querySelectorAll(".tip")).toHaveLength(1);
+    });
+
     afterAll(async() => {
         await browser.close();
 

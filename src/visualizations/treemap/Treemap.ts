@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import TreemapSettings from "./TreemapSettings";
 import DataNode, { DataNodeLike } from "./../../DataNode";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
+import Tooltip from "./../../utilities/Tooltip";
 import StyleUtilities from "./../../utilities/StyleUtilities";
 import ColorUtils from "./../../color/ColorUtils";
 import TreemapPreprocessor from "./TreemapPreprocessor";
@@ -18,7 +18,7 @@ export default class Treemap {
 
     private currentRoot: HRN<DataNode>;
 
-    private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+    private tooltip!: Tooltip;
     private breadCrumbs: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private treemap: d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
@@ -35,7 +35,7 @@ export default class Treemap {
         this.settings = this.fillOptions(options);
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip();
+            this.tooltip = Tooltip.create(this.element, this.settings.tooltipContainer);
         }
 
         this.initCss();
@@ -249,24 +249,19 @@ export default class Treemap {
 
     private tooltipIn(event: MouseEvent, d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.html(this.settings.getTooltip(d.data))
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px")
-                .style("visibility", "visible");
+            this.tooltip.show(event, this.settings.getTooltip(d.data));
         }
     }
 
     private tooltipMove(event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            this.tooltip.move(event);
         }
     }
 
     private tooltipOut(_event: MouseEvent, _d: HRN<DataNode>) {
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.style("visibility", "hidden");
+            this.tooltip.hide();
         }
     }
 }

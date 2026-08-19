@@ -2,14 +2,14 @@ import {BarplotSettings} from "./BarplotSettings";
 import * as d3 from "d3";
 import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
-import TooltipUtilities from "../../utilities/TooltipUtilities";
+import Tooltip from "../../utilities/Tooltip";
 import StyleUtilities from "../../utilities/StyleUtilities";
 
 export default class Barplot {
     private readonly settings: BarplotSettings;
     private readonly data: Bar[];
 
-    private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+    private tooltip!: Tooltip;
     
     constructor(
         private readonly element: HTMLElement,
@@ -26,7 +26,7 @@ export default class Barplot {
         }
 
         if (this.settings.enableTooltips) {
-            this.tooltip = TooltipUtilities.initTooltip();
+            this.tooltip = Tooltip.create(this.element, this.settings.tooltipContainer);
         }
         
         this.renderBarplot();
@@ -373,10 +373,7 @@ export default class Barplot {
         this.settings.mouseIn(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY});
 
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.html(this.settings.getTooltip(this.data, barIndex, itemIndex))
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px")
-                .style("visibility", "visible");
+            this.tooltip.show(event, this.settings.getTooltip(this.data, barIndex, itemIndex));
         }
 
         if (this.settings.highlightOnHover) {
@@ -396,9 +393,7 @@ export default class Barplot {
         this.settings.mouseMove(this.data, barIndex, itemIndex, {x: event.clientX, y: event.clientY})
 
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip
-                .style("top", (event.pageY + 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            this.tooltip.move(event);
         }
     }
 
@@ -406,7 +401,7 @@ export default class Barplot {
         this.settings.mouseOut(this.data, barIndex, itemIndex)
 
         if (this.settings.enableTooltips && this.tooltip) {
-            this.tooltip.style("visibility", "hidden");
+            this.tooltip.hide();
         }
 
         if (this.settings.highlightOnHover) {
