@@ -13,7 +13,9 @@ export default class Barplot {
     private tooltip!: Tooltip;
     
     constructor(
-        private readonly element: HTMLElement,
+        // Public so that an embedding application can reach the rendered output, for example to export the SVG
+        // that was drawn into it.
+        public readonly element: HTMLElement,
         data: Bar[],
         options: BarplotSettings = new BarplotSettings()
     ) {
