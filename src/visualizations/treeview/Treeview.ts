@@ -29,6 +29,9 @@ export default class Treeview {
 
     private zoomScale: number = 1;
 
+    // Set while the user pans or zooms the tree, so that the tooltip stays out of the way of the gesture.
+    private navigating: boolean = false;
+
     private svg: any;
 
     constructor(
@@ -81,9 +84,16 @@ export default class Treeview {
         this.zoomListener = d3.zoom()
             .extent([[0, 0], [this.settings.width, this.settings.height]])
             .scaleExtent([0.1, 3])
+            .on("start", () => {
+                this.navigating = true;
+                this.tooltipOut();
+            })
             .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
                 this.zoomScale = event.transform.k;
                 this.visElement.attr("transform", event.transform.toString())
+            })
+            .on("end", () => {
+                this.navigating = false;
             })
 
         this.visElement = this.svg.call(this.zoomListener).append("g");
@@ -359,7 +369,7 @@ export default class Treeview {
     }
 
     private tooltipIn(event: MouseEvent, d: HPN<TreeviewNode>) {
-        if (this.settings.enableTooltips && this.tooltip) {
+        if (this.settings.enableTooltips && this.tooltip && !this.navigating) {
             const content = this.settings.getTooltip(d.data);
             this.tooltipTimer = window.setTimeout(() => this.tooltip.show(event, content), 1000);
         }

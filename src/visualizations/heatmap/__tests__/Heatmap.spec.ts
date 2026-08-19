@@ -361,6 +361,36 @@ describe("Heatmap", () => {
         expect(jsDom.window.document.querySelectorAll(".tip")).toHaveLength(1);
     });
 
+    it("should keep the tooltip hidden while the heatmap is being dragged", async() => {
+        const jsDom = createJSDom();
+        await createHeatmap(jsDom, new HeatmapSettings());
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
+        const tooltip = jsDom.window.document.querySelector(".tip") as HTMLElement;
+
+        const mouseEvent = (type: string, x: number, y: number) => new jsDom.window.MouseEvent(type, {
+            view: jsDom.window as unknown as Window,
+            bubbles: true,
+            clientX: x,
+            clientY: y
+        });
+
+        canvas.dispatchEvent(mouseEvent("mousemove", 100, 50));
+        expect(tooltip.style.visibility).toEqual("visible");
+
+        // Pressing the mouse button starts a pan gesture, which lasts until the button is released again.
+        canvas.dispatchEvent(mouseEvent("mousedown", 100, 50));
+        expect(tooltip.style.visibility).toEqual("hidden");
+
+        canvas.dispatchEvent(mouseEvent("mousemove", 120, 60));
+        expect(tooltip.style.visibility).toEqual("hidden");
+
+        jsDom.window.dispatchEvent(mouseEvent("mouseup", 120, 60));
+
+        canvas.dispatchEvent(mouseEvent("mousemove", 140, 70));
+        expect(tooltip.style.visibility).toEqual("visible");
+    });
+
     afterAll(async() => {
         await browser.close();
 

@@ -69,6 +69,9 @@ export default class Heatmap {
 
     private legendElement: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null;
 
+    // Set while the user pans or zooms the heatmap, so that the tooltip stays out of the way of the gesture.
+    private navigating: boolean = false;
+
     private highlightedRow: number = -1;
     private highlightedColumn: number = -1;
 
@@ -152,8 +155,15 @@ export default class Heatmap {
         const zoom = d3.zoom()
             .extent([[0, 0], [this.settings.width, this.gridHeight]])
             .scaleExtent([0.25, 12])
+            .on("start", () => {
+                this.navigating = true;
+                this.hideTooltip();
+            })
             .on("zoom", (event: d3.D3ZoomEvent<any, any>) => {
                 this.zoomed(event.transform);
+            })
+            .on("end", () => {
+                this.navigating = false;
             });
 
         // @ts-expect-error
@@ -1235,6 +1245,12 @@ export default class Heatmap {
     }
 
     private tooltipMove(event: MouseEvent) {
+        // Panning keeps the cursor moving over the heatmap, which would otherwise drag a tooltip along with it.
+        if (this.navigating) {
+            this.hideTooltip();
+            return;
+        }
+
         // Find out which element is situated under the current mouse position.
         // @ts-expect-error
         const rect = event.target.getBoundingClientRect();
