@@ -1,4 +1,4 @@
-import Settings from "./../../Settings";
+import Settings, {VisualizationPadding} from "./../../Settings";
 import {HeatmapFeature} from "./HeatmapFeature";
 import {HeatmapValue} from "./HeatmapValue";
 import { Transition } from "./../../transition/Transition";
@@ -7,6 +7,57 @@ import UPGMAClusterer from "./cluster/UPGMAClusterer";
 import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
 import MoloReorderer from "./reorder/MoloReorderer";
 import {Reorderer} from "./reorder/Reorderer";
+
+export class HeatmapLegendSettings {
+    /**
+     * Padding around the legend area of the visualization.
+     */
+    padding: VisualizationPadding = {
+        top: 8,
+        right: 0,
+        bottom: 0,
+        left: 0
+    };
+
+    /**
+     * Title that's rendered above the color bar. No title is rendered when this string is empty.
+     */
+    title: string = "";
+
+    /**
+     * Size (in pixels) for the legend title.
+     */
+    titleFontSize: number = 14;
+
+    /**
+     * Width (in pixels) of the color bar. The bar is shrunk when less horizontal space is available.
+     */
+    width: number = 240;
+
+    /**
+     * Height (in pixels) of the color bar.
+     */
+    height: number = 12;
+
+    /**
+     * Size (in pixels) for the tick labels underneath the color bar.
+     */
+    labelFontSize: number = 12;
+
+    /**
+     * Amount of tick labels that should be rendered underneath the color bar. This value is a hint: the exact amount
+     * of ticks is chosen such that all of them are situated at a round value.
+     */
+    ticks: number = 5;
+
+    /**
+     * Converts a value of the color scale into the label that's shown for the corresponding tick.
+     *
+     * @param value A value from the interval [0, 1].
+     * @return The label that should be rendered for this tick.
+     */
+    tickFormat: (value: number) => string = (value: number) => value.toFixed(2);
+}
 
 export default class HeatmapSettings extends Settings {
     /**
@@ -118,6 +169,18 @@ export default class HeatmapSettings extends Settings {
      * Color of the lines used to construct a dendrogram (must be a valid HTML color string).
      */
     dendrogramColor: string = "#404040";
+
+    /**
+     * Should a legend that maps the used colors onto the values they represent be rendered underneath the grid? The
+     * legend takes up part of the configured height, so that the visualization as a whole keeps the requested
+     * dimensions.
+     */
+    enableLegend: boolean = false;
+
+    /**
+     * All settings that are directly related to the legend area of the visualization.
+     */
+    legend: HeatmapLegendSettings = new HeatmapLegendSettings();
 
     clusteringAlgorithm: Clusterer = new UPGMAClusterer(new EuclidianDistanceMetric());
 

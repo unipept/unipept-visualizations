@@ -1,9 +1,9 @@
 import Heatmap from "./Heatmap";
 import { HeatmapValue } from "./HeatmapValue";
-import HeatmapSettings from "./HeatmapSettings";
+import HeatmapSettings, { HeatmapLegendSettings } from "./HeatmapSettings";
 import { HeatmapFeature } from "./HeatmapFeature";
 
-export { Heatmap, HeatmapSettings }
+export { Heatmap, HeatmapSettings, HeatmapLegendSettings }
 export type { HeatmapValue, HeatmapFeature };
 export * from "./cluster/index";
 export * from "./metric/index";

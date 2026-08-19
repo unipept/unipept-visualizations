@@ -1,5 +1,6 @@
 import HeatmapSettings from "./../HeatmapSettings";
 import Heatmap from "./../Heatmap";
+import Preprocessor from "./../Preprocessor";
 import { JSDOM } from "jsdom";
 import { waitForCondition } from "./../../../test/TestUtils";
 import TestConsts from "./../../../test/TestConsts";
@@ -83,6 +84,16 @@ describe("Heatmap", () => {
 
     beforeAll(async() => {
         browser = await puppeteer.launch();
+
+        // jsdom does not implement OffscreenCanvas, which toSVG uses to measure the labels it produces.
+        (globalThis as any).OffscreenCanvas = class {
+            getContext() {
+                return {
+                    font: "",
+                    measureText: (text: string) => ({ width: text.length * 7 })
+                };
+            }
+        };
     });
 
     it("should produce the expected image with default settings ", async() => {
@@ -145,7 +156,189 @@ describe("Heatmap", () => {
         expect(image).toMatchImageSnapshot(TestConsts.resolveImageSnapshotFolder(__filename));
     });
 
+    function legendOf(jsDom: JSDOM): SVGSVGElement | null {
+        return jsDom.window.document.getElementById("visualization")!.getElementsByTagName("svg").item(0);
+    }
+
+    it("should not render a legend by default", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+        await createHeatmap(jsDom, new HeatmapSettings());
+
+        expect(legendOf(jsDom)).toBeNull();
+    });
+
+    it("should render a legend if requested", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = new HeatmapSettings();
+        settings.enableLegend = true;
+        settings.legend.title = "Similarity";
+
+        await createHeatmap(jsDom, settings);
+
+        const legend = legendOf(jsDom)!;
+        expect(legend).not.toBeNull();
+
+        const labels = Array.from(legend.getElementsByTagName("text")).map(text => text.textContent);
+        expect(labels[0]).toBe("Similarity");
+        expect(labels[1]).toBe("0.00");
+        expect(labels[labels.length - 1]).toBe("1.00");
+    });
+
+    it("should fall back to the default legend settings for the ones that are not given", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        // A plain object is what a user of the library passes in, and it only mentions the settings it changes.
+        const settings = { enableLegend: true, legend: { title: "Similarity" } } as unknown as HeatmapSettings;
+
+        await createHeatmap(jsDom, settings);
+
+        const labels = Array.from(legendOf(jsDom)!.getElementsByTagName("text")).map(text => text.textContent);
+        expect(labels).toEqual(["Similarity", "0.00", "0.20", "0.40", "0.60", "0.80", "1.00"]);
+    });
+
+    it("should render the legend with the colors that are used by the grid", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = new HeatmapSettings();
+        settings.enableLegend = true;
+        settings.minColor = "#ffebee";
+        settings.maxColor = "#c62828";
+        settings.colorBuckets = 5;
+
+        await createHeatmap(jsDom, settings);
+
+        const fills = Array.from(legendOf(jsDom)!.getElementsByTagName("rect"))
+            .map(rect => rect.getAttribute("fill"));
+
+        const palette = new Preprocessor().computeColorPalette("#ffebee", "#c62828", 5);
+
+        // The final rectangle is the outline that's drawn around the color bar.
+        expect(fills).toEqual([...palette, "none"]);
+    });
+
+    it("should reserve part of the configured height for the legend", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = new HeatmapSettings();
+        settings.enableLegend = true;
+
+        await createHeatmap(jsDom, settings);
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
+
+        const canvasHeight = Number.parseFloat(canvas.style.height);
+        const legendHeight = Number.parseFloat(legendOf(jsDom)!.getAttribute("height")!);
+
+        expect(legendHeight).toBeGreaterThan(0);
+        expect(canvasHeight + legendHeight).toBe(400);
+    });
+
+    it("should keep the legend when the heatmap is resized, clustered or reset", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = new HeatmapSettings();
+        settings.enableLegend = true;
+
+        const heatmap = await createHeatmap(jsDom, settings);
+
+        expect(legendOf(jsDom)!.getAttribute("width")).toBe("800");
+
+        heatmap.resize(600, 300);
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        expect(element.getElementsByTagName("svg").length).toBe(1);
+        expect(legendOf(jsDom)!.getAttribute("width")).toBe("600");
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
+        const firstDataUrl = canvas.toDataURL();
+
+        heatmap.cluster();
+        await waitForCondition(() => firstDataUrl !== canvas.toDataURL(), 2000, 500);
+
+        heatmap.reset();
+
+        expect(element.getElementsByTagName("svg").length).toBe(1);
+        expect(legendOf(jsDom)!.getElementsByTagName("rect").length).toBeGreaterThan(0);
+    });
+
+    it("should fall back to the default padding for the parts of it that are not given", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = { enableLegend: true, legend: { padding: { top: 4 } } } as unknown as HeatmapSettings;
+
+        await createHeatmap(jsDom, settings);
+
+        const canvas = jsDom.window.document.getElementsByTagName("canvas").item(0)!;
+        const legendHeight = Number.parseFloat(legendOf(jsDom)!.getAttribute("height")!);
+
+        // The given padding, the color bar, the space for the tick marks and the tick labels.
+        expect(legendHeight).toBe(4 + 12 + 8 + 12);
+        expect(Number.parseFloat(canvas.style.height) + legendHeight).toBe(400);
+    });
+
+    it("should keep a usable grid when the configured height is smaller than the legend", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        const settings = new HeatmapSettings();
+        settings.width = 800;
+        settings.height = 20;
+        settings.enableLegend = true;
+        settings.animationsEnabled = false;
+
+        const [items, rows, columns] = getClusterData();
+        const heatmap = new Heatmap(element, items, rows, columns, settings);
+
+        await waitForCondition(() => element.innerHTML.includes("canvas"), 2000, 500);
+
+        const canvas = element.getElementsByTagName("canvas").item(0)!;
+        expect(Number.parseFloat(canvas.getAttribute("height")!)).toBeGreaterThan(0);
+        expect(Number.parseFloat(canvas.style.height)).toBeGreaterThan(0);
+
+        heatmap.resize(800, 20);
+
+        expect(Number.parseFloat(canvas.getAttribute("height")!)).toBeGreaterThan(0);
+        expect(Number.parseFloat(canvas.style.height)).toBeGreaterThan(0);
+    });
+
+    it("should export the legend as part of the SVG when it is enabled", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const settings = new HeatmapSettings();
+        settings.enableLegend = true;
+        settings.legend.title = "Similarity";
+
+        const heatmap = await createHeatmap(jsDom, settings);
+
+        const svg = heatmap.toSVG();
+
+        expect(svg).toContain("class=\"legend\"");
+        expect(svg).toContain("Similarity");
+        expect(svg).toContain("1.00");
+    });
+
+    it("should not export a legend when it is disabled", async() => {
+        // This test requires the canvas package to be installed
+        const jsDom = createJSDom();
+
+        const heatmap = await createHeatmap(jsDom, new HeatmapSettings());
+
+        expect(heatmap.toSVG()).not.toContain("class=\"legend\"");
+    });
+
     afterAll(async() => {
         await browser.close();
+
+        delete (globalThis as any).OffscreenCanvas;
     });
 });
