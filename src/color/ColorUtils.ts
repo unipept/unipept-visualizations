@@ -5,11 +5,10 @@ export default class ColorUtils {
      * Returns the readable text color based on the brightness of a given background color.
      */
     public static getReadableColorFor(color: string) {
-        let textColor = "#000";
-        try {
-            textColor = ColorUtils.brightness(rgb(color)) < 125 ? "#eee" : "#000";
-        } catch { /* go on */ }
-        return textColor;
+        // d3 does not throw on a string it cannot read as a colour: it returns
+        // NaN channels, which makes the brightness NaN and the comparison
+        // below false. Unreadable input therefore falls back to dark text.
+        return ColorUtils.brightness(rgb(color)) < 125 ? "#eee" : "#000";
     }
 
     /*
