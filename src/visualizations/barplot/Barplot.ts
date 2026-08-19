@@ -5,7 +5,7 @@ import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
 import Tooltip from "../../utilities/Tooltip";
 import StyleUtilities from "../../utilities/StyleUtilities";
-import HostElement from "../../utilities/HostElement";
+import HostUtilities from "../../utilities/HostUtilities";
 
 /**
  * Height (in pixels) of the x-axis: its tick marks, their labels and the title underneath them.
@@ -143,7 +143,7 @@ export default class Barplot {
     }
 
     private renderBarplot(): void {
-        HostElement.clear(this.element, this.settings.tooltipContainer);
+        HostUtilities.clear(this.element, this.settings.tooltipContainer);
 
         const visElement = d3.select(this.element)
             .append("svg")

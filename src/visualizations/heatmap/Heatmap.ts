@@ -7,7 +7,7 @@ import {HeatmapFeature} from "./HeatmapFeature";
 import {HeatmapValue} from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";
 import Tooltip from "./../../utilities/Tooltip";
-import HostElement from "./../../utilities/HostElement";
+import HostUtilities from "./../../utilities/HostUtilities";
 import {VisualizationPadding} from "./../../Settings";
 
 import CanvasRenderHelper from "./../../render/CanvasRenderHelper";
@@ -142,7 +142,7 @@ export default class Heatmap {
         this.textHeight = this.settings.initialTextHeight;
 
         // Add a canvas to the desired element and set it's required properties
-        HostElement.clear(this.element, this.settings.tooltipContainer);
+        HostUtilities.clear(this.element, this.settings.tooltipContainer);
 
         // @ts-expect-error
         this.visElement = d3.select(this.element)

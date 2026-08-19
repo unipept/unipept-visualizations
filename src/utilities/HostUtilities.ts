@@ -1,6 +1,6 @@
 import Tooltip from "./Tooltip";
 
-export default class HostElement {
+export default class HostUtilities {
     /**
      * Empties the element a visualization renders in, so that constructing a visualization on an element that already
      * holds one replaces it instead of adding a second one next to it.

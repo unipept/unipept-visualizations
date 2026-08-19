@@ -6,7 +6,7 @@ import MaxCountHeap from "./heap/MaxCountHeap";
 import TreeviewPreprocessor from "./TreeviewPreprocessor";
 import Tooltip from "./../../utilities/Tooltip";
 import { DataNodeLike } from "./../../DataNode";
-import HostElement from "./../../utilities/HostElement";
+import HostUtilities from "./../../utilities/HostUtilities";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;
@@ -73,7 +73,7 @@ export default class Treeview {
         this.data = this.treeLayout(rootNode).descendants();
         this.root = this.data[0];
 
-        HostElement.clear(this.element, this.settings.tooltipContainer);
+        HostUtilities.clear(this.element, this.settings.tooltipContainer);
 
         this.svg = d3.select(this.element)
             .append("svg")

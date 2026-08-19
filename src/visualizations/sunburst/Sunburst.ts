@@ -6,7 +6,7 @@ import DataNode, { DataNodeLike } from "./../../DataNode";
 import Tooltip from "./../../utilities/Tooltip";
 import NodeUtils from "./../../utilities/NodeUtils";
 import StyleUtilities from "./../../utilities/StyleUtilities";
-import HostElement from "./../../utilities/HostElement";
+import HostUtilities from "./../../utilities/HostUtilities";
 import ColorUtils from "./../../color/ColorUtils";
 
 
@@ -100,7 +100,7 @@ export default class Sunburst {
         this.initCss();
 
         // Prepare element and create SVG container
-        HostElement.clear(this.element, this.settings.tooltipContainer);
+        HostUtilities.clear(this.element, this.settings.tooltipContainer);
         // @ts-expect-error
         this.breadCrumbs = d3.select(this.element)
             .append("div")
