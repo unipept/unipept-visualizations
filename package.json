@@ -14,7 +14,7 @@
         "test": "vitest run",
         "test:ui": "vitest --ui",
         "lint": "eslint \"src/**/*.ts\"",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "tsc6 --noEmit",
         "build": "vite build",
         "prepack": "npm run build",
         "dev": "vite",
@@ -49,9 +49,12 @@
         "pixelmatch": "^7.2.0",
         "pngjs": "^7.0.0",
         "puppeteer": "^25.8.0",
-        "typescript": "^5.9.3",
+        "typescript": "npm:@typescript/typescript6@^6.0.2",
         "vite": "^8.2.1",
         "vite-plugin-dts": "^5.0.3",
         "vitest": "^4.1.11"
+    },
+    "allowScripts": {
+        "canvas": true
     }
 }

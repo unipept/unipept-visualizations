@@ -275,6 +275,14 @@ export default class Treeview {
 
         const linkGenerator = d3.linkHorizontal<any, HPL<TreeviewNode>, HPN<TreeviewNode>>().x(d => d.y).y(d => d.x);
 
+        // The collapse animations draw a link that starts and ends in the same
+        // spot, so it has no hierarchy behind it. The generator only reads x and
+        // y, so a bare point stands in for the node it never looks at.
+        const collapsedLinkAt = (x: number, y: number) => {
+            const point = { x, y } as unknown as HPN<TreeviewNode>;
+            return linkGenerator({ source: point, target: point });
+        };
+
         // Enter any new links at the parent's previous position.
         link.enter()
             .insert("path", "g")
@@ -284,18 +292,10 @@ export default class Treeview {
             .style("stroke-linecap", "round")
             .style("stroke", (d: HPL<TreeviewNode>) => this.settings.linkStrokeColor(d))
             .style("stroke-width", 1e-6)
-            .attr("d", (_d: HPL<TreeviewNode>) => {
-                const o = {
-                    x: source.data.previousPosition.x,
-                    y: source.data.previousPosition.y
-                }
-
-                // @ts-expect-error
-                return linkGenerator({
-                    source: o,
-                    target: o
-                });
-            })
+            .attr("d", () => collapsedLinkAt(
+                source.data.previousPosition.x,
+                source.data.previousPosition.y
+            ))
             .merge(link)
             .transition()
             .duration(this.settings.animationDuration)
@@ -313,19 +313,7 @@ export default class Treeview {
         link.exit().transition()
             .duration(this.settings.animationDuration)
             .style("stroke-width", 1e-6)
-            // @ts-expect-error
-            .attr("d", (_d: HPL<TreeviewNode>) => {
-                const o = {
-                    x: source.x,
-                    y: source.y
-                };
-
-                // @ts-expect-error
-                return linkGenerator({
-                    source: o,
-                    target: o
-                });
-            })
+            .attr("d", () => collapsedLinkAt(source.x, source.y))
             .remove();
 
         // Keep track of the old positions for the transitions
