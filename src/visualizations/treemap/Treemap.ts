@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import TreemapSettings from "./TreemapSettings";
 import DataNode, { DataNodeLike } from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
+import StyleUtilities from "./../../utilities/StyleUtilities";
 import ColorUtils from "./../../color/ColorUtils";
 import TreemapPreprocessor from "./TreemapPreprocessor";
 
@@ -67,6 +68,10 @@ export default class Treemap {
             // @ts-expect-error
             .interpolate(d3.interpolateLab);
 
+        // Constructing a treemap on an element that already holds one has to replace it, not add a second one next to
+        // it.
+        this.element.innerHTML = "";
+
         // @ts-expect-error
         this.breadCrumbs = d3.select(this.element)
             .append("div")
@@ -122,10 +127,8 @@ export default class Treemap {
 
     private initCss() {
         const elementClass = this.settings.className;
-        this.element.className += " " + elementClass;
 
-        const styleElement = this.element.ownerDocument.createElement("style");
-        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
+        StyleUtilities.applyStyle(this.element, elementClass, `
             .${elementClass} {
                 font-family: Arial,sans-serif;
             }
@@ -163,8 +166,7 @@ export default class Treemap {
                 content: " > ";
                 cursor: default;
             }
-        `));
-        this.element.ownerDocument.head.append(styleElement);
+        `);
     }
 
     private render(data: HRN<DataNode>, triggerCallback: boolean = true) {

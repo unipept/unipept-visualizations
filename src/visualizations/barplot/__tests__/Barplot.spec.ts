@@ -155,6 +155,23 @@ describe("Barplot", () => {
         expect(labels).toEqual(["Sample 1", "Sample 2", "Sample 3"]);
     });
 
+    it("should replace the previous barplot when constructed again on the same element", async() => {
+        const jsDom = createTestDom();
+        await createBarplot(jsDom, new BarplotSettings());
+
+        const element = jsDom.window.document.getElementById("visualization")!;
+        const items = element.getElementsByClassName("barplot-item").length;
+        const children = element.children.length;
+        const styles = jsDom.window.document.head.getElementsByTagName("style").length;
+
+        await createBarplot(jsDom, new BarplotSettings());
+
+        expect(element.getElementsByClassName("barplot-item").length).toEqual(items);
+        expect(element.children.length).toEqual(children);
+        expect(jsDom.window.document.head.getElementsByTagName("style").length).toEqual(styles);
+        expect(element.className.split(/\s+/).filter((name: string) => name === "barplot")).toHaveLength(1);
+    });
+
     afterAll(async() => {
         await browser.close();
     });

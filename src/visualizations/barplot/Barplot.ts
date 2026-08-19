@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import {Bar, BarItem} from "./Bar";
 import BarplotPreprocessor from "./BarplotPreprocessor";
 import TooltipUtilities from "../../utilities/TooltipUtilities";
+import StyleUtilities from "../../utilities/StyleUtilities";
 
 export default class Barplot {
     private readonly settings: BarplotSettings;
@@ -37,6 +38,10 @@ export default class Barplot {
     }
 
     private renderBarplot(): void {
+        // Constructing a barplot on an element that already holds one has to replace it, not add a second one next to
+        // it.
+        this.element.innerHTML = "";
+
         const visElement = d3.select(this.element)
             .append("svg")
             .attr("version", "1.1")
@@ -128,9 +133,6 @@ export default class Barplot {
         } else {
             barLabelWidth = 0;
         }
-
-        // Clear previous render
-        visElement.selectAll("*").remove();
 
         const svgGElement = visElement.append("g");
 
@@ -350,10 +352,8 @@ export default class Barplot {
 
     private initCss() {
         const elementClass = this.settings.className;
-        this.element.className += " " + elementClass;
 
-        const styleElement = this.element.ownerDocument.createElement("style");
-        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
+        StyleUtilities.applyStyle(this.element, elementClass, `
 .${elementClass} .barplot-item-highlighted {
     opacity: 0.5;
     transition: opacity 0.2s ease-in-out;
@@ -364,8 +364,7 @@ export default class Barplot {
     opacity: 0.5;
     transition: opacity 0.2s ease-in-out;
 }
-`))
-        this.element.ownerDocument.head.appendChild(styleElement);
+`);
     }
 
     private mouseIn(event: MouseEvent, barIndex: number, itemIndex: number) {

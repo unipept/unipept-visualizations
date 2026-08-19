@@ -5,6 +5,7 @@ import SunburstPreprocessor from "./SunburstPreprocessor";
 import DataNode, { DataNodeLike } from "./../../DataNode";
 import TooltipUtilities from "./../../utilities/TooltipUtilities";
 import NodeUtils from "./../../utilities/NodeUtils";
+import StyleUtilities from "./../../utilities/StyleUtilities";
 import ColorUtils from "./../../color/ColorUtils";
 
 
@@ -228,10 +229,8 @@ export default class Sunburst {
 
     private initCss() {
         const elementClass = this.settings.className;
-        this.element.className += " " + elementClass;
 
-        const styleElement = this.element.ownerDocument.createElement("style");
-        styleElement.appendChild(this.element.ownerDocument.createTextNode(`
+        StyleUtilities.applyStyle(this.element, elementClass, `
 .${elementClass} {
     font-family: Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;
     width: ${this.settings.width + this.settings.breadcrumbWidth}px;
@@ -264,8 +263,7 @@ export default class Sunburst {
 }
 .${elementClass} .sunburst-breadcrumbs .crumb .percentage {
     font-size: 11px;
-}`))
-        this.element.ownerDocument.head.appendChild(styleElement);
+}`);
     }
 
     /**
