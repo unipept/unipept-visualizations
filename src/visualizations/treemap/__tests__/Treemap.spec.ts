@@ -104,6 +104,29 @@ describe("Treemap", () => {
         expect(element.className.split(/\s+/).filter((name: string) => name === "treemap")).toHaveLength(1);
     });
 
+    it("should show a tooltip inside the element it renders in when that is the tooltip container", async() => {
+        const jsDom = createJSDom();
+        const element = jsDom.window.document.getElementById("visualization")!;
+
+        // The natural choice for an application that puts this element in fullscreen, and the element the treemap
+        // empties while it is being built.
+        const settings = new TreemapSettings();
+        settings.tooltipContainer = element;
+
+        await createTreemap(jsDom, settings);
+
+        element.getElementsByClassName("node").item(0)!.dispatchEvent(new jsDom.window.MouseEvent("mouseover", {
+            view: jsDom.window as unknown as Window,
+            bubbles: true,
+            clientX: 100,
+            clientY: 50
+        }));
+
+        const tooltip = element.querySelector(".tip") as HTMLElement;
+        expect(tooltip).not.toBeNull();
+        expect(tooltip.style.visibility).toEqual("visible");
+    });
+
     afterAll(async() => {
         await browser.close();
     });

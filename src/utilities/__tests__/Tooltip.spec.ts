@@ -16,15 +16,22 @@ describe("Tooltip", () => {
         return new MouseEvent("mousemove", { clientX: x, clientY: y });
     }
 
-    it("should add a hidden tooltip element to the body by default", () => {
+    it("should add a tooltip element to the body by default", () => {
         const dom = createTestDom();
 
-        Tooltip.create(reference(dom));
+        Tooltip.create(reference(dom)).show(mouseEvent(100, 50), "<div>Bacteria</div>");
 
         const elements = tooltipElements(dom);
         expect(elements).toHaveLength(1);
         expect(elements[0].parentElement).toEqual(dom.window.document.body);
-        expect((elements[0] as HTMLElement).style.visibility).toEqual("hidden");
+    });
+
+    it("should wait for a first tooltip before it touches the document", () => {
+        const dom = createTestDom();
+
+        Tooltip.create(reference(dom));
+
+        expect(tooltipElements(dom)).toHaveLength(0);
     });
 
     it("should reuse the tooltip element of a container instead of adding a second one", () => {
@@ -32,6 +39,9 @@ describe("Tooltip", () => {
 
         const first = Tooltip.create(reference(dom));
         const second = Tooltip.create(reference(dom));
+
+        first.show(mouseEvent(100, 50), "<div>Bacteria</div>");
+        second.show(mouseEvent(100, 50), "<div>Archaea</div>");
 
         expect(tooltipElements(dom)).toHaveLength(1);
         expect(second).toBe(first);
@@ -42,7 +52,7 @@ describe("Tooltip", () => {
         const container = dom.window.document.createElement("div");
         dom.window.document.body.appendChild(container);
 
-        Tooltip.create(reference(dom), container);
+        Tooltip.create(reference(dom), container).show(mouseEvent(100, 50), "<div>Bacteria</div>");
 
         const elements = tooltipElements(dom);
         expect(elements).toHaveLength(1);
@@ -55,7 +65,7 @@ describe("Tooltip", () => {
         container.id = "fullscreen";
         dom.window.document.body.appendChild(container);
 
-        Tooltip.create(reference(dom), "#fullscreen");
+        Tooltip.create(reference(dom), "#fullscreen").show(mouseEvent(100, 50), "<div>Bacteria</div>");
 
         expect(tooltipElements(dom)[0].parentElement).toEqual(container);
     });
@@ -64,6 +74,41 @@ describe("Tooltip", () => {
         const dom = createTestDom();
 
         expect(() => Tooltip.create(reference(dom), "#nothing")).toThrowError(/#nothing/);
+    });
+
+    it("should create its element again after the container has been emptied", () => {
+        const dom = createTestDom();
+        const container = reference(dom);
+        const tooltip = Tooltip.create(container, container);
+
+        tooltip.show(mouseEvent(100, 50), "<div>Bacteria</div>");
+        expect(container.querySelectorAll(".tip")).toHaveLength(1);
+
+        // Which is what every visualization does to the element it renders in.
+        container.innerHTML = "";
+
+        tooltip.show(mouseEvent(100, 50), "<div>Bacteria</div>");
+
+        const elements = container.querySelectorAll(".tip");
+        expect(elements).toHaveLength(1);
+        expect((elements[0] as HTMLElement).style.visibility).toEqual("visible");
+    });
+
+    it("should leave a tooltip element it did not create alone", () => {
+        const dom = createTestDom();
+        const container = reference(dom);
+
+        const foreign = dom.window.document.createElement("div");
+        foreign.className = "tip";
+        foreign.innerHTML = "<div>a tooltip of the application itself</div>";
+        container.appendChild(foreign);
+
+        Tooltip.create(container, container).show(mouseEvent(100, 50), "<div>Bacteria</div>");
+
+        expect(foreign.innerHTML).toEqual("<div>a tooltip of the application itself</div>");
+        expect(foreign.getAttribute("style")).toBeNull();
+        expect(container.querySelectorAll(".tip")).toHaveLength(2);
+        expect(container.querySelectorAll("[data-unipept-tooltip]")).toHaveLength(1);
     });
 
     it("should show the content next to the cursor", () => {
@@ -91,13 +136,23 @@ describe("Tooltip", () => {
         expect(element.style.top).toEqual("160px");
     });
 
+    it("should hide the tooltip again", () => {
+        const dom = createTestDom();
+        const tooltip = Tooltip.create(reference(dom));
+
+        tooltip.show(mouseEvent(100, 50), "<div>Bacteria</div>");
+        tooltip.hide();
+
+        expect((tooltipElements(dom)[0] as HTMLElement).style.visibility).toEqual("hidden");
+    });
+
     it("should leave the styling of the tooltip to the application", () => {
         const dom = createTestDom();
         const style = dom.window.document.createElement("style");
         style.textContent = ".tip { background: rgb(1, 2, 3); padding: 7px; border: 2px solid red; color: rgb(9, 9, 9); }";
         dom.window.document.head.appendChild(style);
 
-        Tooltip.create(reference(dom));
+        Tooltip.create(reference(dom)).show(mouseEvent(100, 50), "<div>Bacteria</div>");
 
         // The library only places the tooltip, so nothing it sets may outrank the rules of the application.
         const element = tooltipElements(dom)[0] as HTMLElement;
@@ -119,25 +174,21 @@ describe("Tooltip", () => {
             writable: true,
             value: null
         });
+        for (const method of ["showPopover", "hidePopover"]) {
+            Object.defineProperty(dom.window.HTMLElement.prototype, method, {
+                configurable: true,
+                value: () => undefined
+            });
+        }
 
         const container = dom.window.document.createElement("div");
         dom.window.document.body.appendChild(container);
 
-        Tooltip.create(reference(dom));
-        Tooltip.create(reference(dom), container);
+        Tooltip.create(reference(dom)).show(mouseEvent(100, 50), "<div>Bacteria</div>");
+        Tooltip.create(reference(dom), container).show(mouseEvent(100, 50), "<div>Bacteria</div>");
 
         const styles = dom.window.document.querySelectorAll("style[data-unipept-tooltip-style]");
         expect(styles).toHaveLength(1);
         expect(styles[0].textContent).toContain(":where(.tip[popover])");
-    });
-
-    it("should hide the tooltip again", () => {
-        const dom = createTestDom();
-        const tooltip = Tooltip.create(reference(dom));
-
-        tooltip.show(mouseEvent(100, 50), "<div>Bacteria</div>");
-        tooltip.hide();
-
-        expect((tooltipElements(dom)[0] as HTMLElement).style.visibility).toEqual("hidden");
     });
 });
