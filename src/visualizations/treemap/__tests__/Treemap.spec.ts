@@ -8,7 +8,7 @@ import DataNode from "./../../../DataNode";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 import puppeteer from "puppeteer";
-import taxonomyObject from "./resources/taxonomy.json";
+import taxonomyObject from "../../../test/resources/taxonomy.json";
 
 describe("Treemap", () => {
     let browser: any;

@@ -189,9 +189,7 @@ export default class Treeview {
             .on("click", (event: MouseEvent, d: HPN<TreeviewNode>) => this.click(event, d))
             .on("mouseover", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipIn(event, d))
             .on("mouseout", (event: MouseEvent, d: HPN<TreeviewNode>) => this.tooltipOut(event, d))
-            .on("contextmenu", (event: MouseEvent, d: HPN<TreeviewNode>) => this.rightClick(event, d))
-            // @ts-expect-error
-            .merge(node);
+            .on("contextmenu", (event: MouseEvent, d: HPN<TreeviewNode>) => this.rightClick(event, d));
 
         nodeEnter.append("circle")
             .attr("r", 1e-6)
@@ -232,8 +230,14 @@ export default class Treeview {
                 .style("fill-opacity", 1e-6);
         }
 
+        // The children above are appended to the entering nodes only. Everything
+        // from here on applies to the nodes already on screen as well, so the
+        // two selections are merged first.
+        // @ts-expect-error
+        const nodeMerged: typeof nodeEnter = nodeEnter.merge(node);
+
         // Transition nodes to their new position. (From the source's location to the final location)
-        const nodeUpdate = nodeEnter.transition()
+        const nodeUpdate = nodeMerged.transition()
             .duration(this.settings.animationDuration)
             .attr("transform", (d: HPN<TreeviewNode>) => `translate(${d.y}, ${d.x})`);
 
