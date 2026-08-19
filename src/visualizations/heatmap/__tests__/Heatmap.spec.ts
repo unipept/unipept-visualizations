@@ -1,8 +1,8 @@
-import HeatmapSettings from "./../HeatmapSettings";
-import Heatmap from "./../Heatmap";
+import HeatmapSettings from "./../HeatmapSettings.js";
+import Heatmap from "./../Heatmap.js";
 import { JSDOM } from "jsdom";
-import { waitForCondition } from "./../../../test/TestUtils";
-import TestConsts from "./../../../test/TestConsts";
+import { waitForCondition } from "./../../../test/TestUtils.js";
+import TestConsts from "./../../../test/TestConsts.js";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 
 import puppeteer from "puppeteer";

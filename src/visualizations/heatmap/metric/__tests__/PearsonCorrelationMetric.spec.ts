@@ -1,5 +1,5 @@
-import TestDataGenerator from "./../../../../test/TestDataGenerator";
-import PearsonCorrelationMetric from "./../PearsonCorrelationMetric";
+import TestDataGenerator from "./../../../../test/TestDataGenerator.js";
+import PearsonCorrelationMetric from "./../PearsonCorrelationMetric.js";
 
 describe("PearsonCorrelationMetric", () => {
     it("should produce lower triangular matrices", () => {

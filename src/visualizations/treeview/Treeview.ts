@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 
-import TreeviewSettings from "./TreeviewSettings";
-import TreeviewNode from "./TreeviewNode";
-import MaxCountHeap from "./heap/MaxCountHeap";
-import TreeviewPreprocessor from "./TreeviewPreprocessor";
-import TooltipUtilities from "./../../utilities/TooltipUtilities";
-import { DataNodeLike } from "./../../DataNode";
+import TreeviewSettings from "./TreeviewSettings.js";
+import TreeviewNode from "./TreeviewNode.js";
+import MaxCountHeap from "./heap/MaxCountHeap.js";
+import TreeviewPreprocessor from "./TreeviewPreprocessor.js";
+import TooltipUtilities from "./../../utilities/TooltipUtilities.js";
+import { DataNodeLike } from "./../../DataNode.js";
 
 type HPN<T> = d3.HierarchyPointNode<T>;
 type HPL<T> = d3.HierarchyPointLink<T>;

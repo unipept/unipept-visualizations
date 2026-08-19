@@ -1,4 +1,4 @@
-import Treemap from "./Treemap";
-import TreemapSettings from "./TreemapSettings";
+import Treemap from "./Treemap.js";
+import TreemapSettings from "./TreemapSettings.js";
 
 export { Treemap, TreemapSettings };

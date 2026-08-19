@@ -1,5 +1,5 @@
-import TreeNode from "./TreeNode";
-import ClusterElement from "./ClusterElement";
+import TreeNode from "./TreeNode.js";
+import ClusterElement from "./ClusterElement.js";
 
 export interface Clusterer {
     cluster(data: ClusterElement[]): TreeNode;

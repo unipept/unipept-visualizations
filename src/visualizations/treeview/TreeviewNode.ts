@@ -1,4 +1,4 @@
-import DataNode from "./../../DataNode";
+import DataNode from "./../../DataNode.js";
 
 export default class TreeviewNode extends DataNode {
     public previousPosition: { x: number, y: number } = { x: 0, y: 0 };

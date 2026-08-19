@@ -1,5 +1,5 @@
-import Settings, {VisualizationPadding} from "../../Settings";
-import {Bar, BarItem} from "./Bar";
+import Settings, {VisualizationPadding} from "../../Settings.js";
+import {Bar, BarItem} from "./Bar.js";
 
 export class BarplotChartSettings {
     /**

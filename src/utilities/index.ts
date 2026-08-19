@@ -1,3 +1,3 @@
-import StringUtils from "./StringUtils";
+import StringUtils from "./StringUtils.js";
 
 export { StringUtils };

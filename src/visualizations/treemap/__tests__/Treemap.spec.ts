@@ -1,10 +1,10 @@
 
-import { waitForCondition } from "../../../test/TestUtils";
-import TestConsts from "./../../../test/TestConsts";
-import TreemapSettings from "./../TreemapSettings";
+import { waitForCondition } from "../../../test/TestUtils.js";
+import TestConsts from "./../../../test/TestConsts.js";
+import TreemapSettings from "./../TreemapSettings.js";
 import { JSDOM } from "jsdom";
-import Treemap from "./../Treemap";
-import DataNode from "./../../../DataNode";
+import Treemap from "./../Treemap.js";
+import DataNode from "./../../../DataNode.js";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 import puppeteer from "puppeteer";

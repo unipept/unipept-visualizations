@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-import DataNode from "./../DataNode";
+import DataNode from "./../DataNode.js";
 
 export default class NodeUtils {
     /**

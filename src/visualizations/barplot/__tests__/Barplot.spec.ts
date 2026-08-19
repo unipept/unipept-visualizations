@@ -1,9 +1,9 @@
-import TestConsts from "./../../../test/TestConsts";
-import { createTestDom } from "../../../test/TestDom";
-import { waitForCondition } from "../../../test/TestUtils";
-import { BarplotSettings } from "./../BarplotSettings";
-import { Bar } from "./../Bar";
-import Barplot from "./../Barplot";
+import TestConsts from "./../../../test/TestConsts.js";
+import { createTestDom } from "../../../test/TestDom.js";
+import { waitForCondition } from "../../../test/TestUtils.js";
+import { BarplotSettings } from "./../BarplotSettings.js";
+import { Bar } from "./../Bar.js";
+import Barplot from "./../Barplot.js";
 import { JSDOM } from "jsdom";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 

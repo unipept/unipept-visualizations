@@ -1,10 +1,10 @@
-import Heatmap from "./Heatmap";
-import { HeatmapValue } from "./HeatmapValue";
-import HeatmapSettings from "./HeatmapSettings";
-import { HeatmapFeature } from "./HeatmapFeature";
+import Heatmap from "./Heatmap.js";
+import { HeatmapValue } from "./HeatmapValue.js";
+import HeatmapSettings from "./HeatmapSettings.js";
+import { HeatmapFeature } from "./HeatmapFeature.js";
 
 export { Heatmap, HeatmapSettings }
 export type { HeatmapValue, HeatmapFeature };
-export * from "./cluster/index";
-export * from "./metric/index";
-export * from "./reorder/index";
+export * from "./cluster/index.js";
+export * from "./metric/index.js";
+export * from "./reorder/index.js";

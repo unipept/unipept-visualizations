@@ -1,12 +1,12 @@
-import Settings from "./../../Settings";
-import {HeatmapFeature} from "./HeatmapFeature";
-import {HeatmapValue} from "./HeatmapValue";
-import { Transition } from "./../../transition/Transition";
-import {Clusterer} from "./cluster/Clusterer";
-import UPGMAClusterer from "./cluster/UPGMAClusterer";
-import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric";
-import MoloReorderer from "./reorder/MoloReorderer";
-import {Reorderer} from "./reorder/Reorderer";
+import Settings from "./../../Settings.js";
+import {HeatmapFeature} from "./HeatmapFeature.js";
+import {HeatmapValue} from "./HeatmapValue.js";
+import { Transition } from "./../../transition/Transition.js";
+import {Clusterer} from "./cluster/Clusterer.js";
+import UPGMAClusterer from "./cluster/UPGMAClusterer.js";
+import EuclidianDistanceMetric from "./metric/EuclidianDistanceMetric.js";
+import MoloReorderer from "./reorder/MoloReorderer.js";
+import {Reorderer} from "./reorder/Reorderer.js";
 
 export default class HeatmapSettings extends Settings {
     /**

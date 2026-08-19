@@ -1,14 +1,14 @@
 import * as d3 from "d3";
-import HeatmapSettings from "./HeatmapSettings";
-import ClusterElement from "./cluster/ClusterElement";
-import TreeNode from "./cluster/TreeNode";
-import {Reorderer} from "./reorder/Reorderer";
-import {HeatmapFeature} from "./HeatmapFeature";
-import {HeatmapValue} from "./HeatmapValue";
-import Preprocessor from "./Preprocessor";
+import HeatmapSettings from "./HeatmapSettings.js";
+import ClusterElement from "./cluster/ClusterElement.js";
+import TreeNode from "./cluster/TreeNode.js";
+import {Reorderer} from "./reorder/Reorderer.js";
+import {HeatmapFeature} from "./HeatmapFeature.js";
+import {HeatmapValue} from "./HeatmapValue.js";
+import Preprocessor from "./Preprocessor.js";
 
-import CanvasRenderHelper from "./../../render/CanvasRenderHelper";
-import RenderHelper from "./../../render/RenderHelper";
+import CanvasRenderHelper from "./../../render/CanvasRenderHelper.js";
+import RenderHelper from "./../../render/RenderHelper.js";
 
 type ViewPort = {
     xTop: number,

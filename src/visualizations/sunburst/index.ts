@@ -1,4 +1,4 @@
-import Sunburst from "./Sunburst";
-import SunburstSettings from "./SunburstSettings";
+import Sunburst from "./Sunburst.js";
+import SunburstSettings from "./SunburstSettings.js";
 
 export { Sunburst, SunburstSettings }

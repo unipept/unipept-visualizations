@@ -1,8 +1,8 @@
-import {BarplotSettings} from "./BarplotSettings";
+import {BarplotSettings} from "./BarplotSettings.js";
 import * as d3 from "d3";
-import {Bar, BarItem} from "./Bar";
-import BarplotPreprocessor from "./BarplotPreprocessor";
-import TooltipUtilities from "../../utilities/TooltipUtilities";
+import {Bar, BarItem} from "./Bar.js";
+import BarplotPreprocessor from "./BarplotPreprocessor.js";
+import TooltipUtilities from "../../utilities/TooltipUtilities.js";
 
 export default class Barplot {
     private readonly settings: BarplotSettings;

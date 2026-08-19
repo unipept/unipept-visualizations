@@ -1,4 +1,4 @@
-import {Bar, BarItem} from "./Bar";
+import {Bar, BarItem} from "./Bar.js";
 
 export default class BarplotPreprocessor {
 
