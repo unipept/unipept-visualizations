@@ -29,7 +29,8 @@
     cells onto the values they stand for. The bar shows the same discrete color buckets that the grid uses, and
     <code>legend.title</code> and <code>legend.tickFormat</code> label it. The legend takes its height out of the
     configured one, so the visualization as a whole still measures 1000 &times; 600 pixels.
-    <strong>Toggle legend</strong> rebuilds the heatmap with the legend off, which shows how much room it takes.</p>
+    <strong>Toggle legend</strong> rebuilds the heatmap with the legend off, which shows how much room it takes, and
+    <strong>Export SVG</strong> downloads the heatmap as an SVG file with the same legend underneath it.</p>
 
   <figure class="stage"><div id="heatmap"></div></figure>
 
@@ -37,6 +38,7 @@
     <button id="legend" type="button">Toggle legend</button>
     <button id="cluster" type="button">Cluster</button>
     <button id="resize" type="button">Resize</button>
+    <button id="export" type="button">Export SVG</button>
   </div>
 
 <script type="module" data-source>
@@ -79,6 +81,16 @@
     });
     document.getElementById("cluster").addEventListener("click", () => heatmap.cluster());
     document.getElementById("resize").addEventListener("click", () => heatmap.resize(1000, 400));
+    document.getElementById("export").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([heatmap.toSVG()], { type: "image/svg+xml" }));
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "heatmap.svg";
+        link.click();
+
+        URL.revokeObjectURL(url);
+    });
 </script>
 
   <section class="source">

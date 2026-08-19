@@ -6,6 +6,7 @@ import {Reorderer} from "./reorder/Reorderer";
 import {HeatmapFeature} from "./HeatmapFeature";
 import {HeatmapValue} from "./HeatmapValue";
 import Preprocessor from "./Preprocessor";
+import {VisualizationPadding} from "./../../Settings";
 
 import CanvasRenderHelper from "./../../render/CanvasRenderHelper";
 import RenderHelper from "./../../render/RenderHelper";
@@ -19,6 +20,9 @@ type ViewPort = {
 
 const LEGEND_FONT_FAMILY = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
+// The color for the lowest value is a very light one by default, so the color bar is outlined to keep it visible.
+const LEGEND_OUTLINE_COLOR = "rgba(0, 0, 0, 0.2)";
+
 // Vertical space (in pixels) between the legend's title and its color bar.
 const LEGEND_TITLE_SPACING = 6;
 
@@ -27,6 +31,19 @@ const LEGEND_LABEL_SPACING = 8;
 
 // Length (in pixels) of the tick marks underneath the legend's color bar.
 const LEGEND_TICK_LENGTH = 4;
+
+// A canvas with a height of zero or less is invalid: browsers fall back to their default height of 150 pixels, which
+// makes the visualization taller than requested instead of smaller.
+const MINIMUM_GRID_HEIGHT = 1;
+
+/**
+ * One of the primitives that a legend is built out of. Positions are relative to the top left corner of the legend's
+ * content (thus with the legend's padding already applied).
+ */
+type LegendShape =
+    { type: "rect", x: number, y: number, width: number, height: number, fill: string, stroke?: string } |
+    { type: "line", x1: number, y1: number, x2: number, y2: number, stroke: string } |
+    { type: "text", x: number, y: number, fontSize: number, anchor: string, content: string };
 
 export default class Heatmap {
     private element: HTMLElement;
@@ -156,10 +173,17 @@ export default class Heatmap {
     private fillOptions(options: any = undefined): HeatmapSettings {
         const output = new HeatmapSettings();
         Object.assign(output, options);
-        // Object.assign is shallow, so a legend object that only mentions some of the settings would otherwise wipe
-        // out the defaults for all the others.
-        output.legend = Object.assign(new HeatmapLegendSettings(), options?.legend);
+        output.legend = this.fillGroup(new HeatmapLegendSettings(), options?.legend);
         return output;
+    }
+
+    /**
+     * Object.assign is shallow, so a settings group that only mentions some of its settings would wipe out the
+     * defaults for all the others. The padding nested inside such a group needs the same treatment.
+     */
+    private fillGroup<T extends { padding: VisualizationPadding }>(defaults: T, options: any): T {
+        const padding = Object.assign({}, defaults.padding, options?.padding);
+        return Object.assign(defaults, options, { padding });
     }
 
     /**
@@ -330,9 +354,12 @@ export default class Heatmap {
     /**
      * Height that's available to the heatmap grid itself. The legend is rendered underneath the grid and takes away
      * part of the configured height, so that the visualization as a whole keeps the dimensions that were requested.
+     * A grid that no longer fits is clamped instead of refused: heatmaps are commonly resized to whatever a container
+     * happens to measure, and throwing on a container that's briefly smaller than the legend is worse than a
+     * visualization that ends up a few pixels taller than asked for.
      */
     private get gridHeight(): number {
-        return this.settings.height - this.legendHeight();
+        return Math.max(MINIMUM_GRID_HEIGHT, this.settings.height - this.legendHeight());
     }
 
     private canvasStyle(): string {
@@ -362,44 +389,36 @@ export default class Heatmap {
     }
 
     /**
-     * Render the color bar that maps the colors used by the grid onto the values they represent. Does nothing when the
-     * legend is disabled.
+     * Width (in pixels) of the legend's color bar, given the width that's available to the legend as a whole.
      */
-    private renderLegend() {
-        if (!this.legendElement) {
-            return;
-        }
-
+    private legendBarWidth(availableWidth: number): number {
         const legend = this.settings.legend;
-        const height = this.legendHeight();
-        const barWidth = Math.max(
-            1,
-            Math.min(legend.width, this.settings.width - legend.padding.left - legend.padding.right)
-        );
 
-        this.legendElement
-            .attr("width", this.settings.width)
-            .attr("height", height)
-            .attr("style", `display: block; width: ${this.settings.width}px; height: ${height}px`);
+        return Math.max(1, Math.min(legend.width, availableWidth - legend.padding.left - legend.padding.right));
+    }
 
-        this.legendElement.selectAll("*").remove();
-
-        const container = this.legendElement
-            .append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${legend.padding.left}, ${legend.padding.top})`)
-            .attr("font-family", LEGEND_FONT_FAMILY)
-            .attr("fill", this.settings.labelColor);
+    /**
+     * Compute the primitives that the legend is built out of. Both the legend that's rendered next to the canvas and
+     * the one that's written into the exported SVG are produced from this, so that the two cannot drift apart.
+     *
+     * @param barWidth Width (in pixels) that the color bar should take up.
+     * @return All shapes of the legend, positioned relative to the top left corner of the legend's content.
+     */
+    private computeLegendShapes(barWidth: number): LegendShape[] {
+        const legend = this.settings.legend;
+        const shapes: LegendShape[] = [];
 
         const barTop = legend.title ? legend.titleFontSize + LEGEND_TITLE_SPACING : 0;
 
         if (legend.title) {
-            container.append("text")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("font-size", legend.titleFontSize)
-                .attr("dominant-baseline", "hanging")
-                .text(legend.title);
+            shapes.push({
+                type: "text",
+                x: 0,
+                y: 0,
+                fontSize: legend.titleFontSize,
+                anchor: "start",
+                content: legend.title
+            });
         }
 
         // Render the palette that the grid itself uses instead of a smooth gradient, so that the legend also shows how
@@ -415,23 +434,26 @@ export default class Heatmap {
         for (const [idx, color] of palette.entries()) {
             const x = idx * bucketWidth;
 
-            container.append("rect")
-                .attr("x", x)
-                .attr("y", barTop)
+            shapes.push({
+                type: "rect",
+                x: x,
+                y: barTop,
                 // Overlap the next bucket, since fractional widths otherwise leave hairlines between the buckets.
-                .attr("width", Math.min(bucketWidth + 1, barWidth - x))
-                .attr("height", legend.height)
-                .attr("fill", color);
+                width: Math.min(bucketWidth + 1, barWidth - x),
+                height: legend.height,
+                fill: color
+            });
         }
 
-        // The color for the lowest value is a very light one by default, so outline the bar to keep it visible.
-        container.append("rect")
-            .attr("x", 0.5)
-            .attr("y", barTop + 0.5)
-            .attr("width", barWidth - 1)
-            .attr("height", legend.height - 1)
-            .attr("fill", "none")
-            .attr("stroke", "rgba(0, 0, 0, 0.2)");
+        shapes.push({
+            type: "rect",
+            x: 0.5,
+            y: barTop + 0.5,
+            width: barWidth - 1,
+            height: legend.height - 1,
+            fill: "none",
+            stroke: LEGEND_OUTLINE_COLOR
+        });
 
         const scale = d3.scaleLinear().domain([0, 1]).range([0, barWidth]);
         const ticks = scale.ticks(legend.ticks);
@@ -440,27 +462,107 @@ export default class Heatmap {
         for (const [idx, tick] of ticks.entries()) {
             const x = scale(tick);
 
-            container.append("line")
-                .attr("x1", x)
-                .attr("y1", ticksTop)
-                .attr("x2", x)
-                .attr("y2", ticksTop + LEGEND_TICK_LENGTH)
-                .attr("stroke", this.settings.labelColor);
+            shapes.push({
+                type: "line",
+                x1: x,
+                y1: ticksTop,
+                x2: x,
+                y2: ticksTop + LEGEND_TICK_LENGTH,
+                stroke: this.settings.labelColor
+            });
 
-            container.append("text")
-                .attr("x", x)
-                .attr("y", ticksTop + LEGEND_LABEL_SPACING)
-                .attr("font-size", legend.labelFontSize)
-                .attr("dominant-baseline", "hanging")
+            shapes.push({
+                type: "text",
+                x: x,
+                y: ticksTop + LEGEND_LABEL_SPACING,
+                fontSize: legend.labelFontSize,
                 // Anchor the outermost labels to the ends of the bar, otherwise they are clipped by the legend.
-                .attr("text-anchor", idx === 0 ? "start" : idx === ticks.length - 1 ? "end" : "middle")
-                .text(legend.tickFormat(tick));
+                anchor: idx === 0 ? "start" : idx === ticks.length - 1 ? "end" : "middle",
+                content: legend.tickFormat(tick)
+            });
+        }
+
+        return shapes;
+    }
+
+    /**
+     * Render the color bar that maps the colors used by the grid onto the values they represent. Does nothing when the
+     * legend is disabled.
+     */
+    private renderLegend() {
+        if (!this.legendElement) {
+            return;
+        }
+
+        const legend = this.settings.legend;
+        const height = this.legendHeight();
+
+        this.legendElement
+            .attr("width", this.settings.width)
+            .attr("height", height)
+            .attr("style", `display: block; width: ${this.settings.width}px; height: ${height}px`);
+
+        this.legendElement.selectAll("*").remove();
+
+        const container = this.legendElement
+            .append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${legend.padding.left}, ${legend.padding.top})`)
+            .attr("font-family", LEGEND_FONT_FAMILY)
+            .attr("fill", this.settings.labelColor);
+
+        for (const shape of this.computeLegendShapes(this.legendBarWidth(this.settings.width))) {
+            if (shape.type === "rect") {
+                container.append("rect")
+                    .attr("x", shape.x)
+                    .attr("y", shape.y)
+                    .attr("width", shape.width)
+                    .attr("height", shape.height)
+                    .attr("fill", shape.fill)
+                    .attr("stroke", shape.stroke ?? null);
+            } else if (shape.type === "line") {
+                container.append("line")
+                    .attr("x1", shape.x1)
+                    .attr("y1", shape.y1)
+                    .attr("x2", shape.x2)
+                    .attr("y2", shape.y2)
+                    .attr("stroke", shape.stroke);
+            } else {
+                container.append("text")
+                    .attr("x", shape.x)
+                    .attr("y", shape.y)
+                    .attr("font-size", shape.fontSize)
+                    .attr("text-anchor", shape.anchor)
+                    .attr("dominant-baseline", "hanging")
+                    .text(shape.content);
+            }
         }
     }
 
     /**
+     * Convert the shapes of a legend into the corresponding SVG-elements.
+     *
+     * @param shapes Shapes that were computed by computeLegendShapes.
+     * @return A string with one SVG-element per given shape.
+     */
+    private legendShapesToSVG(shapes: LegendShape[]): string {
+        return shapes.map(shape => {
+            if (shape.type === "rect") {
+                const stroke = shape.stroke ? ` stroke="${shape.stroke}"` : "";
+
+                return `<rect x="${shape.x}" y="${shape.y}" width="${shape.width}" height="${shape.height}" fill="${shape.fill}"${stroke}></rect>`;
+            } else if (shape.type === "line") {
+                return `<line x1="${shape.x1}" y1="${shape.y1}" x2="${shape.x2}" y2="${shape.y2}" stroke="${shape.stroke}"></line>`;
+            } else {
+                return `<text x="${shape.x}" y="${shape.y}" font-size="${shape.fontSize}" text-anchor="${shape.anchor}" dominant-baseline="hanging">${shape.content}</text>`;
+            }
+        }).join("\n");
+    }
+
+    /**
      * Convert the heatmap to an SVG-string that can easily be downloaded as a valid SVG-file. Note that the current
-     * positioning and zooming level of the heatmap will not be taken into account (but clustering will!).
+     * positioning and zooming level of the heatmap will not be taken into account (but clustering will!). The legend
+     * is part of the produced SVG whenever it is enabled.
      *
      * Note that this function can take a while to compute for larger heatmaps. It is recommended to start this
      * function in a dedicated worker in order not to block the main JS thread.
@@ -552,9 +654,33 @@ export default class Heatmap {
             }
         }
 
+        // The legend is placed underneath the labels, at the size it also has on screen, and grows the exported image
+        // instead of overlapping it.
+        let legendContents = "";
+        let legendHeight = 0;
+
+        if (this.settings.enableLegend) {
+            const legend = this.settings.legend;
+
+            legendHeight = this.legendHeight();
+            const shapes = this.computeLegendShapes(this.legendBarWidth(maximumWidth));
+
+            legendContents = `
+                <g
+                    class="legend"
+                    transform="translate(${legend.padding.left}, ${maximumHeight + legend.padding.top})"
+                    font-family="${LEGEND_FONT_FAMILY}"
+                    fill="${this.settings.labelColor}"
+                >
+                    ${this.legendShapesToSVG(shapes)}
+                </g>
+            `;
+        }
+
         return `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${Math.ceil(maximumWidth)}" height="${Math.ceil(maximumHeight)}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="${Math.ceil(maximumWidth)}" height="${Math.ceil(maximumHeight + legendHeight)}">
                 ${svgContents}
+                ${legendContents}
             </svg>
         `;
     }
