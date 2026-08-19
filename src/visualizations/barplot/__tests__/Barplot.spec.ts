@@ -173,21 +173,35 @@ describe("Barplot", () => {
     });
 
     it("should keep the defaults of the nested settings that are not given", async() => {
-        const jsDom = createTestDom();
-        const element = jsDom.window.document.getElementById("visualization")!;
-
-        // A plain object literal is what a user of the library passes in, and it only mentions what it changes.
-        const settings = {
-            legend: { title: "Taxa" },
-            chart: { padding: { left: 40 } }
+        // A plain object literal is what a user of the library passes in, and it only mentions what it changes. The
+        // cast is what that costs in TypeScript: the constructor asks for a complete BarplotSettings.
+        const overrides = {
+            chart: { padding: { left: 40 } },
+            legend: { titleFontSize: 40 }
         } as unknown as BarplotSettings;
 
-        const barplot = new Barplot(element, bars(), settings);
+        const withDefaults = createTestDom();
+        await createBarplot(withDefaults, new BarplotSettings());
 
-        await waitForCondition(() => element.getElementsByClassName("barplot-item").length > 0, 2000, 500);
+        const withOverrides = createTestDom();
+        await createBarplot(withOverrides, overrides);
 
-        expect(barplot).toBeDefined();
-        expect(element.getElementsByClassName("barplot-item").length).toBeGreaterThan(0);
+        const barLabel = (jsDom: JSDOM) =>
+            jsDom.window.document.querySelector(".barLabels text")!;
+        const legendTitle = (jsDom: JSDOM) => Array.from(
+            jsDom.window.document.getElementsByTagName("text")
+        ).find(text => text.textContent === "Legend")!;
+
+        // The override reaches the render.
+        expect(barLabel(withOverrides).getAttribute("x")).toEqual("40");
+        expect(legendTitle(withOverrides).getAttribute("font-size")).toEqual("40");
+
+        // Everything the override did not mention keeps its default. The vertical position of a bar label is built
+        // from chart.padding.top, which is only reachable if overriding `left` alone left the rest of the padding
+        // object intact.
+        expect(barLabel(withOverrides).getAttribute("y")).toEqual(barLabel(withDefaults).getAttribute("y"));
+        expect(barLabel(withDefaults).getAttribute("x")).toEqual("10");
+        expect(legendTitle(withDefaults).getAttribute("font-size")).toEqual("24");
     });
 
     afterAll(async() => {
