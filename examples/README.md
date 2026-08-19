@@ -31,3 +31,17 @@ the same server.
 | `barplot-taxonomy.html` | A stacked barplot |
 | `heatmap-random.html` | Randomly generated values |
 | `heatmap-clusters.html` | A CSV of pre-clustered values |
+
+## How a page is put together
+
+`index.html` is the gallery; every other page is one example. They share two
+files and have no styles or scripts of their own:
+
+- `examples.css` — the whole theme, for the gallery and the example pages
+  alike. It is the only place colours, spacing and dark mode are defined.
+- `examples.js` — prints each example's own module script into its "Source"
+  block, so the code on the page is by construction the code that ran.
+
+An example page is therefore its `<h1>`, a paragraph on what it shows and which
+settings it passes, a `<figure class="stage">` for the visualization to render
+into, and the module script that builds it.

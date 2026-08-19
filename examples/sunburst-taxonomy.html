@@ -1,33 +1,67 @@
-<html>
-    <head>
-        <title>Sunburst example</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Sunburst of a taxonomic tree &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    </head>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Sunburst &middot; Taxonomy</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs &rarr;</a></span>
+  </div>
+</header>
 
-    <body>
-        <div id="d3Sunburst"></div>
+<main class="wrap example">
+  <h1>Sunburst of a taxonomic tree</h1>
+  <p class="lede">The same taxonomy as concentric rings, one ring per level, so every depth is visible at once. Click
+    an arc to re-root the sunburst on it. <code>useFixedColors</code> draws from a fixed palette instead
+    of handing out colours in the order nodes are met, and <code>fixedColorHash</code> keys that palette
+    on name <em>and</em> rank, so a taxon keeps its colour across datasets. <code>getTooltipText</code>
+    replaces the default hit count with Unipept's own sequence counts.</p>
 
-        <script type="module">
-            import { Sunburst, StringUtils } from "../dist/unipept-visualizations.js";
+  <figure class="stage"><div id="d3Sunburst"></div></figure>
 
-            d3.json("data/taxonomy.json").then(data => {
-                new Sunburst(
-                    document.getElementById("d3Sunburst"),
-                    data,
-                    {
-                        getTooltipText: (d) => {
-                            let numberFormat = d3.format(",d");
-                            return numberFormat(!d.selfCount ? "0" : d.selfCount) + (d.selfCount && d.selfCount === 1 ? " sequence" : " sequences") +
-                                " specific to this level<br/>" + numberFormat(!d.count ? "0" : d.count) + (d.count && d.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
-                        },
-                        width: 600,
-                        height: 600,
-                        fixedColors: true,
-                        fixedColorHash: (d) => StringUtils.stringHash(d.name + " " + d.extra.rank)
-                    }
-                );
-            });
-        </script>
-    </body>
+<script type="module" data-source>
+    import { Sunburst, StringUtils } from "../dist/unipept-visualizations.js";
+
+    d3.json("data/taxonomy.json").then(data => {
+        const numberFormat = d3.format(",d");
+        const sequences = count => `${numberFormat(count ?? 0)} ${count === 1 ? "sequence" : "sequences"}`;
+
+        new Sunburst(
+            document.getElementById("d3Sunburst"),
+            data,
+            {
+                width: 600,
+                height: 600,
+                useFixedColors: true,
+                fixedColorHash: d => StringUtils.stringHash(d.name + " " + d.extra.rank),
+                getTooltipText: d =>
+                    `${sequences(d.selfCount)} specific to this level<br/>` +
+                    `${sequences(d.count)} specific to this level or lower`
+            }
+        );
+    });
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>

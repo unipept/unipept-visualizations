@@ -1,30 +1,57 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Treemap of the flare hierarchy &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-    <head>
-        <title>Treemap example</title>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Treemap &middot; Flare</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treemap">Docs &rarr;</a></span>
+  </div>
+</header>
 
-        <!-- D3 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    </head>
+<main class="wrap example">
+  <h1>Treemap of the flare hierarchy</h1>
+  <p class="lede">D3's <em>flare</em> sample data with nothing configured beyond a size, so the treemap uses its
+    defaults throughout: node depth drives the colour, which runs from
+    <code>colorRoot</code> to <code>colorLeaf</code>, and tooltips are on.</p>
 
-    <body>
-        <div id="d3Treemap"></div>
-        <script type="module">
-            import {Treemap} from "../dist/unipept-visualizations.js";
+  <figure class="stage"><div id="d3Treemap"></div></figure>
 
-            d3.json("data/flare.json")
-                .then(data => {
+<script type="module" data-source>
+    import { Treemap } from "../dist/unipept-visualizations.js";
 
-                    const treemap = new Treemap(
-                        document.getElementById("d3Treemap"),
-                        data,
-                        {
-                            width: 900,
-                            height: 600
-                        },
-                    );
-                });
-        </script>
-    </body>
+    d3.json("data/flare.json").then(data => {
+        new Treemap(
+            document.getElementById("d3Treemap"),
+            data,
+            {
+                width: 900,
+                height: 600
+            }
+        );
+    });
+</script>
 
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>

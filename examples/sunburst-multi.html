@@ -1,64 +1,93 @@
-<html>
-    <head>
-        <title>Sunburst example</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Three sunbursts on one page &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-        <><!-- D3 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Sunburst &middot; Several at once</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs &rarr;</a></span>
+  </div>
+</header>
 
-        <script type="module">
-            import {Sunburst, StringUtils} from "../dist/unipept-visualizations.js";
+<main class="wrap example">
+  <h1>Three sunbursts on one page</h1>
+  <p class="lede">Three datasets, three sunbursts, one page. The first is a taxonomy with fixed colours keyed on name
+    and rank and a custom tooltip; the second is a single family left entirely on the defaults, so its
+    colours are blended from the level below; the third is the flare hierarchy with tooltips off.</p>
 
-            d3.json("data/taxonomy.json").then(data => {
-                const sunburst = new Sunburst(
-                    document.getElementById("sunburst1"),
-                    data,
-                    {
-                        getTooltipText: (d) => {
-                            let numberFormat = d3.format(",d");
-                            return numberFormat(!d.selfCount ? "0" : d.selfCount) + (d.selfCount && d.selfCount === 1 ? " sequence" : " sequences") +
-                                " specific to this level<br/>" + numberFormat(!d.count ? "0" : d.count) + (d.count && d.count === 1 ? " sequence" : " sequences") + " specific to this level or lower";
-                        },
-                        width: 900,
-                        height: 400,
-                        fixedColors: true,
-                        fixedColorHash: (d) => StringUtils.stringHash(d.name + " " + d.extra.rank)
-                    }
-                );
-            });
+  <figure class="stage">
+    <div id="sunburst1"></div>
+    <div id="sunburst2"></div>
+    <div id="sunburst3"></div>
+  </figure>
 
-            d3.json("data/family.json").then(data => {
-                new Sunburst(
-                    document.getElementById("sunburst2"),
-                    data,
-                    {
-                        width: 900,
-                        height: 400
-                    }
-                );
-            });
+<script type="module" data-source>
+    import { Sunburst, StringUtils } from "../dist/unipept-visualizations.js";
 
-            d3.json("data/flare.json").then(data => {
-                new Sunburst(
-                    document.getElementById("sunburst3"),
-                    data,
-                    {
-                        width: 900,
-                        height: 400,
-                        enableTooltips: false,
-                        fixedColors: true
-                    }
-                );
-            });
-        </script>
-    </head>
+    d3.json("data/taxonomy.json").then(data => {
+        const numberFormat = d3.format(",d");
+        const sequences = count => `${numberFormat(count ?? 0)} ${count === 1 ? "sequence" : "sequences"}`;
 
-    <body>
-        <div id="sunburst1"></div>
-        <div id="sunburst2"></div>
-        <div id="sunburst3"></div>
+        new Sunburst(
+            document.getElementById("sunburst1"),
+            data,
+            {
+                width: 900,
+                height: 400,
+                useFixedColors: true,
+                fixedColorHash: d => StringUtils.stringHash(d.name + " " + d.extra.rank),
+                getTooltipText: d =>
+                    `${sequences(d.selfCount)} specific to this level<br/>` +
+                    `${sequences(d.count)} specific to this level or lower`
+            }
+        );
+    });
 
-        <script>
+    d3.json("data/family.json").then(data => {
+        new Sunburst(
+            document.getElementById("sunburst2"),
+            data,
+            {
+                width: 900,
+                height: 400
+            }
+        );
+    });
 
-        </script>
-    </body>
+    d3.json("data/flare.json").then(data => {
+        new Sunburst(
+            document.getElementById("sunburst3"),
+            data,
+            {
+                width: 900,
+                height: 400,
+                enableTooltips: false,
+                useFixedColors: true
+            }
+        );
+    });
+</script>
+
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>

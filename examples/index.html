@@ -3,207 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>Unipept Visualizations</title>
 <meta name="description" content="Reusable D3 visualizations for hierarchical and matrix biological data: treeview, treemap, sunburst, heatmap and barplot.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #ffffff;
-    --bg-raised: #f7f7f9;
-    --bg-sunken: #eeeef2;
-    --text: #16161a;
-    --text-dim: #5b5b66;
-    --border: #dcdce4;
-    --accent: #a0248c;
-    --accent-text: #ffffff;
-    --shadow: 0 1px 2px rgba(20, 20, 30, .06), 0 8px 24px rgba(20, 20, 30, .06);
-    --shadow-hover: 0 2px 4px rgba(20, 20, 30, .08), 0 16px 40px rgba(20, 20, 30, .12);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #101014;
-      --bg-raised: #18181e;
-      --bg-sunken: #0b0b0e;
-      --text: #f2f2f5;
-      --text-dim: #a0a0ae;
-      --border: #2a2a34;
-      --accent: #f472d0;
-      --accent-text: #1a0417;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
-      --shadow-hover: 0 2px 4px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .45);
-    }
-  }
-
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-  }
-  a { color: inherit; }
-
-  /* Axis-specific only: `.wrap` also matches <main> and <footer> and
-     out-specifies them, so a `margin`/`padding` shorthand here would silently
-     drop whatever block-axis spacing those elements set for themselves. */
-  .wrap { margin-inline: auto; max-width: 70rem; padding-inline: 1.5rem; }
-
-  /* ---------- hero ---------- */
-  header {
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-raised);
-    padding: 4.5rem 0 3.5rem;
-  }
-  h1 {
-    font-size: clamp(2rem, 5.5vw, 3.25rem);
-    font-weight: 700;
-    letter-spacing: -.025em;
-    line-height: 1.1;
-    margin: 0 0 1rem;
-  }
-  .tagline {
-    color: var(--text-dim);
-    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
-    margin: 0 0 2rem;
-    max-width: 46rem;
-  }
-  .tagline strong { color: var(--text); font-weight: 500; }
-
-  .actions { align-items: center; display: flex; flex-wrap: wrap; gap: .75rem; }
-  code.install {
-    background: var(--bg-sunken);
-    border: 1px solid var(--border);
-    border-radius: .5rem;
-    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: .9rem;
-    max-width: 100%;
-    overflow-x: auto;
-    padding: .6rem .9rem;
-    white-space: nowrap;
-  }
-  code.install::before { color: var(--text-dim); content: "$ "; }
-  .btn {
-    border: 1px solid var(--border);
-    border-radius: .5rem;
-    font-size: .9rem;
-    font-weight: 500;
-    padding: .6rem 1rem;
-    text-decoration: none;
-    transition: background .15s, border-color .15s;
-  }
-  .btn:hover { background: var(--bg-sunken); border-color: var(--text-dim); }
-  .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--accent-text);
-  }
-  .btn-primary:hover { background: var(--accent); border-color: var(--accent); filter: brightness(1.1); }
-
-  /* ---------- gallery ---------- */
-  main { padding-block: 4rem 1rem; }
-  .section-label {
-    align-items: baseline;
-    color: var(--text-dim);
-    display: flex;
-    font-size: .78rem;
-    font-weight: 500;
-    gap: 1rem;
-    letter-spacing: .09em;
-    margin: 0 0 1.75rem;
-    text-transform: uppercase;
-  }
-  .section-label::after {
-    background: var(--border);
-    content: "";
-    flex: 1 1 1.5rem;
-    height: 1px;
-    min-width: 1.5rem;
-  }
-  .grid {
-    display: grid;
-    gap: 1.75rem;
-    /* min() so a 20rem track cannot outgrow a narrower viewport. */
-    grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
-    margin: 0;
-    padding: 0;
-  }
-  .card {
-    background: var(--bg-raised);
-    border: 1px solid var(--border);
-    border-radius: .75rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: box-shadow .2s, transform .2s;
-  }
-  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-  .card.wide { grid-column: 1 / -1; }
-
-  .thumb {
-    background: #fff;
-    border-bottom: 1px solid var(--border);
-    display: block;
-    overflow: hidden;
-  }
-  .thumb img {
-    aspect-ratio: var(--thumb-aspect, 16 / 10);
-    display: block;
-    object-fit: contain;
-    padding: .5rem;
-    transition: transform .3s ease;
-    width: 100%;
-  }
-  .card:hover .thumb img { transform: scale(1.015); }
-
-  .body { display: flex; flex-direction: column; flex: 1; gap: .5rem; padding: 1.25rem 1.35rem 1.35rem; }
-  .body h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
-  .body p { color: var(--text-dim); font-size: .93rem; margin: 0; }
-  .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    list-style: none;
-    margin: .5rem 0 0;
-    padding: 0;
-  }
-  .links a {
-    background: var(--bg-sunken);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    display: inline-block;
-    font-size: .82rem;
-    padding: .25rem .7rem;
-    text-decoration: none;
-    transition: background .15s, color .15s, border-color .15s;
-  }
-  .links a:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
-  .docs { margin-left: auto; }
-  .docs a { color: var(--text-dim); font-size: .82rem; text-decoration: none; }
-  .docs a:hover { color: var(--accent); text-decoration: underline; }
-  .card-foot { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .5rem; }
-
-  /* ---------- footer ---------- */
-  footer {
-    border-top: 1px solid var(--border);
-    color: var(--text-dim);
-    font-size: .88rem;
-    margin-top: 4rem;
-    padding-block: 2.5rem 3.5rem;
-  }
-  footer p { margin: 0 0 .6rem; }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" href="examples.css">
 </head>
 <body>
 
-<header>
+<header class="hero">
   <div class="wrap">
     <h1>Unipept Visualizations</h1>
     <p class="tagline">
@@ -220,7 +31,7 @@
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap gallery">
   <p class="section-label">Live examples</p>
   <ul class="grid">
 
@@ -230,12 +41,13 @@
         <h2>Treeview</h2>
         <p>A collapsible node&ndash;link tree. Best when you want to walk a hierarchy branch by branch and read the labels.</p>
         <div class="card-foot">
+          <p class="links-label">Open an example</p>
           <ul class="links">
             <li><a href="treeview-taxonomy.html">Taxonomy</a></li>
             <li><a href="treeview-flare.html">Flare</a></li>
-            <li><a href="treeview-multi.html">Multiple</a></li>
+            <li><a href="treeview-multi.html">Several at once</a></li>
           </ul>
-          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treeview">Docs</a></span>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treeview">Docs &rarr;</a></span>
         </div>
       </div>
     </li>
@@ -246,12 +58,13 @@
         <h2>Sunburst</h2>
         <p>Concentric rings, one per level. Shows how a hierarchy divides at every depth at once, and zooms on click.</p>
         <div class="card-foot">
+          <p class="links-label">Open an example</p>
           <ul class="links">
             <li><a href="sunburst-taxonomy.html">Taxonomy</a></li>
             <li><a href="sunburst-flare.html">Flare</a></li>
-            <li><a href="sunburst-multi.html">Multiple</a></li>
+            <li><a href="sunburst-multi.html">Several at once</a></li>
           </ul>
-          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs</a></span>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Sunburst">Docs &rarr;</a></span>
         </div>
       </div>
     </li>
@@ -262,12 +75,13 @@
         <h2>Treemap</h2>
         <p>Nested rectangles sized by count. The one to reach for when relative magnitude matters more than structure.</p>
         <div class="card-foot">
+          <p class="links-label">Open an example</p>
           <ul class="links">
             <li><a href="treemap-taxonomy.html">Taxonomy</a></li>
             <li><a href="treemap-flare.html">Flare</a></li>
-            <li><a href="treemap-multi.html">Multiple</a></li>
+            <li><a href="treemap-multi.html">Several at once</a></li>
           </ul>
-          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treemap">Docs</a></span>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treemap">Docs &rarr;</a></span>
         </div>
       </div>
     </li>
@@ -278,10 +92,11 @@
         <h2>Barplot</h2>
         <p>Stacked bars, one per sample, with categories aligned and coloured consistently so samples compare directly.</p>
         <div class="card-foot">
+          <p class="links-label">Open an example</p>
           <ul class="links">
             <li><a href="barplot-taxonomy.html">Taxonomy</a></li>
           </ul>
-          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Barplot">Docs</a></span>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Barplot">Docs &rarr;</a></span>
         </div>
       </div>
     </li>
@@ -292,11 +107,12 @@
         <h2>Heatmap</h2>
         <p>A canvas-rendered matrix with optional UPGMA clustering and dendrograms, which keeps up with grids of a few hundred by a few hundred cells.</p>
         <div class="card-foot">
+          <p class="links-label">Open an example</p>
           <ul class="links">
             <li><a href="heatmap-random.html">Random values</a></li>
             <li><a href="heatmap-clusters.html">Clustered CSV</a></li>
           </ul>
-          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs</a></span>
+          <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Heatmap">Docs &rarr;</a></span>
         </div>
       </div>
     </li>

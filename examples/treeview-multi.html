@@ -1,59 +1,90 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Three treeviews on one page &middot; Unipept Visualizations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%23a0248c%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="examples.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
 
-    <head>
-        <title>Treeview example</title>
+<header class="topbar">
+  <div class="wrap">
+    <a class="crumb-home" href="index.html">Examples</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb">Treeview &middot; Several at once</span>
+    <span class="docs"><a href="https://github.com/unipept/unipept-visualizations/wiki/Treeview">Docs &rarr;</a></span>
+  </div>
+</header>
 
-        <!-- D3 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    </head>
+<main class="wrap example">
+  <h1>Three treeviews on one page</h1>
+  <p class="lede">Each visualization owns the element it is given, so several can share a page without interfering.
+    The first is a taxonomy with <code>enableExpandOnClick: false</code>, which leaves it fixed at the
+    two levels it opens with. The second overrides <code>colorProvider</code> to paint every node the
+    same colour. The third is the flare hierarchy again, opening one level at a time.</p>
 
-    <body>
-        <div id="treeview1"></div>
-        <div id="treeview2"></div>
-        <div id="treeview3"></div>
+  <figure class="stage">
+    <div id="treeview1"></div>
+    <div id="treeview2"></div>
+    <div id="treeview3"></div>
+  </figure>
 
-        <script type="module">
-            import {Treeview} from "../dist/unipept-visualizations.js";
+<script type="module" data-source>
+    import { Treeview } from "../dist/unipept-visualizations.js";
 
-            d3.json("data/taxonomy.json").then(data => {
-                new Treeview(
-                    document.getElementById("treeview1"),
-                    data,
-                    {
-                        width: 900,
-                        height: 400,
-                        enableExpandOnClick: false,
-                        enableTooltips: false,
-                    }
-                )
-            });
+    d3.json("data/taxonomy.json").then(data => {
+        new Treeview(
+            document.getElementById("treeview1"),
+            data,
+            {
+                width: 900,
+                height: 400,
+                enableExpandOnClick: false,
+                enableTooltips: false
+            }
+        );
+    });
 
-            d3.json("data/family.json").then(data => {
-                new Treeview(
-                    document.getElementById("treeview2"),
-                    data,
-                    {
-                        colors: "steelblue",
-                        width: 900,
-                        height: 400
-                    }
-                )
-            });
+    d3.json("data/family.json").then(data => {
+        new Treeview(
+            document.getElementById("treeview2"),
+            data,
+            {
+                width: 900,
+                height: 400,
+                colorProvider: () => "steelblue"
+            }
+        );
+    });
 
-            d3.json("data/flare.json").then(data => {
-                new Treeview(
-                    document.getElementById("treeview3"),
-                    data,
-                    {
-                        levelsToExpand: 1,
-                        width: 900,
-                        height: 400,
-                        enableExpandOnClick: false,
-                        enableTooltips: false,
-                    }
-                )
-            });
-        </script>
-    </body>
+    d3.json("data/flare.json").then(data => {
+        new Treeview(
+            document.getElementById("treeview3"),
+            data,
+            {
+                width: 900,
+                height: 400,
+                levelsToExpand: 1,
+                enableExpandOnClick: false,
+                enableTooltips: false
+            }
+        );
+    });
+</script>
 
+  <section class="source">
+    <p class="section-label">Source</p>
+    <pre><code data-source-target></code></pre>
+  </section>
+</main>
+
+<script type="module" src="examples.js"></script>
+</body>
 </html>
