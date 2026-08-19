@@ -50,6 +50,13 @@ export default class Sunburst {
      */
     private readonly textKeys: Map<HRN<DataNode>, string> = new Map();
 
+    /**
+     * Incremented on every reroot. A render whose animation is interrupted by a
+     * newer one must not publish the view it was drawing afterwards, or the next
+     * render joins its labels on a view that is no longer on screen.
+     */
+    private renderGeneration: number = 0;
+
     private previousRoot: HRN<DataNode> | null = null;
     private previousMaxLevel: number = this.currentMaxLevel;
 
@@ -367,6 +374,7 @@ export default class Sunburst {
 
         // perform animation
         this.currentMaxLevel = d.depth + this.settings.levels;
+        this.renderGeneration++;
 
         this.renderArcs(d);
         this.renderText(d);
@@ -433,6 +441,8 @@ export default class Sunburst {
     }
 
     private async renderText(parentNode: HRN<DataNode>) {
+        const generation = this.renderGeneration;
+
         const filteredData = this.data.filter((e: HRN<DataNode>) => {
             return NodeUtils.isParentOf(parentNode, e, this.currentMaxLevel);
         });
@@ -542,7 +552,9 @@ export default class Sunburst {
                 });
         });
 
-        this.textData = filteredData;
+        if (generation === this.renderGeneration) {
+            this.textData = filteredData;
+        }
     }
 
     private setBreadcrumbs(d: HRN<DataNode>) {
