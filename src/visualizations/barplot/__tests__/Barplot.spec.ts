@@ -76,9 +76,20 @@ describe("Barplot", () => {
         const jsDom = createTestDom();
         await createBarplot(jsDom, new BarplotSettings());
 
-        // "Other" is always appended by the preprocessor, even when empty.
+        // Nothing was binned into "Other" here, so it is not in the legend.
         expect(new Set(legendLabels(jsDom))).toEqual(
-            new Set(["Bacteria", "Eukaryota", "Archaea", "Other"])
+            new Set(["Bacteria", "Eukaryota", "Archaea"])
+        );
+    });
+
+    it("should list Other in the legend once something is binned into it", async() => {
+        const jsDom = createTestDom();
+        const settings = new BarplotSettings();
+        settings.maxItems = 2;
+        await createBarplot(jsDom, settings);
+
+        expect(new Set(legendLabels(jsDom))).toEqual(
+            new Set(["Bacteria", "Eukaryota", "Other"])
         );
     });
 
