@@ -47,7 +47,7 @@
         "@types/jsdom": "^30.0.0",
         "@typescript-eslint/eslint-plugin": "^8.67.0",
         "@typescript-eslint/parser": "^8.67.0",
-        "@vitest/ui": "^4.1.11",
+        "@vitest/ui": "^5.0.2",
         "canvas": "^3.2.3",
         "d3": "^7.9.0",
         "eslint": "^10.8.1",
@@ -59,7 +59,7 @@
         "typescript": "npm:@typescript/typescript6@^6.0.2",
         "vite": "^8.2.1",
         "vite-plugin-dts": "^5.0.3",
-        "vitest": "^4.1.11"
+        "vitest": "^5.0.2"
     },
     "allowScripts": {
         "canvas": true
