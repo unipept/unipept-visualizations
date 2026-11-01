@@ -53,7 +53,7 @@
         "eslint": "^10.8.1",
         "flush-promises": "^1.0.2",
         "jsdom": "^30.0.1",
-        "pixelmatch": "^7.2.0",
+        "pixelmatch": "^8.0.0",
         "pngjs": "^7.0.0",
         "puppeteer": "^25.8.0",
         "typescript": "npm:@typescript/typescript6@^6.0.2",
